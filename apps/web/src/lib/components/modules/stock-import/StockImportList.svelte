@@ -105,14 +105,11 @@
 				</Table.Header>
 				<Table.Body>
 					{#each invoices as inv (inv._id)}
-						<Table.Row>
+						<Table.Row class="cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900/30" onclick={() => { window.location.href = `/stock-import/${inv._id}`; }}>
 							<Table.Cell class="font-mono text-sm">
-								<a
-									href="/invoices/{inv._id}"
-									class="font-medium hover:text-zinc-900 hover:underline dark:hover:text-zinc-100"
-								>
+								<span class="font-medium">
 									{inv.invoiceNumber ?? '—'}
-								</a>
+								</span>
 							</Table.Cell>
 							<Table.Cell class="text-zinc-600 dark:text-zinc-400">
 								{getPartyName(inv.partyId)}

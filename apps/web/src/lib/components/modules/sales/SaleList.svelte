@@ -79,7 +79,7 @@
 			</Table.Header>
 			<Table.Body>
 				{#each sales as sale}
-					<Table.Row class="hover:bg-zinc-50 dark:hover:bg-zinc-900/30">
+					<Table.Row class="cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900/30" onclick={() => { window.location.href = `/sales/${sale._id}`; }}>
 						<Table.Cell class="text-sm text-zinc-700 dark:text-zinc-300">
 							{formatDate(sale.issuedAt)}
 						</Table.Cell>
