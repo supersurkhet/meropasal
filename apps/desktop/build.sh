@@ -2,15 +2,15 @@
 set -euo pipefail
 
 # MeroPasal Desktop Build Script
-# Prerequisites: Rust toolchain, Node.js, system dependencies for Tauri
+# Prerequisites: Rust toolchain, Node.js, bun, system dependencies for Tauri
 # See: https://v2.tauri.app/start/prerequisites/
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 echo "==> Building MeroPasal web app..."
-cd "$ROOT_DIR/apps/web"
-npm run build 2>/dev/null || pnpm build 2>/dev/null || echo "Web build skipped (run from monorepo root with 'turbo build')"
+cd "$ROOT_DIR"
+bun run --filter @meropasal/web build
 
 echo "==> Building Tauri desktop app..."
 cd "$SCRIPT_DIR"
@@ -18,11 +18,11 @@ cd "$SCRIPT_DIR"
 # Install JS dependencies if needed
 if [ ! -d "node_modules" ]; then
   echo "==> Installing dependencies..."
-  npm install 2>/dev/null || pnpm install
+  bun install
 fi
 
 # Build for current platform
-npx tauri build
+bunx tauri build
 
 echo "==> Build complete!"
 echo "Binaries available in: src-tauri/target/release/bundle/"

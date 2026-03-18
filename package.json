@@ -11,5 +11,9 @@
   },
   "devDependencies": {
     "turbo": "^2.8.18"
-  }
+  },
+  "dependencies": {
+    "convex": "^1.33.1"
+  },
+  "packageManager": "bun@1.3.9"
 }

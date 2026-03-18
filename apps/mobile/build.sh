@@ -2,15 +2,15 @@
 set -euo pipefail
 
 # MeroPasal Mobile Build Script
-# Prerequisites: Node.js, Android SDK, Java 17+
+# Prerequisites: Node.js, bun, Android SDK, Java 17+
 # See: https://capacitorjs.com/docs/getting-started/environment-setup
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 echo "==> Building MeroPasal web app..."
-cd "$ROOT_DIR/apps/web"
-npm run build 2>/dev/null || pnpm build 2>/dev/null || echo "Web build skipped (run from monorepo root with 'turbo build')"
+cd "$ROOT_DIR"
+bun run --filter @meropasal/web build
 
 echo "==> Preparing mobile app..."
 cd "$SCRIPT_DIR"
@@ -18,18 +18,18 @@ cd "$SCRIPT_DIR"
 # Install dependencies if needed
 if [ ! -d "node_modules" ]; then
   echo "==> Installing dependencies..."
-  npm install 2>/dev/null || pnpm install
+  bun install
 fi
 
 # Add Android platform if not present
 if [ ! -d "android" ]; then
   echo "==> Adding Android platform..."
-  npx cap add android
+  bunx cap add android
 fi
 
 # Sync web assets to native project
 echo "==> Syncing web assets..."
-npx cap sync android
+bunx cap sync android
 
 # Build debug APK
 echo "==> Building Android APK..."
