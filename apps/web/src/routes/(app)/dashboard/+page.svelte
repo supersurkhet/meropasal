@@ -5,6 +5,7 @@
 	import { api } from '$lib/api';
 	import { formatNPR } from '$lib/currency';
 	import * as Table from '$lib/components/ui/table';
+	import { t } from '$lib/t';
 	import {
 		LayoutDashboard,
 		TrendingUp,
@@ -68,7 +69,7 @@
 	const netIncomePositive = $derived((d?.netIncome ?? 0) >= 0);
 </script>
 
-<MetaTags title="Dashboard — MeroPasal" />
+<MetaTags title="{t('dashboard_title')} — {t('app_name')}" />
 
 <div class="p-6 lg:p-8">
 	<!-- Header -->
@@ -81,13 +82,13 @@
 			</div>
 			<div>
 				<h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
-					Dashboard
+					{t('dashboard_title')}
 				</h1>
 				<p class="text-sm text-zinc-500 dark:text-zinc-400">
 					{#if currentFY.data}
-						Fiscal Year {currentFY.data} &middot;
+						{t('fiscal_year')} {currentFY.data} &middot;
 					{/if}
-					Business overview at a glance
+					{t('dashboard_subtitle')}
 				</p>
 			</div>
 		</div>
@@ -97,7 +98,7 @@
 		<div class="flex items-center justify-center py-24 text-zinc-500">
 			<div class="size-6 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-600"
 			></div>
-			<span class="ml-3 text-sm">Loading dashboard...</span>
+			<span class="ml-3 text-sm">{t('dashboard_loading')}</span>
 		</div>
 	{:else if d}
 		<!-- KPI Cards -->
@@ -122,7 +123,7 @@
 				<p class="text-2xl font-bold tabular-nums text-zinc-900 dark:text-zinc-100">
 					{formatNPR(d.totalRevenue, true)}
 				</p>
-				<p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Total Revenue</p>
+				<p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{t('dashboard_total_revenue')}</p>
 			</div>
 
 			<!-- Expenses -->
@@ -145,7 +146,7 @@
 				<p class="text-2xl font-bold tabular-nums text-zinc-900 dark:text-zinc-100">
 					{formatNPR(d.totalExpenses, true)}
 				</p>
-				<p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Total Expenses</p>
+				<p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{t('dashboard_total_expenses')}</p>
 			</div>
 
 			<!-- Net Income -->
@@ -169,7 +170,7 @@
 							? 'text-emerald-600 dark:text-emerald-400'
 							: 'text-red-600 dark:text-red-400'}"
 					>
-						{netIncomePositive ? 'Profit' : 'Loss'}
+						{netIncomePositive ? t('dashboard_profit') : t('dashboard_loss')}
 					</span>
 				</div>
 				<p
@@ -179,7 +180,7 @@
 				>
 					{formatNPR(Math.abs(d.netIncome), true)}
 				</p>
-				<p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Net Income</p>
+				<p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{t('dashboard_net_income')}</p>
 			</div>
 
 			<!-- Low Stock -->
@@ -203,7 +204,7 @@
 							href="/reports/inventory"
 							class="text-xs font-medium text-amber-600 underline-offset-2 hover:underline dark:text-amber-400"
 						>
-							View details
+							{t('dashboard_view_details')}
 						</a>
 					{/if}
 				</div>
@@ -214,7 +215,7 @@
 				>
 					{d.lowStockCount}
 				</p>
-				<p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Low Stock Items</p>
+				<p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{t('dashboard_low_stock')}</p>
 			</div>
 		</div>
 
@@ -230,7 +231,7 @@
 					<Receipt class="size-5 text-blue-600 dark:text-blue-400" />
 				</div>
 				<div class="min-w-0 flex-1">
-					<p class="text-sm text-zinc-500 dark:text-zinc-400">Outstanding Receivables</p>
+					<p class="text-sm text-zinc-500 dark:text-zinc-400">{t('dashboard_outstanding_receivables')}</p>
 					<p class="text-lg font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
 						{formatNPR(d.outstandingReceivables)}
 					</p>
@@ -238,7 +239,7 @@
 				<a
 					href="/reports/financial"
 					class="text-xs text-blue-600 underline-offset-2 hover:underline dark:text-blue-400"
-					>Details →</a
+					>{t('dashboard_details')}</a
 				>
 			</div>
 
@@ -252,7 +253,7 @@
 					<ShoppingCart class="size-5 text-violet-600 dark:text-violet-400" />
 				</div>
 				<div class="min-w-0 flex-1">
-					<p class="text-sm text-zinc-500 dark:text-zinc-400">Outstanding Payables</p>
+					<p class="text-sm text-zinc-500 dark:text-zinc-400">{t('dashboard_outstanding_payables')}</p>
 					<p class="text-lg font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
 						{formatNPR(d.outstandingPayables)}
 					</p>
@@ -260,7 +261,7 @@
 				<a
 					href="/reports/financial"
 					class="text-xs text-violet-600 underline-offset-2 hover:underline dark:text-violet-400"
-					>Details →</a
+					>{t('dashboard_details')}</a
 				>
 			</div>
 		</div>
@@ -275,7 +276,7 @@
 					<div class="flex items-center gap-2">
 						<BarChart3 class="size-4 text-zinc-500" />
 						<h2 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-							Sales — Last 14 Days
+							{t('dashboard_sales_chart')}
 						</h2>
 					</div>
 					{#if recentSales.data}
@@ -287,7 +288,7 @@
 
 				{#if dailySales.length === 0}
 					<div class="flex h-48 items-center justify-center text-sm text-zinc-400">
-						No sales data for this period
+						{t('dashboard_no_sales_period')}
 					</div>
 				{:else}
 					<!-- CSS Bar Chart -->
@@ -322,23 +323,23 @@
 			>
 				<div class="mb-4 flex items-center justify-between">
 					<h2 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-						Top Selling Products
+						{t('dashboard_top_products')}
 					</h2>
 					<a
 						href="/reports/sales"
 						class="text-xs text-zinc-500 underline-offset-2 hover:underline"
 					>
-						View all →
+						{t('dashboard_view_all')}
 					</a>
 				</div>
 
 				{#if topProducts.isLoading}
 					<div class="flex h-48 items-center justify-center text-sm text-zinc-400">
-						Loading...
+						{t('common_loading')}
 					</div>
 				{:else if !topProducts.data?.length}
 					<div class="flex h-48 items-center justify-center text-sm text-zinc-400">
-						No sales data yet
+						{t('dashboard_no_sales_yet')}
 					</div>
 				{:else}
 					<div class="space-y-3">
@@ -380,25 +381,25 @@
 				href="/reports/sales"
 				class="rounded-xl border border-zinc-200 bg-white px-4 py-3 text-center text-sm font-medium text-zinc-700 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-zinc-700"
 			>
-				Sales Report
+				{t('report_sales')}
 			</a>
 			<a
 				href="/reports/inventory"
 				class="rounded-xl border border-zinc-200 bg-white px-4 py-3 text-center text-sm font-medium text-zinc-700 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-zinc-700"
 			>
-				Inventory Report
+				{t('report_inventory')}
 			</a>
 			<a
 				href="/reports/financial"
 				class="rounded-xl border border-zinc-200 bg-white px-4 py-3 text-center text-sm font-medium text-zinc-700 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-zinc-700"
 			>
-				Financial Report
+				{t('report_financial')}
 			</a>
 			<a
 				href="/sales/new"
 				class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-center text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-100 dark:border-emerald-900/50 dark:bg-emerald-900/20 dark:text-emerald-400 dark:hover:bg-emerald-900/30"
 			>
-				+ New Sale
+				{t('dashboard_new_sale')}
 			</a>
 		</div>
 	{/if}
