@@ -28,5 +28,8 @@ export const load: PageServerLoad = async ({ url, cookies }) => {
 		});
 	}
 
-	redirect(302, '/dashboard');
+	// New users go to onboarding; returning users to dashboard.
+	// We can't query Convex server-side easily, so we redirect to /onboarding
+	// which checks if the org is already set up and redirects to /dashboard if so.
+	redirect(302, '/onboarding');
 };
