@@ -3,7 +3,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Plus } from '@lucide/svelte';
 	import SaleList from '$lib/components/modules/sales/SaleList.svelte';
-	import { t } from '$lib/t';
+	import { t } from '$lib/t.svelte';
 </script>
 
 <MetaTags title={t('nav_sales')} />

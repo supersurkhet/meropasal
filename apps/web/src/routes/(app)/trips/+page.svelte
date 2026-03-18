@@ -5,7 +5,7 @@
 	import { api } from '$lib/api';
 	import TripList from '$lib/components/modules/logistics/TripList.svelte';
 	import { Truck } from '@lucide/svelte';
-	import { t } from '$lib/t';
+	import { t } from '$lib/t.svelte';
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 	const tripsQuery = useConvexQuery(client, api.functions.trips.list, () => ({}));

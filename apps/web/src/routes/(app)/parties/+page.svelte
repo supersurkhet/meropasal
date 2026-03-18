@@ -5,7 +5,7 @@
 	import { api } from '$lib/api';
 	import PartyList from '$lib/components/modules/parties/PartyList.svelte';
 	import { Users } from '@lucide/svelte';
-	import { t } from '$lib/t';
+	import { t } from '$lib/t.svelte';
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 	const partiesQuery = useConvexQuery(client, api.functions.parties.list, () => ({}));

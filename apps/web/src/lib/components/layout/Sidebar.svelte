@@ -27,7 +27,7 @@
 		TooltipProvider,
 	} from '$lib/components/ui/tooltip';
 	import { Button } from '$lib/components/ui/button';
-	import { t } from '$lib/t';
+	import { t } from '$lib/t.svelte';
 
 	type NavItem = {
 		labelKey: string;
@@ -123,7 +123,7 @@
 		</div>
 
 		<!-- Navigation -->
-		<nav class="flex-1 overflow-y-auto overflow-x-hidden px-2 py-3" role="navigation" aria-label="Main navigation">
+		<nav class="flex-1 overflow-y-auto overflow-x-hidden px-2 py-3" aria-label="Main navigation">
 			{#each navGroups as group, groupIndex}
 				{#if groupIndex > 0}
 					<Separator class="my-2 bg-zinc-200 dark:bg-zinc-800" />

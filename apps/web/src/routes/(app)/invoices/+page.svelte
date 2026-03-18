@@ -2,7 +2,7 @@
 	import { MetaTags } from 'svelte-meta-tags';
 	import InvoiceList from '$lib/components/modules/invoices/InvoiceList.svelte';
 	import { FileText } from '@lucide/svelte';
-	import { t } from '$lib/t';
+	import { t } from '$lib/t.svelte';
 </script>
 
 <MetaTags title={t('nav_invoices')} />

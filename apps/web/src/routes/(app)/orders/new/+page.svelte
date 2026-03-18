@@ -5,7 +5,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { ArrowLeft } from '@lucide/svelte';
 	import OrderForm from '$lib/components/modules/orders/OrderForm.svelte';
-	import { t } from '$lib/t';
+	import { t } from '$lib/t.svelte';
 </script>
 
 <MetaTags title={t('order_create')} />

@@ -4,7 +4,7 @@
 	import Breadcrumb from '$lib/components/shared/Breadcrumb.svelte';
 	import { Sheet, SheetContent, SheetTrigger } from '$lib/components/ui/sheet';
 	import { shortcuts } from '$lib/shortcuts';
-	import { t } from '$lib/t';
+	import { t } from '$lib/t.svelte';
 
 	let {
 		children,

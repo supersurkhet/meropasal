@@ -5,7 +5,7 @@
 	import { api } from '$lib/api';
 	import CustomerList from '$lib/components/modules/customers/CustomerList.svelte';
 	import { UserRound } from '@lucide/svelte';
-	import { t } from '$lib/t';
+	import { t } from '$lib/t.svelte';
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 	const customersQuery = useConvexQuery(client, api.functions.customers.list, () => ({}));

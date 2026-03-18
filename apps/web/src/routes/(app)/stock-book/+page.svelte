@@ -3,7 +3,7 @@
 	import StockAggregation from '$lib/components/modules/stock-book/StockAggregation.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Package, BookOpen, CalendarCheck } from '@lucide/svelte';
-	import { t } from '$lib/t';
+	import { t } from '$lib/t.svelte';
 </script>
 
 <MetaTags title={t('nav_stock_book')} />

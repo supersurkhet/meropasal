@@ -6,7 +6,7 @@ export default {
 	providers: [
 		{
 			// WorkOS issues JWTs with this domain
-			domain: process.env.WORKOS_DOMAIN ?? 'https://api.workos.com/',
+			domain: 'https://api.workos.com/',
 			applicationID: 'convex',
 		},
 	],

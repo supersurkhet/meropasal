@@ -5,7 +5,7 @@
 	import OrderList from '$lib/components/modules/orders/OrderList.svelte';
 	import OrderForm from '$lib/components/modules/orders/OrderForm.svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
-	import { t } from '$lib/t';
+	import { t } from '$lib/t.svelte';
 
 	let showNewOrder = $state(false);
 

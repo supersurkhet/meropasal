@@ -3,7 +3,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import ThemeToggle from './ThemeToggle.svelte';
 	import LanguageSwitcher from './LanguageSwitcher.svelte';
-	import { t } from '$lib/t';
+	import { t } from '$lib/t.svelte';
 
 	let { onToggleSidebar }: { onToggleSidebar: () => void } = $props();
 </script>

@@ -5,7 +5,7 @@
 	import { api } from '$lib/api';
 	import { formatNPR } from '$lib/currency';
 	import * as Table from '$lib/components/ui/table';
-	import { t } from '$lib/t';
+	import { t } from '$lib/t.svelte';
 	import {
 		LayoutDashboard,
 		TrendingUp,

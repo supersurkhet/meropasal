@@ -4,7 +4,7 @@
 	import TrialBalance from '$lib/components/modules/ledger/TrialBalance.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { BookText, Scale, List } from '@lucide/svelte';
-	import { t } from '$lib/t';
+	import { t } from '$lib/t.svelte';
 
 	let activeTab = $state<'entries' | 'trial-balance'>('entries');
 </script>

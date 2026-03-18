@@ -7,7 +7,7 @@
 	import VehicleForm from '$lib/components/modules/logistics/VehicleForm.svelte';
 	import InlineCreateDialog from '$lib/components/shared/InlineCreateDialog.svelte';
 	import { Car } from '@lucide/svelte';
-	import { t } from '$lib/t';
+	import { t } from '$lib/t.svelte';
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 	const vehiclesQuery = useConvexQuery(client, api.functions.vehicles.list, () => ({}));

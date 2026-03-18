@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { ChevronRight, Home } from '@lucide/svelte';
-	import { t } from '$lib/t';
+	import { t } from '$lib/t.svelte';
 
 	const segmentKeyMap: Record<string, string> = {
 		dashboard: 'nav_dashboard',

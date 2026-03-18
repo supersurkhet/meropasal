@@ -3,7 +3,7 @@
 	import OrgSettings from '$lib/components/modules/settings/OrgSettings.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Settings, Users, FileSliders } from '@lucide/svelte';
-	import { t } from '$lib/t';
+	import { t } from '$lib/t.svelte';
 </script>
 
 <MetaTags title={t('nav_settings')} />

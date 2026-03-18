@@ -7,7 +7,7 @@
 		DollarSign,
 		ArrowRight,
 	} from '@lucide/svelte';
-	import { t } from '$lib/t';
+	import { t } from '$lib/t.svelte';
 
 	const reports = [
 		{

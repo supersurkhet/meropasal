@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { currentLanguage } from '$lib/t'
+	import { currentLanguage } from '$lib/t.svelte'
 
 	function toggle() {
 		currentLanguage.value = currentLanguage.value === 'en' ? 'ne' : 'en'
