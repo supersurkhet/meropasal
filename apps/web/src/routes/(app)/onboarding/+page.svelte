@@ -1,10 +1,7 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { enhance } from '$app/forms';
 	import { MetaTags } from 'svelte-meta-tags';
 	import { Button } from '$lib/components/ui/button';
-	import { getConvexClient } from '$lib/convex';
-	import { api } from '$lib/api';
-	import type { FunctionReference } from 'convex/server';
 	import { toast } from 'svelte-sonner';
 	import {
 		Store,
@@ -20,44 +17,12 @@
 		Sparkles,
 	} from '@lucide/svelte';
 
-	let { data } = $props();
+	let { form } = $props();
 
-	// Check if org already set up
-	const client = getConvexClient();
-	let orgAlreadySetUp = $state(false);
-	let checkingOrg = $state(true);
-
+	// Show server-side errors
 	$effect(() => {
-		// Try to check if org is already set up, but handle the case
-		// where the user doesn't have an org yet (no orgId in JWT)
-		const timeout = setTimeout(() => {
-			// If the query hasn't resolved in 3 seconds, assume no org yet
-			if (checkingOrg) {
-				checkingOrg = false;
-			}
-		}, 3000);
-
-		try {
-			const unsubscribe = client.onUpdate(
-				api.functions.organizations.getSettings,
-				{},
-				(settings: unknown) => {
-					checkingOrg = false;
-					clearTimeout(timeout);
-					if (settings) {
-						orgAlreadySetUp = true;
-						goto('/dashboard');
-					}
-				},
-			);
-			return () => {
-				clearTimeout(timeout);
-				unsubscribe();
-			};
-		} catch {
-			// If query fails (no auth/no org), show the wizard
-			checkingOrg = false;
-			return () => clearTimeout(timeout);
+		if (form?.error) {
+			toast.error(form.error);
 		}
 	});
 
@@ -87,7 +52,7 @@
 
 	function canProceed(): boolean {
 		if (currentStep === 0) return businessName.trim().length > 0;
-		if (currentStep === 1) return true; // Location and contact are optional
+		if (currentStep === 1) return true;
 		if (currentStep === 2) return currentFiscalYear.trim().length > 0;
 		return false;
 	}
@@ -103,39 +68,29 @@
 			currentStep--;
 		}
 	}
-
-	async function handleSubmit() {
-		if (saving) return;
-		saving = true;
-		try {
-			await client.mutation(api.functions.organizations.initializeOrg, {
-				businessName: businessName.trim(),
-				businessType,
-				currentFiscalYear: currentFiscalYear.trim(),
-				location: location.trim() || undefined,
-				phone: phone.trim() || undefined,
-				panNumber: panNumber.trim() || undefined,
-			});
-			toast.success('Business setup complete!');
-			goto('/dashboard');
-		} catch (err) {
-			const message = err instanceof Error ? err.message : 'Failed to set up organization';
-			toast.error(message);
-			saving = false;
-		}
-	}
 </script>
 
 <MetaTags title="Set Up Your Business — MeroPasal" />
 
-{#if checkingOrg}
-	<div class="flex h-[80vh] items-center justify-center">
-		<div class="flex flex-col items-center gap-3">
-			<Loader2 class="size-6 animate-spin text-zinc-400" />
-			<p class="text-sm text-zinc-500">Checking your organization...</p>
-		</div>
-	</div>
-{:else if !orgAlreadySetUp}
+<form
+	method="POST"
+	action="?/createBusiness"
+	use:enhance={() => {
+		saving = true
+		return async ({ update }) => {
+			saving = false
+			await update()
+		}
+	}}
+>
+	<!-- Hidden fields to carry all form data -->
+	<input type="hidden" name="businessName" value={businessName} />
+	<input type="hidden" name="businessType" value={businessType} />
+	<input type="hidden" name="currentFiscalYear" value={currentFiscalYear} />
+	<input type="hidden" name="location" value={location} />
+	<input type="hidden" name="phone" value={phone} />
+	<input type="hidden" name="panNumber" value={panNumber} />
+
 	<div class="flex min-h-[80vh] items-center justify-center p-4">
 		<div class="w-full max-w-2xl">
 			<!-- Header -->
@@ -164,6 +119,7 @@
 					{#each steps as step, i}
 						<div class="flex flex-col items-center gap-2">
 							<button
+								type="button"
 								onclick={() => { if (i < currentStep) currentStep = i; }}
 								class="flex size-9 items-center justify-center rounded-full border-2 text-sm font-medium transition-all
 									{i < currentStep
@@ -216,6 +172,7 @@
 							<div class="grid gap-3 sm:grid-cols-3">
 								{#each businessTypes as bt}
 									<button
+										type="button"
 										onclick={() => { businessType = bt.value; }}
 										class="rounded-xl border-2 p-4 text-left transition-all
 											{businessType === bt.value
@@ -355,7 +312,7 @@
 				<!-- Navigation -->
 				<div class="mt-8 flex items-center justify-between border-t border-zinc-100 pt-6 dark:border-zinc-800">
 					{#if currentStep > 0}
-						<Button variant="ghost" onclick={prevStep}>
+						<Button type="button" variant="ghost" onclick={prevStep}>
 							<ChevronLeft class="size-4" />
 							Back
 						</Button>
@@ -364,12 +321,12 @@
 					{/if}
 
 					{#if currentStep < steps.length - 1}
-						<Button onclick={nextStep} disabled={!canProceed()}>
+						<Button type="button" onclick={nextStep} disabled={!canProceed()}>
 							Next
 							<ChevronRight class="size-4" />
 						</Button>
 					{:else}
-						<Button onclick={handleSubmit} disabled={!canProceed() || saving}>
+						<Button type="submit" disabled={!canProceed() || saving}>
 							{#if saving}
 								<Loader2 class="size-4 animate-spin" />
 								Setting up...
@@ -388,4 +345,4 @@
 			</p>
 		</div>
 	</div>
-{/if}
+</form>

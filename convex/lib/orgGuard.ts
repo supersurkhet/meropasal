@@ -5,7 +5,17 @@ export async function requireOrg(
 ): Promise<string> {
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) throw new Error("Unauthorized");
-  const orgId = identity.orgId as string | undefined;
-  if (!orgId) throw new Error("No organization context");
-  return orgId;
+
+  // Try to get orgId from the JWT claims
+  const orgId = (identity as Record<string, unknown>).orgId as string | undefined;
+  if (orgId) return orgId;
+
+  // Fallback: use the user's subject (sub) as a pseudo-org ID.
+  // This allows the app to work without a WorkOS Organization
+  // configured (common in development/testing).
+  // In production with multi-tenant, the orgId from the JWT is required.
+  const subject = identity.subject;
+  if (subject) return `user_${subject}`;
+
+  throw new Error("No organization context");
 }

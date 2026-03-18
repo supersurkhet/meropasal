@@ -1,6 +1,6 @@
 import { browser } from '$app/environment'
-import en from '../../messages/en.json'
-import ne from '../../messages/ne.json'
+import en from '$lib/messages/en.json'
+import ne from '$lib/messages/ne.json'
 
 const STORAGE_KEY = 'meropasal-lang'
 

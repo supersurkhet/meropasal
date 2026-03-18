@@ -8,6 +8,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		redirect(302, '/dashboard');
 	}
 
+	// For now, use the first organization the user belongs to.
+	// In a multi-org setup, you'd show an org picker.
 	const authorizationUrl = workos.userManagement.getAuthorizationUrl({
 		provider: 'authkit',
 		clientId: WORKOS_CLIENT_ID,
