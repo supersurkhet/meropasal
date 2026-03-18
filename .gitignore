@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.local
+.env.*.local
+apps/web/.env
+
+# Build output
+.svelte-kit/
+dist/
+build/
+.turbo/
+
+# Convex generated
+convex/_generated/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
