@@ -1,0 +1,6 @@
+@import 'tailwindcss';
+
+:root {
+	--font-sans: 'Inter', 'Mukta', system-ui, sans-serif;
+	--font-mono: 'Geist', monospace;
+}
