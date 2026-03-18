@@ -35,6 +35,7 @@
 		"@fontsource/inter": "^5.2.8",
 		"@fontsource/mukta": "^5.2.8",
 		"@workos-inc/node": "^8.9.0",
+		"clsx": "^2.1.1",
 		"convex": "^1.33.1",
 		"convex-svelte": "^0.0.12",
 		"date-fns": "^4.1.0",
@@ -43,6 +44,7 @@
 		"svelte-meta-tags": "^4.5.0",
 		"svelte-sonner": "^1.1.0",
 		"sveltekit-superforms": "^2.30.0",
+		"tailwind-merge": "^3.5.0",
 		"zod": "^4.3.6"
 	}
 }
