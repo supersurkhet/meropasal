@@ -13,9 +13,16 @@ export function getConvexClient(url?: string): ConvexClient {
 }
 
 export function setConvexAuth(token: string | null) {
+	console.log('[CONVEX AUTH] setConvexAuth called, token present:', !!token, 'client exists:', !!client);
+	if (token) {
+		console.log('[CONVEX AUTH] Token first 30 chars:', token.substring(0, 30));
+	}
 	if (client) {
 		if (token) {
-			client.setAuth(() => Promise.resolve(token));
+			client.setAuth(() => {
+				console.log('[CONVEX AUTH] Auth provider called, returning token');
+				return Promise.resolve(token);
+			});
 		} else {
 			client.setAuth(() => Promise.resolve(null));
 		}

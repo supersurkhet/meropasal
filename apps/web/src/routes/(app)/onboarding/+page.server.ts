@@ -9,9 +9,26 @@ export const load: PageServerLoad = async ({ parent, locals }) => {
 		redirect(302, '/login')
 	}
 
-	// If user already has an org, go to dashboard
+	// If user already has an org (from session or from WorkOS), go to dashboard
 	if (locals.orgId) {
 		redirect(302, '/dashboard')
+	}
+
+	// Check WorkOS for existing org memberships
+	if (locals.user) {
+		try {
+			const memberships = await workos.userManagement.listOrganizationMemberships({
+				userId: locals.user.id,
+			})
+			if (memberships.data.length > 0) {
+				// User has an org but session doesn't include it.
+				// Redirect through WorkOS auth to get org-scoped session.
+				redirect(302, '/dashboard')
+			}
+		} catch (err) {
+			// Re-throw redirects
+			if (err && typeof err === 'object' && 'status' in err) throw err
+		}
 	}
 
 	return {}

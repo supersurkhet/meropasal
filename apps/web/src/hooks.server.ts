@@ -26,8 +26,23 @@ export const handle: Handle = async ({ event, resolve }) => {
 					lastName: user.lastName,
 					profilePictureUrl: user.profilePictureUrl,
 				};
-				event.locals.orgId = organizationId ?? null;
 				event.locals.convexToken = accessToken;
+
+				// Get orgId: from session, or look up from WorkOS memberships
+				let resolvedOrgId = organizationId ?? null;
+				if (!resolvedOrgId) {
+					try {
+						const memberships = await workos.userManagement.listOrganizationMemberships({
+							userId: user.id,
+						});
+						if (memberships.data.length > 0) {
+							resolvedOrgId = memberships.data[0].organizationId;
+						}
+					} catch {
+						// Membership lookup failed — continue without orgId
+					}
+				}
+				event.locals.orgId = resolvedOrgId;
 
 				// Refresh the sealed session if WorkOS returned a new one
 				if ('sealedSession' in result && result.sealedSession) {
