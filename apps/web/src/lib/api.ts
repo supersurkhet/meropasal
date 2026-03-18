@@ -49,6 +49,31 @@ export const api = {
 		},
 		products: {
 			list: makeFunctionReference<'query'>('functions/products:list'),
+			getById: makeFunctionReference<'query'>('functions/products:getById'),
+			search: makeFunctionReference<'query'>('functions/products:search'),
+			listByParty: makeFunctionReference<'query'>('functions/products:listByParty'),
+			create: makeFunctionReference<'mutation'>('functions/products:create'),
+			update: makeFunctionReference<'mutation'>('functions/products:update'),
+			remove: makeFunctionReference<'mutation'>('functions/products:remove'),
+		},
+		stockImport: {
+			list: makeFunctionReference<'query'>('functions/stockImport:list'),
+			getById: makeFunctionReference<'query'>('functions/stockImport:getById'),
+			create: makeFunctionReference<'mutation'>('functions/stockImport:create'),
+		},
+		sales: {
+			list: makeFunctionReference<'query'>('functions/sales:list'),
+			getById: makeFunctionReference<'query'>('functions/sales:getById'),
+			create: makeFunctionReference<'mutation'>('functions/sales:create'),
+		},
+		orders: {
+			list: makeFunctionReference<'query'>('functions/orders:list'),
+			getById: makeFunctionReference<'query'>('functions/orders:getById'),
+			create: makeFunctionReference<'mutation'>('functions/orders:create'),
+			update: makeFunctionReference<'mutation'>('functions/orders:update'),
+			addPayment: makeFunctionReference<'mutation'>('functions/orders:addPayment'),
+			markDone: makeFunctionReference<'mutation'>('functions/orders:markDone'),
+			cancel: makeFunctionReference<'mutation'>('functions/orders:cancel'),
 		},
 		parties: {
 			list: makeFunctionReference<'query'>('functions/parties:list'),

@@ -43,7 +43,7 @@
 	const aggregatedProducts = $derived.by((): AggregatedProduct[] => {
 		if (!aggregation.data || !products.data) return [];
 		const agg = aggregation.data;
-		const productMap = new Map(products.data.map((p: any) => [p._id, p]));
+		const productMap = new Map<string, any>(products.data.map((p: any) => [p._id, p]));
 
 		const result: AggregatedProduct[] = [];
 		for (const [productId, total] of Object.entries(agg.productTotalAvailable ?? {})) {

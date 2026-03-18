@@ -7,5 +7,5 @@
 <MetaTags title="Invoice Detail" />
 
 <div class="p-6">
-	<InvoiceDetail invoiceId={page.params.id} />
+	<InvoiceDetail invoiceId={page.params.id!} />
 </div>

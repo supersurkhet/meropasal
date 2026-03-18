@@ -2,7 +2,7 @@
 	import { MetaTags } from 'svelte-meta-tags';
 	import { page } from '$app/state';
 	import { getConvexClient } from '$lib/convex';
-	import { api } from '../../../../../convex/_generated/api';
+	import { api } from '$lib/api';
 	import ProductForm from '$lib/components/modules/products/ProductForm.svelte';
 
 	type Product = {

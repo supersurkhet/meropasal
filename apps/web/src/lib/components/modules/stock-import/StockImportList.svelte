@@ -4,7 +4,7 @@
 	import * as Table from '$lib/components/ui/table';
 	import { formatNPR } from '$lib/currency';
 	import { getConvexClient } from '$lib/convex';
-	import { api } from '../../../../convex/_generated/api';
+	import { api } from '$lib/api';
 	import { Plus, PackageOpen } from '@lucide/svelte';
 
 	type Invoice = {

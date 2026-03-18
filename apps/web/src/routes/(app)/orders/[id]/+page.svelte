@@ -17,5 +17,5 @@
 		<h1 class="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Order Detail</h1>
 	</div>
 
-	<OrderDetail orderId={$page.params.id} />
+	<OrderDetail orderId={$page.params.id!} />
 </div>

@@ -13,7 +13,7 @@ export const load: PageServerLoad = async ({ url, cookies }) => {
 		code,
 		clientId: WORKOS_CLIENT_ID,
 		session: {
-			sealCookie: true,
+			sealSession: true,
 			cookiePassword: WORKOS_COOKIE_PASSWORD,
 		},
 	});
