@@ -4,7 +4,7 @@
 	"tasks": {
 		"build": {
 			"dependsOn": ["^build"],
-			"outputs": [".svelte-kit/**", "dist/**", "build/**"]
+			"outputs": [".svelte-kit/**", "dist/**", "build/**", "src-tauri/target/**"]
 		},
 		"dev": {
 			"cache": false,
@@ -18,6 +18,10 @@
 		},
 		"check": {
 			"dependsOn": ["^build"]
+		},
+		"sync": {
+			"dependsOn": ["build"],
+			"cache": false
 		}
 	}
 }
