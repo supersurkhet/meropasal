@@ -3,6 +3,8 @@
 	import Topbar from './Topbar.svelte';
 	import Breadcrumb from '$lib/components/shared/Breadcrumb.svelte';
 	import { Sheet, SheetContent, SheetTrigger } from '$lib/components/ui/sheet';
+	import { shortcuts } from '$lib/shortcuts';
+	import { t } from '$lib/t';
 
 	let {
 		children,
@@ -20,8 +22,10 @@
 	href="#main-content"
 	class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:rounded-lg focus:bg-zinc-900 focus:px-4 focus:py-2 focus:text-sm focus:text-white focus:shadow-lg dark:focus:bg-zinc-100 dark:focus:text-zinc-900"
 >
-	Skip to main content
+	{t('a11y_skip_to_content')}
 </a>
+
+<svelte:window use:shortcuts />
 
 <div class="flex h-screen bg-white dark:bg-zinc-950">
 	<!-- Desktop sidebar -->

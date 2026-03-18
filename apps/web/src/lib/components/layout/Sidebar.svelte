@@ -27,60 +27,61 @@
 		TooltipProvider,
 	} from '$lib/components/ui/tooltip';
 	import { Button } from '$lib/components/ui/button';
+	import { t } from '$lib/t';
 
 	type NavItem = {
-		label: string;
+		labelKey: string;
 		href: string;
 		icon: typeof LayoutDashboard;
 	};
 
 	type NavGroup = {
-		title: string;
+		titleKey: string;
 		items: NavItem[];
 	};
 
 	const navGroups: NavGroup[] = [
 		{
-			title: 'Overview',
+			titleKey: 'nav_dashboard',
 			items: [
-				{ label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+				{ labelKey: 'nav_dashboard', href: '/dashboard', icon: LayoutDashboard },
 			],
 		},
 		{
-			title: 'People',
+			titleKey: 'nav_parties',
 			items: [
-				{ label: 'Parties', href: '/parties', icon: Users },
-				{ label: 'Customers', href: '/customers', icon: UserRound },
+				{ labelKey: 'nav_parties', href: '/parties', icon: Users },
+				{ labelKey: 'nav_customers', href: '/customers', icon: UserRound },
 			],
 		},
 		{
-			title: 'Inventory',
+			titleKey: 'nav_products',
 			items: [
-				{ label: 'Products', href: '/products', icon: Package },
-				{ label: 'Stock Import', href: '/stock-import', icon: PackageOpen },
-				{ label: 'Stock Book', href: '/stock-book', icon: BookOpen },
+				{ labelKey: 'nav_products', href: '/products', icon: Package },
+				{ labelKey: 'nav_stock_import', href: '/stock-import', icon: PackageOpen },
+				{ labelKey: 'nav_stock_book', href: '/stock-book', icon: BookOpen },
 			],
 		},
 		{
-			title: 'Sales',
+			titleKey: 'nav_sales',
 			items: [
-				{ label: 'Sales', href: '/sales', icon: ShoppingCart },
-				{ label: 'Orders', href: '/orders', icon: ClipboardList },
-				{ label: 'Invoices', href: '/invoices', icon: FileText },
+				{ labelKey: 'nav_sales', href: '/sales', icon: ShoppingCart },
+				{ labelKey: 'nav_orders', href: '/orders', icon: ClipboardList },
+				{ labelKey: 'nav_invoices', href: '/invoices', icon: FileText },
 			],
 		},
 		{
-			title: 'Finance',
+			titleKey: 'nav_ledger',
 			items: [
-				{ label: 'Ledger', href: '/ledger', icon: Landmark },
-				{ label: 'Reports', href: '/reports', icon: BarChart3 },
+				{ labelKey: 'nav_ledger', href: '/ledger', icon: Landmark },
+				{ labelKey: 'nav_reports', href: '/reports', icon: BarChart3 },
 			],
 		},
 		{
-			title: 'Logistics',
+			titleKey: 'nav_trips',
 			items: [
-				{ label: 'Trips', href: '/trips', icon: Truck },
-				{ label: 'Vehicles', href: '/vehicles', icon: Car },
+				{ labelKey: 'nav_trips', href: '/trips', icon: Truck },
+				{ labelKey: 'nav_vehicles', href: '/vehicles', icon: Car },
 			],
 		},
 	];
@@ -115,8 +116,8 @@
 			</div>
 			{#if !collapsed}
 				<div class="flex flex-col overflow-hidden transition-opacity duration-200">
-					<span class="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">MeroPasal</span>
-					<span class="text-[10px] font-medium uppercase tracking-widest text-zinc-400">Retail</span>
+					<span class="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">{t('app_name')}</span>
+					<span class="text-[10px] font-medium uppercase tracking-widest text-zinc-400">{t('app_tagline')}</span>
 				</div>
 			{/if}
 		</div>
@@ -131,7 +132,7 @@
 				{#if !collapsed}
 					<div class="mb-1 px-2 pt-1">
 						<span class="text-[10px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
-							{group.title}
+							{t(group.titleKey)}
 						</span>
 					</div>
 				{/if}
@@ -153,7 +154,7 @@
 								</a>
 							</TooltipTrigger>
 							<TooltipContent side="right" class="font-medium">
-								{item.label}
+								{t(item.labelKey)}
 							</TooltipContent>
 						</Tooltip>
 					{:else}
@@ -165,7 +166,7 @@
 									: 'text-zinc-600 hover:bg-zinc-200/70 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100'}"
 						>
 							<item.icon class="size-[18px] shrink-0" />
-							<span class="truncate">{item.label}</span>
+							<span class="truncate">{t(item.labelKey)}</span>
 						</a>
 					{/if}
 				{/each}
@@ -175,7 +176,7 @@
 		<!-- Collapse Toggle -->
 		<button
 			onclick={() => (collapsed = !collapsed)}
-			aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+			aria-label={collapsed ? t('a11y_expand_sidebar') : t('a11y_collapse_sidebar')}
 			class="absolute -right-3 top-16 z-10 flex size-6 items-center justify-center rounded-full border border-zinc-200 bg-white shadow-sm transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:bg-zinc-800"
 		>
 			<span
@@ -198,7 +199,7 @@
 							<Settings class="size-[18px]" />
 						</a>
 					</TooltipTrigger>
-					<TooltipContent side="right" class="font-medium">Settings</TooltipContent>
+					<TooltipContent side="right" class="font-medium">{t('nav_settings')}</TooltipContent>
 				</Tooltip>
 			{:else}
 				<a
@@ -206,7 +207,7 @@
 					class="mb-1 flex h-9 items-center gap-3 rounded-lg px-2.5 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-200/70 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
 				>
 					<Settings class="size-[18px] shrink-0" />
-					<span>Settings</span>
+					<span>{t('nav_settings')}</span>
 				</a>
 			{/if}
 
@@ -229,11 +230,11 @@
 						</div>
 						<a
 							href="/logout"
-							aria-label="Sign out"
+							aria-label={t('auth_logout')}
 							class="shrink-0 rounded-md p-1 text-zinc-400 transition-colors hover:bg-zinc-200 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
 						>
 							<LogOut class="size-3.5" />
-							<span class="sr-only">Sign out</span>
+							<span class="sr-only">{t('auth_logout')}</span>
 						</a>
 					{/if}
 				</div>

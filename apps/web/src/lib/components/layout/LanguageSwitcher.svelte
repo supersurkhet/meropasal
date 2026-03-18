@@ -1,20 +1,8 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
-
-	const STORAGE_KEY = 'meropasal-lang';
-
-	let currentLang = $state<'en' | 'ne'>(
-		browser ? (localStorage.getItem(STORAGE_KEY) as 'en' | 'ne') ?? 'en' : 'en'
-	);
+	import { currentLanguage } from '$lib/t'
 
 	function toggle() {
-		currentLang = currentLang === 'en' ? 'ne' : 'en';
-		if (browser) {
-			localStorage.setItem(STORAGE_KEY, currentLang);
-			document.documentElement.lang = currentLang;
-			// Dispatch a custom event so other components can react to the language change
-			window.dispatchEvent(new CustomEvent('languagechange', { detail: currentLang }));
-		}
+		currentLanguage.value = currentLanguage.value === 'en' ? 'ne' : 'en'
 	}
 </script>
 
@@ -24,13 +12,13 @@
 	aria-label="Switch language between English and Nepali"
 >
 	<span
-		class="transition-opacity {currentLang === 'en' ? 'opacity-100' : 'opacity-50'}"
+		class="transition-opacity {currentLanguage.value === 'en' ? 'opacity-100' : 'opacity-50'}"
 	>
 		EN
 	</span>
 	<span class="text-zinc-300 dark:text-zinc-600">/</span>
 	<span
-		class="transition-opacity {currentLang === 'ne' ? 'opacity-100' : 'opacity-50'}"
+		class="transition-opacity {currentLanguage.value === 'ne' ? 'opacity-100' : 'opacity-50'}"
 	>
 		ने
 	</span>
