@@ -223,7 +223,7 @@
 		</div>
 		<div class="space-y-1.5">
 			<Label>Selling Price</Label>
-			<CurrencyInput bind:value={sellingPrice} placeholder="Auto: cost + 10%" />
+			<CurrencyInput bind:value={sellingPrice} placeholder="Auto: cost + 10%" onuserinput={() => { sellingPriceManual = true; }} />
 			{#if !sellingPriceManual && costPrice > 0}
 				<p class="text-xs text-emerald-600 dark:text-emerald-400">Auto: {costPrice} + 10% markup</p>
 			{/if}

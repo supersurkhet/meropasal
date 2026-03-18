@@ -21,7 +21,7 @@
 		description?: string;
 	};
 
-	const productId = page.params.id;
+	let productId = $derived(page.params.id);
 	let product = $state<Product | null>(null);
 	let loaded = $state(false);
 

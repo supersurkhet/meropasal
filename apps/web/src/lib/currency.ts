@@ -2,14 +2,14 @@
  * NPR currency formatting utilities.
  */
 
-const nprFormatter = new Intl.NumberFormat('en-NP', {
+const nprFormatter = new Intl.NumberFormat('en-IN', {
 	style: 'currency',
 	currency: 'NPR',
 	minimumFractionDigits: 2,
 	maximumFractionDigits: 2,
 });
 
-const nprFormatterCompact = new Intl.NumberFormat('en-NP', {
+const nprFormatterCompact = new Intl.NumberFormat('en-IN', {
 	style: 'currency',
 	currency: 'NPR',
 	minimumFractionDigits: 0,
@@ -23,7 +23,7 @@ export function formatNPR(amount: number, compact = false): string {
 
 export function formatNumber(amount: number): string {
 	if (!Number.isFinite(amount)) return '0.00';
-	return new Intl.NumberFormat('en-NP', {
+	return new Intl.NumberFormat('en-IN', {
 		minimumFractionDigits: 2,
 		maximumFractionDigits: 2,
 	}).format(amount);

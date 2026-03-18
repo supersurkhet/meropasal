@@ -6,36 +6,43 @@
 		placeholder = '0.00',
 		disabled = false,
 		class: className = '',
+		onuserinput,
 	}: {
 		value?: number;
 		placeholder?: string;
 		disabled?: boolean;
 		class?: string;
+		onuserinput?: (value: number) => void;
 	} = $props();
 
-	let displayValue = $state(value ? String(value) : '');
+	let editing = $state(false);
+	let displayValue = $state(value ? value.toFixed(2) : '');
+
+	// Sync displayValue when parent changes value externally (not during user editing)
+	$effect(() => {
+		if (!editing) {
+			displayValue = value > 0 ? value.toFixed(2) : '';
+		}
+	});
 
 	function handleInput(e: Event) {
+		editing = true;
 		const target = e.target as HTMLInputElement;
 		const raw = target.value.replace(/[^0-9.]/g, '');
 		displayValue = raw;
 		const parsed = parseFloat(raw);
 		value = Number.isFinite(parsed) ? Math.round(parsed * 100) / 100 : 0;
+		onuserinput?.(value);
 	}
 
 	function handleBlur() {
+		editing = false;
 		if (value > 0) {
 			displayValue = value.toFixed(2);
 		} else {
 			displayValue = '';
 		}
 	}
-
-	$effect(() => {
-		if (value > 0 && displayValue === '') {
-			displayValue = value.toFixed(2);
-		}
-	});
 </script>
 
 <div class="relative {className}">
