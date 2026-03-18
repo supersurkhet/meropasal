@@ -28,18 +28,37 @@
 	let checkingOrg = $state(true);
 
 	$effect(() => {
-		const unsubscribe = client.onUpdate(
-			api.functions.organizations.getSettings,
-			{},
-			(settings: unknown) => {
+		// Try to check if org is already set up, but handle the case
+		// where the user doesn't have an org yet (no orgId in JWT)
+		const timeout = setTimeout(() => {
+			// If the query hasn't resolved in 3 seconds, assume no org yet
+			if (checkingOrg) {
 				checkingOrg = false;
-				if (settings) {
-					orgAlreadySetUp = true;
-					goto('/dashboard');
-				}
-			},
-		);
-		return unsubscribe;
+			}
+		}, 3000);
+
+		try {
+			const unsubscribe = client.onUpdate(
+				api.functions.organizations.getSettings,
+				{},
+				(settings: unknown) => {
+					checkingOrg = false;
+					clearTimeout(timeout);
+					if (settings) {
+						orgAlreadySetUp = true;
+						goto('/dashboard');
+					}
+				},
+			);
+			return () => {
+				clearTimeout(timeout);
+				unsubscribe();
+			};
+		} catch {
+			// If query fails (no auth/no org), show the wizard
+			checkingOrg = false;
+			return () => clearTimeout(timeout);
+		}
 	});
 
 	// Wizard state
