@@ -12,9 +12,17 @@
 
 	import { Toaster } from 'svelte-sonner';
 	import { MetaTags } from 'svelte-meta-tags';
+	import { setConvexAuth } from '$lib/convex';
 	import favicon from '$lib/assets/favicon.svg';
 
 	let { children, data } = $props();
+
+	// Sync Convex auth token from server session
+	$effect(() => {
+		if (data.convexToken) {
+			setConvexAuth(data.convexToken);
+		}
+	});
 </script>
 
 <MetaTags
