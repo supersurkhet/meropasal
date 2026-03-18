@@ -7,27 +7,28 @@
 		DollarSign,
 		ArrowRight,
 	} from '@lucide/svelte';
+	import { t } from '$lib/t';
 
 	const reports = [
 		{
-			title: 'Sales Report',
-			description: 'Sales by period, top selling products, and revenue trends',
+			titleKey: 'report_sales',
+			descKey: 'report_sales_desc',
 			href: '/reports/sales',
 			icon: TrendingUp,
 			iconBg: 'bg-emerald-100 dark:bg-emerald-900/30',
 			iconColor: 'text-emerald-600 dark:text-emerald-400',
 		},
 		{
-			title: 'Inventory Report',
-			description: 'Stock levels, low stock alerts, and stock value summary',
+			titleKey: 'report_inventory',
+			descKey: 'report_inventory_desc',
 			href: '/reports/inventory',
 			icon: Package,
 			iconBg: 'bg-amber-100 dark:bg-amber-900/30',
 			iconColor: 'text-amber-600 dark:text-amber-400',
 		},
 		{
-			title: 'Financial Report',
-			description: 'Revenue vs expenses, profit/loss, receivables and payables',
+			titleKey: 'report_financial',
+			descKey: 'report_financial_desc',
 			href: '/reports/financial',
 			icon: DollarSign,
 			iconBg: 'bg-blue-100 dark:bg-blue-900/30',
@@ -36,7 +37,7 @@
 	] as const;
 </script>
 
-<MetaTags title="Reports — MeroPasal" />
+<MetaTags title="{t('nav_reports')} — {t('app_name')}" />
 
 <div class="p-6 lg:p-8">
 	<div class="mb-8">
@@ -48,10 +49,10 @@
 			</div>
 			<div>
 				<h1 class="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-					Reports
+					{t('nav_reports')}
 				</h1>
 				<p class="text-sm text-zinc-500 dark:text-zinc-400">
-					Analyze your business performance
+					{t('page_reports_desc')}
 				</p>
 			</div>
 		</div>
@@ -74,10 +75,10 @@
 					/>
 				</div>
 				<h2 class="text-base font-semibold text-zinc-900 dark:text-zinc-100">
-					{report.title}
+					{t(report.titleKey)}
 				</h2>
 				<p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-					{report.description}
+					{t(report.descKey)}
 				</p>
 			</a>
 		{/each}

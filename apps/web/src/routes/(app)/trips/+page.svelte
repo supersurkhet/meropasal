@@ -5,13 +5,14 @@
 	import { api } from '$lib/api';
 	import TripList from '$lib/components/modules/logistics/TripList.svelte';
 	import { Truck } from '@lucide/svelte';
+	import { t } from '$lib/t';
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 	const tripsQuery = useConvexQuery(client, api.functions.trips.list, () => ({}));
 	const vehiclesQuery = useConvexQuery(client, api.functions.vehicles.list, () => ({}));
 </script>
 
-<MetaTags title="Trips — MeroPasal" />
+<MetaTags title="{t('nav_trips')} — {t('app_name')}" />
 
 <div class="p-6 lg:p-8">
 	<!-- Page header -->
@@ -22,10 +23,10 @@
 			</div>
 			<div>
 				<h1 class="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-					Trips
+					{t('nav_trips')}
 				</h1>
 				<p class="text-sm text-zinc-500 dark:text-zinc-400">
-					Manage dispatch and return trips
+					{t('page_trips_desc')}
 				</p>
 			</div>
 		</div>

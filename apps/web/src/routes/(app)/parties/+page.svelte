@@ -5,13 +5,14 @@
 	import { api } from '$lib/api';
 	import PartyList from '$lib/components/modules/parties/PartyList.svelte';
 	import { Users } from '@lucide/svelte';
+	import { t } from '$lib/t';
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 	const partiesQuery = useConvexQuery(client, api.functions.parties.list, () => ({}));
 	const removeMutation = useConvexMutation(client, api.functions.parties.remove);
 </script>
 
-<MetaTags title="Parties — MeroPasal" />
+<MetaTags title="{t('nav_parties')} — {t('app_name')}" />
 
 <div class="p-6 lg:p-8">
 	<!-- Page header -->
@@ -22,10 +23,10 @@
 			</div>
 			<div>
 				<h1 class="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-					Parties
+					{t('nav_parties')}
 				</h1>
 				<p class="text-sm text-zinc-500 dark:text-zinc-400">
-					Manage your suppliers and purchase parties
+					{t('page_parties_desc')}
 				</p>
 			</div>
 		</div>

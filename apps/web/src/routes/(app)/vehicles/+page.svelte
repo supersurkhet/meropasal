@@ -7,6 +7,7 @@
 	import VehicleForm from '$lib/components/modules/logistics/VehicleForm.svelte';
 	import InlineCreateDialog from '$lib/components/shared/InlineCreateDialog.svelte';
 	import { Car } from '@lucide/svelte';
+	import { t } from '$lib/t';
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 	const vehiclesQuery = useConvexQuery(client, api.functions.vehicles.list, () => ({}));
@@ -16,7 +17,7 @@
 	let createOpen = $state(false);
 </script>
 
-<MetaTags title="Vehicles — MeroPasal" />
+<MetaTags title="{t('nav_vehicles')} — {t('app_name')}" />
 
 <div class="p-6 lg:p-8">
 	<!-- Page header -->
@@ -28,14 +29,14 @@
 				</div>
 				<div>
 					<h1 class="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-						Vehicles
+						{t('nav_vehicles')}
 					</h1>
 					<p class="text-sm text-zinc-500 dark:text-zinc-400">
-						Manage your delivery vehicles
+						{t('page_vehicles_desc')}
 					</p>
 				</div>
 			</div>
-			<InlineCreateDialog title="New Vehicle" description="Add a vehicle for trip dispatch" bind:open={createOpen}>
+			<InlineCreateDialog title={t('vehicle_create')} description={t('page_vehicles_desc')} bind:open={createOpen}>
 				<div class="p-1">
 					<VehicleForm
 						inline

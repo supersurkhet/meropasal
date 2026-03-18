@@ -4,11 +4,12 @@
 	import TrialBalance from '$lib/components/modules/ledger/TrialBalance.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { BookText, Scale, List } from '@lucide/svelte';
+	import { t } from '$lib/t';
 
 	let activeTab = $state<'entries' | 'trial-balance'>('entries');
 </script>
 
-<MetaTags title="Ledger" />
+<MetaTags title={t('nav_ledger')} />
 
 <div class="p-6">
 	<div class="mb-6 flex items-center justify-between">
@@ -17,14 +18,14 @@
 				<BookText class="size-5 text-zinc-600 dark:text-zinc-400" />
 			</div>
 			<div>
-				<h1 class="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Ledger</h1>
-				<p class="text-sm text-zinc-500 dark:text-zinc-400">Double-entry bookkeeping records.</p>
+				<h1 class="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">{t('nav_ledger')}</h1>
+				<p class="text-sm text-zinc-500 dark:text-zinc-400">{t('page_ledger_desc')}</p>
 			</div>
 		</div>
 		<a href="/ledger/accounts">
 			<Button variant="outline" size="sm">
 				<List class="mr-1.5 size-4" />
-				Chart of Accounts
+				{t('ledger_chart_of_accounts')}
 			</Button>
 		</a>
 	</div>
@@ -39,7 +40,7 @@
 		>
 			<span class="inline-flex items-center gap-1.5">
 				<BookText class="size-4" />
-				Entries
+				{t('ledger_entries')}
 			</span>
 		</button>
 		<button
@@ -50,7 +51,7 @@
 		>
 			<span class="inline-flex items-center gap-1.5">
 				<Scale class="size-4" />
-				Trial Balance
+				{t('ledger_trial_balance')}
 			</span>
 		</button>
 	</div>

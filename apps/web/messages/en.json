@@ -340,5 +340,13 @@
 	"page_ledger_desc": "Double-entry bookkeeping records.",
 	"page_vehicles_desc": "Manage your delivery vehicles",
 	"page_trips_desc": "Manage dispatch and return trips",
-	"page_settings_desc": "Manage your business configuration."
+	"page_settings_desc": "Manage your business configuration.",
+	"page_reports_desc": "Analyze your business performance",
+	"page_settings_org": "Organization Settings",
+
+	"report_sales_desc": "Sales by period, top selling products, and revenue trends",
+	"report_inventory_desc": "Stock levels, low stock alerts, and stock value summary",
+	"report_financial_desc": "Revenue vs expenses, profit/loss, receivables and payables",
+
+	"ledger_chart_of_accounts": "Chart of Accounts"
 }

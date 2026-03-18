@@ -5,13 +5,14 @@
 	import { api } from '$lib/api';
 	import CustomerList from '$lib/components/modules/customers/CustomerList.svelte';
 	import { UserRound } from '@lucide/svelte';
+	import { t } from '$lib/t';
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 	const customersQuery = useConvexQuery(client, api.functions.customers.list, () => ({}));
 	const removeMutation = useConvexMutation(client, api.functions.customers.remove);
 </script>
 
-<MetaTags title="Customers — MeroPasal" />
+<MetaTags title="{t('nav_customers')} — {t('app_name')}" />
 
 <div class="p-6 lg:p-8">
 	<!-- Page header -->
@@ -22,10 +23,10 @@
 			</div>
 			<div>
 				<h1 class="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-					Customers
+					{t('nav_customers')}
 				</h1>
 				<p class="text-sm text-zinc-500 dark:text-zinc-400">
-					Manage your customers and buyers
+					{t('page_customers_desc')}
 				</p>
 			</div>
 		</div>
