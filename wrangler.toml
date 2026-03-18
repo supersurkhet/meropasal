@@ -1,0 +1,10 @@
+name = "meropasal"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+main = "apps/web/.svelte-kit/cloudflare/_worker.js"
+
+[site]
+bucket = "apps/web/.svelte-kit/cloudflare"
+
+[assets]
+directory = "apps/web/.svelte-kit/cloudflare"
