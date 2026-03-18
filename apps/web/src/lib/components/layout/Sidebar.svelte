@@ -122,7 +122,7 @@
 		</div>
 
 		<!-- Navigation -->
-		<nav class="flex-1 overflow-y-auto overflow-x-hidden px-2 py-3">
+		<nav class="flex-1 overflow-y-auto overflow-x-hidden px-2 py-3" role="navigation" aria-label="Main navigation">
 			{#each navGroups as group, groupIndex}
 				{#if groupIndex > 0}
 					<Separator class="my-2 bg-zinc-200 dark:bg-zinc-800" />
@@ -175,6 +175,7 @@
 		<!-- Collapse Toggle -->
 		<button
 			onclick={() => (collapsed = !collapsed)}
+			aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
 			class="absolute -right-3 top-16 z-10 flex size-6 items-center justify-center rounded-full border border-zinc-200 bg-white shadow-sm transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:bg-zinc-800"
 		>
 			<span
@@ -228,9 +229,11 @@
 						</div>
 						<a
 							href="/logout"
+							aria-label="Sign out"
 							class="shrink-0 rounded-md p-1 text-zinc-400 transition-colors hover:bg-zinc-200 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
 						>
 							<LogOut class="size-3.5" />
+							<span class="sr-only">Sign out</span>
 						</a>
 					{/if}
 				</div>

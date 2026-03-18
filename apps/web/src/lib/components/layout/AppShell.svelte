@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Sidebar from './Sidebar.svelte';
 	import Topbar from './Topbar.svelte';
+	import Breadcrumb from '$lib/components/shared/Breadcrumb.svelte';
 	import { Sheet, SheetContent, SheetTrigger } from '$lib/components/ui/sheet';
 
 	let {
@@ -14,6 +15,13 @@
 	let sidebarCollapsed = $state(false);
 	let mobileOpen = $state(false);
 </script>
+
+<a
+	href="#main-content"
+	class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:rounded-lg focus:bg-zinc-900 focus:px-4 focus:py-2 focus:text-sm focus:text-white focus:shadow-lg dark:focus:bg-zinc-100 dark:focus:text-zinc-900"
+>
+	Skip to main content
+</a>
 
 <div class="flex h-screen bg-white dark:bg-zinc-950">
 	<!-- Desktop sidebar -->
@@ -32,7 +40,10 @@
 	<div class="flex flex-1 flex-col overflow-hidden">
 		<Topbar onToggleSidebar={() => (mobileOpen = !mobileOpen)} />
 
-		<main class="flex-1 overflow-y-auto bg-zinc-50/50 dark:bg-zinc-900/50">
+		<main id="main-content" tabindex="-1" class="flex-1 overflow-y-auto bg-zinc-50/50 dark:bg-zinc-900/50">
+			<div class="px-4 pt-4 sm:px-6">
+				<Breadcrumb />
+			</div>
 			{@render children()}
 		</main>
 	</div>

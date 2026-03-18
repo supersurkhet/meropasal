@@ -38,6 +38,11 @@ export const api = {
 			setDefault: makeFunctionReference<'mutation'>('functions/billTemplates:setDefault'),
 			remove: makeFunctionReference<'mutation'>('functions/billTemplates:remove'),
 		},
+		reports: {
+			dashboard: makeFunctionReference<'query'>('functions/reports:dashboard'),
+			salesByPeriod: makeFunctionReference<'query'>('functions/reports:salesByPeriod'),
+			topProducts: makeFunctionReference<'query'>('functions/reports:topProducts'),
+		},
 		fiscalYear: {
 			current: makeFunctionReference<'query'>('functions/fiscalYear:current'),
 			closeFiscalYear: makeFunctionReference<'mutation'>('functions/fiscalYear:closeFiscalYear'),
@@ -58,6 +63,21 @@ export const api = {
 			create: makeFunctionReference<'mutation'>('functions/customers:create'),
 			update: makeFunctionReference<'mutation'>('functions/customers:update'),
 			remove: makeFunctionReference<'mutation'>('functions/customers:remove'),
+		},
+		vehicles: {
+			list: makeFunctionReference<'query'>('functions/vehicles:list'),
+			getById: makeFunctionReference<'query'>('functions/vehicles:getById'),
+			create: makeFunctionReference<'mutation'>('functions/vehicles:create'),
+			update: makeFunctionReference<'mutation'>('functions/vehicles:update'),
+			remove: makeFunctionReference<'mutation'>('functions/vehicles:remove'),
+		},
+		trips: {
+			list: makeFunctionReference<'query'>('functions/trips:list'),
+			getById: makeFunctionReference<'query'>('functions/trips:getById'),
+			listByVehicle: makeFunctionReference<'query'>('functions/trips:listByVehicle'),
+			dispatch: makeFunctionReference<'mutation'>('functions/trips:dispatch'),
+			returnTrip: makeFunctionReference<'mutation'>('functions/trips:returnTrip'),
+			cancel: makeFunctionReference<'mutation'>('functions/trips:cancel'),
 		},
 	},
 };
