@@ -6,6 +6,7 @@
 	import { api } from '$lib/api';
 	import PartyForm from '$lib/components/modules/parties/PartyForm.svelte';
 	import { ArrowLeft } from '@lucide/svelte';
+	import { toast } from 'svelte-sonner';
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 	const createMutation = useConvexMutation(client, api.functions.parties.create);
@@ -36,6 +37,7 @@
 		<PartyForm
 			onsubmit={async (data) => {
 				await createMutation.mutate(data);
+				toast.success('Supplier created successfully');
 				goto('/parties');
 			}}
 			oncancel={() => goto('/parties')}

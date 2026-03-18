@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { toast } from 'svelte-sonner';
 	import * as Select from '$lib/components/ui/select';
 	import { Label } from '$lib/components/ui/label';
 	import { Input } from '$lib/components/ui/input';
@@ -8,7 +9,7 @@
 	import InlineCreateDialog from '$lib/components/shared/InlineCreateDialog.svelte';
 	import { deriveUnitPrice, getAvailableUnits } from '$lib/unit-price';
 	import { getConvexClient } from '$lib/convex';
-	import { api } from '../../../../convex/_generated/api';
+	import { api } from '$lib/api';
 
 	type Party = { _id: string; name: string };
 	type Product = {
@@ -115,6 +116,7 @@
 					unit: item.unit || undefined,
 				})),
 			});
+			toast.success('Stock imported successfully');
 			goto('/stock-import');
 		} catch (err) {
 			console.error('Failed to create stock import:', err);

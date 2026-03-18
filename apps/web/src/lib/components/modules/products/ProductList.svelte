@@ -7,8 +7,10 @@
 	import { formatNPR } from '$lib/currency';
 	import { parseUnit } from '$lib/unit-price';
 	import { getConvexClient } from '$lib/convex';
-	import { api } from '../../../../convex/_generated/api';
+	import { api } from '$lib/api';
+	import { toast } from 'svelte-sonner';
 	import { Plus, Search, MoreHorizontal, Pencil, Trash2, Package } from '@lucide/svelte';
+	import ConfirmDialog from '$lib/components/shared/ConfirmDialog.svelte';
 
 	type Product = {
 		_id: string;
@@ -62,10 +64,28 @@
 			: products,
 	);
 
-	async function handleDelete(id: string) {
-		const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
-		await client.mutation(api.functions.products.remove, { id: id as any });
-		await loadData();
+	let confirmDeleteId = $state<string | null>(null);
+	let confirmOpen = $state(false);
+	let deleting = $state(false);
+
+	function requestDelete(id: string) {
+		confirmDeleteId = id;
+		confirmOpen = true;
+	}
+
+	async function handleDelete() {
+		if (!confirmDeleteId) return;
+		deleting = true;
+		try {
+			const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
+			await client.mutation(api.functions.products.remove, { id: confirmDeleteId as any });
+			toast.success('Product deactivated');
+			await loadData();
+		} finally {
+			deleting = false;
+			confirmOpen = false;
+			confirmDeleteId = null;
+		}
 	}
 </script>
 
@@ -166,7 +186,7 @@
 							<Table.Cell>
 								<DropdownMenu.Root>
 									<DropdownMenu.Trigger>
-										<Button variant="ghost" size="icon" class="size-8">
+										<Button variant="ghost" size="icon" class="size-8" aria-label="More options">
 											<MoreHorizontal class="size-4" />
 										</Button>
 									</DropdownMenu.Trigger>
@@ -179,7 +199,7 @@
 										</a>
 										<DropdownMenu.Item
 											class="gap-2 text-destructive focus:text-destructive"
-											onclick={() => handleDelete(product._id)}
+											onclick={() => requestDelete(product._id)}
 										>
 											<Trash2 class="size-3.5" />
 											Deactivate
@@ -194,3 +214,12 @@
 		</div>
 	{/if}
 </div>
+
+<ConfirmDialog
+	bind:open={confirmOpen}
+	title="Deactivate Product"
+	description="This will deactivate the product. It won't appear in new transactions."
+	confirmLabel="Deactivate"
+	loading={deleting}
+	onconfirm={handleDelete}
+/>

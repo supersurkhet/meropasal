@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { toast } from 'svelte-sonner';
 	import { Button } from '$lib/components/ui/button';
 	import * as Table from '$lib/components/ui/table';
 	import PaymentSection from '$lib/components/shared/PaymentSection.svelte';
@@ -94,6 +95,7 @@
 			}
 			newPayments = [];
 			await loadOrder();
+			toast.success('Payment recorded');
 		} catch (err: any) {
 			error = err.message || 'Failed to add payment';
 		} finally {
@@ -109,6 +111,7 @@
 			const client = getConvexClient();
 			await client.mutation(api['functions/orders'].markDone, { orderId: order._id as any });
 			await loadOrder();
+			toast.success('Order marked as done');
 		} catch (err: any) {
 			error = err.message || 'Failed to mark order as done';
 		} finally {
@@ -326,10 +329,9 @@
 					<p class="mt-0.5 font-mono font-semibold text-emerald-600 dark:text-emerald-400">{formatNPR(order.paidAmount)}</p>
 				</div>
 				<div>
-					{@const remaining = order.totalAmount - order.paidAmount}
 					<span class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Remaining</span>
-					<p class="mt-0.5 font-mono font-semibold {remaining > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-zinc-400'}">
-						{formatNPR(Math.abs(remaining))}
+					<p class="mt-0.5 font-mono font-semibold {order.totalAmount - order.paidAmount > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-zinc-400'}">
+						{formatNPR(Math.abs(order.totalAmount - order.paidAmount))}
 					</p>
 				</div>
 			</div>

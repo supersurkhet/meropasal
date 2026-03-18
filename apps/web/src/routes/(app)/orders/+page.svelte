@@ -10,7 +10,7 @@
 
 	function onOrderCreated() {
 		showNewOrder = false;
-		// OrderList will reload via its own effect
+		// Toast handled by OrderForm component
 	}
 </script>
 

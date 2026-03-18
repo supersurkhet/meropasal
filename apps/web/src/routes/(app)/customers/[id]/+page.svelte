@@ -9,6 +9,7 @@
 	import CustomerDetail from '$lib/components/modules/customers/CustomerDetail.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { ArrowLeft, Loader2 } from '@lucide/svelte';
+	import { toast } from 'svelte-sonner';
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 
@@ -64,6 +65,7 @@
 					customer={customerQuery.data}
 					onsubmit={async (data) => {
 						await updateMutation.mutate({ id: page.params.id as any, ...data });
+						toast.success('Customer updated successfully');
 						editing = false;
 					}}
 					oncancel={() => (editing = false)}

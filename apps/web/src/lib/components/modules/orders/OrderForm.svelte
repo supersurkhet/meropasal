@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { toast } from 'svelte-sonner';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Button } from '$lib/components/ui/button';
@@ -129,6 +130,7 @@
 					})),
 				notes: notes.trim() || undefined,
 			});
+			toast.success('Order created successfully');
 			onSuccess?.();
 		} catch (err: any) {
 			error = err.message || 'Failed to create order';

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { toast } from 'svelte-sonner';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Button } from '$lib/components/ui/button';
@@ -8,7 +9,7 @@
 	import CurrencyInput from '$lib/components/shared/CurrencyInput.svelte';
 	import InlineCreateDialog from '$lib/components/shared/InlineCreateDialog.svelte';
 	import { getConvexClient } from '$lib/convex';
-	import { api } from '../../../../convex/_generated/api';
+	import { api } from '$lib/api';
 	import { Save, Loader2 } from '@lucide/svelte';
 
 	type Party = { _id: string; name: string };
@@ -104,8 +105,10 @@
 			if (initial?._id) {
 				data.id = initial._id;
 				await client.mutation(api.functions.products.update, data as any);
+				toast.success('Product updated successfully');
 			} else {
 				const id = await client.mutation(api.functions.products.create, data as any);
+				toast.success('Product created successfully');
 				if (onsaved) {
 					onsaved(id);
 					return;

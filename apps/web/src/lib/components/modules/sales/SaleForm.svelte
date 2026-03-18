@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { toast } from 'svelte-sonner';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Button } from '$lib/components/ui/button';
@@ -131,6 +132,7 @@
 					unit: i.unit || undefined,
 				})),
 			});
+			toast.success('Sale recorded successfully');
 			onSuccess?.();
 		} catch (err: any) {
 			error = err.message || 'Failed to create sale';

@@ -27,6 +27,8 @@
 		Users,
 		Loader2,
 	} from '@lucide/svelte';
+	import { toast } from 'svelte-sonner';
+	import ConfirmDialog from '$lib/components/shared/ConfirmDialog.svelte';
 
 	type Party = {
 		_id: string;
@@ -52,6 +54,8 @@
 
 	let searchQuery = $state('');
 	let deletingId = $state<string | null>(null);
+	let confirmDeleteId = $state<string | null>(null);
+	let confirmOpen = $state(false);
 
 	let filteredParties = $derived(
 		parties.filter(
@@ -63,13 +67,21 @@
 		)
 	);
 
+	function requestDelete(id: string) {
+		confirmDeleteId = id;
+		confirmOpen = true;
+	}
+
 	async function handleDelete(id: string) {
 		if (!ondelete) return;
 		deletingId = id;
 		try {
 			await ondelete(id);
+			toast.success('Supplier deactivated');
 		} finally {
 			deletingId = null;
+			confirmDeleteId = null;
+			confirmOpen = false;
 		}
 	}
 
@@ -196,7 +208,7 @@
 										<Button
 											variant="ghost"
 											size="sm"
-											class="size-8 p-0 opacity-0 transition-opacity group-hover:opacity-100"
+											class="size-8 p-0 opacity-0 transition-opacity group-hover:opacity-100" aria-label="More options"
 										>
 											<MoreHorizontal class="size-4 text-zinc-500" />
 										</Button>
@@ -212,7 +224,7 @@
 											<DropdownMenuItem
 												class="cursor-pointer text-red-600 focus:text-red-600 dark:text-red-400 dark:focus:text-red-400"
 												disabled={deletingId === party._id}
-												onclick={() => handleDelete(party._id)}
+												onclick={() => requestDelete(party._id)}
 											>
 												{#if deletingId === party._id}
 													<Loader2 class="mr-2 size-4 animate-spin" />
@@ -236,3 +248,17 @@
 		</p>
 	{/if}
 </div>
+
+<ConfirmDialog
+	bind:open={confirmOpen}
+	title="Deactivate Supplier"
+	description="Are you sure you want to deactivate this supplier? This action can be reversed later."
+	confirmLabel="Deactivate"
+	loading={deletingId !== null}
+	onconfirm={() => {
+		if (confirmDeleteId) handleDelete(confirmDeleteId);
+	}}
+	oncancel={() => {
+		confirmDeleteId = null;
+	}}
+/>

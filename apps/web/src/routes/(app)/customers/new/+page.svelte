@@ -6,6 +6,7 @@
 	import { api } from '$lib/api';
 	import CustomerForm from '$lib/components/modules/customers/CustomerForm.svelte';
 	import { ArrowLeft } from '@lucide/svelte';
+	import { toast } from 'svelte-sonner';
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 	const createMutation = useConvexMutation(client, api.functions.customers.create);
@@ -36,6 +37,7 @@
 		<CustomerForm
 			onsubmit={async (data) => {
 				await createMutation.mutate(data);
+				toast.success('Customer created successfully');
 				goto('/customers');
 			}}
 			oncancel={() => goto('/customers')}

@@ -27,6 +27,8 @@
 		UserRound,
 		Loader2,
 	} from '@lucide/svelte';
+	import { toast } from 'svelte-sonner';
+	import ConfirmDialog from '$lib/components/shared/ConfirmDialog.svelte';
 
 	type Customer = {
 		_id: string;
@@ -52,6 +54,8 @@
 
 	let searchQuery = $state('');
 	let deletingId = $state<string | null>(null);
+	let confirmDeleteId = $state<string | null>(null);
+	let confirmOpen = $state(false);
 
 	let filteredCustomers = $derived(
 		customers.filter(
@@ -64,13 +68,21 @@
 		)
 	);
 
-	async function handleDelete(id: string) {
-		if (!ondelete) return;
-		deletingId = id;
+	function requestDelete(id: string) {
+		confirmDeleteId = id;
+		confirmOpen = true;
+	}
+
+	async function handleDelete() {
+		if (!ondelete || !confirmDeleteId) return;
+		deletingId = confirmDeleteId;
 		try {
-			await ondelete(id);
+			await ondelete(confirmDeleteId);
+			toast.success('Customer deactivated');
 		} finally {
 			deletingId = null;
+			confirmDeleteId = null;
+			confirmOpen = false;
 		}
 	}
 
@@ -204,6 +216,7 @@
 											variant="ghost"
 											size="sm"
 											class="size-8 p-0 opacity-0 transition-opacity group-hover:opacity-100"
+											aria-label="More options"
 										>
 											<MoreHorizontal class="size-4 text-zinc-500" />
 										</Button>
@@ -219,7 +232,7 @@
 											<DropdownMenuItem
 												class="cursor-pointer text-red-600 focus:text-red-600 dark:text-red-400 dark:focus:text-red-400"
 												disabled={deletingId === customer._id}
-												onclick={() => handleDelete(customer._id)}
+												onclick={() => requestDelete(customer._id)}
 											>
 												{#if deletingId === customer._id}
 													<Loader2 class="mr-2 size-4 animate-spin" />
@@ -243,3 +256,13 @@
 		</p>
 	{/if}
 </div>
+
+<ConfirmDialog
+	bind:open={confirmOpen}
+	title="Deactivate Customer"
+	description="Are you sure you want to deactivate this customer? This action cannot be undone."
+	confirmLabel="Deactivate"
+	loading={deletingId !== null}
+	onconfirm={handleDelete}
+	oncancel={() => { confirmDeleteId = null; }}
+/>

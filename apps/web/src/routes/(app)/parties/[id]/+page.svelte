@@ -9,6 +9,7 @@
 	import PartyDetail from '$lib/components/modules/parties/PartyDetail.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { ArrowLeft, Loader2 } from '@lucide/svelte';
+	import { toast } from 'svelte-sonner';
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 
@@ -64,6 +65,7 @@
 					party={partyQuery.data}
 					onsubmit={async (data) => {
 						await updateMutation.mutate({ id: page.params.id as any, ...data });
+						toast.success('Supplier updated successfully');
 						editing = false;
 					}}
 					oncancel={() => (editing = false)}
