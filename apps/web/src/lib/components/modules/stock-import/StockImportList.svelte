@@ -126,7 +126,7 @@
 							</Table.Cell>
 							<Table.Cell>
 								<Badge variant={statusVariant(inv.paymentStatus)} class="text-xs capitalize">
-									{inv.paymentStatus}
+									{inv.paymentStatus === 'paid' ? t('status_paid') : inv.paymentStatus === 'partial' ? t('status_partial') : inv.paymentStatus === 'pending' ? t('status_pending') : inv.paymentStatus}
 								</Badge>
 							</Table.Cell>
 						</Table.Row>
@@ -135,7 +135,7 @@
 			</Table.Root>
 		</div>
 		<p class="text-xs text-zinc-400 dark:text-zinc-500">
-			{invoices.length} {invoices.length === 1 ? 'import' : 'imports'}
+			{invoices.length} {t('stock_import_title')}
 		</p>
 	{/if}
 </div>

@@ -7,6 +7,7 @@
 	import { t } from '$lib/t.svelte';
 	import EmptyState from '$lib/components/shared/EmptyState.svelte';
 	import { formatDate } from '$lib/date-utils';
+	import { formatNPR } from '$lib/currency';
 
 	type Order = {
 		_id: string;
@@ -79,15 +80,6 @@
 			default:
 				return 'bg-zinc-100 text-zinc-500 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700';
 		}
-	}
-
-	function formatNPR(amount: number): string {
-		return new Intl.NumberFormat('en-NP', {
-			style: 'currency',
-			currency: 'NPR',
-			minimumFractionDigits: 0,
-			maximumFractionDigits: 2,
-		}).format(amount);
 	}
 
 	function itemsSummary(items: { productTitle: string; quantity: number }[]): string {
@@ -177,10 +169,10 @@
 							{itemsSummary(order.items)}
 						</Table.Cell>
 						<Table.Cell class="text-right font-mono text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-							{formatNPR(order.totalAmount)}
+							{formatNPR(order.totalAmount, true)}
 						</Table.Cell>
 						<Table.Cell class="text-right font-mono text-sm text-emerald-600 dark:text-emerald-400">
-							{formatNPR(order.paidAmount)}
+							{formatNPR(order.paidAmount, true)}
 						</Table.Cell>
 						<Table.Cell class="text-center">
 							<span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold {statusBadgeClass(status)}">
@@ -198,7 +190,7 @@
 		</Table.Root>
 	</div>
 	<p class="mt-4 text-xs text-zinc-400 dark:text-zinc-500">
-		{filteredOrders.length} {filteredOrders.length === 1 ? 'order' : 'orders'}
+		{filteredOrders.length} {filteredOrders.length === 1 ? t('order_title') : t('order_title_plural')}
 	</p>
 {/if}
 </div>

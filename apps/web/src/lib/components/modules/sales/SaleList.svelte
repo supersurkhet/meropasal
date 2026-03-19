@@ -6,6 +6,7 @@
 	import EmptyState from '$lib/components/shared/EmptyState.svelte';
 	import { ShoppingCart, Plus } from '@lucide/svelte';
 	import { formatDate } from '$lib/date-utils';
+	import { formatNPR } from '$lib/currency';
 
 	type SaleInvoice = {
 		_id: string;
@@ -40,15 +41,6 @@
 		loaded = true;
 	}
 
-	function formatNPR(amount: number): string {
-		return new Intl.NumberFormat('en-NP', {
-			style: 'currency',
-			currency: 'NPR',
-			minimumFractionDigits: 0,
-			maximumFractionDigits: 2,
-		}).format(amount);
-	}
-
 	function itemsSummary(items: { productTitle: string; quantity: number }[]): string {
 		if (items.length <= 2) {
 			return items.map((i) => `${i.productTitle} ×${i.quantity}`).join(', ');
@@ -62,7 +54,7 @@
 	<div class="flex items-center justify-center py-20">
 		<div class="flex flex-col items-center gap-3">
 			<div class="size-6 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-900 dark:border-zinc-600 dark:border-t-zinc-100"></div>
-			<p class="text-sm text-zinc-500">Loading sales...</p>
+			<p class="text-sm text-zinc-500">{t('common_loading')}</p>
 		</div>
 	</div>
 {:else if sales.length === 0}
@@ -111,7 +103,7 @@
 							{itemsSummary(sale.items)}
 						</Table.Cell>
 						<Table.Cell class="text-right font-mono text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-							{formatNPR(sale.totalAmount)}
+							{formatNPR(sale.totalAmount, true)}
 						</Table.Cell>
 						<Table.Cell class="font-mono text-xs text-zinc-500 dark:text-zinc-400">
 							{sale.invoiceNumber ?? '—'}
@@ -122,7 +114,7 @@
 		</Table.Root>
 	</div>
 	<p class="text-xs text-zinc-400 dark:text-zinc-500">
-		{sales.length} {sales.length === 1 ? 'sale' : 'sales'}
+		{sales.length} {sales.length === 1 ? t('sale_title') : t('sale_title_plural')}
 	</p>
 {/if}
 </div>
