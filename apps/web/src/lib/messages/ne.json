@@ -90,8 +90,10 @@
 	"product_category": "वर्ग",
 	"product_reorder_level": "पुन: अर्डर स्तर",
 	"product_description": "विवरण",
+	"product_select_category": "वर्ग छान्नुहोस्...",
 
 	"stock_import_title": "स्टक आयात",
+	"stock_import_select_supplier": "आपूर्तिकर्ता छान्नुहोस्...",
 	"stock_import_create": "नयाँ स्टक आयात",
 	"stock_import_party": "आपूर्तिकर्ता",
 	"stock_import_date": "आयात मिति",

@@ -3,7 +3,7 @@
 	import { getConvexClient } from '$lib/convex';
 	import { useConvexQuery } from '$lib/convex-helpers.svelte';
 	import { api } from '$lib/api';
-	import { formatNPR } from '$lib/currency';
+	import { formatNPR, formatCount } from '$lib/currency';
 	import { formatDate } from '$lib/date-utils';
 	import * as Table from '$lib/components/ui/table';
 	import { t } from '$lib/t.svelte';
@@ -131,7 +131,7 @@
 					<span
 						class="flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400"
 					>
-						{d.totalSaleInvoices} {t('sale_title_plural').toLowerCase()}
+						{formatCount(d.totalSaleInvoices)} {t('sale_title_plural').toLowerCase()}
 						<ArrowUpRight class="size-3" />
 					</span>
 				</div>
@@ -155,7 +155,7 @@
 					<span
 						class="flex items-center gap-1 text-xs font-medium text-red-600 dark:text-red-400"
 					>
-						{d.totalPurchaseInvoices} {t('invoice_type_purchase').toLowerCase()}
+						{formatCount(d.totalPurchaseInvoices)} {t('invoice_type_purchase').toLowerCase()}
 						<ArrowDownRight class="size-3" />
 					</span>
 				</div>
@@ -231,7 +231,7 @@
 						? 'text-amber-700 dark:text-amber-400'
 						: 'text-zinc-900 dark:text-zinc-100'}"
 				>
-					{d.lowStockCount}
+					{formatCount(d.lowStockCount)}
 				</p>
 				<p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{t('dashboard_low_stock')}</p>
 			</div>
@@ -299,7 +299,7 @@
 					</div>
 					{#if recentSales.data}
 						<span class="text-xs text-zinc-500">
-							{recentSales.data.count} {t('invoice_title_plural').toLowerCase()} &middot; {formatNPR(recentSales.data.totalAmount, true)}
+							{formatCount(recentSales.data.count)} {t('invoice_title_plural').toLowerCase()} &middot; {formatNPR(recentSales.data.totalAmount, true)}
 						</span>
 					{/if}
 				</div>

@@ -90,8 +90,10 @@
 	"product_category": "Category",
 	"product_reorder_level": "Reorder Level",
 	"product_description": "Description",
+	"product_select_category": "Select category...",
 
 	"stock_import_title": "Stock Import",
+	"stock_import_select_supplier": "Select supplier...",
 	"stock_import_create": "New Stock Import",
 	"stock_import_party": "Supplier",
 	"stock_import_date": "Import Date",

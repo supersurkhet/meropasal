@@ -182,23 +182,23 @@
 <svelte:window onkeydown={handleKeydown} />
 
 <form
-	class="space-y-5 {inline ? '' : 'mx-auto max-w-2xl rounded-lg border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950'}"
+	class="space-y-5 {inline ? '' : 'mx-auto max-w-2xl'}"
 	onsubmit={(e) => { e.preventDefault(); handleSubmit(); }}
 >
 	{#if !inline}
 		<div class="mb-6">
 			<h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-				{initial?._id ? 'Edit Product' : 'New Product'}
+				{initial?._id ? t('action_edit') + ' ' + t('product_title') : t('product_create')}
 			</h2>
 			<p class="mt-0.5 text-sm text-zinc-500">
-				{initial?._id ? 'Update product details' : 'Add a new product to your inventory'}
+				{initial?._id ? t('action_update') + ' ' + t('product_title').toLowerCase() : t('page_products_desc')}
 			</p>
 		</div>
 	{/if}
 
 	<!-- Title -->
 	<div class="space-y-1.5">
-		<Label for="title" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Product Name <span class="text-red-500">*</span></Label>
+		<Label for="title" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('product_name')} <span class="text-red-500">*</span></Label>
 		<Input
 			id="title"
 			bind:value={title}
@@ -213,11 +213,11 @@
 
 	<!-- Supplier -->
 	<div class="space-y-1.5">
-		<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Supplier <span class="text-red-500">*</span></Label>
+		<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('product_supplier')} <span class="text-red-500">*</span></Label>
 		<div class="flex gap-2">
 			<Select.Root type="single" bind:value={purchasePartyId}>
 				<Select.Trigger class="flex-1 {errors.purchasePartyId ? 'border-red-400 ring-1 ring-red-400/30' : ''}">
-					{parties.find((p) => p._id === purchasePartyId)?.name || 'Select supplier...'}
+					{parties.find((p) => p._id === purchasePartyId)?.name || t('stock_import_select_supplier')}
 				</Select.Trigger>
 				<Select.Content>
 					{#each parties as party}
@@ -225,18 +225,18 @@
 					{/each}
 				</Select.Content>
 			</Select.Root>
-			<InlineCreateDialog title="New Supplier" description="Create a new supplier party" bind:open={inlinePartyOpen}>
+			<InlineCreateDialog title={t('party_create')} description={t('page_parties_desc')} bind:open={inlinePartyOpen}>
 				<div class="space-y-3 p-1">
 					<div class="space-y-1.5">
-						<Label for="inline-party-name">Name</Label>
-						<Input id="inline-party-name" bind:value={inlinePartyName} placeholder="Supplier name" />
+						<Label for="inline-party-name">{t('party_name')}</Label>
+						<Input id="inline-party-name" bind:value={inlinePartyName} placeholder={t('party_name')} />
 					</div>
 					<Button
 						class="w-full"
 						disabled={!inlinePartyName.trim()}
 						onclick={createInlineParty}
 					>
-						Create Supplier
+						{t('party_create')}
 					</Button>
 				</div>
 			</InlineCreateDialog>
@@ -255,14 +255,14 @@
 	<!-- Prices -->
 	<div class="grid grid-cols-2 gap-4">
 		<div class="space-y-1.5">
-			<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Cost Price <span class="text-red-500">*</span></Label>
+			<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('product_cost_price')} <span class="text-red-500">*</span></Label>
 			<CurrencyInput bind:value={costPrice} placeholder="0.00" />
 			{#if errors.costPrice}
 				<p class="text-xs text-red-500 mt-1">{errors.costPrice}</p>
 			{/if}
 		</div>
 		<div class="space-y-1.5">
-			<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Selling Price</Label>
+			<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('product_selling_price')}</Label>
 			<CurrencyInput bind:value={sellingPrice} placeholder="Auto: cost + 10%" onuserinput={() => { sellingPriceManual = true; }} />
 			{#if !sellingPriceManual && costPrice > 0}
 				<p class="text-xs text-emerald-600 dark:text-emerald-400">Auto: {costPrice} + 10% markup</p>
@@ -273,7 +273,7 @@
 	<!-- Stock -->
 	<div class="grid grid-cols-2 gap-4">
 		<div class="space-y-1.5">
-			<Label for="openingStock" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Opening Stock <span class="text-red-500">*</span></Label>
+			<Label for="openingStock" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('product_opening_stock')} <span class="text-red-500">*</span></Label>
 			<Input
 				id="openingStock"
 				type="number"
@@ -287,7 +287,7 @@
 			{/if}
 		</div>
 		<div class="space-y-1.5">
-			<Label for="reorderLevel" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Reorder Level</Label>
+			<Label for="reorderLevel" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('product_reorder_level')}</Label>
 			<Input
 				id="reorderLevel"
 				type="number"
@@ -305,10 +305,10 @@
 	<!-- Optional fields (not shown in inline mode) -->
 	{#if !inline}
 		<div class="space-y-1.5">
-			<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Category</Label>
+			<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('product_category')}</Label>
 			<Select.Root type="single" bind:value={category}>
 				<Select.Trigger>
-					{category || 'Select category...'}
+					{category || t('product_select_category')}
 				</Select.Trigger>
 				<Select.Content>
 					{#each categories as cat}
@@ -322,21 +322,21 @@
 
 		<div class="grid grid-cols-3 gap-4">
 			<div class="space-y-1.5">
-				<Label for="sku" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">SKU</Label>
+				<Label for="sku" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('product_sku')}</Label>
 				<Input id="sku" bind:value={sku} placeholder="Auto-generated" />
 			</div>
 			<div class="space-y-1.5">
-				<Label for="barcode" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Barcode</Label>
+				<Label for="barcode" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('product_barcode')}</Label>
 				<Input id="barcode" bind:value={barcode} placeholder="Optional" />
 			</div>
 			<div class="space-y-1.5">
-				<Label for="hsCode" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">HS Code</Label>
+				<Label for="hsCode" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('product_hs_code')}</Label>
 				<Input id="hsCode" bind:value={hsCode} placeholder="Optional" />
 			</div>
 		</div>
 
 		<div class="space-y-1.5">
-			<Label for="description" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Description</Label>
+			<Label for="description" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('product_description')}</Label>
 			<Textarea id="description" bind:value={description} placeholder="Product notes..." rows={3} />
 		</div>
 	{/if}
@@ -350,10 +350,10 @@
 		>
 			{#if submitting}
 				<Loader2 class="size-4 animate-spin" />
-				Saving...
+				{t('action_saving')}
 			{:else}
 				<Save class="size-4" />
-				{initial?._id ? 'Update' : 'Create'} Product
+				{initial?._id ? t('action_update') : t('action_create')} {t('product_title')}
 			{/if}
 		</Button>
 	</div>
