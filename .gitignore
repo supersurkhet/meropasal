@@ -26,3 +26,7 @@ Thumbs.db
 *.swp
 *.swo
 .auth-state.json
+
+# Demo artifacts
+demo-final.*
+screenshots/
