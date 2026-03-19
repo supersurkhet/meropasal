@@ -3,6 +3,8 @@
 	import { ChevronRight, Home } from '@lucide/svelte';
 	import { t } from '$lib/t.svelte';
 	import { breadcrumbLabel } from '$lib/breadcrumb-label.svelte';
+	import { breadcrumbViewToggle } from '$lib/breadcrumb-view-toggle.svelte';
+	import ViewToggle from '$lib/components/shared/ViewToggle.svelte';
 
 	const segmentKeyMap: Record<string, string> = {
 		dashboard: 'nav_dashboard',
@@ -67,7 +69,7 @@
 </script>
 
 {#if crumbs.length > 0}
-	<nav aria-label="Breadcrumb" class="mb-4">
+	<nav aria-label="Breadcrumb" class="mb-4 flex items-center justify-between">
 		<ol class="flex items-center gap-1.5 text-sm">
 			<li class="flex items-center">
 				<a
@@ -97,5 +99,12 @@
 				</li>
 			{/each}
 		</ol>
+
+		{#if breadcrumbViewToggle.config}
+			<ViewToggle
+				mode={breadcrumbViewToggle.config.mode}
+				onchange={breadcrumbViewToggle.config.onchange}
+			/>
+		{/if}
 	</nav>
 {/if}
