@@ -472,6 +472,280 @@ For each:
 
 ---
 
+## 22. Session Persistence & Auth
+
+### 22.1 Cookie Security
+- [ ] On localhost (http://localhost:5173): session cookie is set without `secure` flag
+- [ ] On deployed HTTPS domain: session cookie includes `secure` flag
+- [ ] Cookie uses shared `sessionCookieOptions()` helper (no hardcoded cookie configs)
+
+### 22.2 Session Persistence
+- [ ] Log in via WorkOS → session cookie set
+- [ ] Reload page → still logged in (no redirect to login)
+- [ ] Close browser tab, reopen → still logged in (within 30 days)
+- [ ] Multiple reloads in succession → session maintained
+- [ ] No `dev_default_org` fallback — unauthenticated requests throw "Authentication required"
+
+### 22.3 Auto-Redirect Login
+- [ ] Navigate to `/login` while unauthenticated → immediately redirects to WorkOS AuthKit (no "Continue with WorkOS" button)
+- [ ] Brief loading spinner shown during redirect
+- [ ] Navigate to `/login` while authenticated → redirects to `/dashboard`
+
+---
+
+## 23. Command Palette Search (⌘K)
+
+### 23.1 Trigger
+- [ ] Press Cmd+K (Mac) or Ctrl+K (Windows) → command palette opens
+- [ ] Click search button in topbar → command palette opens
+- [ ] Press Escape → closes palette
+- [ ] Click outside → closes palette
+
+### 23.2 Navigation Items
+- [ ] All 14 navigation items shown: Dashboard, Products, Customers, Parties, Sales, Orders, Stock Import, Stock Book, Invoices, Vehicles, Trips, Ledger, Reports, Settings
+- [ ] Each has correct icon
+- [ ] Clicking navigates to the correct route
+- [ ] Filtering by typing narrows navigation results
+
+### 23.3 Action Items
+- [ ] "New Sale", "New Order", "Import Stock" actions shown
+- [ ] Clicking navigates to the create page
+
+### 23.4 Full Text Search
+- [ ] Type a product name → product search results appear
+- [ ] Type a customer name → customer results appear
+- [ ] Type a party/supplier name → party results appear
+- [ ] Type an invoice number → invoice results appear
+- [ ] Type a vehicle name → vehicle results appear
+- [ ] Results grouped by type with type badges
+- [ ] Max 5 results per type
+- [ ] Clicking a result navigates to the entity detail/edit page
+- [ ] Search is debounced (300ms)
+- [ ] Empty search term shows no results (only navigation/actions)
+- [ ] Results respect multi-tenant isolation (only org's data shown)
+
+### 23.5 Search Indexes
+- [ ] `products.search_title` index exists
+- [ ] `customers.search_name` index exists
+- [ ] `parties.search_name` index exists
+- [ ] `invoices.search_number` index exists
+- [ ] `vehicles.search_name` index exists
+
+---
+
+## 24. Notifications
+
+### 24.1 Notification Popover
+- [ ] Bell icon in topbar with unread count badge (red dot with number)
+- [ ] Badge shows "9+" when more than 9 unread
+- [ ] No badge when all notifications are read
+- [ ] Click bell → popover opens with notification list
+- [ ] Each notification shows: type icon, title, message, relative time
+- [ ] Empty state shown when no notifications
+- [ ] "Mark all read" button clears all unread
+
+### 24.2 Low Stock Alerts
+- [ ] Create a product with reorderLevel=10, openingStock=15
+- [ ] Make a sale of 6 units → stock drops to 9 (below reorderLevel)
+- [ ] A `low_stock` notification is created
+- [ ] Notification title mentions the product name
+- [ ] Clicking notification navigates to products page
+
+### 24.3 Order Status Notifications
+- [ ] Mark an order as done → `order_status` notification created
+- [ ] Cancel an order → `order_status` notification created
+
+### 24.4 Real-Time Updates
+- [ ] Notifications appear in real-time (Convex subscription)
+- [ ] Unread count updates without page reload
+- [ ] Mark as read updates UI immediately
+
+---
+
+## 25. Form Validation (Client-Side)
+
+### 25.1 Product Form
+- [ ] Submit without title → validation error shown under title field
+- [ ] Submit with negative cost price → error shown
+- [ ] Submit with negative opening stock → error shown
+- [ ] Toast error displayed on validation failure
+- [ ] Fields have red border when invalid
+
+### 25.2 Stock Import Form
+- [ ] Submit without selecting supplier → error shown
+- [ ] Submit without any line items → error shown
+- [ ] Submit with empty product in line item → error shown
+- [ ] Submit with zero quantity → error shown
+- [ ] Toast error with summary of issues
+
+### 25.3 Order Form
+- [ ] Submit without date → error shown
+- [ ] Submit without line items → error shown
+- [ ] Bank voucher required for bank transfer payment method
+
+### 25.4 Sale Form
+- [ ] Submit without date → error shown
+- [ ] Submit without line items → error shown
+- [ ] Stock availability still validated server-side
+
+### 25.5 Vehicle Form
+- [ ] Submit without name → error shown
+- [ ] Submit without license plate → error shown
+
+### 25.6 Settings Form
+- [ ] Submit without business name → error shown
+- [ ] Tax rate must be 0-100
+- [ ] Fiscal year required
+
+---
+
+## 26. Empty States
+
+### 26.1 All List Pages
+- [ ] Sales list with no data → shows empty state with icon, title, description, action button
+- [ ] Orders list with no data → shows empty state
+- [ ] Stock book with no data → shows empty state
+- [ ] Stock import list with no data → shows empty state
+- [ ] Invoices with no data → shows empty state
+- [ ] Ledger with no data → shows empty state
+- [ ] Trips with no data → shows empty state
+
+### 26.2 Empty State Design
+- [ ] Icon in rounded circle background
+- [ ] Clear title and description
+- [ ] Action button links to create page (e.g., "Create your first sale")
+- [ ] Proper dark mode styling
+
+---
+
+## 27. Organization Management
+
+### 27.1 Members Page (`/settings/members`)
+- [ ] Lists all org members with name, email, role, status
+- [ ] Shows "active" or "pending" status badge
+- [ ] Current user cannot remove themselves
+
+### 27.2 Invite Members
+- [ ] "Invite Member" button opens dialog
+- [ ] Enter email + select role → sends WorkOS invitation
+- [ ] New invite shows as "pending" in member list
+- [ ] Invalid email shows error
+
+### 27.3 Role Management
+- [ ] Owner can change member roles via dropdown
+- [ ] Available roles: owner, manager, accountant, sales, warehouse, driver
+- [ ] Role change persists after page reload
+
+### 27.4 Remove Members
+- [ ] Owner can remove non-self members
+- [ ] Confirmation before removal
+- [ ] Removed member disappears from list
+
+---
+
+## 28. ABAC (Attribute-Based Access Control)
+
+### 28.1 Permission Enforcement
+- [ ] `owner` role can access all features
+- [ ] `sales` role can create sales and orders but NOT import stock or edit settings
+- [ ] `warehouse` role can import stock and manage products but NOT create sales
+- [ ] `accountant` role can view stock/sales/ledger but NOT create/delete
+- [ ] `driver` role can manage vehicles and trips but NOT products or sales
+- [ ] `manager` role has broad access except settings:edit and members:manage
+
+### 28.2 Permission Errors
+- [ ] Attempting a forbidden mutation → "Insufficient permissions" error with helpful message
+- [ ] Error message lists which roles have the required permission
+
+### 28.3 Frontend Permission Awareness
+- [ ] `createPermissions(role)` helper correctly checks permissions
+- [ ] UI elements can be conditionally shown/hidden based on `can('permission')` check
+
+---
+
+## 29. Dark Mode & Styling
+
+### 29.1 All Pages
+- [ ] Toggle to dark mode → no white-on-white or invisible text on any page
+- [ ] Toggle to light mode → no dark-on-dark issues
+- [ ] All tables use consistent wrapper: rounded-xl, border, shadow-sm
+- [ ] All page headers use unified icon box pattern (rounded-xl bg-zinc-900/dark:bg-zinc-100)
+
+### 29.2 Specific Component Dark Mode
+- [ ] ProductList: table, badges, dropdowns all visible in dark mode
+- [ ] OrderList: status badges, payment badges visible
+- [ ] SaleList: invoice numbers, amounts visible
+- [ ] StockImportList: status badges visible
+- [ ] VehicleList: license plate badges visible
+- [ ] ConfirmDialog: buttons, text all visible
+- [ ] All forms: inputs, labels, buttons properly styled
+
+### 29.3 Dashboard Design
+- [ ] KPI cards have color-coded accent bars (emerald=revenue, red=expenses, amber=low stock)
+- [ ] Quick action buttons prominently displayed (New Sale, Import Stock, Create Order)
+- [ ] Visual hierarchy: large numbers, smaller labels
+
+---
+
+## 30. Excel-Like Line Items
+
+### 30.1 BillForm Spreadsheet Behavior
+- [ ] Focusing the last row auto-adds a new empty row
+- [ ] Tab key navigates: qty → rate → next row's qty
+- [ ] Shift+Tab navigates backwards
+- [ ] Enter moves to next row
+- [ ] Backspace/Delete on empty row removes it
+- [ ] Pasting from Excel/Google Sheets fills multiple cells and rows
+- [ ] No "Add Item" button needed (auto-add handles it)
+
+### 30.2 Inline Product Creation in Stock Import
+- [ ] "+" button visible next to product selector in each line item
+- [ ] Clicking opens ProductForm dialog in inline mode
+- [ ] New product is pre-filled with current supplier
+- [ ] After creation, product auto-selected in the row
+- [ ] Parent form state preserved
+
+---
+
+## 31. Unit Builder
+
+### 31.1 Compound Unit Input
+- [ ] Dropdown shows base units: piece, box, kg, liter, pack, dozen, bag
+- [ ] Selecting "box" shows "pieces per unit" number input
+- [ ] Entering "12" outputs `box:12` format string
+- [ ] Selecting "kg" shows no additional input, outputs `kg`
+- [ ] Visual feedback: "1 box = 12 pieces"
+- [ ] Used in product create/edit form
+
+---
+
+## 32. Automation: Stock Book on Product Creation
+
+### 32.1 Opening Stock Entry
+- [ ] Create product with openingStock=50, costPrice=100
+- [ ] Stock book automatically has an "opening" entry: 50 units in, ₹5,000 total
+- [ ] Entry linked to product as source
+- [ ] Entry uses current fiscal year from orgSettings
+- [ ] Create product with openingStock=0 → no stock book entry created
+
+---
+
+## 33. Internationalization (i18n) — Extended
+
+### 33.1 Previously Hardcoded Strings
+- [ ] ConfirmDialog: title, description, button labels all translate to Nepali
+- [ ] OrgSettings: all labels (Business Name, Location, etc.) translate
+- [ ] ProductList: "Products", "New Product", count text translate
+- [ ] BillForm: "Subtotal", "Total", "Add Item" translate
+- [ ] Validation error messages translate
+
+### 33.2 Comprehensive Nepali Check
+- [ ] Switch to Nepali → navigate to every page
+- [ ] No English text visible except proper nouns, numbers, and technical terms
+- [ ] Devanagari text renders correctly with Mukta font
+
+---
+
 ## End-to-End Scenarios
 
 ### Scenario A: Full Purchase-to-Sale Cycle
@@ -505,3 +779,46 @@ For each:
 4. Verify opening entries (in) created for next FY
 5. Switch to new FY view → should show only opening balances
 6. Old FY data should still be accessible via fiscal year filter
+
+### Scenario E: Session Persistence & Auth Flow
+1. Open app on localhost → auto-redirects to WorkOS login
+2. Complete login → redirected to dashboard
+3. Reload page multiple times → session maintained, no login prompt
+4. Close browser, reopen → still logged in
+5. Navigate to /login while authenticated → redirected to /dashboard
+
+### Scenario F: Search & Navigate
+1. Create several products, customers, and a sale invoice
+2. Press Cmd+K → command palette opens
+3. Type product name → see product in results → click → navigated to product
+4. Type customer name → see customer → click → navigated
+5. Type invoice number → see invoice → click → navigated
+6. Type "sal" → see "Sales" in navigation results → click → navigated to /sales
+
+### Scenario G: Low Stock Notification Flow
+1. Create product "Widget" with costPrice=100, openingStock=10, reorderLevel=5
+2. Verify stock book has opening entry (10 units)
+3. Create a sale of 6 widgets → stock drops to 4
+4. Check bell icon → unread count shows 1
+5. Click bell → see "Low stock: Widget" notification
+6. Click notification → navigated to products page
+7. Click "Mark all read" → badge disappears
+
+### Scenario H: ABAC Permission Flow
+1. As owner: invite a new member with "sales" role
+2. Log in as the sales-role member
+3. Create a sale → succeeds
+4. Try to import stock → "Insufficient permissions" error
+5. Try to edit settings → "Insufficient permissions" error
+6. Try to create a product → "Insufficient permissions" error
+
+### Scenario I: Excel-Like Stock Import
+1. Navigate to /stock-import/new
+2. Select a supplier
+3. Click in the product column of the first row → select a product
+4. Tab to qty → enter 10 → Tab to rate → enter 500 → Tab
+5. Automatically moved to new row → select another product
+6. Paste 3 rows from Excel (product-tab-qty-tab-rate per line) → rows filled
+7. Delete an empty row with Backspace
+8. Click "+" next to product selector → create new product inline → auto-selected
+9. Submit → stock imported successfully with all items
