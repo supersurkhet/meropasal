@@ -89,7 +89,6 @@
 					size="sm"
 					class="gap-2 bg-emerald-600 text-white shadow-sm transition-all hover:bg-emerald-700 hover:shadow-md active:scale-[0.98] dark:bg-emerald-600 dark:hover:bg-emerald-500"
 				>
-					<Plus class="size-4" />
 					{t('dashboard_new_sale')}
 				</Button>
 			</a>
