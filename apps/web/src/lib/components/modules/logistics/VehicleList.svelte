@@ -120,7 +120,7 @@
 				</TableHeader>
 				<TableBody>
 					{#each filteredVehicles as vehicle (vehicle._id)}
-						<TableRow class="group border-zinc-100 transition-colors hover:bg-zinc-50/60 dark:border-zinc-800 dark:hover:bg-zinc-900/40">
+						<TableRow class="group border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/60">
 							<TableCell>
 								<a href="/vehicles/{vehicle._id}" class="block">
 									<div class="font-medium text-zinc-900 dark:text-zinc-100">{vehicle.name}</div>

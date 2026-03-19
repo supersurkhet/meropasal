@@ -231,7 +231,7 @@
 				{@const lineTotal = item.quantity * item.rate}
 				<div
 					data-row-index={i}
-					class="group grid grid-cols-[2.5rem_1fr_5rem_5rem_6rem_6.5rem_2rem] items-center gap-2 border-b border-zinc-100 px-4 py-2 transition-colors hover:bg-zinc-50/50 dark:border-zinc-800/50 dark:hover:bg-zinc-900/30"
+					class="group grid grid-cols-[2.5rem_1fr_5rem_5rem_6rem_6.5rem_2rem] items-center gap-2 border-b border-zinc-100 px-4 py-2 transition-colors hover:bg-zinc-50/50 dark:border-zinc-800/50 dark:hover:bg-zinc-800/50"
 				>
 					<!-- SN -->
 					<span class="text-center font-mono text-xs tabular-nums text-zinc-400">

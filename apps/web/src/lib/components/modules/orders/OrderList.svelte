@@ -164,7 +164,7 @@
 			<Table.Body>
 				{#each filteredOrders as order}
 					{@const status = orderStatus(order)}
-					<Table.Row class="group border-zinc-100 transition-colors hover:bg-zinc-50/60 dark:border-zinc-800 dark:hover:bg-zinc-900/40">
+					<Table.Row class="group border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/60">
 						<Table.Cell>
 							<a href="/orders/{order._id}" class="text-sm text-zinc-700 hover:underline dark:text-zinc-300">
 								{formatDate(order.issuedAt)}

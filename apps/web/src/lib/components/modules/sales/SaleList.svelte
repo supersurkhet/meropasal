@@ -100,7 +100,7 @@
 			</Table.Header>
 			<Table.Body>
 				{#each sales as sale}
-					<Table.Row class="group border-zinc-100 transition-colors hover:bg-zinc-50/60 dark:border-zinc-800 dark:hover:bg-zinc-900/40" onclick={() => { window.location.href = `/sales/${sale._id}`; }}>
+					<Table.Row class="group border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/60" onclick={() => { window.location.href = `/sales/${sale._id}`; }}>
 						<Table.Cell class="text-sm text-zinc-700 dark:text-zinc-300">
 							{formatDate(sale.issuedAt)}
 						</Table.Cell>

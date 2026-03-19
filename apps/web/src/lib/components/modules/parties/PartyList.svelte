@@ -157,7 +157,7 @@
 				</TableHeader>
 				<TableBody>
 					{#each filteredParties as party (party._id)}
-						<TableRow class="group border-zinc-100 transition-colors hover:bg-zinc-50/60 dark:border-zinc-800 dark:hover:bg-zinc-900/40">
+						<TableRow class="group border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/60">
 							<TableCell>
 								<a href="/parties/{party._id}" class="block">
 									<div class="font-medium text-zinc-900 dark:text-zinc-100">{party.name}</div>

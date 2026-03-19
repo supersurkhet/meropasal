@@ -153,7 +153,7 @@
 				<Table.Body>
 					{#each filteredProducts as product (product._id)}
 						{@const parsed = parseUnit(product.unit)}
-						<Table.Row class="group border-zinc-100 transition-colors hover:bg-zinc-50/60 dark:border-zinc-800 dark:hover:bg-zinc-900/40">
+						<Table.Row class="group border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/60">
 							<Table.Cell>
 								<a
 									href="/products/{product._id}"

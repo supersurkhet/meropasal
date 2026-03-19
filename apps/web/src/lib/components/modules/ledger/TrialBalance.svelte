@@ -101,7 +101,7 @@
 				<Table.Body>
 					{#each trialBalance.data as row}
 						{@const r = row as any}
-						<Table.Row class="transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900/30">
+						<Table.Row class="transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
 							<Table.Cell class="font-mono text-sm">{r.accountCode}</Table.Cell>
 							<Table.Cell class="font-medium">{r.accountName}</Table.Cell>
 							<Table.Cell class="text-right tabular-nums {r.debit > 0 ? 'font-medium' : 'text-zinc-300 dark:text-zinc-700'}">

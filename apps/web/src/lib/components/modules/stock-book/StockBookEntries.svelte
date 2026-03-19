@@ -153,7 +153,7 @@
 				<Table.Body>
 					{#each filteredEntries as entry}
 						{@const e = entry as any}
-						<Table.Row class="transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900/30">
+						<Table.Row class="transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
 							<Table.Cell class="text-sm text-zinc-600 dark:text-zinc-400">
 								{formatDate(e.entryDate)}
 							</Table.Cell>

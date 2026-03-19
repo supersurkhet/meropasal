@@ -138,7 +138,7 @@
 					{#each aggregatedProducts as item}
 						{@const isExpanded = expandedProducts.has(item.productId)}
 						<Table.Row
-							class="cursor-pointer transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900/30"
+							class="cursor-pointer transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
 							onclick={() => toggleExpand(item.productId)}
 						>
 							<Table.Cell class="w-8 pr-0">

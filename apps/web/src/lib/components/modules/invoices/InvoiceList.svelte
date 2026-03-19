@@ -142,7 +142,7 @@
 				<Table.Body>
 					{#each invoices.data as invoice}
 						<Table.Row
-							class="cursor-pointer transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900/30"
+							class="cursor-pointer transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
 							onclick={() => {
 								window.location.href = `/invoices/${invoice._id}`;
 							}}
