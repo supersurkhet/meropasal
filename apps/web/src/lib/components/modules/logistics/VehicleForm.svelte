@@ -104,7 +104,7 @@
 			class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900 {errors.name ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
 		/>
 		{#if errors.name}
-			<p class="text-xs text-red-500">{errors.name}</p>
+			<p class="mt-1 text-xs text-red-500">{errors.name}</p>
 		{/if}
 	</div>
 
@@ -120,7 +120,7 @@
 			class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900 {errors.licensePlate ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
 		/>
 		{#if errors.licensePlate}
-			<p class="text-xs text-red-500">{errors.licensePlate}</p>
+			<p class="mt-1 text-xs text-red-500">{errors.licensePlate}</p>
 		{/if}
 	</div>
 

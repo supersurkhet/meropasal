@@ -1,6 +1,7 @@
 <script lang="ts">
 	import * as Table from '$lib/components/ui/table';
 	import * as Select from '$lib/components/ui/select';
+	import { Button } from '$lib/components/ui/button';
 	import { ClipboardList, Plus } from '@lucide/svelte';
 	import { getConvexClient, api } from '$lib/convex';
 	import { t } from '$lib/t.svelte';
@@ -97,10 +98,11 @@
 	}
 </script>
 
-<!-- Status filter -->
-<div class="mb-4">
+<div class="space-y-4">
+<!-- Toolbar -->
+<div class="flex items-center justify-between gap-3">
 	<Select.Root type="single" bind:value={statusFilter}>
-		<Select.Trigger class="h-9 w-44 text-sm border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
+		<Select.Trigger class="h-9 w-44 text-sm border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
 			{statusFilter === 'all' ? t('common_all_orders') : statusFilter === 'pending' ? t('status_pending') : statusFilter === 'done' ? t('status_done') : t('status_cancelled')}
 		</Select.Trigger>
 		<Select.Content>
@@ -110,6 +112,15 @@
 			<Select.Item value="cancelled">{t('status_cancelled')}</Select.Item>
 		</Select.Content>
 	</Select.Root>
+	<a href="/orders/new">
+		<Button
+			size="sm"
+			class="bg-zinc-900 text-white shadow-sm transition-all hover:bg-zinc-800 hover:shadow-md active:scale-[0.98] dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+		>
+			<Plus class="mr-1.5 size-4" />
+			{t('order_create')}
+		</Button>
+	</a>
 </div>
 
 {#if !loaded}
@@ -190,3 +201,4 @@
 		{filteredOrders.length} {filteredOrders.length === 1 ? 'order' : 'orders'}
 	</p>
 {/if}
+</div>

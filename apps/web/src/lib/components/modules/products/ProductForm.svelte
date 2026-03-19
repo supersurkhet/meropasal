@@ -198,7 +198,7 @@
 
 	<!-- Title -->
 	<div class="space-y-1.5">
-		<Label for="title">Product Name <span class="text-destructive">*</span></Label>
+		<Label for="title" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Product Name <span class="text-red-500">*</span></Label>
 		<Input
 			id="title"
 			bind:value={title}
@@ -213,7 +213,7 @@
 
 	<!-- Supplier -->
 	<div class="space-y-1.5">
-		<Label>Supplier <span class="text-destructive">*</span></Label>
+		<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Supplier <span class="text-red-500">*</span></Label>
 		<div class="flex gap-2">
 			<Select.Root type="single" bind:value={purchasePartyId}>
 				<Select.Trigger class="flex-1 {errors.purchasePartyId ? 'border-red-400 ring-1 ring-red-400/30' : ''}">
@@ -248,21 +248,21 @@
 
 	<!-- Unit -->
 	<div class="space-y-1.5">
-		<Label>Unit</Label>
+		<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Unit</Label>
 		<UnitBuilder bind:value={unit} />
 	</div>
 
 	<!-- Prices -->
 	<div class="grid grid-cols-2 gap-4">
 		<div class="space-y-1.5">
-			<Label>Cost Price <span class="text-destructive">*</span></Label>
+			<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Cost Price <span class="text-red-500">*</span></Label>
 			<CurrencyInput bind:value={costPrice} placeholder="0.00" />
 			{#if errors.costPrice}
 				<p class="text-xs text-red-500 mt-1">{errors.costPrice}</p>
 			{/if}
 		</div>
 		<div class="space-y-1.5">
-			<Label>Selling Price</Label>
+			<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Selling Price</Label>
 			<CurrencyInput bind:value={sellingPrice} placeholder="Auto: cost + 10%" onuserinput={() => { sellingPriceManual = true; }} />
 			{#if !sellingPriceManual && costPrice > 0}
 				<p class="text-xs text-emerald-600 dark:text-emerald-400">Auto: {costPrice} + 10% markup</p>
@@ -273,7 +273,7 @@
 	<!-- Stock -->
 	<div class="grid grid-cols-2 gap-4">
 		<div class="space-y-1.5">
-			<Label for="openingStock">Opening Stock <span class="text-destructive">*</span></Label>
+			<Label for="openingStock" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Opening Stock <span class="text-red-500">*</span></Label>
 			<Input
 				id="openingStock"
 				type="number"
@@ -287,7 +287,7 @@
 			{/if}
 		</div>
 		<div class="space-y-1.5">
-			<Label for="reorderLevel">Reorder Level</Label>
+			<Label for="reorderLevel" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Reorder Level</Label>
 			<Input
 				id="reorderLevel"
 				type="number"
@@ -305,7 +305,7 @@
 	<!-- Optional fields (not shown in inline mode) -->
 	{#if !inline}
 		<div class="space-y-1.5">
-			<Label>Category</Label>
+			<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Category</Label>
 			<Select.Root type="single" bind:value={category}>
 				<Select.Trigger>
 					{category || 'Select category...'}
@@ -322,21 +322,21 @@
 
 		<div class="grid grid-cols-3 gap-4">
 			<div class="space-y-1.5">
-				<Label for="sku">SKU</Label>
+				<Label for="sku" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">SKU</Label>
 				<Input id="sku" bind:value={sku} placeholder="Auto-generated" />
 			</div>
 			<div class="space-y-1.5">
-				<Label for="barcode">Barcode</Label>
+				<Label for="barcode" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Barcode</Label>
 				<Input id="barcode" bind:value={barcode} placeholder="Optional" />
 			</div>
 			<div class="space-y-1.5">
-				<Label for="hsCode">HS Code</Label>
+				<Label for="hsCode" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">HS Code</Label>
 				<Input id="hsCode" bind:value={hsCode} placeholder="Optional" />
 			</div>
 		</div>
 
 		<div class="space-y-1.5">
-			<Label for="description">Description</Label>
+			<Label for="description" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Description</Label>
 			<Textarea id="description" bind:value={description} placeholder="Product notes..." rows={3} />
 		</div>
 	{/if}
@@ -346,7 +346,7 @@
 		<Button
 			type="submit"
 			disabled={submitting}
-			class="gap-2"
+			class="min-w-[120px] gap-2 bg-zinc-900 text-white shadow-sm transition-all hover:bg-zinc-800 hover:shadow-md active:scale-[0.98] dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
 		>
 			{#if submitting}
 				<Loader2 class="size-4 animate-spin" />

@@ -102,7 +102,7 @@
 			class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900 {nameError ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
 		/>
 		{#if nameError}
-			<p class="text-xs text-red-500">{nameError}</p>
+			<p class="mt-1 text-xs text-red-500">{nameError}</p>
 		{/if}
 	</div>
 

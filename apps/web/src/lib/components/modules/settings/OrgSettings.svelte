@@ -136,8 +136,8 @@
 		<div class="space-y-4">
 			<h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{t('settings_business_info')}</h3>
 			<div class="grid gap-4 sm:grid-cols-2">
-				<div class="space-y-2">
-					<Label for="businessName">{t('settings_business_name')}</Label>
+				<div class="space-y-1.5">
+					<Label for="businessName" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('settings_business_name')}</Label>
 					<Input
 						id="businessName"
 						bind:value={businessName}
@@ -148,16 +148,16 @@
 						<p class="text-xs text-red-500 mt-1">{errors.businessName}</p>
 					{/if}
 				</div>
-				<div class="space-y-2">
-					<Label for="location">{t('settings_location')}</Label>
+				<div class="space-y-1.5">
+					<Label for="location" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('settings_location')}</Label>
 					<Input id="location" bind:value={location} placeholder="City, District" />
 				</div>
-				<div class="space-y-2">
-					<Label for="phone">{t('settings_phone')}</Label>
+				<div class="space-y-1.5">
+					<Label for="phone" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('settings_phone')}</Label>
 					<Input id="phone" bind:value={phone} placeholder="+977-..." />
 				</div>
-				<div class="space-y-2">
-					<Label for="panNumber">{t('settings_pan_number')}</Label>
+				<div class="space-y-1.5">
+					<Label for="panNumber" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('settings_pan_number')}</Label>
 					<Input id="panNumber" bind:value={panNumber} placeholder="PAN #" />
 				</div>
 			</div>
@@ -169,8 +169,8 @@
 		<div class="space-y-4">
 			<h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{t('settings_fiscal_tax')}</h3>
 			<div class="grid gap-4 sm:grid-cols-2">
-				<div class="space-y-2">
-					<Label for="fiscalYear">{t('settings_fiscal_year')}</Label>
+				<div class="space-y-1.5">
+					<Label for="fiscalYear" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('settings_fiscal_year')}</Label>
 					<Input
 						id="fiscalYear"
 						bind:value={currentFiscalYear}
@@ -182,8 +182,8 @@
 						<p class="text-xs text-red-500 mt-1">{errors.currentFiscalYear}</p>
 					{/if}
 				</div>
-				<div class="space-y-2">
-					<Label for="taxRate">{t('settings_tax_rate')}</Label>
+				<div class="space-y-1.5">
+					<Label for="taxRate" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('settings_tax_rate')}</Label>
 					<Input
 						id="taxRate"
 						type="number"
@@ -239,7 +239,7 @@
 		</div>
 
 		<div class="flex justify-end">
-			<Button type="submit" disabled={updateMutation.isLoading}>
+			<Button type="submit" disabled={updateMutation.isLoading} class="min-w-[120px] bg-zinc-900 text-white shadow-sm transition-all hover:bg-zinc-800 hover:shadow-md active:scale-[0.98] dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200">
 				{#if updateMutation.isLoading}
 					<Loader2 class="mr-1.5 size-4 animate-spin" />
 					{t('settings_saving')}

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import * as Table from '$lib/components/ui/table';
+	import { Button } from '$lib/components/ui/button';
 	import { getConvexClient, api } from '$lib/convex';
 	import { t } from '$lib/t.svelte';
 	import EmptyState from '$lib/components/shared/EmptyState.svelte';
@@ -56,6 +57,7 @@
 	}
 </script>
 
+<div class="space-y-4">
 {#if !loaded}
 	<div class="flex items-center justify-center py-20">
 		<div class="flex flex-col items-center gap-3">
@@ -73,6 +75,18 @@
 		actionIcon={Plus}
 	/>
 {:else}
+	<!-- Toolbar -->
+	<div class="flex items-center justify-end gap-3">
+		<a href="/sales/new">
+			<Button
+				size="sm"
+				class="bg-zinc-900 text-white shadow-sm transition-all hover:bg-zinc-800 hover:shadow-md active:scale-[0.98] dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+			>
+				<Plus class="mr-1.5 size-4" />
+				{t('sale_create')}
+			</Button>
+		</a>
+	</div>
 	<div class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
 		<Table.Root>
 			<Table.Header>
@@ -107,7 +121,8 @@
 			</Table.Body>
 		</Table.Root>
 	</div>
-	<p class="mt-4 text-xs text-zinc-400 dark:text-zinc-500">
+	<p class="text-xs text-zinc-400 dark:text-zinc-500">
 		{sales.length} {sales.length === 1 ? 'sale' : 'sales'}
 	</p>
 {/if}
+</div>

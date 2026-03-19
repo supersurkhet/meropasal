@@ -206,7 +206,7 @@
 			<div class="grid grid-cols-2 gap-4">
 				<!-- Party selector -->
 				<div class="space-y-1.5">
-					<Label class="text-xs font-medium uppercase tracking-wider text-zinc-400">Supplier</Label>
+					<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Supplier</Label>
 					<div class="flex gap-2">
 						<Select.Root type="single" bind:value={partyId}>
 							<Select.Trigger class="flex-1 {errors.partyId ? 'border-red-400 ring-1 ring-red-400/30' : ''}">
@@ -241,7 +241,7 @@
 
 				<!-- Date -->
 				<div class="space-y-1.5">
-					<Label class="text-xs font-medium uppercase tracking-wider text-zinc-400">Import Date</Label>
+					<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Import Date</Label>
 					<DatePicker
 						bind:value={importDate}
 						name="importDate"

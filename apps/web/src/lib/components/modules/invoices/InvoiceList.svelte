@@ -112,9 +112,11 @@
 	</div>
 
 	{#if invoices.isLoading}
-		<div class="flex items-center justify-center py-12 text-zinc-500">
-			<div class="size-5 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-600"></div>
-			<span class="ml-2 text-sm">{t('common_loading_invoices')}</span>
+		<div class="flex items-center justify-center py-20">
+			<div class="flex flex-col items-center gap-3">
+				<div class="size-6 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-900 dark:border-zinc-600 dark:border-t-zinc-100"></div>
+				<p class="text-sm text-zinc-500 dark:text-zinc-400">{t('common_loading_invoices')}</p>
+			</div>
 		</div>
 	{:else if !invoices.data?.length}
 		<EmptyState
@@ -125,7 +127,7 @@
 			actionHref="/stock-import/new"
 		/>
 	{:else}
-		<div class="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
+		<div class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
 			<Table.Root>
 				<Table.Header>
 					<Table.Row class="bg-zinc-50 dark:bg-zinc-900/50">
