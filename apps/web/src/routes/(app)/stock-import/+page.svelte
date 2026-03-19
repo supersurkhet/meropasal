@@ -4,8 +4,8 @@
 	import { t } from '$lib/t.svelte';
 </script>
 
-<MetaTags title={t('nav_stock_import')} />
+<MetaTags title="{t('nav_stock_import')} — {t('app_name')}" />
 
-<div class="p-6">
+<div class="p-6 lg:p-8">
 	<StockImportList />
 </div>

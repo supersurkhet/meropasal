@@ -4,6 +4,7 @@
 	import { useConvexQuery } from '$lib/convex-helpers.svelte';
 	import { api } from '$lib/api';
 	import { formatNPR } from '$lib/currency';
+	import { formatDate } from '$lib/date-utils';
 	import * as Table from '$lib/components/ui/table';
 	import {
 		DollarSign,
@@ -59,13 +60,6 @@
 			.sort((a, b) => b.totalAmount - b.paidAmount - (a.totalAmount - a.paidAmount))
 			.slice(0, 10);
 	});
-
-	function formatDate(iso: string) {
-		return new Date(iso).toLocaleDateString('en-US', {
-			month: 'short',
-			day: 'numeric',
-		});
-	}
 
 	function statusBadgeClass(status: string) {
 		switch (status) {

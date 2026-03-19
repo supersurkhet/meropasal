@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { MetaTags } from 'svelte-meta-tags';
 	import {
-		BarChart3,
 		TrendingUp,
 		Package,
 		DollarSign,
@@ -40,24 +39,6 @@
 <MetaTags title="{t('nav_reports')} — {t('app_name')}" />
 
 <div class="p-6 lg:p-8">
-	<div class="mb-8">
-		<div class="flex items-center gap-3">
-			<div
-				class="flex size-10 items-center justify-center rounded-xl bg-zinc-900 shadow-sm dark:bg-zinc-100"
-			>
-				<BarChart3 class="size-5 text-white dark:text-zinc-900" />
-			</div>
-			<div>
-				<h1 class="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-					{t('nav_reports')}
-				</h1>
-				<p class="text-sm text-zinc-500 dark:text-zinc-400">
-					{t('page_reports_desc')}
-				</p>
-			</div>
-		</div>
-	</div>
-
 	<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 		{#each reports as report}
 			<a

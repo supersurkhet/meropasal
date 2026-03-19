@@ -4,10 +4,11 @@
 	import { useConvexQuery } from '$lib/convex-helpers.svelte';
 	import { api } from '$lib/api';
 	import { formatNPR } from '$lib/currency';
+	import { formatDate } from '$lib/date-utils';
 	import * as Table from '$lib/components/ui/table';
 	import { t } from '$lib/t.svelte';
+	import { Button } from '$lib/components/ui/button';
 	import {
-		LayoutDashboard,
 		TrendingUp,
 		TrendingDown,
 		AlertTriangle,
@@ -18,6 +19,9 @@
 		DollarSign,
 		ShoppingCart,
 		BarChart3,
+		Plus,
+		PackageOpen,
+		ClipboardList,
 	} from '@lucide/svelte';
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
@@ -61,8 +65,7 @@
 	const maxDailySale = $derived(Math.max(...dailySales.map((d) => d.amount), 1));
 
 	function shortDate(iso: string) {
-		const d = new Date(iso);
-		return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+		return formatDate(iso, 'short');
 	}
 
 	const d = $derived(dashboardData.data);
@@ -72,28 +75,6 @@
 <MetaTags title="{t('dashboard_title')} — {t('app_name')}" />
 
 <div class="p-6 lg:p-8">
-	<!-- Header -->
-	<div class="mb-8">
-		<div class="flex items-center gap-3">
-			<div
-				class="flex size-11 items-center justify-center rounded-xl bg-zinc-900 shadow-sm dark:bg-zinc-100"
-			>
-				<LayoutDashboard class="size-5 text-white dark:text-zinc-900" />
-			</div>
-			<div>
-				<h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
-					{t('dashboard_title')}
-				</h1>
-				<p class="text-sm text-zinc-500 dark:text-zinc-400">
-					{#if currentFY.data}
-						{t('fiscal_year')} {currentFY.data} &middot;
-					{/if}
-					{t('dashboard_subtitle')}
-				</p>
-			</div>
-		</div>
-	</div>
-
 	{#if dashboardData.isLoading}
 		<div class="flex items-center justify-center py-24 text-zinc-500">
 			<div class="size-6 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-600"
@@ -101,12 +82,46 @@
 			<span class="ml-3 text-sm">{t('dashboard_loading')}</span>
 		</div>
 	{:else if d}
+		<!-- Quick Actions -->
+		<div class="mb-8 flex flex-wrap gap-3">
+			<a href="/sales/new">
+				<Button
+					size="sm"
+					class="gap-2 bg-emerald-600 text-white shadow-sm transition-all hover:bg-emerald-700 hover:shadow-md active:scale-[0.98] dark:bg-emerald-600 dark:hover:bg-emerald-500"
+				>
+					<Plus class="size-4" />
+					{t('dashboard_new_sale')}
+				</Button>
+			</a>
+			<a href="/stock-import/new">
+				<Button
+					size="sm"
+					variant="outline"
+					class="gap-2 border-zinc-300 shadow-sm dark:border-zinc-700"
+				>
+					<PackageOpen class="size-4" />
+					{t('stock_import_create')}
+				</Button>
+			</a>
+			<a href="/orders/new">
+				<Button
+					size="sm"
+					variant="outline"
+					class="gap-2 border-zinc-300 shadow-sm dark:border-zinc-700"
+				>
+					<ClipboardList class="size-4" />
+					{t('order_create')}
+				</Button>
+			</a>
+		</div>
+
 		<!-- KPI Cards -->
 		<div class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 			<!-- Revenue -->
 			<div
 				class="group relative overflow-hidden rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900"
 			>
+				<div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-400 to-emerald-600"></div>
 				<div class="mb-3 flex items-center justify-between">
 					<div
 						class="flex size-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/30"
@@ -130,6 +145,7 @@
 			<div
 				class="group relative overflow-hidden rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900"
 			>
+				<div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-red-400 to-red-600"></div>
 				<div class="mb-3 flex items-center justify-between">
 					<div
 						class="flex size-9 items-center justify-center rounded-lg bg-red-100 dark:bg-red-900/30"
@@ -153,6 +169,7 @@
 			<div
 				class="group relative overflow-hidden rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900"
 			>
+				<div class="absolute inset-x-0 top-0 h-1 {netIncomePositive ? 'bg-gradient-to-r from-emerald-400 to-emerald-600' : 'bg-gradient-to-r from-red-400 to-red-600'}"></div>
 				<div class="mb-3 flex items-center justify-between">
 					<div
 						class="flex size-9 items-center justify-center rounded-lg {netIncomePositive
@@ -187,6 +204,7 @@
 			<div
 				class="group relative overflow-hidden rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900"
 			>
+				<div class="absolute inset-x-0 top-0 h-1 {d.lowStockCount > 0 ? 'bg-gradient-to-r from-amber-400 to-orange-500' : 'bg-gradient-to-r from-zinc-200 to-zinc-300 dark:from-zinc-700 dark:to-zinc-600'}"></div>
 				<div class="mb-3 flex items-center justify-between">
 					<div
 						class="flex size-9 items-center justify-center rounded-lg {d.lowStockCount > 0
@@ -375,32 +393,38 @@
 			</div>
 		</div>
 
-		<!-- Quick Links -->
-		<div class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
-			<a
-				href="/reports/sales"
-				class="rounded-xl border border-zinc-200 bg-white px-4 py-3 text-center text-sm font-medium text-zinc-700 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-zinc-700"
-			>
-				{t('report_sales')}
-			</a>
-			<a
-				href="/reports/inventory"
-				class="rounded-xl border border-zinc-200 bg-white px-4 py-3 text-center text-sm font-medium text-zinc-700 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-zinc-700"
-			>
-				{t('report_inventory')}
-			</a>
-			<a
-				href="/reports/financial"
-				class="rounded-xl border border-zinc-200 bg-white px-4 py-3 text-center text-sm font-medium text-zinc-700 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-zinc-700"
-			>
-				{t('report_financial')}
-			</a>
-			<a
-				href="/sales/new"
-				class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-center text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-100 dark:border-emerald-900/50 dark:bg-emerald-900/20 dark:text-emerald-400 dark:hover:bg-emerald-900/30"
-			>
-				{t('dashboard_new_sale')}
-			</a>
+		<!-- Reports Links -->
+		<div class="mt-8">
+			<h2 class="mb-3 text-sm font-semibold text-zinc-900 dark:text-zinc-100">{t('nav_reports')}</h2>
+			<div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+				<a
+					href="/reports/sales"
+					class="group flex items-center gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-3 transition-all hover:border-zinc-300 hover:shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
+				>
+					<div class="flex size-8 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
+						<TrendingUp class="size-4 text-emerald-600 dark:text-emerald-400" />
+					</div>
+					<span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('report_sales')}</span>
+				</a>
+				<a
+					href="/reports/inventory"
+					class="group flex items-center gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-3 transition-all hover:border-zinc-300 hover:shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
+				>
+					<div class="flex size-8 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/30">
+						<Package class="size-4 text-amber-600 dark:text-amber-400" />
+					</div>
+					<span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('report_inventory')}</span>
+				</a>
+				<a
+					href="/reports/financial"
+					class="group flex items-center gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-3 transition-all hover:border-zinc-300 hover:shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
+				>
+					<div class="flex size-8 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
+						<DollarSign class="size-4 text-blue-600 dark:text-blue-400" />
+					</div>
+					<span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('report_financial')}</span>
+				</a>
+			</div>
 		</div>
 	{/if}
 </div>

@@ -11,6 +11,8 @@
 		Download,
 		ArrowLeft,
 	} from '@lucide/svelte';
+	import DatePicker from '$lib/components/shared/DatePicker.svelte';
+	import { formatDate } from '$lib/date-utils';
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 	const currentFY = useConvexQuery(client, api.functions.fiscalYear.current, () => ({}));
@@ -49,11 +51,7 @@
 	const maxDayAmount = $derived(Math.max(...dailyBreakdown.map((d) => d.amount), 1));
 
 	function shortDate(iso: string) {
-		return new Date(iso).toLocaleDateString('en-US', {
-			month: 'short',
-			day: 'numeric',
-			year: 'numeric',
-		});
+		return formatDate(iso, 'short');
 	}
 
 	function setRange(days: number) {
@@ -97,14 +95,12 @@
 	>
 		<Calendar class="size-4 text-zinc-500" />
 		<div class="flex items-center gap-2">
-			<input
-				type="date"
+			<DatePicker
 				bind:value={startDate}
 				class="rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800"
 			/>
 			<span class="text-sm text-zinc-400">to</span>
-			<input
-				type="date"
+			<DatePicker
 				bind:value={endDate}
 				class="rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800"
 			/>
