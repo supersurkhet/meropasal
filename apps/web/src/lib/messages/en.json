@@ -458,6 +458,8 @@
 	"payment_summary_paid": "Paid",
 
 	"action_saving": "Saving...",
+	"action_reset_changes": "Reset Changes",
+	"shortcut_save_hint": "to save",
 	"bill_save_hint": "to save",
 
 	"fiscal_close_stock_snapshot": "Stock Snapshot",
@@ -530,6 +532,7 @@
 	"ledger_narration": "Narration",
 	"ledger_voucher_type": "Voucher Type",
 	"ledger_account": "Account",
+	"ledger_current_fy": "Current FY",
 
 	"stock_book_source": "Source",
 

@@ -4,6 +4,7 @@
 	import { api } from '$lib/api';
 	import { formatNPR } from '$lib/currency';
 	import * as Table from '$lib/components/ui/table';
+	import * as Select from '$lib/components/ui/select';
 	import { FileText, Filter } from '@lucide/svelte';
 	import { t } from '$lib/t.svelte';
 	import EmptyState from '$lib/components/shared/EmptyState.svelte';
@@ -71,44 +72,41 @@
 			<span class="text-sm font-medium text-zinc-600 dark:text-zinc-400">{t('common_filters')}</span>
 		</div>
 
-		<select
-			class="rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-			onchange={(e) => {
-				const val = (e.target as HTMLSelectElement).value;
-				typeFilter = val ? (val as InvoiceType) : undefined;
-			}}
-		>
-			<option value="">{t('common_all_types')}</option>
-			<option value="purchase">{t('invoice_type_purchase')}</option>
-			<option value="sale">{t('invoice_type_sale')}</option>
-		</select>
+		<Select.Root type="single" value={typeFilter ?? 'all'} onValueChange={(v) => { typeFilter = v === 'all' ? undefined : v as InvoiceType; }}>
+			<Select.Trigger size="sm">
+				{typeFilter ? (typeFilter === 'purchase' ? t('invoice_type_purchase') : t('invoice_type_sale')) : t('common_all_types')}
+			</Select.Trigger>
+			<Select.Content>
+				<Select.Item value="all">{t('common_all_types')}</Select.Item>
+				<Select.Item value="purchase">{t('invoice_type_purchase')}</Select.Item>
+				<Select.Item value="sale">{t('invoice_type_sale')}</Select.Item>
+			</Select.Content>
+		</Select.Root>
 
-		<select
-			class="rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-			onchange={(e) => {
-				const val = (e.target as HTMLSelectElement).value;
-				fiscalYearFilter = val || undefined;
-			}}
-		>
-			<option value="">{t('common_all_fiscal_years')}</option>
-			{#each fiscalYears as fy}
-				<option value={fy}>{fy}</option>
-			{/each}
-		</select>
+		<Select.Root type="single" value={fiscalYearFilter ?? 'all'} onValueChange={(v) => { fiscalYearFilter = v === 'all' ? undefined : v; }}>
+			<Select.Trigger size="sm">
+				{fiscalYearFilter ?? t('common_all_fiscal_years')}
+			</Select.Trigger>
+			<Select.Content>
+				<Select.Item value="all">{t('common_all_fiscal_years')}</Select.Item>
+				{#each fiscalYears as fy}
+					<Select.Item value={fy}>{fy}</Select.Item>
+				{/each}
+			</Select.Content>
+		</Select.Root>
 
-		<select
-			class="rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-			onchange={(e) => {
-				const val = (e.target as HTMLSelectElement).value;
-				paymentStatusFilter = val ? (val as PaymentStatusFilter) : undefined;
-			}}
-		>
-			<option value="">{t('common_all_statuses')}</option>
-			<option value="pending">{t('status_pending')}</option>
-			<option value="partial">{t('status_partial')}</option>
-			<option value="paid">{t('status_paid')}</option>
-			<option value="overpaid">{t('status_overpaid')}</option>
-		</select>
+		<Select.Root type="single" value={paymentStatusFilter ?? 'all'} onValueChange={(v) => { paymentStatusFilter = v === 'all' ? undefined : v as PaymentStatusFilter; }}>
+			<Select.Trigger size="sm">
+				{paymentStatusFilter ? t(`status_${paymentStatusFilter}`) : t('common_all_statuses')}
+			</Select.Trigger>
+			<Select.Content>
+				<Select.Item value="all">{t('common_all_statuses')}</Select.Item>
+				<Select.Item value="pending">{t('status_pending')}</Select.Item>
+				<Select.Item value="partial">{t('status_partial')}</Select.Item>
+				<Select.Item value="paid">{t('status_paid')}</Select.Item>
+				<Select.Item value="overpaid">{t('status_overpaid')}</Select.Item>
+			</Select.Content>
+		</Select.Root>
 	</div>
 
 	{#if invoices.isLoading}

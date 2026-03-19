@@ -4,6 +4,7 @@
 	import { api } from '$lib/api';
 	import { formatNumber } from '$lib/currency';
 	import * as Table from '$lib/components/ui/table';
+	import * as Select from '$lib/components/ui/select';
 	import { ChevronDown, ChevronRight, Package, Filter } from '@lucide/svelte';
 	import { t } from '$lib/t.svelte';
 	import EmptyState from '$lib/components/shared/EmptyState.svelte';
@@ -95,18 +96,17 @@
 <div class="space-y-4">
 	<div class="flex flex-wrap items-center gap-3">
 		<Filter class="size-4 text-zinc-500" />
-		<select
-			class="rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-			onchange={(e) => {
-				const val = (e.target as HTMLSelectElement).value;
-				fiscalYearFilter = val || undefined;
-			}}
-		>
-			<option value="">{t('common_all_fiscal_years')}</option>
-			{#each fiscalYears as fy}
-				<option value={fy}>{fy}</option>
-			{/each}
-		</select>
+		<Select.Root type="single" value={fiscalYearFilter ?? 'all'} onValueChange={(v) => { fiscalYearFilter = v === 'all' ? undefined : v; }}>
+			<Select.Trigger size="sm">
+				{fiscalYearFilter ?? t('common_all_fiscal_years')}
+			</Select.Trigger>
+			<Select.Content>
+				<Select.Item value="all">{t('common_all_fiscal_years')}</Select.Item>
+				{#each fiscalYears as fy}
+					<Select.Item value={fy}>{fy}</Select.Item>
+				{/each}
+			</Select.Content>
+		</Select.Root>
 	</div>
 
 	{#if aggregation.isLoading || products.isLoading}

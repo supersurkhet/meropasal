@@ -4,6 +4,7 @@
 	import { api } from '$lib/api';
 	import { formatNPR, formatNumber } from '$lib/currency';
 	import * as Table from '$lib/components/ui/table';
+	import * as Select from '$lib/components/ui/select';
 	import { ArrowDownToLine, ArrowUpFromLine, Filter, BookOpen } from '@lucide/svelte';
 	import { t } from '$lib/t.svelte';
 	import EmptyState from '$lib/components/shared/EmptyState.svelte';
@@ -59,6 +60,17 @@
 		'tripDispatch', 'tripReturn', 'adjustment',
 	];
 
+	const movementTypeLabels: Record<string, () => string> = {
+		opening: () => t('stock_book_movement_opening'),
+		closing: () => t('stock_book_movement_closing'),
+		purchase: () => t('stock_book_movement_purchase'),
+		sale: () => t('stock_book_movement_sale'),
+		order: () => t('stock_book_movement_order'),
+		tripDispatch: () => t('stock_book_movement_dispatch'),
+		tripReturn: () => t('stock_book_movement_return'),
+		adjustment: () => t('stock_book_movement_adjustment'),
+	};
+
 	function movementBadgeClass(type: string) {
 		switch (type) {
 			case 'purchase': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
@@ -80,44 +92,41 @@
 	<div class="flex flex-wrap items-center gap-3">
 		<Filter class="size-4 text-zinc-500" />
 
-		<select
-			class="rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-			onchange={(e) => {
-				const val = (e.target as HTMLSelectElement).value;
-				productFilter = val || undefined;
-			}}
-		>
-			<option value="">{t('common_all_products')}</option>
-			{#each products.data ?? [] as product}
-				<option value={(product as any)._id}>{(product as any).title}</option>
-			{/each}
-		</select>
+		<Select.Root type="single" value={productFilter ?? 'all'} onValueChange={(v) => { productFilter = v === 'all' ? undefined : v; }}>
+			<Select.Trigger size="sm">
+				{productFilter ? (products.data ?? []).find((p: any) => p._id === productFilter)?.title ?? productFilter : t('common_all_products')}
+			</Select.Trigger>
+			<Select.Content>
+				<Select.Item value="all">{t('common_all_products')}</Select.Item>
+				{#each products.data ?? [] as product}
+					<Select.Item value={(product as any)._id}>{(product as any).title}</Select.Item>
+				{/each}
+			</Select.Content>
+		</Select.Root>
 
-		<select
-			class="rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-			onchange={(e) => {
-				const val = (e.target as HTMLSelectElement).value;
-				movementTypeFilter = val || undefined;
-			}}
-		>
-			<option value="">{t('common_all_movement_types')}</option>
-			{#each movementTypes as mt}
-				<option value={mt}>{mt}</option>
-			{/each}
-		</select>
+		<Select.Root type="single" value={movementTypeFilter ?? 'all'} onValueChange={(v) => { movementTypeFilter = v === 'all' ? undefined : v; }}>
+			<Select.Trigger size="sm">
+				{movementTypeFilter ? movementTypeLabels[movementTypeFilter]?.() ?? movementTypeFilter : t('common_all_movement_types')}
+			</Select.Trigger>
+			<Select.Content>
+				<Select.Item value="all">{t('common_all_movement_types')}</Select.Item>
+				{#each movementTypes as mt}
+					<Select.Item value={mt}>{movementTypeLabels[mt]?.() ?? mt}</Select.Item>
+				{/each}
+			</Select.Content>
+		</Select.Root>
 
-		<select
-			class="rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-			onchange={(e) => {
-				const val = (e.target as HTMLSelectElement).value;
-				fiscalYearFilter = val || undefined;
-			}}
-		>
-			<option value="">{t('common_all_fiscal_years')}</option>
-			{#each fiscalYears as fy}
-				<option value={fy}>{fy}</option>
-			{/each}
-		</select>
+		<Select.Root type="single" value={fiscalYearFilter ?? 'all'} onValueChange={(v) => { fiscalYearFilter = v === 'all' ? undefined : v; }}>
+			<Select.Trigger size="sm">
+				{fiscalYearFilter ?? t('common_all_fiscal_years')}
+			</Select.Trigger>
+			<Select.Content>
+				<Select.Item value="all">{t('common_all_fiscal_years')}</Select.Item>
+				{#each fiscalYears as fy}
+					<Select.Item value={fy}>{fy}</Select.Item>
+				{/each}
+			</Select.Content>
+		</Select.Root>
 	</div>
 
 	{#if entries.isLoading}

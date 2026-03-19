@@ -4,6 +4,7 @@
 	import { api } from '$lib/api';
 	import { formatNPR } from '$lib/currency';
 	import * as Table from '$lib/components/ui/table';
+	import * as Select from '$lib/components/ui/select';
 	import { Filter, Scale } from '@lucide/svelte';
 	import { t } from '$lib/t.svelte';
 	import EmptyState from '$lib/components/shared/EmptyState.svelte';
@@ -52,15 +53,17 @@
 <div class="space-y-4">
 	<div class="flex flex-wrap items-center gap-3">
 		<Filter class="size-4 text-zinc-500" />
-		<select
-			class="rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-			bind:value={selectedFY}
-		>
-			<option value="">Current FY ({currentFY.data ?? '...'})</option>
-			{#each fiscalYears as fy}
-				<option value={fy}>{fy}</option>
-			{/each}
-		</select>
+		<Select.Root type="single" value={selectedFY || 'current'} onValueChange={(v) => { selectedFY = v === 'current' ? '' : v; }}>
+			<Select.Trigger size="sm">
+				{selectedFY || `${t('ledger_current_fy')} (${currentFY.data ?? '...'})`}
+			</Select.Trigger>
+			<Select.Content>
+				<Select.Item value="current">{t('ledger_current_fy')} ({currentFY.data ?? '...'})</Select.Item>
+				{#each fiscalYears as fy}
+					<Select.Item value={fy}>{fy}</Select.Item>
+				{/each}
+			</Select.Content>
+		</Select.Root>
 
 		{#if trialBalance.data}
 			<div class="ml-auto flex items-center gap-2">

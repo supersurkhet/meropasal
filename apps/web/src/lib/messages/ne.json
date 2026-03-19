@@ -458,6 +458,8 @@
 	"payment_summary_paid": "भुक्तानी",
 
 	"action_saving": "सेभ गर्दै...",
+	"action_reset_changes": "रिसेट गर्नुहोस्",
+	"shortcut_save_hint": "सेभ गर्न",
 	"bill_save_hint": "सेभ गर्न",
 
 	"fiscal_close_stock_snapshot": "स्टक स्न्यापसट",
@@ -530,6 +532,7 @@
 	"ledger_narration": "विवरण",
 	"ledger_voucher_type": "भौचर प्रकार",
 	"ledger_account": "खाता",
+	"ledger_current_fy": "हालको आ.व.",
 
 	"stock_book_source": "स्रोत",
 
