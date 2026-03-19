@@ -145,6 +145,7 @@
 											variant="ghost"
 											size="sm"
 											class="size-8 p-0 opacity-0 transition-opacity group-hover:opacity-100"
+											aria-label={t('a11y_more_options')}
 										>
 											<MoreHorizontal class="size-4 text-zinc-500" />
 										</Button>

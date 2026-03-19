@@ -246,10 +246,10 @@
 					<Table.Body>
 						{#each order.items as item}
 							<Table.Row>
-								<Table.Cell class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-									{item.productTitle}
+								<Table.Cell class="text-sm font-medium text-zinc-900 dark:text-zinc-100 max-w-[250px]">
+									<span class="truncate block">{item.productTitle}</span>
 									{#if item.unit}
-										<span class="ml-1 text-xs text-zinc-400">({item.unit})</span>
+										<span class="text-xs text-zinc-400">({item.unit})</span>
 									{/if}
 								</Table.Cell>
 								<Table.Cell class="text-right font-mono text-sm text-zinc-700 dark:text-zinc-300">

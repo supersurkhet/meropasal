@@ -297,7 +297,7 @@
 		<div class="space-y-1.5">
 			<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('product_category')}</Label>
 			<Select.Root type="single" bind:value={category}>
-				<Select.Trigger>
+				<Select.Trigger class={errors.category ? 'border-red-400 ring-1 ring-red-400/30' : ''}>
 					{category || t('product_select_category')}
 				</Select.Trigger>
 				<Select.Content>
@@ -308,6 +308,9 @@
 					{/each}
 				</Select.Content>
 			</Select.Root>
+			{#if errors.category}
+				<p class="text-xs text-red-500 mt-1">{errors.category}</p>
+			{/if}
 		</div>
 
 		<div class="grid grid-cols-3 gap-4">

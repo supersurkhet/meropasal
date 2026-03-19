@@ -8,6 +8,7 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Separator } from '$lib/components/ui/separator';
 	import { Save, Star, Trash2, Plus, Loader2, Eye } from '@lucide/svelte';
+	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { toast } from 'svelte-sonner';
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
@@ -246,11 +247,9 @@
 			<div class="flex flex-wrap gap-2">
 				{#each allHeaderFields as field}
 					<label class="flex items-center gap-2 rounded border border-zinc-200 px-3 py-1.5 text-sm cursor-pointer transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800">
-						<input
-							type="checkbox"
+						<Checkbox
 							checked={headerFields.includes(field.key)}
-							onchange={() => toggleHeaderField(field.key)}
-							class="size-3.5 rounded"
+							onCheckedChange={() => toggleHeaderField(field.key)}
 						/>
 						{field.label}
 					</label>
@@ -261,7 +260,7 @@
 		<!-- Logo Settings -->
 		<div class="space-y-2">
 			<label class="flex items-center gap-2">
-				<input type="checkbox" bind:checked={showLogo} class="size-3.5 rounded" />
+				<Checkbox bind:checked={showLogo} />
 				<Label>Show Logo</Label>
 			</label>
 			{#if showLogo}
@@ -286,11 +285,9 @@
 					{@const isActive = columnOrder.includes(col.key)}
 					{@const idx = columnOrder.indexOf(col.key)}
 					<div class="flex items-center gap-2 rounded border border-zinc-200 px-3 py-1.5 dark:border-zinc-700">
-						<input
-							type="checkbox"
+						<Checkbox
 							checked={isActive}
-							onchange={() => toggleColumn(col.key)}
-							class="size-3.5 rounded"
+							onCheckedChange={() => toggleColumn(col.key)}
 						/>
 						<span class="flex-1 text-sm">{col.label}</span>
 						{#if isActive}
@@ -319,15 +316,15 @@
 			<Label>Display Options</Label>
 			<div class="grid grid-cols-2 gap-2">
 				<label class="flex items-center gap-2 text-sm">
-					<input type="checkbox" bind:checked={showTax} class="size-3.5 rounded" />
+					<Checkbox bind:checked={showTax} />
 					Show Tax
 				</label>
 				<label class="flex items-center gap-2 text-sm">
-					<input type="checkbox" bind:checked={showDiscount} class="size-3.5 rounded" />
+					<Checkbox bind:checked={showDiscount} />
 					Show Discount
 				</label>
 				<label class="flex items-center gap-2 text-sm">
-					<input type="checkbox" bind:checked={showPaymentDetails} class="size-3.5 rounded" />
+					<Checkbox bind:checked={showPaymentDetails} />
 					Show Payments
 				</label>
 			</div>

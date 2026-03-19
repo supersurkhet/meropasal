@@ -66,7 +66,7 @@
 			case 'payment': return 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400';
 			case 'journal': return 'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400';
 			case 'contra': return 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-400';
-			default: return 'bg-zinc-100 text-zinc-800';
+			default: return 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200';
 		}
 	}
 

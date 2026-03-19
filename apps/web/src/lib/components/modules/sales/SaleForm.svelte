@@ -109,6 +109,26 @@
 	);
 
 	function validate(): boolean {
+		// Client-side: qty and rate must be positive for filled rows
+		for (let i = 0; i < items.length; i++) {
+			const item = items[i]
+			if (!item.productId) continue
+			const qty = Number(item.quantity)
+			const rate = Number(item.rate)
+			if (!qty || qty <= 0) {
+				fieldErrors = { [`items.${i}.quantity`]: 'Quantity must be greater than 0' }
+				error = 'Quantity must be greater than 0'
+				toast.error(error)
+				return false
+			}
+			if (rate < 0) {
+				fieldErrors = { [`items.${i}.rate`]: 'Rate must be a positive number' }
+				error = 'Rate must be a positive number'
+				toast.error(error)
+				return false
+			}
+		}
+
 		const validItems = items
 			.filter((i) => i.productId && Number(i.quantity) > 0)
 			.map((i) => ({
@@ -282,7 +302,7 @@
 								bind:value={item.quantity}
 								placeholder="0"
 								min="1"
-								class="h-9 text-sm font-mono border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900 {qty > item.available && item.productId ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
+								class="h-9 text-sm font-mono border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900 {qty > item.available && item.productId || fieldErrors[`items.${i}.quantity`] ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
 							/>
 						</div>
 
@@ -292,7 +312,7 @@
 							placeholder="0"
 							min="0"
 							step="0.01"
-							class="h-9 text-sm font-mono border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900"
+							class="h-9 text-sm font-mono border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900 {fieldErrors[`items.${i}.rate`] ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
 						/>
 
 						<span class="text-sm font-mono font-medium text-zinc-700 dark:text-zinc-300">
@@ -306,6 +326,7 @@
 							onclick={() => removeItem(i)}
 							disabled={items.length <= 1}
 							class="text-zinc-400 hover:text-red-500"
+							aria-label={t('a11y_remove_item')}
 						>
 							<Trash2 class="size-3.5" />
 						</Button>

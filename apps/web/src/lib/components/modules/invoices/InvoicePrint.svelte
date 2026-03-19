@@ -55,6 +55,19 @@
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 	const template = useConvexQuery(client, api.functions.billTemplates.getDefault, () => ({}));
 
+	let partyName = $state<string | null>(null);
+
+	$effect(() => {
+		if (invoice.partyId) {
+			const queryFn = invoice.partyType === 'customer'
+				? api.functions.customers.getById
+				: api.functions.parties.getById;
+			client.query(queryFn, { id: invoice.partyId as any }).then((p: any) => {
+				partyName = p?.name ?? null;
+			});
+		}
+	});
+
 	const layout = $derived(template.data?.layout ?? {
 		headerFields: ['businessName', 'address', 'phone', 'pan'],
 		showLogo: false,
@@ -110,7 +123,7 @@
 
 		<!-- Preview Area -->
 		<div class="flex-1 overflow-auto bg-zinc-100 p-8 dark:bg-zinc-950">
-			<div class="{paperClass} rounded-sm bg-white p-8 shadow-lg print:shadow-none print:p-0" id="print-area">
+			<div class="{paperClass} rounded-sm bg-white p-8 text-zinc-900 shadow-lg print:shadow-none print:p-0" id="print-area">
 				<div class={fontClass}>
 					<!-- Business Header -->
 					<div class="mb-6 text-center">
@@ -146,7 +159,7 @@
 						<div class="text-right">
 							<p><strong>{t('invoice_fiscal_year')}:</strong> {invoice.fiscalYear}</p>
 							{#if invoice.partyId}
-								<p><strong>{invoice.partyType === 'customer' ? t('customer_title') : t('party_title')}:</strong> {invoice.partyId}</p>
+								<p><strong>{invoice.partyType === 'customer' ? t('customer_title') : t('party_title')}:</strong> {partyName ?? '...'}</p>
 							{/if}
 						</div>
 					</div>
@@ -154,7 +167,7 @@
 					<!-- Items Table -->
 					<table class="mb-4 w-full border-collapse border border-zinc-400">
 						<thead>
-							<tr class="bg-zinc-100">
+							<tr class="bg-zinc-100 dark:bg-zinc-800">
 								{#each layout.columnOrder ?? ['sn', 'product', 'quantity', 'unit', 'rate', 'amount'] as col}
 									{#if col === 'sn'}
 										<th class="border border-zinc-400 px-2 py-1 text-left">{t('common_sn')}</th>

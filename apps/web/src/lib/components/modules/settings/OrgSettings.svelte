@@ -7,6 +7,7 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Separator } from '$lib/components/ui/separator';
 	import { Save, Loader2, AlertTriangle, RotateCcw } from '@lucide/svelte';
+	import { Checkbox } from '$lib/components/ui/checkbox';
 	import StickyActions from '$lib/components/shared/StickyActions.svelte';
 	import { toast } from 'svelte-sonner';
 	import { t } from '$lib/t.svelte';
@@ -243,28 +244,28 @@
 			<p class="text-sm text-zinc-500">{t('settings_features_desc')}</p>
 			<div class="grid gap-3 sm:grid-cols-2">
 				<label class="flex items-center gap-3 rounded-lg border border-zinc-200 p-3 cursor-pointer transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/50">
-					<input type="checkbox" bind:checked={featureInvoicing} class="size-4 rounded border-zinc-300" />
+					<Checkbox bind:checked={featureInvoicing} />
 					<div>
 						<span class="text-sm font-medium text-zinc-900 dark:text-zinc-100">{t('settings_feature_invoicing')}</span>
 						<p class="text-xs text-zinc-500">{t('settings_feature_invoicing_desc')}</p>
 					</div>
 				</label>
 				<label class="flex items-center gap-3 rounded-lg border border-zinc-200 p-3 cursor-pointer transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/50">
-					<input type="checkbox" bind:checked={featureStockBook} class="size-4 rounded border-zinc-300" />
+					<Checkbox bind:checked={featureStockBook} />
 					<div>
 						<span class="text-sm font-medium text-zinc-900 dark:text-zinc-100">{t('settings_feature_stock_book')}</span>
 						<p class="text-xs text-zinc-500">{t('settings_feature_stock_book_desc')}</p>
 					</div>
 				</label>
 				<label class="flex items-center gap-3 rounded-lg border border-zinc-200 p-3 cursor-pointer transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/50">
-					<input type="checkbox" bind:checked={featureLogistics} class="size-4 rounded border-zinc-300" />
+					<Checkbox bind:checked={featureLogistics} />
 					<div>
 						<span class="text-sm font-medium text-zinc-900 dark:text-zinc-100">{t('settings_feature_logistics')}</span>
 						<p class="text-xs text-zinc-500">{t('settings_feature_logistics_desc')}</p>
 					</div>
 				</label>
 				<label class="flex items-center gap-3 rounded-lg border border-zinc-200 p-3 cursor-pointer transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/50">
-					<input type="checkbox" bind:checked={featureLedger} class="size-4 rounded border-zinc-300" />
+					<Checkbox bind:checked={featureLedger} />
 					<div>
 						<span class="text-sm font-medium text-zinc-900 dark:text-zinc-100">{t('settings_feature_ledger')}</span>
 						<p class="text-xs text-zinc-500">{t('settings_feature_ledger_desc')}</p>

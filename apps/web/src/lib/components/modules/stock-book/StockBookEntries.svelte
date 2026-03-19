@@ -81,7 +81,7 @@
 			case 'tripReturn': return 'bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-400';
 			case 'order': return 'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400';
 			case 'adjustment': return 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300';
-			default: return 'bg-zinc-100 text-zinc-800';
+			default: return 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200';
 		}
 	}
 
