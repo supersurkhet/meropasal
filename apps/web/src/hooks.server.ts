@@ -1,5 +1,5 @@
 import type { Handle } from '@sveltejs/kit';
-import { workos, COOKIE_NAME, WORKOS_COOKIE_PASSWORD } from '$lib/server/auth';
+import { workos, COOKIE_NAME, WORKOS_COOKIE_PASSWORD, sessionCookieOptions } from '$lib/server/auth';
 
 export const handle: Handle = async ({ event, resolve }) => {
 	// Default to unauthenticated
@@ -46,13 +46,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 				// Refresh the sealed session if WorkOS returned a new one
 				if ('sealedSession' in result && result.sealedSession) {
-					event.cookies.set(COOKIE_NAME, result.sealedSession as string, {
-						path: '/',
-						httpOnly: true,
-						secure: true,
-						sameSite: 'lax',
-						maxAge: 60 * 60 * 24 * 30, // 30 days
-					});
+					event.cookies.set(COOKIE_NAME, result.sealedSession as string, sessionCookieOptions(event.url));
 				}
 			}
 		} catch {

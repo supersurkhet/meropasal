@@ -1,6 +1,6 @@
 import type { PageServerLoad } from './$types'
 import { redirect } from '@sveltejs/kit'
-import { workos, COOKIE_NAME, WORKOS_CLIENT_ID } from '$lib/server/auth'
+import { workos, COOKIE_NAME, WORKOS_CLIENT_ID, sessionCookieOptions } from '$lib/server/auth'
 import { WORKOS_COOKIE_PASSWORD } from '$env/static/private'
 import { ConvexHttpClient } from 'convex/browser'
 import { api } from '$lib/api'
@@ -25,58 +25,59 @@ export const load: PageServerLoad = async ({ url, cookies }) => {
 	const { user, sealedSession, accessToken } = authResult
 
 	if (sealedSession) {
-		cookies.set(COOKIE_NAME, sealedSession, {
-			path: '/',
-			httpOnly: true,
-			secure: true,
-			sameSite: 'lax',
-			maxAge: 60 * 60 * 24 * 30, // 30 days
-		})
+		cookies.set(COOKIE_NAME, sealedSession, sessionCookieOptions(url))
 	}
 
-	// Check if this is a return from the onboarding flow
-	const onboardingCookie = cookies.get('mp-onboarding')
-	if (onboardingCookie) {
-		try {
-			const data = JSON.parse(onboardingCookie)
-			cookies.delete('mp-onboarding', { path: '/' })
+	const convex = new ConvexHttpClient(CONVEX_URL)
+	convex.setAuth(accessToken)
 
-			// Initialize the org in Convex using the org-scoped access token
-			const convexUrl = CONVEX_URL
-			const convex = new ConvexHttpClient(convexUrl)
-			convex.setAuth(accessToken)
+	// Check if there's pending onboarding data in Convex
+	try {
+		const pendingData = await convex.mutation(
+			api.functions.organizations.consumePendingOnboarding,
+			{ workosUserId: user.id }
+		)
 
-			await convex.mutation(api.functions.organizations.initializeOrg, {
-				businessName: data.businessName,
-				businessType: data.businessType,
-				currentFiscalYear: data.currentFiscalYear,
-				location: data.location || undefined,
-				phone: data.phone || undefined,
-				panNumber: data.panNumber || undefined,
-			})
-
-			redirect(302, '/dashboard')
-		} catch (err) {
-			// Re-throw redirects
-			if (err && typeof err === 'object' && 'status' in err) throw err
-			// If Convex init fails, still redirect to dashboard — the user has an org now
-			// They can retry setup or it may already exist
-			console.error('Failed to initialize org in Convex:', err)
+		if (pendingData) {
+			// Initialize the org in Convex with the stored business data
+			try {
+				await convex.mutation(api.functions.organizations.initializeOrg, {
+					businessName: pendingData.businessName,
+					businessType: pendingData.businessType,
+					currentFiscalYear: pendingData.currentFiscalYear,
+					location: pendingData.location || undefined,
+					phone: pendingData.phone || undefined,
+					panNumber: pendingData.panNumber || undefined,
+				})
+			} catch (err) {
+				console.error('Failed to initialize org in Convex:', err)
+			}
 			redirect(302, '/dashboard')
 		}
+	} catch (err) {
+		if (err && typeof err === 'object' && 'status' in err) throw err
+		console.error('Failed to check pending onboarding:', err)
 	}
 
-	// Check if user has an org membership
+	// No pending onboarding — check if user has an org membership
 	try {
 		const memberships = await workos.userManagement.listOrganizationMemberships({
 			userId: user.id,
 		})
 
 		if (memberships.data.length > 0) {
+			const orgId = memberships.data[0].organizationId
+
+			// Ensure user→org mapping exists in Convex
+			try {
+				await convex.mutation(api.functions.organizations.ensureUserOrgMapping, { orgId })
+			} catch {
+				// Non-fatal — mapping may already exist
+			}
+
 			redirect(302, '/dashboard')
 		}
 	} catch (err) {
-		// Re-throw redirects
 		if (err && typeof err === 'object' && 'status' in err) throw err
 	}
 

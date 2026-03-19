@@ -1,7 +1,10 @@
 import { redirect, fail } from '@sveltejs/kit'
 import type { PageServerLoad, Actions } from './$types'
-import { workos, COOKIE_NAME, WORKOS_CLIENT_ID } from '$lib/server/auth'
-import { WORKOS_COOKIE_PASSWORD } from '$env/static/private'
+import { workos, WORKOS_CLIENT_ID } from '$lib/server/auth'
+import { ConvexHttpClient } from 'convex/browser'
+import { api } from '$lib/api'
+
+const CONVEX_URL = import.meta.env.VITE_CONVEX_URL || process.env.VITE_CONVEX_URL || 'https://dapper-pig-289.convex.cloud'
 
 export const load: PageServerLoad = async ({ parent, locals }) => {
 	const data = await parent()
@@ -21,12 +24,9 @@ export const load: PageServerLoad = async ({ parent, locals }) => {
 				userId: locals.user.id,
 			})
 			if (memberships.data.length > 0) {
-				// User has an org but session doesn't include it.
-				// Redirect through WorkOS auth to get org-scoped session.
 				redirect(302, '/dashboard')
 			}
 		} catch (err) {
-			// Re-throw redirects
 			if (err && typeof err === 'object' && 'status' in err) throw err
 		}
 	}
@@ -35,7 +35,7 @@ export const load: PageServerLoad = async ({ parent, locals }) => {
 }
 
 export const actions: Actions = {
-	createBusiness: async ({ request, locals, cookies, url }) => {
+	createBusiness: async ({ request, locals, url }) => {
 		if (!locals.user) {
 			redirect(302, '/login')
 		}
@@ -71,21 +71,16 @@ export const actions: Actions = {
 				roleSlug: 'owner',
 			})
 
-			// 3. Store business setup data in a short-lived cookie
-			const onboardingData = JSON.stringify({
+			// 3. Store business data in Convex (survives OAuth redirect reliably)
+			const convex = new ConvexHttpClient(CONVEX_URL)
+			await convex.mutation(api.functions.organizations.savePendingOnboarding, {
+				workosUserId: locals.user.id,
 				businessName,
-				businessType,
+				businessType: businessType as 'retail' | 'wholesale' | 'service',
 				currentFiscalYear,
 				location,
 				phone,
 				panNumber,
-			})
-			cookies.set('mp-onboarding', onboardingData, {
-				path: '/',
-				httpOnly: true,
-				secure: true,
-				sameSite: 'lax',
-				maxAge: 60 * 5, // 5 minutes
 			})
 
 			// 4. Redirect through WorkOS OAuth to get org-scoped session
@@ -98,7 +93,6 @@ export const actions: Actions = {
 
 			redirect(302, authorizationUrl)
 		} catch (err) {
-			// Re-throw redirects
 			if (err && typeof err === 'object' && 'status' in err && (err as { status: number }).status === 302) {
 				throw err
 			}

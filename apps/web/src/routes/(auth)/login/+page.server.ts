@@ -8,13 +8,12 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		redirect(302, '/dashboard');
 	}
 
-	// For now, use the first organization the user belongs to.
-	// In a multi-org setup, you'd show an org picker.
+	// Auto-redirect to WorkOS AuthKit — no login UI needed
 	const authorizationUrl = workos.userManagement.getAuthorizationUrl({
 		provider: 'authkit',
 		clientId: WORKOS_CLIENT_ID,
 		redirectUri: `${url.origin}/callback`,
 	});
 
-	return { authorizationUrl };
+	redirect(302, authorizationUrl);
 };

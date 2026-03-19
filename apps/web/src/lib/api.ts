@@ -6,6 +6,16 @@ import { makeFunctionReference } from 'convex/server';
 
 export const api = {
 	functions: {
+		notifications: {
+			list: makeFunctionReference<'query'>('functions/notifications:list'),
+			unreadCount: makeFunctionReference<'query'>('functions/notifications:unreadCount'),
+			markRead: makeFunctionReference<'mutation'>('functions/notifications:markRead'),
+			markAllRead: makeFunctionReference<'mutation'>('functions/notifications:markAllRead'),
+			create: makeFunctionReference<'mutation'>('functions/notifications:create'),
+		},
+		globalSearch: {
+			search: makeFunctionReference<'query'>('functions/globalSearch:search'),
+		},
 		invoices: {
 			list: makeFunctionReference<'query'>('functions/invoices:list'),
 			getById: makeFunctionReference<'query'>('functions/invoices:getById'),
@@ -28,6 +38,9 @@ export const api = {
 			getSettings: makeFunctionReference<'query'>('functions/organizations:getSettings'),
 			updateSettings: makeFunctionReference<'mutation'>('functions/organizations:updateSettings'),
 			initializeOrg: makeFunctionReference<'mutation'>('functions/organizations:initializeOrg'),
+			ensureUserOrgMapping: makeFunctionReference<'mutation'>('functions/organizations:ensureUserOrgMapping'),
+			savePendingOnboarding: makeFunctionReference<'mutation'>('functions/organizations:savePendingOnboarding'),
+			consumePendingOnboarding: makeFunctionReference<'mutation'>('functions/organizations:consumePendingOnboarding'),
 		},
 		billTemplates: {
 			list: makeFunctionReference<'query'>('functions/billTemplates:list'),
@@ -77,6 +90,7 @@ export const api = {
 		},
 		parties: {
 			list: makeFunctionReference<'query'>('functions/parties:list'),
+			search: makeFunctionReference<'query'>('functions/parties:search'),
 			getById: makeFunctionReference<'query'>('functions/parties:getById'),
 			create: makeFunctionReference<'mutation'>('functions/parties:create'),
 			update: makeFunctionReference<'mutation'>('functions/parties:update'),
@@ -84,6 +98,7 @@ export const api = {
 		},
 		customers: {
 			list: makeFunctionReference<'query'>('functions/customers:list'),
+			search: makeFunctionReference<'query'>('functions/customers:search'),
 			getById: makeFunctionReference<'query'>('functions/customers:getById'),
 			create: makeFunctionReference<'mutation'>('functions/customers:create'),
 			update: makeFunctionReference<'mutation'>('functions/customers:update'),
@@ -91,6 +106,7 @@ export const api = {
 		},
 		vehicles: {
 			list: makeFunctionReference<'query'>('functions/vehicles:list'),
+			search: makeFunctionReference<'query'>('functions/vehicles:search'),
 			getById: makeFunctionReference<'query'>('functions/vehicles:getById'),
 			create: makeFunctionReference<'mutation'>('functions/vehicles:create'),
 			update: makeFunctionReference<'mutation'>('functions/vehicles:update'),
