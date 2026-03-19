@@ -134,14 +134,10 @@
 					<span class="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
 						{orgSettings.data?.businessName || t('app_name')}
 					</span>
-					{#if orgSettings.data?.businessName && orgSettings.data.location}
-						<span class="flex items-center gap-0.5 text-[10px] text-zinc-400">
-							<MapPin class="size-2.5 shrink-0" />
-							{orgSettings.data.location}
-						</span>
-					{:else}
-						<span class="text-[10px] font-medium uppercase tracking-widest text-zinc-400">
-							{t('app_tagline')}
+					{#if orgSettings.data?.location}
+						<span class="flex items-center gap-1 text-[10px] text-zinc-400 dark:text-zinc-500">
+							<MapPin class="size-2.5 shrink-0 text-zinc-400 dark:text-zinc-500" />
+							<span class="truncate">{orgSettings.data.location}</span>
 						</span>
 					{/if}
 				</div>
