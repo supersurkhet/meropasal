@@ -2,6 +2,9 @@ name = "meropasal"
 compatibility_date = "2025-01-01"
 compatibility_flags = ["nodejs_compat"]
 workers_dev = true
+routes = [
+	{ pattern = "pasal.surkhet.app", custom_domain = true }
+]
 main = ".svelte-kit/cloudflare/_worker.js"
 
 [assets]
