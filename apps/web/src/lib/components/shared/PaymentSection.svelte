@@ -164,6 +164,7 @@
 							size="icon-sm"
 							onclick={() => removePayment(i)}
 							class="text-zinc-400 hover:text-red-500"
+							aria-label={t('a11y_remove_payment')}
 						>
 							<Trash2 class="size-3.5" />
 						</Button>
