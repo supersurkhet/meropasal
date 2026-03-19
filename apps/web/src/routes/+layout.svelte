@@ -17,10 +17,20 @@
 
 	let { children, data } = $props();
 
+	async function fetchToken(): Promise<string | null> {
+		try {
+			const res = await fetch('/api/auth/token');
+			const { token } = await res.json();
+			return token ?? null;
+		} catch {
+			return null;
+		}
+	}
+
 	// Sync Convex auth token from server session
 	$effect(() => {
 		if (data.convexToken) {
-			setConvexAuth(data.convexToken);
+			setConvexAuth(fetchToken);
 		}
 	});
 </script>

@@ -12,13 +12,9 @@ export function getConvexClient(url?: string): ConvexClient {
 	return client;
 }
 
-export function setConvexAuth(token: string | null) {
+export function setConvexAuth(fetchToken: () => Promise<string | null>) {
 	if (client) {
-		if (token) {
-			client.setAuth(() => Promise.resolve(token));
-		} else {
-			client.setAuth(() => Promise.resolve(null));
-		}
+		client.setAuth(fetchToken);
 	}
 }
 
