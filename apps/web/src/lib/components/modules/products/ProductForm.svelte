@@ -185,17 +185,6 @@
 	class="space-y-5 {inline ? '' : 'mx-auto max-w-2xl'}"
 	onsubmit={(e) => { e.preventDefault(); handleSubmit(); }}
 >
-	{#if !inline}
-		<div class="mb-6">
-			<h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-				{initial?._id ? t('action_edit') + ' ' + t('product_title') : t('product_create')}
-			</h2>
-			<p class="mt-0.5 text-sm text-zinc-500">
-				{initial?._id ? t('action_update') + ' ' + t('product_title').toLowerCase() : t('page_products_desc')}
-			</p>
-		</div>
-	{/if}
-
 	<!-- Title -->
 	<div class="space-y-1.5">
 		<Label for="title" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('product_name')} <span class="text-red-500">*</span></Label>
