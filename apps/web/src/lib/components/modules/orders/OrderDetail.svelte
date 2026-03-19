@@ -8,6 +8,7 @@
 	import { Loader2, CheckCircle, AlertTriangle } from '@lucide/svelte';
 	import { formatDate } from '$lib/date-utils';
 	import { t } from '$lib/t.svelte';
+	import { breadcrumbLabel } from '$lib/breadcrumb-label.svelte';
 
 	let {
 		orderId,
@@ -53,6 +54,11 @@
 
 	$effect(() => {
 		loadOrder();
+	});
+
+	$effect(() => {
+		breadcrumbLabel.set(order?.invoiceNumber ?? (customerName || null));
+		return () => breadcrumbLabel.set(null);
 	});
 
 	async function loadOrder() {

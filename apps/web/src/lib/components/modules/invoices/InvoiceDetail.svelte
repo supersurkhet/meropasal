@@ -9,6 +9,7 @@
 	import { ArrowLeft, Printer } from '@lucide/svelte';
 	import { formatDate } from '$lib/date-utils';
 	import { t } from '$lib/t.svelte';
+	import { breadcrumbLabel } from '$lib/breadcrumb-label.svelte';
 
 	type Props = {
 		invoiceId: string;
@@ -21,6 +22,11 @@
 	const invoice = useConvexQuery(client, api.functions.invoices.getById, () => ({
 		id: invoiceId as any,
 	}));
+
+	$effect(() => {
+		breadcrumbLabel.set(invoice.data?.invoiceNumber ?? null);
+		return () => breadcrumbLabel.set(null);
+	});
 
 	const orgSettings = useConvexQuery(client, api.functions.organizations.getSettings, () => ({}));
 
@@ -50,7 +56,7 @@
 {:else if !invoice.data}
 	<div class="py-12 text-center text-zinc-500">
 		<p>{t('detail_invoice_not_found')}</p>
-		<a href="/invoices" class="mt-2 inline-flex items-center gap-1 text-sm text-blue-600 hover:underline">
+		<a href="/invoices" class="mt-2 inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200">
 			<ArrowLeft class="size-3.5" />
 			{t('detail_back_to_invoices')}
 		</a>

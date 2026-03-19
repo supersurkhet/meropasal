@@ -12,6 +12,7 @@
 	import { getConvexClient } from '$lib/convex';
 	import { api } from '$lib/api';
 	import { Save, Loader2 } from '@lucide/svelte';
+	import StickyActions from '$lib/components/shared/StickyActions.svelte';
 	import { productSchema } from '$lib/schemas/product';
 	import { t } from '$lib/t.svelte';
 
@@ -331,19 +332,15 @@
 	{/if}
 
 	<!-- Submit -->
-	<div class="flex justify-end gap-3 pt-2">
-		<Button
-			type="submit"
-			disabled={submitting}
-			class="min-w-[120px] gap-2 bg-zinc-900 text-white shadow-sm transition-all hover:bg-zinc-800 hover:shadow-md active:scale-[0.98] dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-		>
+	<StickyActions {inline}>
+		<Button type="submit" disabled={submitting}>
 			{#if submitting}
-				<Loader2 class="size-4 animate-spin" />
+				<Loader2 class="mr-1.5 size-4 animate-spin" />
 				{t('action_saving')}
 			{:else}
-				<Save class="size-4" />
+				<Save class="mr-1.5 size-4" />
 				{initial?._id ? t('action_update') : t('action_create')} {t('product_title')}
 			{/if}
 		</Button>
-	</div>
+	</StickyActions>
 </form>

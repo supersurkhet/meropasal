@@ -6,6 +6,7 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import * as Select from '$lib/components/ui/select';
 	import { Loader2, Save, Plus, Trash2, AlertTriangle } from '@lucide/svelte';
+	import StickyActions from '$lib/components/shared/StickyActions.svelte';
 	import DatePicker from '$lib/components/shared/DatePicker.svelte';
 	import PaymentSection from '$lib/components/shared/PaymentSection.svelte';
 	import { getConvexClient, api } from '$lib/convex';
@@ -322,7 +323,7 @@
 			variant="outline"
 			size="sm"
 			onclick={addItem}
-			class="border-dashed border-zinc-300 text-zinc-600 hover:border-zinc-400 hover:text-zinc-900 dark:border-zinc-600 dark:text-zinc-400"
+			class="border-dashed border-zinc-300 text-zinc-600 hover:border-zinc-400 hover:text-zinc-900 dark:border-zinc-600 dark:text-zinc-400 dark:hover:border-zinc-500 dark:hover:text-zinc-100"
 		>
 			<Plus class="mr-1.5 size-3.5" />
 			Add Item
@@ -353,17 +354,13 @@
 	</div>
 
 	<!-- Actions -->
-	<div class="flex items-center gap-3 pt-2">
+	<StickyActions>
 		{#if oncancel}
-			<Button type="button" variant="ghost" onclick={oncancel} class="text-zinc-600 dark:text-zinc-400">
+			<Button type="button" onclick={oncancel}>
 				Cancel
 			</Button>
 		{/if}
-		<Button
-			type="submit"
-			disabled={submitting}
-			class="min-w-[140px] bg-zinc-900 text-white shadow-sm transition-all hover:bg-zinc-800 hover:shadow-md active:scale-[0.98] dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-		>
+		<Button type="submit" disabled={submitting}>
 			{#if submitting}
 				<Loader2 class="mr-1.5 size-4 animate-spin" />
 				Creating...
@@ -372,5 +369,5 @@
 				Create Order
 			{/if}
 		</Button>
-	</div>
+	</StickyActions>
 </form>

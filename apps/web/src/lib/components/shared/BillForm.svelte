@@ -335,27 +335,60 @@
 			</div>
 		</div>
 
-		<!-- Action Bar -->
-		{#if !readonly}
-			<div class="flex items-center justify-between border-t border-zinc-200 bg-zinc-50/50 px-6 py-4 dark:border-zinc-800 dark:bg-zinc-900/30">
-				<p class="text-xs text-zinc-400">
-					<kbd class="rounded border border-zinc-200 bg-white px-1 py-0.5 font-mono text-[10px] dark:border-zinc-700 dark:bg-zinc-800">⌘S</kbd>
-					{t('bill_save_hint')}
-				</p>
-				<Button
-					onclick={onsubmit}
-					disabled={submitting || items.length === 0}
-					class="gap-2"
-				>
-					{#if submitting}
-						<Loader2 class="size-4 animate-spin" />
-						{t('action_saving')}
-					{:else}
-						<Save class="size-4" />
-						{submitLabel}
-					{/if}
-				</Button>
-			</div>
-		{/if}
 	</div>
 </div>
+
+{#if !readonly}
+	<div class="fab-group fixed bottom-8 right-0 z-30 flex items-stretch rounded-l-2xl bg-white dark:bg-zinc-900">
+		<Button
+			onclick={onsubmit}
+			disabled={submitting || items.length === 0}
+		>
+			{#if submitting}
+				<Loader2 class="mr-1.5 size-4 animate-spin" />
+				{t('action_saving')}
+			{:else}
+				<Save class="mr-1.5 size-4" />
+				{submitLabel}
+			{/if}
+		</Button>
+	</div>
+{/if}
+
+<style>
+	.fab-group {
+		box-shadow:
+			-10px 10px 30px rgba(0, 0, 0, 0.12),
+			-4px 4px 12px rgba(0, 0, 0, 0.08),
+			-1px 1px 3px rgba(0, 0, 0, 0.06),
+			inset 0 2px 0 rgba(255, 255, 255, 0.7),
+			inset 2px 0 0 rgba(255, 255, 255, 0.4);
+	}
+	:global(.dark) .fab-group {
+		box-shadow:
+			-10px 10px 35px rgba(0, 0, 0, 0.55),
+			-4px 4px 14px rgba(0, 0, 0, 0.35),
+			-1px 1px 3px rgba(0, 0, 0, 0.25),
+			inset 0 2px 0 rgba(255, 255, 255, 0.07),
+			inset 2px 0 0 rgba(255, 255, 255, 0.04);
+	}
+	.fab-group :global([data-slot="button"]) {
+		background: transparent;
+		border: none;
+		box-shadow: none;
+		border-radius: 1rem 0 0 1rem;
+		color: oklch(0.21 0.006 285.885);
+		height: auto;
+		padding: 0.75rem 1.25rem;
+		font-weight: 600;
+	}
+	:global(.dark) .fab-group :global([data-slot="button"]) {
+		color: oklch(0.985 0.002 286.067);
+	}
+	.fab-group :global([data-slot="button"]:hover:not(:disabled)) {
+		background: rgba(0, 0, 0, 0.04);
+	}
+	:global(.dark) .fab-group :global([data-slot="button"]:hover:not(:disabled)) {
+		background: rgba(255, 255, 255, 0.06);
+	}
+</style>

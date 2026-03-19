@@ -2,6 +2,7 @@
 	import { page } from '$app/state';
 	import { ChevronRight, Home } from '@lucide/svelte';
 	import { t } from '$lib/t.svelte';
+	import { breadcrumbLabel } from '$lib/breadcrumb-label.svelte';
 
 	const segmentKeyMap: Record<string, string> = {
 		dashboard: 'nav_dashboard',
@@ -27,6 +28,16 @@
 		'bill-template': 'settings_bill_template',
 	};
 
+	/** Matches Convex IDs (alphanumeric 20+ chars), UUIDs, or plain numbers */
+	function isDynamicSegment(segment: string): boolean {
+		return (
+			segment.startsWith('[') ||
+			/^[0-9a-f-]{8,}$/i.test(segment) ||
+			/^\d+$/.test(segment) ||
+			/^[a-z0-9]{20,}$/i.test(segment)
+		);
+	}
+
 	type Crumb = {
 		label: string;
 		href: string;
@@ -41,9 +52,8 @@
 		for (const segment of segments) {
 			currentPath += `/${segment}`;
 
-			// Skip dynamic segments like [id] — they look like UUIDs, numbers, etc.
-			if (segment.startsWith('[') || /^[0-9a-f-]{8,}$/i.test(segment) || /^\d+$/.test(segment)) {
-				result.push({ label: t('breadcrumb_detail'), href: currentPath });
+			if (isDynamicSegment(segment)) {
+				result.push({ label: $breadcrumbLabel ?? t('breadcrumb_detail'), href: currentPath });
 				continue;
 			}
 

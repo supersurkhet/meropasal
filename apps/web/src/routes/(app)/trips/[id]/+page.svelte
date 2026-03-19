@@ -8,6 +8,7 @@
 	import TripDetail from '$lib/components/modules/logistics/TripDetail.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { ArrowLeft, Loader2 } from '@lucide/svelte';
+	import { breadcrumbLabel } from '$lib/breadcrumb-label.svelte';
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 
@@ -28,6 +29,11 @@
 			? vehiclesQuery.data.find((v: any) => v._id === tripQuery.data!.vehicleId) ?? null
 			: null
 	);
+
+	$effect(() => {
+		breadcrumbLabel.set(vehicle?.name ?? null);
+		return () => breadcrumbLabel.set(null);
+	});
 </script>
 
 <MetaTags title="Trip Detail — MeroPasal" />

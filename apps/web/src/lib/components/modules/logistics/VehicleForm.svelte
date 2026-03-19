@@ -3,7 +3,8 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Button } from '$lib/components/ui/button';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { Loader2, Save, ArrowLeft } from '@lucide/svelte';
+	import { Loader2, Save } from '@lucide/svelte';
+	import StickyActions from '$lib/components/shared/StickyActions.svelte';
 	import { toast } from 'svelte-sonner';
 	import { vehicleSchema } from '$lib/schemas/vehicle';
 	import { t } from '$lib/t.svelte';
@@ -141,23 +142,13 @@
 	{/if}
 
 	<!-- Actions -->
-	<div class="flex items-center gap-3 pt-2 {inline ? 'justify-end' : ''}">
+	<StickyActions {inline}>
 		{#if oncancel}
-			<Button
-				type="button"
-				variant="ghost"
-				onclick={oncancel}
-				class="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
-			>
-				{#if !inline}<ArrowLeft class="mr-1.5 size-4" />{/if}
+			<Button type="button" onclick={oncancel}>
 				Cancel
 			</Button>
 		{/if}
-		<Button
-			type="submit"
-			disabled={submitting || loading}
-			class="min-w-[120px] bg-zinc-900 text-white shadow-sm transition-all hover:bg-zinc-800 hover:shadow-md active:scale-[0.98] dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-		>
+		<Button type="submit" disabled={submitting || loading}>
 			{#if submitting || loading}
 				<Loader2 class="mr-1.5 size-4 animate-spin" />
 				Saving...
@@ -166,5 +157,5 @@
 				{vehicle ? 'Update Vehicle' : 'Create Vehicle'}
 			{/if}
 		</Button>
-	</div>
+	</StickyActions>
 </form>

@@ -17,6 +17,7 @@
 		Settings,
 		ChevronLeft,
 		Store,
+		MapPin,
 		LogOut,
 	} from '@lucide/svelte';
 	import { Separator } from '$lib/components/ui/separator';
@@ -28,6 +29,9 @@
 	} from '$lib/components/ui/tooltip';
 	import { Button } from '$lib/components/ui/button';
 	import { t } from '$lib/t.svelte';
+	import { getConvexClient } from '$lib/convex';
+	import { useConvexQuery } from '$lib/convex-helpers.svelte';
+	import { api } from '$lib/api';
 
 	type NavItem = {
 		labelKey: string;
@@ -91,6 +95,9 @@
 		user: { firstName: string | null; lastName: string | null; email: string } | null;
 	}>();
 
+	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
+	const orgSettings = useConvexQuery(client, api.functions.organizations.getSettings, () => ({}));
+
 	function isActive(href: string): boolean {
 		return page.url.pathname === href || page.url.pathname.startsWith(href + '/');
 	}
@@ -111,13 +118,32 @@
 	>
 		<!-- Logo / Brand -->
 		<div class="flex h-14 items-center gap-3 border-b border-zinc-200 px-4 dark:border-zinc-800">
-			<div class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-zinc-900 dark:bg-zinc-100">
-				<Store class="size-4 text-zinc-100 dark:text-zinc-900" />
-			</div>
+			{#if orgSettings.data?.logoUrl}
+				<img
+					src={orgSettings.data.logoUrl}
+					alt={orgSettings.data.businessName || t('app_name')}
+					class="size-8 shrink-0 rounded-lg object-cover"
+				/>
+			{:else}
+				<div class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-zinc-900 dark:bg-zinc-100">
+					<Store class="size-4 text-zinc-100 dark:text-zinc-900" />
+				</div>
+			{/if}
 			{#if !collapsed}
 				<div class="flex flex-col overflow-hidden transition-opacity duration-200">
-					<span class="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">{t('app_name')}</span>
-					<span class="text-[10px] font-medium uppercase tracking-widest text-zinc-400">{t('app_tagline')}</span>
+					<span class="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+						{orgSettings.data?.businessName || t('app_name')}
+					</span>
+					{#if orgSettings.data?.businessName && orgSettings.data.location}
+						<span class="flex items-center gap-0.5 text-[10px] text-zinc-400">
+							<MapPin class="size-2.5 shrink-0" />
+							{orgSettings.data.location}
+						</span>
+					{:else}
+						<span class="text-[10px] font-medium uppercase tracking-widest text-zinc-400">
+							{t('app_tagline')}
+						</span>
+					{/if}
 				</div>
 			{/if}
 		</div>

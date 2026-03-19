@@ -6,7 +6,8 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Separator } from '$lib/components/ui/separator';
-	import { Save, Loader2, AlertTriangle } from '@lucide/svelte';
+	import { Save, Loader2, AlertTriangle, RotateCcw } from '@lucide/svelte';
+	import StickyActions from '$lib/components/shared/StickyActions.svelte';
 	import { toast } from 'svelte-sonner';
 	import { t } from '$lib/t.svelte';
 	import { settingsSchema } from '$lib/schemas/settings';
@@ -76,6 +77,40 @@
 		}
 		errors = {}
 		return true
+	}
+
+	let isDirty = $derived(
+		!!settings.data && initialized && (() => {
+			const s = settings.data as any;
+			return (
+				businessName !== (s.businessName || workosOrgName || '') ||
+				location !== (s.location ?? '') ||
+				phone !== (s.phone ?? '') ||
+				panNumber !== (s.panNumber ?? '') ||
+				currentFiscalYear !== (s.currentFiscalYear || calculateFiscalYear()) ||
+				taxRate !== (s.taxRate ?? 13) ||
+				featureInvoicing !== (s.features?.invoicing ?? true) ||
+				featureStockBook !== (s.features?.stockBook ?? true) ||
+				featureLogistics !== (s.features?.logistics ?? false) ||
+				featureLedger !== (s.features?.ledger ?? true)
+			);
+		})()
+	);
+
+	function resetForm() {
+		if (!settings.data) return;
+		const s = settings.data as any;
+		businessName = s.businessName || workosOrgName || '';
+		location = s.location ?? '';
+		phone = s.phone ?? '';
+		panNumber = s.panNumber ?? '';
+		currentFiscalYear = s.currentFiscalYear || calculateFiscalYear();
+		taxRate = s.taxRate ?? 13;
+		featureInvoicing = s.features?.invoicing ?? true;
+		featureStockBook = s.features?.stockBook ?? true;
+		featureLogistics = s.features?.logistics ?? false;
+		featureLedger = s.features?.ledger ?? true;
+		errors = {};
 	}
 
 	async function handleSave() {
@@ -238,8 +273,12 @@
 			</div>
 		</div>
 
-		<div class="flex justify-end">
-			<Button type="submit" disabled={updateMutation.isLoading} class="min-w-[120px] bg-zinc-900 text-white shadow-sm transition-all hover:bg-zinc-800 hover:shadow-md active:scale-[0.98] dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200">
+		<StickyActions>
+			<Button type="button" onclick={resetForm} disabled={!isDirty}>
+				<RotateCcw class="mr-1.5 size-4" />
+				{t('action_reset_changes')}
+			</Button>
+			<Button type="submit" disabled={updateMutation.isLoading || !isDirty}>
 				{#if updateMutation.isLoading}
 					<Loader2 class="mr-1.5 size-4 animate-spin" />
 					{t('settings_saving')}
@@ -248,6 +287,6 @@
 					{t('settings_save')}
 				{/if}
 			</Button>
-		</div>
+		</StickyActions>
 	</form>
 {/if}

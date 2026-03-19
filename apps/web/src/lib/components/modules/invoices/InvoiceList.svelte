@@ -20,6 +20,16 @@
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 
 	const currentFY = useConvexQuery(client, api.functions.fiscalYear.current, () => ({}));
+	const parties = useConvexQuery(client, api.functions.parties.list, () => ({}));
+	const customers = useConvexQuery(client, api.functions.customers.list, () => ({}));
+
+	function resolvePartyName(partyId: string | undefined, partyType: string | undefined): string {
+		if (!partyId) return '—';
+		if (partyType === 'customer') {
+			return customers.data?.find((c: any) => c._id === partyId)?.name ?? '—';
+		}
+		return parties.data?.find((p: any) => p._id === partyId)?.name ?? '—';
+	}
 
 	const invoices = useConvexQuery(client, api.functions.invoices.list, () => ({
 		type: typeFilter,
@@ -158,7 +168,7 @@
 								</span>
 							</Table.Cell>
 							<Table.Cell class="text-zinc-700 dark:text-zinc-300">
-								{invoice.partyId || '—'}
+								{resolvePartyName(invoice.partyId, invoice.partyType)}
 							</Table.Cell>
 							<Table.Cell class="text-zinc-600 dark:text-zinc-400">
 								{formatDate(invoice.issuedAt)}

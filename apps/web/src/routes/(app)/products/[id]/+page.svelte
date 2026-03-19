@@ -21,12 +21,19 @@
 		description?: string;
 	};
 
+	import { breadcrumbLabel } from '$lib/breadcrumb-label.svelte';
+
 	let productId = $derived(page.params.id);
 	let product = $state<Product | null>(null);
 	let loaded = $state(false);
 
 	$effect(() => {
 		loadProduct();
+	});
+
+	$effect(() => {
+		breadcrumbLabel.set(product?.title ?? null);
+		return () => breadcrumbLabel.set(null);
 	});
 
 	async function loadProduct() {

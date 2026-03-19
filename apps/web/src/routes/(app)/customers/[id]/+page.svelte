@@ -10,6 +10,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { ArrowLeft, Loader2 } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
+	import { breadcrumbLabel } from '$lib/breadcrumb-label.svelte';
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 
@@ -22,6 +23,11 @@
 	const removeMutation = useConvexMutation(client, api.functions.customers.remove);
 
 	let editing = $state(false);
+
+	$effect(() => {
+		breadcrumbLabel.set(customerQuery.data?.name ?? null);
+		return () => breadcrumbLabel.set(null);
+	});
 </script>
 
 <MetaTags title="{customerQuery.data?.name ?? 'Customer'} — MeroPasal" />

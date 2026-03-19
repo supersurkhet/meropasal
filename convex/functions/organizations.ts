@@ -22,9 +22,13 @@ export const getSettings = query({
         currency: 'NPR',
         taxRate: 13,
         features: { invoicing: true, stockBook: true, logistics: false, ledger: true },
+        logoUrl: null,
       };
     }
-    return settings;
+    const logoUrl = settings.logoStorageId
+      ? await ctx.storage.getUrl(settings.logoStorageId)
+      : null;
+    return { ...settings, logoUrl };
   },
 });
 

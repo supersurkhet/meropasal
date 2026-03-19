@@ -10,6 +10,7 @@
 	import { ArrowLeft, FileText, PackageOpen } from '@lucide/svelte';
 	import { formatDate } from '$lib/date-utils';
 	import { t } from '$lib/t.svelte';
+	import { breadcrumbLabel } from '$lib/breadcrumb-label.svelte';
 
 	type Props = {
 		importId: string;
@@ -35,6 +36,11 @@
 		}
 	});
 
+	$effect(() => {
+		breadcrumbLabel.set(partyName);
+		return () => breadcrumbLabel.set(null);
+	});
+
 	function statusBadgeVariant(status: string): 'default' | 'secondary' | 'outline' | 'destructive' {
 		switch (status) {
 			case 'paid':
@@ -58,7 +64,7 @@
 	<div class="py-12 text-center text-zinc-500">
 		<PackageOpen class="mx-auto mb-3 size-10 text-zinc-300 dark:text-zinc-600" />
 		<p class="text-sm">{t('detail_stock_import_not_found')}</p>
-		<a href="/stock-import" class="mt-2 inline-flex items-center gap-1 text-sm text-blue-600 hover:underline">
+		<a href="/stock-import" class="mt-2 inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200">
 			<ArrowLeft class="size-3.5" />
 			{t('detail_back_to_stock_imports')}
 		</a>
