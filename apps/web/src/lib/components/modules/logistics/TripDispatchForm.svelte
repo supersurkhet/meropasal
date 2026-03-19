@@ -1,17 +1,17 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import * as Select from '$lib/components/ui/select';
 	import { Label } from '$lib/components/ui/label';
 	import { Input } from '$lib/components/ui/input';
 	import BillForm from '$lib/components/shared/BillForm.svelte';
-	import InlineCreateDialog from '$lib/components/shared/InlineCreateDialog.svelte';
+	import EntitySelect from '$lib/components/shared/EntitySelect.svelte';
+	import ProductForm from '$lib/components/modules/products/ProductForm.svelte';
 	import VehicleForm from './VehicleForm.svelte';
 	import { deriveUnitPrice, getAvailableUnits } from '$lib/unit-price';
 	import { getConvexClient } from '$lib/convex';
 	import { api } from '$lib/api';
 	import { t } from '$lib/t.svelte';
 
-	type Vehicle = { _id: string; name: string; licensePlate: string };
+	type Vehicle = { _id: string; name: string; licensePlate: string; description?: string };
 	type Product = {
 		_id: string;
 		title: string;
@@ -55,8 +55,6 @@
 	let items = $state<LineItem[]>([]);
 	let submitting = $state(false);
 	let error = $state('');
-
-	let inlineVehicleOpen = $state(false);
 
 	let nextId = 0;
 	function genId() {
@@ -123,18 +121,6 @@
 		}
 	}
 
-	async function handleInlineVehicleCreate(data: { name: string; licensePlate: string; description?: string }) {
-		const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
-		const id = await client.mutation(api.functions.vehicles.create, data);
-		vehicleId = id;
-		inlineVehicleOpen = false;
-		await loadData();
-	}
-
-	let selectedVehicleName = $derived(() => {
-		const v = vehicles.find((v) => v._id === vehicleId);
-		return v ? `${v.name} (${v.licensePlate})` : '';
-	});
 </script>
 
 {#if !loaded}
@@ -161,32 +147,46 @@
 				<!-- Vehicle selector -->
 				<div class="space-y-1.5">
 					<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('trip_vehicle')}</Label>
-					<div class="flex gap-2">
-						<Select.Root type="single" bind:value={vehicleId}>
-							<Select.Trigger class="flex-1">
-								{selectedVehicleName() || t('trip_select_vehicle')}
-							</Select.Trigger>
-							<Select.Content>
-								{#each vehicles as vehicle}
-									<Select.Item value={vehicle._id} label="{vehicle.name} ({vehicle.licensePlate})">
-										<div>
-											<span class="font-medium">{vehicle.name}</span>
-											<span class="ml-1.5 font-mono text-xs text-zinc-400">{vehicle.licensePlate}</span>
-										</div>
-									</Select.Item>
-								{/each}
-							</Select.Content>
-						</Select.Root>
-						<InlineCreateDialog title="New Vehicle" description="Add a vehicle for trip dispatch" bind:open={inlineVehicleOpen}>
-							<div class="p-1">
-								<VehicleForm
-									inline
-									onsubmit={handleInlineVehicleCreate}
-									oncancel={() => (inlineVehicleOpen = false)}
-								/>
+					<EntitySelect
+						bind:value={vehicleId}
+						items={vehicles}
+						getKey={(v) => v._id}
+						getLabel={(v) => `${v.name} (${v.licensePlate})`}
+						placeholder={t('trip_select_vehicle')}
+						entityName="Vehicle"
+					>
+						{#snippet itemContent({ item })}
+							<div>
+								<span class="font-medium">{item.name}</span>
+								<span class="ml-1.5 font-mono text-xs text-zinc-400">{item.licensePlate}</span>
 							</div>
-						</InlineCreateDialog>
-					</div>
+						{/snippet}
+						{#snippet createForm({ close, onCreated })}
+							<VehicleForm
+								inline
+								onsubmit={async (data) => {
+									const client = getConvexClient(import.meta.env.VITE_CONVEX_URL)
+									const id = await client.mutation(api.functions.vehicles.create, data)
+									await loadData()
+									onCreated(id)
+								}}
+								oncancel={close}
+							/>
+						{/snippet}
+						{#snippet editForm({ item, close })}
+							<VehicleForm
+								inline
+								vehicle={item}
+								onsubmit={async (data) => {
+									const client = getConvexClient(import.meta.env.VITE_CONVEX_URL)
+									await client.mutation(api.functions.vehicles.update, { id: item._id, ...data })
+									await loadData()
+									close()
+								}}
+								oncancel={close}
+							/>
+						{/snippet}
+					</EntitySelect>
 				</div>
 
 				<!-- Dispatch Time -->
@@ -204,22 +204,43 @@
 		{/snippet}
 
 		{#snippet productSelector({ item, index }: { item: LineItem; index: number })}
-			<Select.Root
-				type="single"
+			<EntitySelect
 				value={item.productId}
 				onValueChange={(val) => selectProduct(index, val)}
+				items={products}
+				getKey={(p) => p._id}
+				getLabel={(p) => p.title}
+				placeholder={t('common_select_product')}
+				entityName="Product"
+				small
 			>
-				<Select.Trigger class="h-8 text-sm">
-					{item.productTitle || t('common_select_product')}
-				</Select.Trigger>
-				<Select.Content>
-					{#each products as product}
-						<Select.Item value={product._id} label={product.title}>
-							{product.title}
-						</Select.Item>
-					{/each}
-				</Select.Content>
-			</Select.Root>
+				{#snippet createForm({ close, onCreated })}
+					<ProductForm
+						inline
+						onsaved={async (id) => {
+							await loadData()
+							onCreated(id)
+							selectProduct(index, id)
+						}}
+					/>
+				{/snippet}
+				{#snippet editForm({ item: product, close })}
+					<ProductForm
+						inline
+						initial={{
+							_id: product._id,
+							title: product.title,
+							purchasePartyId: product.purchasePartyId,
+							unit: product.unit,
+							sellingPrice: product.sellingPrice,
+						}}
+						onsaved={async () => {
+							await loadData()
+							close()
+						}}
+					/>
+				{/snippet}
+			</EntitySelect>
 		{/snippet}
 	</BillForm>
 {/if}

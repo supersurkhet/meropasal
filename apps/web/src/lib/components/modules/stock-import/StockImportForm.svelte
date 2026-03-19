@@ -1,23 +1,21 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
-	import * as Select from '$lib/components/ui/select';
 	import { Label } from '$lib/components/ui/label';
 	import { Input } from '$lib/components/ui/input';
 	import { Button } from '$lib/components/ui/button';
 	import BillForm from '$lib/components/shared/BillForm.svelte';
 	import DatePicker from '$lib/components/shared/DatePicker.svelte';
-	import InlineCreateDialog from '$lib/components/shared/InlineCreateDialog.svelte';
+	import EntitySelect from '$lib/components/shared/EntitySelect.svelte';
+	import PartyForm from '$lib/components/modules/parties/PartyForm.svelte';
 	import ProductForm from '$lib/components/modules/products/ProductForm.svelte';
 	import { deriveUnitPrice, getAvailableUnits } from '$lib/unit-price';
-	import { Plus } from '@lucide/svelte';
-	import * as Dialog from '$lib/components/ui/dialog';
 	import { getConvexClient } from '$lib/convex';
 	import { api } from '$lib/api';
 	import { stockImportSchema } from '$lib/schemas/stock-import';
 	import { t } from '$lib/t.svelte';
 
-	type Party = { _id: string; name: string };
+	type Party = { _id: string; name: string; panNumber?: string; address?: string; phone?: string; creditLimit?: number; paymentTerms?: string; notes?: string };
 	type Product = {
 		_id: string;
 		title: string;
@@ -64,9 +62,6 @@
 	let filteredProducts = $derived(
 		partyId ? allProducts.filter((p) => p.purchasePartyId === partyId) : [],
 	);
-
-	let inlinePartyOpen = $state(false);
-	let inlinePartyName = $state('');
 
 	let nextId = 0;
 	function genId() {
@@ -161,32 +156,6 @@
 			submitting = false;
 		}
 	}
-
-	async function createInlineParty() {
-		if (!inlinePartyName.trim()) return;
-		const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
-		const id = await client.mutation(api.functions.parties.create, {
-			name: inlinePartyName.trim(),
-		});
-		partyId = id;
-		inlinePartyName = '';
-		inlinePartyOpen = false;
-		await loadData();
-	}
-
-	let inlineProductOpen = $state(false);
-	let inlineProductIndex = $state(-1);
-
-	async function handleInlineProductCreated(productId: string) {
-		inlineProductOpen = false;
-		await loadData();
-		if (inlineProductIndex >= 0 && inlineProductIndex < items.length) {
-			selectProduct(inlineProductIndex, productId);
-		}
-		inlineProductIndex = -1;
-	}
-
-	let selectedPartyName = $derived(parties.find((p) => p._id === partyId)?.name || '');
 </script>
 
 {#if !loaded}
@@ -207,33 +176,41 @@
 				<!-- Party selector -->
 				<div class="space-y-1.5">
 					<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('stock_import_party')}</Label>
-					<div class="flex gap-2">
-						<Select.Root type="single" bind:value={partyId}>
-							<Select.Trigger class="flex-1 {errors.partyId ? 'border-red-400 ring-1 ring-red-400/30' : ''}">
-								{selectedPartyName || t('common_select_supplier')}
-							</Select.Trigger>
-							<Select.Content>
-								{#each parties as party}
-									<Select.Item value={party._id} label={party.name}>{party.name}</Select.Item>
-								{/each}
-							</Select.Content>
-						</Select.Root>
-						<InlineCreateDialog title="New Supplier" bind:open={inlinePartyOpen}>
-							<div class="space-y-3 p-1">
-								<div class="space-y-1.5">
-									<Label for="si-party-name">Name</Label>
-									<Input id="si-party-name" bind:value={inlinePartyName} placeholder="Supplier name" />
-								</div>
-								<Button
-									class="w-full"
-									disabled={!inlinePartyName.trim()}
-									onclick={createInlineParty}
-								>
-									Create Supplier
-								</Button>
-							</div>
-						</InlineCreateDialog>
-					</div>
+					<EntitySelect
+						bind:value={partyId}
+						items={parties}
+						getKey={(p) => p._id}
+						getLabel={(p) => p.name}
+						placeholder={t('common_select_supplier')}
+						entityName="Supplier"
+						triggerClass={errors.partyId ? 'border-red-400 ring-1 ring-red-400/30' : ''}
+					>
+						{#snippet createForm({ close, onCreated })}
+							<PartyForm
+								inline
+								onsubmit={async (data) => {
+									const client = getConvexClient(import.meta.env.VITE_CONVEX_URL)
+									const id = await client.mutation(api.functions.parties.create, data)
+									await loadData()
+									onCreated(id)
+								}}
+								oncancel={close}
+							/>
+						{/snippet}
+						{#snippet editForm({ item, close })}
+							<PartyForm
+								inline
+								party={item}
+								onsubmit={async (data) => {
+									const client = getConvexClient(import.meta.env.VITE_CONVEX_URL)
+									await client.mutation(api.functions.parties.update, { id: item._id, ...data })
+									await loadData()
+									close()
+								}}
+								oncancel={close}
+							/>
+						{/snippet}
+					</EntitySelect>
 					{#if errors.partyId}
 						<p class="text-xs text-red-500 mt-1">{errors.partyId}</p>
 					{/if}
@@ -267,48 +244,44 @@
 		{/snippet}
 
 		{#snippet productSelector({ item, index }: { item: LineItem; index: number })}
-			<div class="flex gap-1">
-				<Select.Root
-					type="single"
-					value={item.productId}
-					onValueChange={(val) => selectProduct(index, val)}
-				>
-					<Select.Trigger class="h-8 flex-1 text-sm">
-						{item.productTitle || t('common_select_product')}
-					</Select.Trigger>
-					<Select.Content>
-						{#each filteredProducts as product}
-							<Select.Item value={product._id} label={product.title}>
-								{product.title}
-							</Select.Item>
-						{/each}
-					</Select.Content>
-				</Select.Root>
-				<Button
-					variant="outline"
-					size="icon"
-					class="size-8 shrink-0"
-					onclick={() => { inlineProductIndex = index; inlineProductOpen = true; }}
-				>
-					<Plus class="size-4" />
-				</Button>
-			</div>
+			<EntitySelect
+				value={item.productId}
+				onValueChange={(val) => selectProduct(index, val)}
+				items={filteredProducts}
+				getKey={(p) => p._id}
+				getLabel={(p) => p.title}
+				placeholder={t('common_select_product')}
+				entityName="Product"
+				small
+			>
+				{#snippet createForm({ close, onCreated })}
+					<ProductForm
+						inline
+						initial={{ purchasePartyId: partyId }}
+						onsaved={async (id) => {
+							await loadData()
+							onCreated(id)
+							selectProduct(index, id)
+						}}
+					/>
+				{/snippet}
+				{#snippet editForm({ item: product, close })}
+					<ProductForm
+						inline
+						initial={{
+							_id: product._id,
+							title: product.title,
+							purchasePartyId: product.purchasePartyId,
+							unit: product.unit,
+							costPrice: product.costPrice,
+						}}
+						onsaved={async () => {
+							await loadData()
+							close()
+						}}
+					/>
+				{/snippet}
+			</EntitySelect>
 		{/snippet}
 	</BillForm>
-
-	<Dialog.Root bind:open={inlineProductOpen}>
-		<Dialog.Content class="sm:max-w-lg">
-			<Dialog.Header>
-				<Dialog.Title>New Product</Dialog.Title>
-				<Dialog.Description>Create a product for this supplier</Dialog.Description>
-			</Dialog.Header>
-			<div class="p-1">
-				<ProductForm
-					inline
-					initial={{ purchasePartyId: partyId }}
-					onsaved={(id) => handleInlineProductCreated(id)}
-				/>
-			</div>
-		</Dialog.Content>
-	</Dialog.Root>
 {/if}

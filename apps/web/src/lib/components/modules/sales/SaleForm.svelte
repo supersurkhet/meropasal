@@ -3,7 +3,9 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Button } from '$lib/components/ui/button';
-	import * as Select from '$lib/components/ui/select';
+	import EntitySelect from '$lib/components/shared/EntitySelect.svelte';
+	import CustomerForm from '$lib/components/modules/customers/CustomerForm.svelte';
+	import ProductForm from '$lib/components/modules/products/ProductForm.svelte';
 	import DatePicker from '$lib/components/shared/DatePicker.svelte';
 	import { Loader2, Save, Plus, Trash2, AlertTriangle } from '@lucide/svelte';
 	import StickyActions from '$lib/components/shared/StickyActions.svelte';
@@ -23,8 +25,8 @@
 		oncancel?: () => void;
 	} = $props();
 
-	type Customer = { _id: string; name: string };
-	type Product = { _id: string; title: string; sellingPrice?: number; unit?: string; purchasePartyId?: string };
+	type Customer = { _id: string; name: string; panNumber?: string; address?: string; phone?: string; email?: string; creditLimit?: number; notes?: string };
+	type Product = { _id: string; title: string; sellingPrice?: number; unit?: string; purchasePartyId?: string; costPrice?: number };
 	type LineItem = {
 		productId: string;
 		productTitle: string;
@@ -229,16 +231,41 @@
 	<div class="grid gap-4 sm:grid-cols-2">
 		<div class="space-y-1.5">
 			<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Customer</Label>
-			<Select.Root type="single" bind:value={customerId}>
-				<Select.Trigger class="h-10 border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
-					{customers.find((c) => c._id === customerId)?.name ?? 'Select customer (optional)'}
-				</Select.Trigger>
-				<Select.Content>
-					{#each customers as customer}
-						<Select.Item value={customer._id}>{customer.name}</Select.Item>
-					{/each}
-				</Select.Content>
-			</Select.Root>
+			<EntitySelect
+				bind:value={customerId}
+				items={customers}
+				getKey={(c) => c._id}
+				getLabel={(c) => c.name}
+				placeholder="Select customer (optional)"
+				entityName="Customer"
+				triggerClass="h-10 border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
+			>
+				{#snippet createForm({ close, onCreated })}
+					<CustomerForm
+						inline
+						onsubmit={async (data) => {
+							const client = getConvexClient()
+							const id = await client.mutation(api['functions/customers'].create, data)
+							await loadData()
+							onCreated(id)
+						}}
+						oncancel={close}
+					/>
+				{/snippet}
+				{#snippet editForm({ item, close })}
+					<CustomerForm
+						inline
+						customer={item}
+						onsubmit={async (data) => {
+							const client = getConvexClient()
+							await client.mutation(api['functions/customers'].update, { id: item._id, ...data })
+							await loadData()
+							close()
+						}}
+						oncancel={close}
+					/>
+				{/snippet}
+			</EntitySelect>
 		</div>
 
 		<div class="space-y-1.5">
@@ -285,16 +312,44 @@
 
 				<div class="border-b border-zinc-100 px-3 py-2 last:border-b-0 dark:border-zinc-800">
 					<div class="grid grid-cols-[1fr_100px_120px_100px_auto] items-center gap-2">
-						<Select.Root type="single" value={item.productId} onValueChange={(v) => onProductSelect(i, v)}>
-							<Select.Trigger class="h-9 text-sm border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
-								{item.productTitle || 'Select product'}
-							</Select.Trigger>
-							<Select.Content>
-								{#each products as product}
-									<Select.Item value={product._id}>{product.title}</Select.Item>
-								{/each}
-							</Select.Content>
-						</Select.Root>
+						<EntitySelect
+							value={item.productId}
+							onValueChange={(v) => onProductSelect(i, v)}
+							items={products}
+							getKey={(p) => p._id}
+							getLabel={(p) => p.title}
+							placeholder="Select product"
+							entityName="Product"
+							small
+							triggerClass="border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900"
+						>
+							{#snippet createForm({ close, onCreated })}
+								<ProductForm
+									inline
+									onsaved={async (id) => {
+										await loadData()
+										onCreated(id)
+										onProductSelect(i, id)
+									}}
+								/>
+							{/snippet}
+							{#snippet editForm({ item: product, close })}
+								<ProductForm
+									inline
+									initial={{
+										_id: product._id,
+										title: product.title,
+										sellingPrice: product.sellingPrice,
+										unit: product.unit,
+										purchasePartyId: product.purchasePartyId,
+									}}
+									onsaved={async () => {
+										await loadData()
+										close()
+									}}
+								/>
+							{/snippet}
+						</EntitySelect>
 
 						<div class="relative">
 							<Input

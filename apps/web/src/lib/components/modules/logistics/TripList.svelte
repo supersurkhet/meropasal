@@ -6,11 +6,11 @@
 		TableHead,
 		TableHeader,
 		TableRow,
-	} from '$lib/components/ui/table';
-	import { Button } from '$lib/components/ui/button';
-	import { Input } from '$lib/components/ui/input';
-	import { Badge } from '$lib/components/ui/badge';
-	import * as Select from '$lib/components/ui/select';
+	} from '$lib/components/ui/table'
+	import { Button } from '$lib/components/ui/button'
+	import { Input } from '$lib/components/ui/input'
+	import { Badge } from '$lib/components/ui/badge'
+	import * as Select from '$lib/components/ui/select'
 	import {
 		Plus,
 		Search,
@@ -18,67 +18,87 @@
 		MapPin,
 		Loader2,
 		Clock,
-	} from '@lucide/svelte';
-	import { t } from '$lib/t.svelte';
-	import EmptyState from '$lib/components/shared/EmptyState.svelte';
-	import { formatDateTime } from '$lib/date-utils';
+		Package,
+	} from '@lucide/svelte'
+	import { t } from '$lib/t.svelte'
+	import EmptyState from '$lib/components/shared/EmptyState.svelte'
+	import { breadcrumbViewToggle } from '$lib/breadcrumb-view-toggle.svelte'
+	import { formatDateTime } from '$lib/date-utils'
+	import { createViewPreference } from '$lib/view-preference.svelte'
 
 	type Trip = {
-		_id: string;
-		vehicleId: string;
-		dispatchTime: string;
-		returnTime?: string;
-		destination?: string;
-		status: 'dispatched' | 'returned' | 'cancelled';
-		products: Array<{ productId: string; productTitle: string; quantity: number; unitPrice: number; unit?: string }>;
-		returnedProducts: Array<{ productId: string; productTitle: string; quantity: number; unitPrice: number; unit?: string }>;
-	};
+		_id: string
+		vehicleId: string
+		dispatchTime: string
+		returnTime?: string
+		destination?: string
+		status: 'dispatched' | 'returned' | 'cancelled'
+		products: Array<{ productId: string; productTitle: string; quantity: number; unitPrice: number; unit?: string }>
+		returnedProducts: Array<{ productId: string; productTitle: string; quantity: number; unitPrice: number; unit?: string }>
+	}
 
 	type Vehicle = {
-		_id: string;
-		name: string;
-		licensePlate: string;
-	};
+		_id: string
+		name: string
+		licensePlate: string
+	}
 
 	let {
 		trips,
 		vehicles = [],
 		isLoading = false,
 	}: {
-		trips: Trip[];
-		vehicles?: Vehicle[];
-		isLoading?: boolean;
-	} = $props();
+		trips: Trip[]
+		vehicles?: Vehicle[]
+		isLoading?: boolean
+	} = $props()
 
-	let searchQuery = $state('');
-	let statusFilter = $state('all');
+	let searchQuery = $state('')
+	let statusFilter = $state('all')
+	const viewPref = createViewPreference('trips')
+
+	$effect(() => {
+		breadcrumbViewToggle.set({
+			get mode() { return viewPref.mode },
+			onchange: (m) => { viewPref.mode = m },
+		})
+		return () => breadcrumbViewToggle.clear()
+	})
 
 	function getVehicleName(vehicleId: string): string {
-		const v = vehicles.find((vh) => vh._id === vehicleId);
-		return v ? `${v.name} (${v.licensePlate})` : 'Unknown';
+		const v = vehicles.find((vh) => vh._id === vehicleId)
+		return v ? `${v.name} (${v.licensePlate})` : 'Unknown'
 	}
 
 	const statusConfig = $derived({
 		dispatched: { label: t('status_dispatched'), class: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' },
 		returned: { label: t('status_returned'), class: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
 		cancelled: { label: t('status_cancelled'), class: 'bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400' },
-	});
+	})
 
 	let filteredTrips = $derived(
 		trips
 			.filter((t) => {
-				if (statusFilter !== 'all' && t.status !== statusFilter) return false;
-				if (!searchQuery) return true;
-				const q = searchQuery.toLowerCase();
-				const vehicleName = getVehicleName(t.vehicleId).toLowerCase();
+				if (statusFilter !== 'all' && t.status !== statusFilter) return false
+				if (!searchQuery) return true
+				const q = searchQuery.toLowerCase()
+				const vehicleName = getVehicleName(t.vehicleId).toLowerCase()
 				return (
 					vehicleName.includes(q) ||
 					t.destination?.toLowerCase().includes(q) ||
 					t.status.includes(q)
-				);
+				)
 			})
 			.sort((a, b) => new Date(b.dispatchTime).getTime() - new Date(a.dispatchTime).getTime())
-	);
+	)
+
+	const gridClass = $derived(
+		viewPref.mode === 'grid-3'
+			? 'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'
+			: viewPref.mode === 'grid-2'
+				? 'grid grid-cols-1 gap-4 md:grid-cols-2'
+				: 'flex flex-col gap-2'
+	)
 </script>
 
 <div class="space-y-4">
@@ -116,7 +136,7 @@
 		</a>
 	</div>
 
-	<!-- Table -->
+	<!-- Content -->
 	{#if isLoading}
 		<div class="flex items-center justify-center py-20">
 			<div class="flex flex-col items-center gap-3">
@@ -141,7 +161,7 @@
 				actionIcon={Plus}
 			/>
 		{/if}
-	{:else}
+	{:else if viewPref.mode === 'table'}
 		<div class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
 			<Table>
 				<TableHeader>
@@ -202,6 +222,53 @@
 					{/each}
 				</TableBody>
 			</Table>
+		</div>
+		<p class="text-xs text-zinc-400 dark:text-zinc-500">
+			{filteredTrips.length} {filteredTrips.length === 1 ? 'trip' : 'trips'}
+			{#if searchQuery || statusFilter !== 'all'}&middot; filtered from {trips.length}{/if}
+		</p>
+	{:else}
+		<div class={gridClass}>
+			{#each filteredTrips as trip (trip._id)}
+				{@const cfg = statusConfig[trip.status]}
+				<a
+					href="/trips/{trip._id}"
+					class="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950"
+				>
+					<div class="flex items-start justify-between gap-3">
+						<div class="min-w-0 flex-1">
+							<p class="truncate font-semibold text-zinc-900 dark:text-zinc-100">
+								{getVehicleName(trip.vehicleId)}
+							</p>
+							{#if trip.destination}
+								<div class="mt-1.5 flex items-center gap-1.5 text-sm text-zinc-600 dark:text-zinc-400">
+									<MapPin class="size-3.5 shrink-0" />
+									<span class="truncate">{trip.destination}</span>
+								</div>
+							{/if}
+						</div>
+						<Badge variant="secondary" class="{cfg.class} shrink-0">
+							{cfg.label}
+						</Badge>
+					</div>
+					<div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-zinc-500 dark:text-zinc-400">
+						<div class="flex items-center gap-1.5">
+							<Clock class="size-3.5" />
+							{formatDateTime(trip.dispatchTime)}
+						</div>
+						{#if trip.returnTime}
+							<div class="flex items-center gap-1.5">
+								<Clock class="size-3.5" />
+								{formatDateTime(trip.returnTime)}
+							</div>
+						{/if}
+						<div class="flex items-center gap-1.5">
+							<Package class="size-3.5" />
+							<span class="font-mono">{trip.products.length}</span>
+						</div>
+					</div>
+				</a>
+			{/each}
 		</div>
 		<p class="text-xs text-zinc-400 dark:text-zinc-500">
 			{filteredTrips.length} {filteredTrips.length === 1 ? 'trip' : 'trips'}

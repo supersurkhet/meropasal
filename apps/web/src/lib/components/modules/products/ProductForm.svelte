@@ -8,7 +8,8 @@
 	import * as Select from '$lib/components/ui/select';
 	import CurrencyInput from '$lib/components/shared/CurrencyInput.svelte';
 	import UnitBuilder from '$lib/components/shared/UnitBuilder.svelte';
-	import InlineCreateDialog from '$lib/components/shared/InlineCreateDialog.svelte';
+	import EntitySelect from '$lib/components/shared/EntitySelect.svelte';
+	import PartyForm from '$lib/components/modules/parties/PartyForm.svelte';
 	import { getConvexClient } from '$lib/convex';
 	import { api } from '$lib/api';
 	import { Save, Loader2 } from '@lucide/svelte';
@@ -16,7 +17,7 @@
 	import { productSchema } from '$lib/schemas/product';
 	import { t } from '$lib/t.svelte';
 
-	type Party = { _id: string; name: string };
+	type Party = { _id: string; name: string; panNumber?: string; address?: string; phone?: string; creditLimit?: number; paymentTerms?: string; notes?: string };
 
 	let {
 		initial,
@@ -155,21 +156,6 @@
 		}
 	}
 
-	let inlinePartyOpen = $state(false);
-	let inlinePartyName = $state('');
-
-	async function createInlineParty() {
-		if (!inlinePartyName.trim()) return;
-		const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
-		const id = await client.mutation(api.functions.parties.create, {
-			name: inlinePartyName.trim(),
-		});
-		purchasePartyId = id;
-		inlinePartyName = '';
-		inlinePartyOpen = false;
-		await loadParties();
-	}
-
 	function handleKeydown(e: KeyboardEvent) {
 		if ((e.metaKey || e.ctrlKey) && e.key === 's') {
 			e.preventDefault();
@@ -204,33 +190,41 @@
 	<!-- Supplier -->
 	<div class="space-y-1.5">
 		<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('product_supplier')} <span class="text-red-500">*</span></Label>
-		<div class="flex gap-2">
-			<Select.Root type="single" bind:value={purchasePartyId}>
-				<Select.Trigger class="flex-1 {errors.purchasePartyId ? 'border-red-400 ring-1 ring-red-400/30' : ''}">
-					{parties.find((p) => p._id === purchasePartyId)?.name || t('stock_import_select_supplier')}
-				</Select.Trigger>
-				<Select.Content>
-					{#each parties as party}
-						<Select.Item value={party._id} label={party.name}>{party.name}</Select.Item>
-					{/each}
-				</Select.Content>
-			</Select.Root>
-			<InlineCreateDialog title={t('party_create')} description={t('page_parties_desc')} bind:open={inlinePartyOpen}>
-				<div class="space-y-3 p-1">
-					<div class="space-y-1.5">
-						<Label for="inline-party-name">{t('party_name')}</Label>
-						<Input id="inline-party-name" bind:value={inlinePartyName} placeholder={t('party_name')} />
-					</div>
-					<Button
-						class="w-full"
-						disabled={!inlinePartyName.trim()}
-						onclick={createInlineParty}
-					>
-						{t('party_create')}
-					</Button>
-				</div>
-			</InlineCreateDialog>
-		</div>
+		<EntitySelect
+			bind:value={purchasePartyId}
+			items={parties}
+			getKey={(p) => p._id}
+			getLabel={(p) => p.name}
+			placeholder={t('stock_import_select_supplier')}
+			entityName="Supplier"
+			triggerClass={errors.purchasePartyId ? 'border-red-400 ring-1 ring-red-400/30' : ''}
+		>
+			{#snippet createForm({ close, onCreated })}
+				<PartyForm
+					inline
+					onsubmit={async (data) => {
+						const client = getConvexClient(import.meta.env.VITE_CONVEX_URL)
+						const id = await client.mutation(api.functions.parties.create, data)
+						await loadParties()
+						onCreated(id)
+					}}
+					oncancel={close}
+				/>
+			{/snippet}
+			{#snippet editForm({ item, close })}
+				<PartyForm
+					inline
+					party={item}
+					onsubmit={async (data) => {
+						const client = getConvexClient(import.meta.env.VITE_CONVEX_URL)
+						await client.mutation(api.functions.parties.update, { id: item._id, ...data })
+						await loadParties()
+						close()
+					}}
+					oncancel={close}
+				/>
+			{/snippet}
+		</EntitySelect>
 		{#if errors.purchasePartyId}
 			<p class="text-xs text-red-500 mt-1">{errors.purchasePartyId}</p>
 		{/if}
