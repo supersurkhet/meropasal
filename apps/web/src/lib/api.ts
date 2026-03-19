@@ -36,6 +36,7 @@ export const api = {
 		},
 		organizations: {
 			getSettings: makeFunctionReference<'query'>('functions/organizations:getSettings'),
+			getMultiOrgInfo: makeFunctionReference<'query'>('functions/organizations:getMultiOrgInfo'),
 			updateSettings: makeFunctionReference<'mutation'>('functions/organizations:updateSettings'),
 			initializeOrg: makeFunctionReference<'mutation'>('functions/organizations:initializeOrg'),
 			ensureUserOrgMapping: makeFunctionReference<'mutation'>('functions/organizations:ensureUserOrgMapping'),

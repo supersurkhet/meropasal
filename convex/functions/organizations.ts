@@ -32,6 +32,30 @@ export const getSettings = query({
   },
 });
 
+export const getMultiOrgInfo = query({
+  args: { orgIds: v.array(v.string()) },
+  handler: async (ctx, { orgIds }) => {
+    const results: Record<string, { businessName: string; location?: string; logoUrl: string | null }> = {};
+    for (const orgId of orgIds) {
+      const settings = await ctx.db
+        .query("orgSettings")
+        .withIndex("by_orgId", (q) => q.eq("orgId", orgId))
+        .first();
+      if (settings) {
+        const logoUrl = settings.logoStorageId
+          ? await ctx.storage.getUrl(settings.logoStorageId)
+          : null;
+        results[orgId] = {
+          businessName: settings.businessName,
+          location: settings.location,
+          logoUrl,
+        };
+      }
+    }
+    return results;
+  },
+});
+
 export const updateSettings = mutation({
   args: {
     businessName: v.optional(v.string()),

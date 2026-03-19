@@ -139,6 +139,14 @@
 	const orgSettings = useConvexQuery(client, api.functions.organizations.getSettings, () => ({}));
 	const displayName = $derived(orgSettings.data?.businessName || workosOrgName || t('app_name'));
 
+	// Fetch settings (location, logo) for all user orgs
+	const allOrgIds = $derived(userOrgs.map((o: { id: string; name: string }) => o.id));
+	const multiOrgInfo = useConvexQuery(
+		client,
+		api.functions.organizations.getMultiOrgInfo,
+		() => ({ orgIds: allOrgIds }),
+	);
+
 	function isActive(href: string): boolean {
 		return page.url.pathname === href || page.url.pathname.startsWith(href + '/');
 	}
@@ -205,6 +213,7 @@
 					</div>
 					{#each userOrgs as org}
 						{@const isCurrent = org.id === currentOrgId}
+						{@const orgInfo = (multiOrgInfo.data as Record<string, { businessName: string; location?: string; logoUrl: string | null }> | undefined)?.[org.id]}
 						<button
 							onclick={() => { orgSwitcherOpen = false; switchOrg(org.id); }}
 							disabled={isCurrent || !!switchingTo}
@@ -214,17 +223,25 @@
 									: 'hover:bg-zinc-50 dark:hover:bg-zinc-900'}
 								{switchingTo ? 'opacity-50' : ''}"
 						>
-							<div class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-zinc-900 dark:bg-zinc-100">
-								<Store class="size-4 text-zinc-100 dark:text-zinc-900" />
-							</div>
+							{#if orgInfo?.logoUrl}
+								<img
+									src={orgInfo.logoUrl}
+									alt={orgInfo.businessName || org.name}
+									class="size-8 shrink-0 rounded-lg object-cover"
+								/>
+							{:else}
+								<div class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-zinc-900 dark:bg-zinc-100">
+									<Store class="size-4 text-zinc-100 dark:text-zinc-900" />
+								</div>
+							{/if}
 							<div class="flex min-w-0 flex-1 flex-col">
 								<span class="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
-									{org.name}
+									{orgInfo?.businessName || org.name}
 								</span>
-								{#if isCurrent && orgSettings.data?.location}
+								{#if orgInfo?.location}
 									<span class="flex items-center gap-1 text-[10px] text-zinc-400 dark:text-zinc-500">
 										<MapPin class="size-2.5 shrink-0" />
-										<span class="truncate">{orgSettings.data.location}</span>
+										<span class="truncate">{orgInfo.location}</span>
 									</span>
 								{/if}
 							</div>
