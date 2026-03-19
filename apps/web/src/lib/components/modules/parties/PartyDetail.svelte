@@ -14,6 +14,7 @@
 		Trash2,
 	} from '@lucide/svelte';
 	import { formatTimestamp } from '$lib/date-utils';
+	import { t } from '$lib/t.svelte';
 
 	type Party = {
 		_id: string;
@@ -75,7 +76,7 @@
 				{/if}
 			</div>
 			<p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
-				Added {formatTimestamp(party._creationTime)}
+				{t('detail_added_date').replace('{date}', formatTimestamp(party._creationTime))}
 			</p>
 		</div>
 		<div class="flex items-center gap-2">
@@ -118,7 +119,7 @@
 					<Phone class="size-4 text-blue-600 dark:text-blue-400" />
 				</div>
 				<div>
-					<p class="text-xs font-medium uppercase tracking-wider text-zinc-400">Phone</p>
+					<p class="text-xs font-medium uppercase tracking-wider text-zinc-400">{t('party_phone')}</p>
 					<p class="mt-0.5 text-sm font-medium text-zinc-900 dark:text-zinc-100">{party.phone}</p>
 				</div>
 			</div>
@@ -130,7 +131,7 @@
 					<MapPin class="size-4 text-emerald-600 dark:text-emerald-400" />
 				</div>
 				<div>
-					<p class="text-xs font-medium uppercase tracking-wider text-zinc-400">Address</p>
+					<p class="text-xs font-medium uppercase tracking-wider text-zinc-400">{t('party_address')}</p>
 					<p class="mt-0.5 text-sm font-medium text-zinc-900 dark:text-zinc-100">{party.address}</p>
 				</div>
 			</div>
@@ -142,7 +143,7 @@
 					<CreditCard class="size-4 text-amber-600 dark:text-amber-400" />
 				</div>
 				<div>
-					<p class="text-xs font-medium uppercase tracking-wider text-zinc-400">Credit Limit</p>
+					<p class="text-xs font-medium uppercase tracking-wider text-zinc-400">{t('party_credit_limit')}</p>
 					<p class="mt-0.5 text-sm font-medium text-zinc-900 dark:text-zinc-100">{formatCurrency(party.creditLimit)}</p>
 				</div>
 			</div>
@@ -154,7 +155,7 @@
 					<Clock class="size-4 text-violet-600 dark:text-violet-400" />
 				</div>
 				<div>
-					<p class="text-xs font-medium uppercase tracking-wider text-zinc-400">Payment Terms</p>
+					<p class="text-xs font-medium uppercase tracking-wider text-zinc-400">{t('party_payment_terms')}</p>
 					<p class="mt-0.5 text-sm font-medium text-zinc-900 dark:text-zinc-100">{party.paymentTerms}</p>
 				</div>
 			</div>
@@ -165,7 +166,7 @@
 		<div class="rounded-lg border border-zinc-100 bg-zinc-50/50 p-4 dark:border-zinc-800 dark:bg-zinc-900/30">
 			<div class="mb-2 flex items-center gap-2">
 				<FileText class="size-4 text-zinc-400" />
-				<p class="text-xs font-medium uppercase tracking-wider text-zinc-400">Notes</p>
+				<p class="text-xs font-medium uppercase tracking-wider text-zinc-400">{t('party_notes')}</p>
 			</div>
 			<p class="text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">{party.notes}</p>
 		</div>

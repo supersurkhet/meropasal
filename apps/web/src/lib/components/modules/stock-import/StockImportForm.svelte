@@ -206,11 +206,11 @@
 			<div class="grid grid-cols-2 gap-4">
 				<!-- Party selector -->
 				<div class="space-y-1.5">
-					<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Supplier</Label>
+					<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('stock_import_party')}</Label>
 					<div class="flex gap-2">
 						<Select.Root type="single" bind:value={partyId}>
 							<Select.Trigger class="flex-1 {errors.partyId ? 'border-red-400 ring-1 ring-red-400/30' : ''}">
-								{selectedPartyName || 'Select supplier...'}
+								{selectedPartyName || t('common_select_supplier')}
 							</Select.Trigger>
 							<Select.Content>
 								{#each parties as party}
@@ -241,7 +241,7 @@
 
 				<!-- Date -->
 				<div class="space-y-1.5">
-					<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Import Date</Label>
+					<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('stock_import_date')}</Label>
 					<DatePicker
 						bind:value={importDate}
 						name="importDate"
@@ -261,7 +261,7 @@
 
 			{#if partyId && filteredProducts.length === 0}
 				<div class="mt-3 rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:bg-amber-950/30 dark:text-amber-400">
-					No products found for this supplier. Create a product linked to this supplier first.
+					{t('stock_import_no_products_for_supplier')}
 				</div>
 			{/if}
 		{/snippet}
@@ -274,7 +274,7 @@
 					onValueChange={(val) => selectProduct(index, val)}
 				>
 					<Select.Trigger class="h-8 flex-1 text-sm">
-						{item.productTitle || 'Select product...'}
+						{item.productTitle || t('common_select_product')}
 					</Select.Trigger>
 					<Select.Content>
 						{#each filteredProducts as product}

@@ -9,6 +9,7 @@
 	import { deriveUnitPrice, getAvailableUnits } from '$lib/unit-price';
 	import { getConvexClient } from '$lib/convex';
 	import { api } from '$lib/api';
+	import { t } from '$lib/t.svelte';
 
 	type Vehicle = { _id: string; name: string; licensePlate: string };
 	type Product = {
@@ -159,11 +160,11 @@
 			<div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
 				<!-- Vehicle selector -->
 				<div class="space-y-1.5">
-					<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Vehicle</Label>
+					<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('trip_vehicle')}</Label>
 					<div class="flex gap-2">
 						<Select.Root type="single" bind:value={vehicleId}>
 							<Select.Trigger class="flex-1">
-								{selectedVehicleName() || 'Select vehicle...'}
+								{selectedVehicleName() || t('trip_select_vehicle')}
 							</Select.Trigger>
 							<Select.Content>
 								{#each vehicles as vehicle}
@@ -190,13 +191,13 @@
 
 				<!-- Dispatch Time -->
 				<div class="space-y-1.5">
-					<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Dispatch Time</Label>
+					<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('trip_dispatch_time')}</Label>
 					<Input type="datetime-local" bind:value={dispatchTime} />
 				</div>
 
 				<!-- Destination -->
 				<div class="space-y-1.5">
-					<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Destination</Label>
+					<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('trip_destination')}</Label>
 					<Input bind:value={destination} placeholder="e.g. Birendranagar Market" />
 				</div>
 			</div>
@@ -209,7 +210,7 @@
 				onValueChange={(val) => selectProduct(index, val)}
 			>
 				<Select.Trigger class="h-8 text-sm">
-					{item.productTitle || 'Select product...'}
+					{item.productTitle || t('common_select_product')}
 				</Select.Trigger>
 				<Select.Content>
 					{#each products as product}

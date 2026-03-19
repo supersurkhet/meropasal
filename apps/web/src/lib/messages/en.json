@@ -488,5 +488,58 @@
 	"detail_stock_import_not_found": "Stock import not found.",
 	"detail_back_to_stock_imports": "Back to stock imports",
 	"detail_supplier": "Supplier",
-	"detail_notes": "Notes"
+	"detail_notes": "Notes",
+
+	"detail_loading_invoice": "Loading invoice...",
+	"detail_invoice_not_found": "Invoice not found.",
+	"detail_back_to_invoices": "Back to invoices",
+	"detail_invoice_type_purchase": "Purchase Invoice",
+	"detail_invoice_type_sale": "Sales Invoice",
+	"detail_print_preview": "Print Preview",
+	"detail_payment_history": "Payment History",
+	"detail_add_payments": "Add Payments",
+	"detail_save_payments": "Save Payments",
+	"detail_loading_order": "Loading order...",
+	"detail_order_not_found": "Order not found",
+	"detail_payment_pending": "Payment Pending",
+	"detail_processing_return": "Processing Return...",
+	"detail_complete_return": "Complete Return",
+	"detail_return_adjust_hint": "Adjust quantities below — reduce for items that were sold on the trip.",
+	"detail_mark_all_returned": "Mark All Returned",
+	"detail_trip_summary": "Trip Summary",
+	"detail_cancel_trip": "Cancel Trip",
+	"detail_auto_generated_invoice": "Auto-generated Invoice",
+	"detail_total_dispatched": "Total Dispatched",
+	"detail_total_sold": "Total Sold",
+	"detail_sold_amount": "Sold Amount",
+	"detail_sold": "sold",
+	"detail_created_date": "Created {date}",
+	"detail_added_date": "Added {date}",
+	"detail_available_for_trips": "This vehicle is available for trips",
+
+	"detail_credit_limit_npr": "Credit Limit (NPR)",
+
+	"common_all_accounts": "All Accounts",
+	"common_all_products": "All Products",
+	"common_all_movement_types": "All Movement Types",
+	"common_email": "Email",
+
+	"ledger_narration": "Narration",
+	"ledger_voucher_type": "Voucher Type",
+	"ledger_account": "Account",
+
+	"stock_book_source": "Source",
+
+	"trip_select_vehicle": "Select vehicle...",
+	"common_select_product": "Select product...",
+	"common_select_supplier": "Select supplier...",
+
+	"party_update": "Update Party",
+	"party_create_new": "Create Party",
+	"customer_update": "Update Customer",
+	"customer_create_new": "Create Customer",
+	"customer_name_required": "Customer name is required",
+	"party_name_required": "Party name is required",
+
+	"stock_import_no_products_for_supplier": "No products found for this supplier. Create a product linked to this supplier first."
 }

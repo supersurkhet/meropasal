@@ -4,6 +4,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { Loader2, Save, ArrowLeft } from '@lucide/svelte';
+	import { t } from '$lib/t.svelte';
 
 	type Customer = {
 		_id: string;
@@ -53,7 +54,7 @@
 		nameError = '';
 
 		if (!name.trim()) {
-			nameError = 'Customer name is required';
+			nameError = t('customer_name_required');
 			return;
 		}
 
@@ -214,10 +215,10 @@
 		>
 			{#if submitting || loading}
 				<Loader2 class="mr-1.5 size-4 animate-spin" />
-				Saving...
+				{t('action_saving')}
 			{:else}
 				<Save class="mr-1.5 size-4" />
-				{customer ? 'Update Customer' : 'Create Customer'}
+				{customer ? t('customer_update') : t('customer_create_new')}
 			{/if}
 		</Button>
 	</div>

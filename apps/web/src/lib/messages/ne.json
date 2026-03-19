@@ -488,5 +488,58 @@
 	"detail_stock_import_not_found": "स्टक आयात भेटिएन।",
 	"detail_back_to_stock_imports": "स्टक आयातमा फर्कनुहोस्",
 	"detail_supplier": "आपूर्तिकर्ता",
-	"detail_notes": "टिप्पणी"
+	"detail_notes": "टिप्पणी",
+
+	"detail_loading_invoice": "बिल लोड हुँदैछ...",
+	"detail_invoice_not_found": "बिल भेटिएन।",
+	"detail_back_to_invoices": "बिल सूचीमा फर्कनुहोस्",
+	"detail_invoice_type_purchase": "खरिद बिल",
+	"detail_invoice_type_sale": "बिक्री बिल",
+	"detail_print_preview": "प्रिन्ट पूर्वावलोकन",
+	"detail_payment_history": "भुक्तानी इतिहास",
+	"detail_add_payments": "भुक्तानी थप्नुहोस्",
+	"detail_save_payments": "भुक्तानी सुरक्षित गर्नुहोस्",
+	"detail_loading_order": "अर्डर लोड हुँदैछ...",
+	"detail_order_not_found": "अर्डर भेटिएन",
+	"detail_payment_pending": "भुक्तानी बाँकी",
+	"detail_processing_return": "फिर्ता प्रशोधन हुँदैछ...",
+	"detail_complete_return": "फिर्ता पूरा गर्नुहोस्",
+	"detail_return_adjust_hint": "तल परिमाण समायोजन गर्नुहोस् — यात्रामा बिक्री भएका सामान घटाउनुहोस्।",
+	"detail_mark_all_returned": "सबै फिर्ता चिन्ह लगाउनुहोस्",
+	"detail_trip_summary": "यात्रा सारांश",
+	"detail_cancel_trip": "यात्रा रद्द गर्नुहोस्",
+	"detail_auto_generated_invoice": "स्वत: बनेको बिल",
+	"detail_total_dispatched": "कुल पठाइएको",
+	"detail_total_sold": "कुल बिक्री",
+	"detail_sold_amount": "बिक्री रकम",
+	"detail_sold": "बिक्री",
+	"detail_created_date": "{date} मा बनाइएको",
+	"detail_added_date": "{date} मा थपिएको",
+	"detail_available_for_trips": "यो सवारी यात्राको लागि उपलब्ध छ",
+
+	"detail_credit_limit_npr": "क्रेडिट सीमा (रु.)",
+
+	"common_all_accounts": "सबै खाता",
+	"common_all_products": "सबै सामान",
+	"common_all_movement_types": "सबै चलन प्रकार",
+	"common_email": "इमेल",
+
+	"ledger_narration": "विवरण",
+	"ledger_voucher_type": "भौचर प्रकार",
+	"ledger_account": "खाता",
+
+	"stock_book_source": "स्रोत",
+
+	"trip_select_vehicle": "सवारी छान्नुहोस्...",
+	"common_select_product": "सामान छान्नुहोस्...",
+	"common_select_supplier": "आपूर्तिकर्ता छान्नुहोस्...",
+
+	"party_update": "आपूर्तिकर्ता अपडेट गर्नुहोस्",
+	"party_create_new": "आपूर्तिकर्ता बनाउनुहोस्",
+	"customer_update": "ग्राहक अपडेट गर्नुहोस्",
+	"customer_create_new": "ग्राहक बनाउनुहोस्",
+	"customer_name_required": "ग्राहकको नाम आवश्यक छ",
+	"party_name_required": "पार्टीको नाम आवश्यक छ",
+
+	"stock_import_no_products_for_supplier": "यो आपूर्तिकर्ताको लागि कुनै सामान भेटिएन। पहिले यो आपूर्तिकर्तासँग जोडिएको सामान बनाउनुहोस्।"
 }

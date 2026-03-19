@@ -26,6 +26,7 @@
 		ArrowRight,
 	} from '@lucide/svelte';
 	import { formatDateTime } from '$lib/date-utils';
+	import { t } from '$lib/t.svelte';
 
 	type TripProduct = {
 		productId: string;
@@ -196,7 +197,7 @@
 		<div class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
 			<div class="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
 				<Clock class="size-4" />
-				Dispatch Time
+				{t('trip_dispatch_time')}
 			</div>
 			<p class="mt-1 text-sm font-medium text-zinc-900 dark:text-zinc-100">
 				{formatDateTime(trip.dispatchTime)}
@@ -217,7 +218,7 @@
 			<div class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
 				<div class="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
 					<RotateCcw class="size-4" />
-					Return Time
+					{t('trip_return_time')}
 				</div>
 				<p class="mt-1 text-sm font-medium text-zinc-900 dark:text-zinc-100">
 					{formatDateTime(trip.returnTime)}
@@ -236,11 +237,11 @@
 			<Table>
 				<TableHeader>
 					<TableRow class="border-zinc-100 bg-zinc-50/80 hover:bg-zinc-50/80 dark:border-zinc-800 dark:bg-zinc-900/50">
-						<TableHead class="text-xs font-semibold text-zinc-500">Product</TableHead>
-						<TableHead class="text-center text-xs font-semibold text-zinc-500">Qty</TableHead>
-						<TableHead class="text-xs font-semibold text-zinc-500">Unit</TableHead>
-						<TableHead class="text-right text-xs font-semibold text-zinc-500">Rate</TableHead>
-						<TableHead class="text-right text-xs font-semibold text-zinc-500">Amount</TableHead>
+						<TableHead class="text-xs font-semibold text-zinc-500">{t('product_title')}</TableHead>
+						<TableHead class="text-center text-xs font-semibold text-zinc-500">{t('common_quantity')}</TableHead>
+						<TableHead class="text-xs font-semibold text-zinc-500">{t('product_unit')}</TableHead>
+						<TableHead class="text-right text-xs font-semibold text-zinc-500">{t('common_rate')}</TableHead>
+						<TableHead class="text-right text-xs font-semibold text-zinc-500">{t('common_amount')}</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
@@ -248,7 +249,7 @@
 						<TableRow class="border-zinc-100 dark:border-zinc-800">
 							<TableCell class="font-medium text-zinc-900 dark:text-zinc-100">{product.productTitle}</TableCell>
 							<TableCell class="text-center font-mono">{product.quantity}</TableCell>
-							<TableCell class="text-zinc-500">{product.unit || 'piece'}</TableCell>
+							<TableCell class="text-zinc-500">{product.unit || t('unit_piece')}</TableCell>
 							<TableCell class="text-right font-mono">{formatNumber(product.unitPrice)}</TableCell>
 							<TableCell class="text-right font-mono font-medium">{formatNumber(product.quantity * product.unitPrice)}</TableCell>
 						</TableRow>
@@ -256,7 +257,7 @@
 				</TableBody>
 			</Table>
 			<div class="flex items-center justify-between border-t border-zinc-200 bg-zinc-50/50 px-4 py-2.5 dark:border-zinc-800 dark:bg-zinc-900/30">
-				<span class="text-sm font-medium text-zinc-600 dark:text-zinc-400">Total Dispatched</span>
+				<span class="text-sm font-medium text-zinc-600 dark:text-zinc-400">{t('detail_total_dispatched')}</span>
 				<span class="font-mono text-sm font-bold text-zinc-900 dark:text-zinc-100">{formatNPR(totalDispatched)}</span>
 			</div>
 		</div>
@@ -268,12 +269,12 @@
 		<div class="rounded-xl border-2 border-dashed border-amber-300 bg-amber-50/50 p-6 dark:border-amber-700 dark:bg-amber-950/20">
 			<h3 class="mb-4 flex items-center gap-2 text-base font-semibold text-zinc-900 dark:text-zinc-100">
 				<RotateCcw class="size-5 text-amber-600 dark:text-amber-400" />
-				Return Trip
+				{t('action_return')}
 			</h3>
 
 			<!-- Return Time -->
 			<div class="mb-4 max-w-xs space-y-1.5">
-				<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Return Time</Label>
+				<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('trip_return_time')}</Label>
 				<Input type="datetime-local" bind:value={returnTime} />
 			</div>
 
@@ -281,7 +282,7 @@
 			<div class="mb-4">
 				<div class="mb-2 flex items-center justify-between">
 					<p class="text-sm text-zinc-600 dark:text-zinc-400">
-						Adjust quantities below — reduce for items that were sold on the trip.
+						{t('detail_return_adjust_hint')}
 					</p>
 					<Button
 						variant="outline"
@@ -297,10 +298,10 @@
 					<Table>
 						<TableHeader>
 							<TableRow class="border-zinc-100 bg-zinc-50/80 hover:bg-zinc-50/80 dark:border-zinc-800 dark:bg-zinc-900/50">
-								<TableHead class="text-xs font-semibold text-zinc-500">Product</TableHead>
-								<TableHead class="text-center text-xs font-semibold text-zinc-500">Dispatched</TableHead>
-								<TableHead class="text-center text-xs font-semibold text-zinc-500">Returned</TableHead>
-								<TableHead class="text-center text-xs font-semibold text-zinc-500">Sold</TableHead>
+								<TableHead class="text-xs font-semibold text-zinc-500">{t('product_title')}</TableHead>
+								<TableHead class="text-center text-xs font-semibold text-zinc-500">{t('status_dispatched')}</TableHead>
+								<TableHead class="text-center text-xs font-semibold text-zinc-500">{t('status_returned')}</TableHead>
+								<TableHead class="text-center text-xs font-semibold text-zinc-500">{t('detail_sold')}</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
@@ -328,7 +329,7 @@
 									<TableCell class="text-center">
 										{#if soldQty > 0}
 											<Badge variant="secondary" class="bg-green-100 font-mono text-green-700 dark:bg-green-900/30 dark:text-green-400">
-												{soldQty} sold
+												{soldQty} {t('detail_sold')}
 											</Badge>
 										{:else}
 											<span class="font-mono text-sm text-zinc-400">0</span>
@@ -349,7 +350,7 @@
 			>
 				{#if returning}
 					<Loader2 class="size-4 animate-spin" />
-					Processing Return...
+					{t('detail_processing_return')}
 				{:else}
 					<RotateCcw class="size-4" />
 					Complete Return
@@ -369,11 +370,11 @@
 				<Table>
 					<TableHeader>
 						<TableRow class="border-zinc-100 bg-zinc-50/80 hover:bg-zinc-50/80 dark:border-zinc-800 dark:bg-zinc-900/50">
-							<TableHead class="text-xs font-semibold text-zinc-500">Product</TableHead>
-							<TableHead class="text-center text-xs font-semibold text-zinc-500">Dispatched</TableHead>
-							<TableHead class="text-center text-xs font-semibold text-zinc-500">Returned</TableHead>
-							<TableHead class="text-center text-xs font-semibold text-zinc-500">Sold</TableHead>
-							<TableHead class="text-right text-xs font-semibold text-zinc-500">Sold Amount</TableHead>
+							<TableHead class="text-xs font-semibold text-zinc-500">{t('product_title')}</TableHead>
+							<TableHead class="text-center text-xs font-semibold text-zinc-500">{t('status_dispatched')}</TableHead>
+							<TableHead class="text-center text-xs font-semibold text-zinc-500">{t('status_returned')}</TableHead>
+							<TableHead class="text-center text-xs font-semibold text-zinc-500">{t('detail_sold')}</TableHead>
+							<TableHead class="text-right text-xs font-semibold text-zinc-500">{t('detail_sold_amount')}</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
@@ -400,7 +401,7 @@
 				</Table>
 				{#if totalSold > 0}
 					<div class="flex items-center justify-between border-t border-zinc-200 bg-green-50/50 px-4 py-2.5 dark:border-zinc-800 dark:bg-green-950/20">
-						<span class="text-sm font-medium text-green-700 dark:text-green-400">Total Sold</span>
+						<span class="text-sm font-medium text-green-700 dark:text-green-400">{t('detail_total_sold')}</span>
 						<span class="font-mono text-sm font-bold text-green-700 dark:text-green-400">{formatNPR(totalSold)}</span>
 					</div>
 				{/if}
@@ -412,7 +413,7 @@
 			<div class="rounded-lg border border-blue-200 bg-blue-50/50 p-4 dark:border-blue-800 dark:bg-blue-950/20">
 				<div class="flex items-center gap-2">
 					<FileText class="size-4 text-blue-600 dark:text-blue-400" />
-					<span class="text-sm font-medium text-blue-700 dark:text-blue-300">Auto-generated Invoice</span>
+					<span class="text-sm font-medium text-blue-700 dark:text-blue-300">{t('detail_auto_generated_invoice')}</span>
 				</div>
 				<div class="mt-2 flex flex-wrap gap-2">
 					{#each trip.invoiceIds as invoiceId}

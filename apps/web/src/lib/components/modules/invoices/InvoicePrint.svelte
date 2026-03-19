@@ -6,6 +6,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { X, Printer } from '@lucide/svelte';
 	import { formatDate } from '$lib/date-utils';
+	import { t } from '$lib/t.svelte';
 
 	type InvoiceData = {
 		invoiceNumber?: string;
@@ -95,11 +96,11 @@
 	<div class="flex h-full flex-col">
 		<!-- Toolbar -->
 		<div class="flex items-center justify-between bg-white px-4 py-3 shadow dark:bg-zinc-900">
-			<h3 class="text-sm font-semibold">Print Preview</h3>
+			<h3 class="text-sm font-semibold">{t('detail_print_preview')}</h3>
 			<div class="flex items-center gap-2">
 				<Button variant="default" size="sm" onclick={handlePrint}>
 					<Printer class="mr-1.5 size-4" />
-					Print
+					{t('action_print')}
 				</Button>
 				<Button variant="ghost" size="icon" onclick={onclose}>
 					<X class="size-4" />
@@ -129,23 +130,23 @@
 
 					<div class="mb-4 border-b-2 border-black pb-2 text-center">
 						<h2 class="text-base font-bold uppercase">
-							{invoice.type === 'purchase' ? 'Purchase Invoice' : 'Sales Invoice'}
+							{invoice.type === 'purchase' ? t('detail_invoice_type_purchase') : t('detail_invoice_type_sale')}
 						</h2>
 					</div>
 
 					<!-- Invoice Meta Row -->
 					<div class="mb-4 flex justify-between text-xs">
 						<div>
-							<p><strong>Invoice #:</strong> {invoice.invoiceNumber || '—'}</p>
-							<p><strong>Date:</strong> {formatDate(invoice.issuedAt)}</p>
+							<p><strong>{t('invoice_number')}:</strong> {invoice.invoiceNumber || '—'}</p>
+							<p><strong>{t('common_date')}:</strong> {formatDate(invoice.issuedAt)}</p>
 							{#if invoice.dueDate}
-								<p><strong>Due:</strong> {formatDate(invoice.dueDate)}</p>
+								<p><strong>{t('invoice_due_date')}:</strong> {formatDate(invoice.dueDate)}</p>
 							{/if}
 						</div>
 						<div class="text-right">
-							<p><strong>FY:</strong> {invoice.fiscalYear}</p>
+							<p><strong>{t('invoice_fiscal_year')}:</strong> {invoice.fiscalYear}</p>
 							{#if invoice.partyId}
-								<p><strong>{invoice.partyType === 'customer' ? 'Customer' : 'Supplier'}:</strong> {invoice.partyId}</p>
+								<p><strong>{invoice.partyType === 'customer' ? t('customer_title') : t('party_title')}:</strong> {invoice.partyId}</p>
 							{/if}
 						</div>
 					</div>
@@ -156,17 +157,17 @@
 							<tr class="bg-zinc-100">
 								{#each layout.columnOrder ?? ['sn', 'product', 'quantity', 'unit', 'rate', 'amount'] as col}
 									{#if col === 'sn'}
-										<th class="border border-zinc-400 px-2 py-1 text-left">S.N.</th>
+										<th class="border border-zinc-400 px-2 py-1 text-left">{t('common_sn')}</th>
 									{:else if col === 'product'}
-										<th class="border border-zinc-400 px-2 py-1 text-left">Product</th>
+										<th class="border border-zinc-400 px-2 py-1 text-left">{t('product_title')}</th>
 									{:else if col === 'quantity'}
-										<th class="border border-zinc-400 px-2 py-1 text-center">Qty</th>
+										<th class="border border-zinc-400 px-2 py-1 text-center">{t('common_quantity')}</th>
 									{:else if col === 'unit'}
-										<th class="border border-zinc-400 px-2 py-1 text-center">Unit</th>
+										<th class="border border-zinc-400 px-2 py-1 text-center">{t('product_unit')}</th>
 									{:else if col === 'rate'}
-										<th class="border border-zinc-400 px-2 py-1 text-right">Rate</th>
+										<th class="border border-zinc-400 px-2 py-1 text-right">{t('common_rate')}</th>
 									{:else if col === 'amount'}
-										<th class="border border-zinc-400 px-2 py-1 text-right">Amount</th>
+										<th class="border border-zinc-400 px-2 py-1 text-right">{t('common_amount')}</th>
 									{/if}
 								{/each}
 							</tr>
@@ -198,17 +199,17 @@
 					<div class="mb-4 flex justify-end">
 						<div class="w-48">
 							<div class="flex justify-between border-b border-zinc-300 py-1">
-								<span>Subtotal</span>
+								<span>{t('invoice_subtotal')}</span>
 								<span>{formatNPR(invoice.subTotal)}</span>
 							</div>
 							{#if layout.showTax && invoice.tax > 0}
 								<div class="flex justify-between border-b border-zinc-300 py-1">
-									<span>Tax</span>
+									<span>{t('invoice_tax')}</span>
 									<span>{formatNPR(invoice.tax)}</span>
 								</div>
 							{/if}
 							<div class="flex justify-between py-1 font-bold">
-								<span>Total</span>
+								<span>{t('common_total')}</span>
 								<span>{formatNPR(invoice.totalAmount)}</span>
 							</div>
 						</div>
@@ -217,12 +218,12 @@
 					<!-- Payments -->
 					{#if layout.showPaymentDetails && invoice.payments?.length}
 						<div class="mb-4">
-							<p class="mb-1 font-semibold">Payments:</p>
+							<p class="mb-1 font-semibold">{t('payment_payments')}:</p>
 							{#each invoice.payments as payment}
 								<p class="text-xs">
 									{formatDate(payment.paidAt)} — {formatNPR(payment.paidAmount)} ({payment.paymentMethod})
 									{#if payment.bankVoucherNumber}
-										[Voucher: {payment.bankVoucherNumber}]
+										[{t('detail_voucher')}: {payment.bankVoucherNumber}]
 									{/if}
 								</p>
 							{/each}

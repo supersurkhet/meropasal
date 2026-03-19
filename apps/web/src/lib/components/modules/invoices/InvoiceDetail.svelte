@@ -8,6 +8,7 @@
 	import { Separator } from '$lib/components/ui/separator';
 	import { ArrowLeft, Printer } from '@lucide/svelte';
 	import { formatDate } from '$lib/date-utils';
+	import { t } from '$lib/t.svelte';
 
 	type Props = {
 		invoiceId: string;
@@ -44,14 +45,14 @@
 {#if invoice.isLoading}
 	<div class="flex items-center justify-center py-12 text-zinc-500">
 		<div class="size-5 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-600"></div>
-		<span class="ml-2 text-sm">Loading invoice...</span>
+		<span class="ml-2 text-sm">{t('detail_loading_invoice')}</span>
 	</div>
 {:else if !invoice.data}
 	<div class="py-12 text-center text-zinc-500">
-		<p>Invoice not found.</p>
+		<p>{t('detail_invoice_not_found')}</p>
 		<a href="/invoices" class="mt-2 inline-flex items-center gap-1 text-sm text-blue-600 hover:underline">
 			<ArrowLeft class="size-3.5" />
-			Back to invoices
+			{t('detail_back_to_invoices')}
 		</a>
 	</div>
 {:else}
@@ -63,11 +64,11 @@
 		<div class="flex items-center justify-between">
 			<a href="/invoices" class="inline-flex items-center gap-1.5 text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">
 				<ArrowLeft class="size-4" />
-				Back to invoices
+				{t('detail_back_to_invoices')}
 			</a>
 			<Button variant="outline" size="sm" onclick={() => { showPrint = true; }}>
 				<Printer class="mr-1.5 size-4" />
-				Print
+				{t('action_print')}
 			</Button>
 		</div>
 
@@ -94,37 +95,37 @@
 			<!-- Invoice Meta -->
 			<div class="mb-6 grid grid-cols-2 gap-4">
 				<div>
-					<p class="text-xs font-medium uppercase text-zinc-500">Invoice Number</p>
+					<p class="text-xs font-medium uppercase text-zinc-500">{t('invoice_number')}</p>
 					<p class="font-mono text-sm font-semibold text-zinc-900 dark:text-zinc-100">
 						{inv.invoiceNumber || '—'}
 					</p>
 				</div>
 				<div class="text-right">
-					<p class="text-xs font-medium uppercase text-zinc-500">Type</p>
+					<p class="text-xs font-medium uppercase text-zinc-500">{t('invoice_type')}</p>
 					<span
 						class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {inv.type === 'purchase'
 							? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
 							: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400'}"
 					>
-						{inv.type === 'purchase' ? 'Purchase' : 'Sale'}
+						{inv.type === 'purchase' ? t('invoice_type_purchase') : t('invoice_type_sale')}
 					</span>
 				</div>
 				<div>
-					<p class="text-xs font-medium uppercase text-zinc-500">Issued Date</p>
+					<p class="text-xs font-medium uppercase text-zinc-500">{t('invoice_issued_at')}</p>
 					<p class="text-sm text-zinc-700 dark:text-zinc-300">{formatDate(inv.issuedAt)}</p>
 				</div>
 				<div class="text-right">
-					<p class="text-xs font-medium uppercase text-zinc-500">Fiscal Year</p>
+					<p class="text-xs font-medium uppercase text-zinc-500">{t('invoice_fiscal_year')}</p>
 					<p class="text-sm text-zinc-700 dark:text-zinc-300">{inv.fiscalYear}</p>
 				</div>
 				{#if inv.dueDate}
 					<div>
-						<p class="text-xs font-medium uppercase text-zinc-500">Due Date</p>
+						<p class="text-xs font-medium uppercase text-zinc-500">{t('invoice_due_date')}</p>
 						<p class="text-sm text-zinc-700 dark:text-zinc-300">{formatDate(inv.dueDate)}</p>
 					</div>
 				{/if}
 				<div class={inv.dueDate ? 'text-right' : ''}>
-					<p class="text-xs font-medium uppercase text-zinc-500">Status</p>
+					<p class="text-xs font-medium uppercase text-zinc-500">{t('order_status')}</p>
 					<span
 						class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize {statusBadgeClass(inv.paymentStatus)}"
 					>
@@ -137,7 +138,7 @@
 			{#if inv.partyId}
 				<div class="mb-6 rounded-lg bg-zinc-50 p-4 dark:bg-zinc-900/50">
 					<p class="text-xs font-medium uppercase text-zinc-500">
-						{inv.partyType === 'customer' ? 'Customer' : 'Supplier'}
+						{inv.partyType === 'customer' ? t('customer_title') : t('party_title')}
 					</p>
 					<p class="text-sm font-medium text-zinc-900 dark:text-zinc-100">{inv.partyId}</p>
 				</div>
@@ -148,12 +149,12 @@
 				<Table.Root>
 					<Table.Header>
 						<Table.Row class="bg-zinc-50 dark:bg-zinc-900/50">
-							<Table.Head class="w-12 font-semibold">S.N.</Table.Head>
-							<Table.Head class="font-semibold">Product</Table.Head>
-							<Table.Head class="text-center font-semibold">Qty</Table.Head>
-							<Table.Head class="text-center font-semibold">Unit</Table.Head>
-							<Table.Head class="text-right font-semibold">Rate</Table.Head>
-							<Table.Head class="text-right font-semibold">Amount</Table.Head>
+							<Table.Head class="w-12 font-semibold">{t('common_sn')}</Table.Head>
+							<Table.Head class="font-semibold">{t('product_title')}</Table.Head>
+							<Table.Head class="text-center font-semibold">{t('common_quantity')}</Table.Head>
+							<Table.Head class="text-center font-semibold">{t('product_unit')}</Table.Head>
+							<Table.Head class="text-right font-semibold">{t('common_rate')}</Table.Head>
+							<Table.Head class="text-right font-semibold">{t('common_amount')}</Table.Head>
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
@@ -175,29 +176,29 @@
 			<div class="flex justify-end">
 				<div class="w-64 space-y-2">
 					<div class="flex justify-between text-sm">
-						<span class="text-zinc-500">Subtotal</span>
+						<span class="text-zinc-500">{t('invoice_subtotal')}</span>
 						<span class="tabular-nums">{formatNPR(inv.subTotal)}</span>
 					</div>
 					{#if inv.tax > 0}
 						<div class="flex justify-between text-sm">
-							<span class="text-zinc-500">Tax</span>
+							<span class="text-zinc-500">{t('invoice_tax')}</span>
 							<span class="tabular-nums">{formatNPR(inv.tax)}</span>
 						</div>
 					{/if}
 					<Separator />
 					<div class="flex justify-between font-semibold">
-						<span>Total</span>
+						<span>{t('common_total')}</span>
 						<span class="tabular-nums">{formatNPR(inv.totalAmount)}</span>
 					</div>
 					{#if inv.paidAmount > 0}
 						<div class="flex justify-between text-sm text-emerald-600">
-							<span>Paid</span>
+							<span>{t('payment_summary_paid')}</span>
 							<span class="tabular-nums">{formatNPR(inv.paidAmount)}</span>
 						</div>
 					{/if}
 					{#if inv.totalAmount - inv.paidAmount > 0}
 						<div class="flex justify-between text-sm font-medium text-amber-600">
-							<span>Balance Due</span>
+							<span>{t('detail_balance_due')}</span>
 							<span class="tabular-nums">{formatNPR(inv.totalAmount - inv.paidAmount)}</span>
 						</div>
 					{/if}
@@ -207,7 +208,7 @@
 			<!-- Payments -->
 			{#if inv.payments?.length}
 				<div class="mt-6">
-					<h3 class="mb-3 text-sm font-semibold text-zinc-900 dark:text-zinc-100">Payments</h3>
+					<h3 class="mb-3 text-sm font-semibold text-zinc-900 dark:text-zinc-100">{t('payment_payments')}</h3>
 					<div class="space-y-2">
 						{#each inv.payments as payment, i}
 							<div class="flex items-center justify-between rounded-lg border border-zinc-100 px-4 py-2.5 dark:border-zinc-800">
@@ -221,7 +222,7 @@
 									</span>
 									{#if payment.bankVoucherNumber}
 										<span class="font-mono text-xs text-zinc-500">
-											Voucher: {payment.bankVoucherNumber}
+											{t('detail_voucher')}: {payment.bankVoucherNumber}
 										</span>
 									{/if}
 								</div>

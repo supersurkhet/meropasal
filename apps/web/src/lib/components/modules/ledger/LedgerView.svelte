@@ -83,7 +83,7 @@
 				accountFilter = val || undefined;
 			}}
 		>
-			<option value="">All Accounts</option>
+			<option value="">{t('common_all_accounts')}</option>
 			{#each (accounts.data ?? []) as account}
 				{@const acc = account as any}
 				<option value={acc.code}>{acc.code} — {acc.name}</option>
@@ -97,7 +97,7 @@
 				fiscalYearFilter = val || undefined;
 			}}
 		>
-			<option value="">All Fiscal Years</option>
+			<option value="">{t('common_all_fiscal_years')}</option>
 			{#each fiscalYears as fy}
 				<option value={fy}>{fy}</option>
 			{/each}
@@ -106,13 +106,13 @@
 		<div class="flex items-center gap-1.5">
 			<DatePicker
 				bind:value={dateFrom}
-				placeholder="From"
+				placeholder={t('report_from')}
 				class="rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
 			/>
 			<span class="text-zinc-400">—</span>
 			<DatePicker
 				bind:value={dateTo}
-				placeholder="To"
+				placeholder={t('report_to')}
 				class="rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
 			/>
 		</div>
@@ -136,12 +136,12 @@
 			<Table.Root>
 				<Table.Header>
 					<Table.Row class="bg-zinc-50 dark:bg-zinc-900/50">
-						<Table.Head class="font-semibold">Date</Table.Head>
-						<Table.Head class="font-semibold">Account</Table.Head>
-						<Table.Head class="text-right font-semibold">Debit</Table.Head>
-						<Table.Head class="text-right font-semibold">Credit</Table.Head>
-						<Table.Head class="font-semibold">Narration</Table.Head>
-						<Table.Head class="font-semibold">Voucher Type</Table.Head>
+						<Table.Head class="font-semibold">{t('common_date')}</Table.Head>
+						<Table.Head class="font-semibold">{t('ledger_account')}</Table.Head>
+						<Table.Head class="text-right font-semibold">{t('ledger_debit')}</Table.Head>
+						<Table.Head class="text-right font-semibold">{t('ledger_credit')}</Table.Head>
+						<Table.Head class="font-semibold">{t('ledger_narration')}</Table.Head>
+						<Table.Head class="font-semibold">{t('ledger_voucher_type')}</Table.Head>
 					</Table.Row>
 				</Table.Header>
 				<Table.Body>

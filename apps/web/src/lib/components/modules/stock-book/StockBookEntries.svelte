@@ -87,7 +87,7 @@
 				productFilter = val || undefined;
 			}}
 		>
-			<option value="">All Products</option>
+			<option value="">{t('common_all_products')}</option>
 			{#each products.data ?? [] as product}
 				<option value={(product as any)._id}>{(product as any).title}</option>
 			{/each}
@@ -100,7 +100,7 @@
 				movementTypeFilter = val || undefined;
 			}}
 		>
-			<option value="">All Movement Types</option>
+			<option value="">{t('common_all_movement_types')}</option>
 			{#each movementTypes as mt}
 				<option value={mt}>{mt}</option>
 			{/each}
@@ -113,7 +113,7 @@
 				fiscalYearFilter = val || undefined;
 			}}
 		>
-			<option value="">All Fiscal Years</option>
+			<option value="">{t('common_all_fiscal_years')}</option>
 			{#each fiscalYears as fy}
 				<option value={fy}>{fy}</option>
 			{/each}
@@ -138,16 +138,16 @@
 			<Table.Root>
 				<Table.Header>
 					<Table.Row class="bg-zinc-50 dark:bg-zinc-900/50">
-						<Table.Head class="font-semibold">Date</Table.Head>
-						<Table.Head class="font-semibold">Product</Table.Head>
-						<Table.Head class="font-semibold">Movement</Table.Head>
-						<Table.Head class="text-center font-semibold">Direction</Table.Head>
-						<Table.Head class="text-right font-semibold">Qty In</Table.Head>
-						<Table.Head class="text-right font-semibold">Qty Out</Table.Head>
-						<Table.Head class="text-right font-semibold">Rate</Table.Head>
-						<Table.Head class="text-right font-semibold">Total</Table.Head>
-						<Table.Head class="font-semibold">Source</Table.Head>
-						<Table.Head class="font-semibold">Particulars</Table.Head>
+						<Table.Head class="font-semibold">{t('common_date')}</Table.Head>
+						<Table.Head class="font-semibold">{t('stock_book_product')}</Table.Head>
+						<Table.Head class="font-semibold">{t('stock_book_movement_type')}</Table.Head>
+						<Table.Head class="text-center font-semibold">{t('stock_book_direction')}</Table.Head>
+						<Table.Head class="text-right font-semibold">{t('stock_book_quantity_in')}</Table.Head>
+						<Table.Head class="text-right font-semibold">{t('stock_book_quantity_out')}</Table.Head>
+						<Table.Head class="text-right font-semibold">{t('common_rate')}</Table.Head>
+						<Table.Head class="text-right font-semibold">{t('common_total')}</Table.Head>
+						<Table.Head class="font-semibold">{t('stock_book_source')}</Table.Head>
+						<Table.Head class="font-semibold">{t('common_particulars')}</Table.Head>
 					</Table.Row>
 				</Table.Header>
 				<Table.Body>
@@ -169,12 +169,12 @@
 								{#if e.direction === 'in'}
 									<span class="inline-flex items-center gap-1 text-emerald-600">
 										<ArrowDownToLine class="size-3.5" />
-										<span class="text-xs font-medium">IN</span>
+										<span class="text-xs font-medium">{t('stock_book_direction_in')}</span>
 									</span>
 								{:else}
 									<span class="inline-flex items-center gap-1 text-red-500">
 										<ArrowUpFromLine class="size-3.5" />
-										<span class="text-xs font-medium">OUT</span>
+										<span class="text-xs font-medium">{t('stock_book_direction_out')}</span>
 									</span>
 								{/if}
 							</Table.Cell>

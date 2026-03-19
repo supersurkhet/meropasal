@@ -7,6 +7,7 @@
 	import { type PaymentStatus } from '$lib/payment-status';
 	import { Loader2, CheckCircle, AlertTriangle } from '@lucide/svelte';
 	import { formatDate } from '$lib/date-utils';
+	import { t } from '$lib/t.svelte';
 
 	let {
 		orderId,
@@ -162,7 +163,7 @@
 	</div>
 {:else if !order}
 	<div class="py-12 text-center">
-		<p class="text-sm text-zinc-500 dark:text-zinc-400">Order not found</p>
+		<p class="text-sm text-zinc-500 dark:text-zinc-400">{t('detail_order_not_found')}</p>
 	</div>
 {:else}
 	<div class="max-w-4xl space-y-6">
@@ -178,19 +179,19 @@
 			<div class="space-y-1">
 				<div class="flex items-center gap-3">
 					<h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-						{customerName || 'Walk-in Customer'}
+						{customerName || t('detail_walk_in_customer')}
 					</h2>
 					<span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold {statusBadgeClass(orderStatus)}">
-						{orderStatus === 'done' ? 'Done' : orderStatus === 'cancelled' ? 'Cancelled' : 'Pending'}
+						{orderStatus === 'done' ? t('status_done') : orderStatus === 'cancelled' ? t('status_cancelled') : t('status_pending')}
 					</span>
 					<span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold {paymentStatusBadgeClass(order.paymentStatus)}">
-						{order.paymentStatus === 'paid' ? 'Paid' : order.paymentStatus === 'partial' ? 'Partial' : order.paymentStatus === 'pending' ? 'Payment Pending' : order.paymentStatus}
+						{order.paymentStatus === 'paid' ? t('status_paid') : order.paymentStatus === 'partial' ? t('status_partial') : order.paymentStatus === 'pending' ? t('detail_payment_pending') : order.paymentStatus}
 					</span>
 				</div>
 				<p class="text-sm text-zinc-500 dark:text-zinc-400">
 					{formatDate(order.issuedAt)}
 					{#if order.invoiceNumber}
-						&middot; Invoice {order.invoiceNumber}
+						&middot; {t('invoice_title')} {order.invoiceNumber}
 					{/if}
 				</p>
 			</div>
@@ -209,7 +210,7 @@
 						{:else}
 							<CheckCircle class="mr-1.5 size-3.5" />
 						{/if}
-						Mark as Done
+						{t('action_mark_done')}
 					</Button>
 				</div>
 			{/if}
@@ -218,22 +219,22 @@
 		<!-- Notes -->
 		{#if order.description}
 			<div class="rounded-lg border border-zinc-200 bg-zinc-50/50 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-900/30">
-				<p class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Notes</p>
+				<p class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{t('detail_notes')}</p>
 				<p class="mt-1 text-sm text-zinc-700 dark:text-zinc-300">{order.description}</p>
 			</div>
 		{/if}
 
 		<!-- Items table -->
 		<div class="space-y-3">
-			<h3 class="text-sm font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Items</h3>
+			<h3 class="text-sm font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{t('detail_items')}</h3>
 			<div class="rounded-lg border border-zinc-200 dark:border-zinc-700">
 				<Table.Root>
 					<Table.Header>
 						<Table.Row class="bg-zinc-50 dark:bg-zinc-900/50">
-							<Table.Head class="text-xs font-medium uppercase tracking-wider">Product</Table.Head>
-							<Table.Head class="text-xs font-medium uppercase tracking-wider text-right">Qty</Table.Head>
-							<Table.Head class="text-xs font-medium uppercase tracking-wider text-right">Rate</Table.Head>
-							<Table.Head class="text-xs font-medium uppercase tracking-wider text-right">Total</Table.Head>
+							<Table.Head class="text-xs font-medium uppercase tracking-wider">{t('product_title')}</Table.Head>
+							<Table.Head class="text-xs font-medium uppercase tracking-wider text-right">{t('common_quantity')}</Table.Head>
+							<Table.Head class="text-xs font-medium uppercase tracking-wider text-right">{t('common_rate')}</Table.Head>
+							<Table.Head class="text-xs font-medium uppercase tracking-wider text-right">{t('common_total')}</Table.Head>
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
@@ -260,7 +261,7 @@
 				</Table.Root>
 				<div class="flex justify-end border-t border-zinc-200 bg-zinc-50/50 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-900/30">
 					<div class="text-right">
-						<span class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Total</span>
+						<span class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{t('common_total')}</span>
 						<p class="mt-0.5 text-lg font-mono font-bold text-zinc-900 dark:text-zinc-100">{formatNPR(order.totalAmount)}</p>
 					</div>
 				</div>
@@ -270,13 +271,13 @@
 		<!-- Existing payments (read-only) -->
 		{#if order.payments.length > 0}
 			<div class="space-y-3">
-				<h3 class="text-sm font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Payment History</h3>
+				<h3 class="text-sm font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{t('detail_payment_history')}</h3>
 				<div class="rounded-lg border border-zinc-200 dark:border-zinc-700">
 					<div class="grid grid-cols-[110px_1fr_1fr_auto] gap-2 border-b border-zinc-100 bg-zinc-50 px-3 py-2 text-xs font-medium uppercase tracking-wider text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-zinc-400">
-						<span>Date</span>
-						<span>Amount</span>
-						<span>Method</span>
-						<span>Voucher #</span>
+						<span>{t('common_date')}</span>
+						<span>{t('payment_amount')}</span>
+						<span>{t('payment_method')}</span>
+						<span>{t('payment_voucher_number')}</span>
 					</div>
 					{#each order.payments as p}
 						<div class="grid grid-cols-[110px_1fr_1fr_auto] items-center gap-2 border-b border-zinc-100 px-3 py-2.5 last:border-b-0 dark:border-zinc-800">
@@ -293,7 +294,7 @@
 		<!-- Add new payments (if not readonly) -->
 		{#if !isReadonly}
 			<div class="space-y-3">
-				<h3 class="text-sm font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Add Payments</h3>
+				<h3 class="text-sm font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{t('detail_add_payments')}</h3>
 				<PaymentSection bind:payments={newPayments} totalAmount={order.totalAmount - order.paidAmount} />
 
 				{#if newPayments.length > 0}
@@ -318,15 +319,15 @@
 		<div class="rounded-lg border border-zinc-200 bg-zinc-50/50 p-4 dark:border-zinc-700 dark:bg-zinc-900/30">
 			<div class="grid grid-cols-3 gap-4 text-sm">
 				<div>
-					<span class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Total</span>
+					<span class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{t('common_total')}</span>
 					<p class="mt-0.5 font-mono font-semibold text-zinc-900 dark:text-zinc-100">{formatNPR(order.totalAmount)}</p>
 				</div>
 				<div>
-					<span class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Paid</span>
+					<span class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{t('payment_summary_paid')}</span>
 					<p class="mt-0.5 font-mono font-semibold text-emerald-600 dark:text-emerald-400">{formatNPR(order.paidAmount)}</p>
 				</div>
 				<div>
-					<span class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Remaining</span>
+					<span class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{t('payment_remaining')}</span>
 					<p class="mt-0.5 font-mono font-semibold {order.totalAmount - order.paidAmount > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-zinc-400'}">
 						{formatNPR(Math.abs(order.totalAmount - order.paidAmount))}
 					</p>

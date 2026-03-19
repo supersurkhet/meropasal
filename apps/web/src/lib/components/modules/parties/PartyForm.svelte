@@ -4,6 +4,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { Loader2, Save, ArrowLeft } from '@lucide/svelte';
+	import { t } from '$lib/t.svelte';
 
 	type Party = {
 		_id: string;
@@ -53,7 +54,7 @@
 		nameError = '';
 
 		if (!name.trim()) {
-			nameError = 'Party name is required';
+			nameError = t('party_name_required');
 			return;
 		}
 
@@ -213,10 +214,10 @@
 		>
 			{#if submitting || loading}
 				<Loader2 class="mr-1.5 size-4 animate-spin" />
-				Saving...
+				{t('action_saving')}
 			{:else}
 				<Save class="mr-1.5 size-4" />
-				{party ? 'Update Party' : 'Create Party'}
+				{party ? t('party_update') : t('party_create_new')}
 			{/if}
 		</Button>
 	</div>

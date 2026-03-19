@@ -3,6 +3,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Pencil, Trash2, Car, FileText, Loader2 } from '@lucide/svelte';
 	import { formatTimestamp } from '$lib/date-utils';
+	import { t } from '$lib/t.svelte';
 
 	type Vehicle = {
 		_id: string;
@@ -43,7 +44,7 @@
 				{vehicle.name}
 			</h2>
 			<p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
-				Created {formatTimestamp(vehicle._creationTime)}
+				{t('detail_created_date').replace('{date}', formatTimestamp(vehicle._creationTime))}
 			</p>
 		</div>
 		<div class="flex items-center gap-2">
