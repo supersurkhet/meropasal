@@ -8,6 +8,9 @@
 	import { deriveUnitPrice } from '$lib/unit-price';
 	import { Plus, Trash2, Save, Loader2 } from '@lucide/svelte';
 	import type { Snippet } from 'svelte';
+	import { tick } from 'svelte';
+	import { formatDate } from '$lib/date-utils';
+	import { t } from '$lib/t.svelte';
 
 	type LineItem = {
 		id: string;
@@ -41,6 +44,8 @@
 		productSelector?: Snippet<[{ item: LineItem; index: number }]>;
 	} = $props();
 
+	let tableEl: HTMLDivElement | undefined = $state();
+
 	let subtotal = $derived(
 		items.reduce((sum, item) => sum + item.quantity * item.rate, 0),
 	);
@@ -66,6 +71,102 @@
 		items[index].rate = Math.round(baseRate * 100) / 100;
 	}
 
+	/** Auto-add an empty row when the user starts editing the last row */
+	function ensureTrailingRow(index: number) {
+		if (index === items.length - 1 && onadditem) {
+			onadditem();
+		}
+	}
+
+	/** Focus a specific cell by row index and column name */
+	async function focusCell(rowIndex: number, column: 'qty' | 'rate') {
+		await tick();
+		if (!tableEl) return;
+		const rows = tableEl.querySelectorAll('[data-row-index]');
+		const row = rows[rowIndex] as HTMLElement | undefined;
+		if (!row) return;
+		const cell = row.querySelector(`[data-col="${column}"]`) as HTMLElement | undefined;
+		if (!cell) return;
+		const input = cell.querySelector('input') as HTMLInputElement | undefined;
+		input?.focus();
+		input?.select();
+	}
+
+	/** Handle Tab/Enter/Backspace navigation across cells */
+	function handleCellKeydown(e: KeyboardEvent, rowIndex: number, column: 'qty' | 'rate') {
+		if (e.key === 'Tab' && !e.shiftKey) {
+			if (column === 'qty') {
+				// qty -> rate in same row
+				e.preventDefault();
+				focusCell(rowIndex, 'rate');
+			} else if (column === 'rate') {
+				// rate -> qty in next row (auto-add if last)
+				e.preventDefault();
+				ensureTrailingRow(rowIndex);
+				focusCell(rowIndex + 1, 'qty');
+			}
+		} else if (e.key === 'Tab' && e.shiftKey) {
+			if (column === 'rate') {
+				e.preventDefault();
+				focusCell(rowIndex, 'qty');
+			} else if (column === 'qty' && rowIndex > 0) {
+				e.preventDefault();
+				focusCell(rowIndex - 1, 'rate');
+			}
+		} else if (e.key === 'Enter') {
+			e.preventDefault();
+			ensureTrailingRow(rowIndex);
+			focusCell(rowIndex + 1, 'qty');
+		} else if ((e.key === 'Backspace' || e.key === 'Delete') && !readonly) {
+			const item = items[rowIndex];
+			const input = e.target as HTMLInputElement;
+			// Remove row if it's empty and there's more than one row
+			if (!item.productId && item.quantity === 0 && item.rate === 0 && input.value === '' && items.length > 1) {
+				e.preventDefault();
+				removeItem(rowIndex);
+				if (rowIndex > 0) {
+					focusCell(rowIndex - 1, column);
+				}
+			}
+		}
+	}
+
+	/** Handle paste of multi-cell data from spreadsheets */
+	function handlePaste(e: ClipboardEvent, rowIndex: number, column: 'qty' | 'rate') {
+		const text = e.clipboardData?.getData('text/plain');
+		if (!text) return;
+
+		const rows = text.split(/\r?\n/).filter(Boolean);
+		if (rows.length <= 1 && !rows[0]?.includes('\t')) return; // Single value — let default handle it
+
+		e.preventDefault();
+		const columns: ('qty' | 'rate')[] = ['qty', 'rate'];
+		const colStart = columns.indexOf(column);
+
+		for (let r = 0; r < rows.length; r++) {
+			const targetRow = rowIndex + r;
+			// Ensure enough rows exist
+			while (targetRow >= items.length && onadditem) {
+				onadditem();
+			}
+			if (targetRow >= items.length) break;
+
+			const cells = rows[r].split('\t');
+			for (let c = 0; c < cells.length; c++) {
+				const targetCol = colStart + c;
+				if (targetCol >= columns.length) break;
+				const val = parseFloat(cells[c].replace(/[^0-9.-]/g, ''));
+				if (!Number.isFinite(val)) continue;
+
+				if (columns[targetCol] === 'qty') {
+					items[targetRow].quantity = val;
+				} else if (columns[targetCol] === 'rate') {
+					items[targetRow].rate = val;
+				}
+			}
+		}
+	}
+
 	function handleKeydown(e: KeyboardEvent) {
 		if ((e.metaKey || e.ctrlKey) && e.key === 's') {
 			e.preventDefault();
@@ -86,7 +187,7 @@
 				<div>
 					<h2 class="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">{title}</h2>
 					<p class="mt-0.5 text-xs font-medium uppercase tracking-widest text-zinc-400">
-						{new Date().toLocaleDateString('en-NP', { year: 'numeric', month: 'short', day: 'numeric' })}
+						{formatDate(new Date().toISOString().split('T')[0])}
 					</p>
 				</div>
 				<div class="text-right text-xs text-zinc-400">
@@ -103,15 +204,15 @@
 		</div>
 
 		<!-- Line Items Table — the receipt body -->
-		<div class="min-h-[200px]">
+		<div class="min-h-[200px]" bind:this={tableEl}>
 			<!-- Table Header — printed receipt column headers -->
 			<div class="grid grid-cols-[2.5rem_1fr_5rem_5rem_6rem_6.5rem_2rem] items-center gap-2 border-b border-zinc-200 bg-zinc-50/80 px-4 py-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-zinc-400">
-				<span class="text-center">SN</span>
-				<span>Product</span>
-				<span class="text-center">Qty</span>
-				<span class="text-center">Unit</span>
-				<span class="text-right">Rate</span>
-				<span class="text-right">Amount</span>
+				<span class="text-center">{t('common_sn')}</span>
+				<span>{t('product_title')}</span>
+				<span class="text-center">{t('common_quantity')}</span>
+				<span class="text-center">{t('product_unit')}</span>
+				<span class="text-right">{t('common_rate')}</span>
+				<span class="text-right">{t('common_amount')}</span>
 				<span></span>
 			</div>
 
@@ -119,9 +220,9 @@
 			{#if items.length === 0}
 				<div class="flex flex-col items-center justify-center py-12 text-zinc-400 dark:text-zinc-500">
 					<div class="mb-2 text-3xl opacity-30">📋</div>
-					<p class="text-sm">No items yet</p>
+					<p class="text-sm">{t('bill_no_items')}</p>
 					{#if !readonly}
-						<p class="mt-1 text-xs">Click "Add Item" to get started</p>
+						<p class="mt-1 text-xs">{t('bill_auto_add_hint')}</p>
 					{/if}
 				</div>
 			{/if}
@@ -129,6 +230,7 @@
 			{#each items as item, i (item.id)}
 				{@const lineTotal = item.quantity * item.rate}
 				<div
+					data-row-index={i}
 					class="group grid grid-cols-[2.5rem_1fr_5rem_5rem_6rem_6.5rem_2rem] items-center gap-2 border-b border-zinc-100 px-4 py-2 transition-colors hover:bg-zinc-50/50 dark:border-zinc-800/50 dark:hover:bg-zinc-900/30"
 				>
 					<!-- SN -->
@@ -151,14 +253,19 @@
 					{#if readonly}
 						<span class="text-center font-mono text-sm tabular-nums">{item.quantity}</span>
 					{:else}
-						<Input
-							type="number"
-							min="0"
-							step="1"
-							class="h-8 text-center font-mono text-sm tabular-nums [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-							value={String(item.quantity)}
-							oninput={(e) => updateItemQuantity(i, (e.target as HTMLInputElement).value)}
-						/>
+						<div data-col="qty">
+							<Input
+								type="number"
+								min="0"
+								step="1"
+								class="h-8 text-center font-mono text-sm tabular-nums [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+								value={String(item.quantity)}
+								oninput={(e) => updateItemQuantity(i, (e.target as HTMLInputElement).value)}
+								onfocus={() => ensureTrailingRow(i)}
+								onkeydown={(e) => handleCellKeydown(e, i, 'qty')}
+								onpaste={(e) => handlePaste(e, i, 'qty')}
+							/>
+						</div>
 					{/if}
 
 					<!-- Unit -->
@@ -175,10 +282,15 @@
 					{#if readonly}
 						<span class="text-right font-mono text-sm tabular-nums">{formatNumber(item.rate)}</span>
 					{:else}
-						<CurrencyInput
-							bind:value={item.rate}
-							class="[&_input]:h-8 [&_input]:text-sm [&_span]:text-xs"
-						/>
+						<div data-col="rate">
+							<CurrencyInput
+								bind:value={item.rate}
+								class="[&_input]:h-8 [&_input]:text-sm [&_span]:text-xs"
+								onkeydown={(e) => handleCellKeydown(e, i, 'rate')}
+								onpaste={(e) => handlePaste(e, i, 'rate')}
+								onfocus={() => ensureTrailingRow(i)}
+							/>
+						</div>
 					{/if}
 
 					<!-- Amount -->
@@ -200,28 +312,13 @@
 					{/if}
 				</div>
 			{/each}
-
-			<!-- Add Item Row -->
-			{#if !readonly}
-				<div class="px-4 py-3">
-					<Button
-						variant="ghost"
-						size="sm"
-						class="h-8 gap-1.5 text-xs text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
-						onclick={onadditem}
-					>
-						<Plus class="size-3.5" />
-						Add Item
-					</Button>
-				</div>
-			{/if}
 		</div>
 
 		<!-- Bill Footer — totals like the bottom of a receipt -->
 		<div class="border-t border-dashed border-zinc-300 dark:border-zinc-700">
 			<!-- Subtotal -->
 			<div class="flex items-center justify-between px-6 py-3">
-				<span class="text-sm text-zinc-500">Subtotal</span>
+				<span class="text-sm text-zinc-500">{t('invoice_subtotal')}</span>
 				<span class="font-mono text-sm tabular-nums text-zinc-700 dark:text-zinc-300">
 					{formatNPR(subtotal)}
 				</span>
@@ -230,7 +327,7 @@
 			<!-- Grand Total -->
 			<div class="border-t border-double border-zinc-300 px-6 py-3 dark:border-zinc-600">
 				<div class="flex items-center justify-between">
-					<span class="text-base font-bold text-zinc-900 dark:text-zinc-100">Total</span>
+					<span class="text-base font-bold text-zinc-900 dark:text-zinc-100">{t('common_total')}</span>
 					<span class="font-mono text-lg font-bold tabular-nums text-zinc-900 dark:text-zinc-100">
 						{formatNPR(subtotal)}
 					</span>

@@ -9,13 +9,14 @@
 	} from '$lib/components/ui/dialog';
 	import { Button } from '$lib/components/ui/button';
 	import { Loader2 } from '@lucide/svelte';
+	import { t } from '$lib/t.svelte';
 
 	let {
 		open = $bindable(false),
-		title = 'Are you sure?',
-		description = 'This action cannot be undone.',
-		confirmLabel = 'Delete',
-		cancelLabel = 'Cancel',
+		title = t('confirm_delete_title'),
+		description = t('confirm_delete_desc'),
+		confirmLabel = t('action_delete'),
+		cancelLabel = t('action_cancel'),
 		variant = 'destructive',
 		loading = false,
 		onconfirm,

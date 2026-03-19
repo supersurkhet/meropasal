@@ -5,6 +5,7 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import * as Select from '$lib/components/ui/select';
 	import { Plus, Trash2 } from '@lucide/svelte';
+	import DatePicker from '$lib/components/shared/DatePicker.svelte';
 	import { computePaymentStatus, computePaidAmount, type PaymentStatus } from '$lib/payment-status';
 
 	type PaymentRow = {
@@ -121,8 +122,7 @@
 			</div>
 			{#each payments as payment, i}
 				<div class="grid grid-cols-[110px_1fr_1fr_auto_auto] items-center gap-2 border-b border-zinc-100 px-3 py-2 last:border-b-0 dark:border-zinc-800">
-					<Input
-						type="date"
+					<DatePicker
 						bind:value={payment.paidAt}
 						disabled={readonly}
 						class="h-8 text-sm border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900"

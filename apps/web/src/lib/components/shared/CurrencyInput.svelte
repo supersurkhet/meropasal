@@ -7,12 +7,18 @@
 		disabled = false,
 		class: className = '',
 		onuserinput,
+		onkeydown,
+		onpaste,
+		onfocus,
 	}: {
 		value?: number;
 		placeholder?: string;
 		disabled?: boolean;
 		class?: string;
 		onuserinput?: (value: number) => void;
+		onkeydown?: (e: KeyboardEvent) => void;
+		onpaste?: (e: ClipboardEvent) => void;
+		onfocus?: () => void;
 	} = $props();
 
 	let editing = $state(false);
@@ -58,5 +64,8 @@
 		value={displayValue}
 		oninput={handleInput}
 		onblur={handleBlur}
+		{onkeydown}
+		{onpaste}
+		onfocus={() => { editing = true; onfocus?.(); }}
 	/>
 </div>
