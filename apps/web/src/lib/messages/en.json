@@ -315,6 +315,8 @@
 	"a11y_expand_sidebar": "Expand sidebar",
 	"a11y_actions": "Actions",
 	"a11y_more_options": "More options",
+	"a11y_remove_item": "Remove item",
+	"a11y_remove_payment": "Remove payment",
 
 	"keyboard_save_hint": "Cmd+S to save",
 	"keyboard_escape_hint": "Esc to cancel",

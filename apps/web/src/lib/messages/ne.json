@@ -315,6 +315,8 @@
 	"a11y_expand_sidebar": "साइडबार ठूलो बनाउनुहोस्",
 	"a11y_actions": "कार्यहरू",
 	"a11y_more_options": "थप विकल्पहरू",
+	"a11y_remove_item": "वस्तु हटाउनुहोस्",
+	"a11y_remove_payment": "भुक्तानी हटाउनुहोस्",
 
 	"keyboard_save_hint": "Cmd+S सेभ गर्न",
 	"keyboard_escape_hint": "Esc रद्द गर्न",

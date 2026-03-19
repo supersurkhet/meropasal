@@ -87,11 +87,11 @@ export function getFiscalYearDateRange(
 
 	// Shrawan 1 of the start BS year → AD start date
 	const startNd = new NepaliDate(parsed.startBsYear, SHRAWAN, 1)
-	const startDate = startNd.toJsDate()
+	const startDate = startNd.getDateObject()
 
 	// Shrawan 1 of the end BS year → AD date, minus 1 ms for end of previous day
 	const endNd = new NepaliDate(parsed.endBsYear, SHRAWAN, 1)
-	const endDate = new Date(endNd.toJsDate().getTime() - 1)
+	const endDate = new Date(endNd.getDateObject().getTime() - 1)
 
 	return { startDate, endDate }
 }
