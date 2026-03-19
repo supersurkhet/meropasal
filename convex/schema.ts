@@ -39,7 +39,11 @@ export default defineSchema({
     isActive: v.boolean(),
   })
     .index("by_orgId", ["orgId"])
-    .index("by_orgId_name", ["orgId", "name"]),
+    .index("by_orgId_name", ["orgId", "name"])
+    .searchIndex("search_name", {
+      searchField: "name",
+      filterFields: ["orgId"],
+    }),
 
   customers: defineTable({
     orgId: v.string(),
@@ -53,7 +57,11 @@ export default defineSchema({
     isActive: v.boolean(),
   })
     .index("by_orgId", ["orgId"])
-    .index("by_orgId_name", ["orgId", "name"]),
+    .index("by_orgId_name", ["orgId", "name"])
+    .searchIndex("search_name", {
+      searchField: "name",
+      filterFields: ["orgId"],
+    }),
 
   products: defineTable({
     orgId: v.string(),
@@ -134,7 +142,11 @@ export default defineSchema({
     .index("by_orgId_type", ["orgId", "type"])
     .index("by_orgId_party", ["orgId", "partyId"])
     .index("by_orgId_fiscal", ["orgId", "fiscalYear"])
-    .index("by_orgId_status", ["orgId", "paymentStatus"]),
+    .index("by_orgId_status", ["orgId", "paymentStatus"])
+    .searchIndex("search_number", {
+      searchField: "invoiceNumber",
+      filterFields: ["orgId"],
+    }),
 
   invoiceCounters: defineTable({
     orgId: v.string(),
@@ -238,7 +250,12 @@ export default defineSchema({
     licensePlate: v.string(),
     description: v.optional(v.string()),
     isActive: v.boolean(),
-  }).index("by_orgId", ["orgId"]),
+  })
+    .index("by_orgId", ["orgId"])
+    .searchIndex("search_name", {
+      searchField: "name",
+      filterFields: ["orgId"],
+    }),
 
   trips: defineTable({
     orgId: v.string(),
@@ -273,6 +290,49 @@ export default defineSchema({
   })
     .index("by_orgId", ["orgId"])
     .index("by_orgId_vehicle", ["orgId", "vehicleId"]),
+
+  notifications: defineTable({
+    orgId: v.string(),
+    type: v.union(
+      v.literal("low_stock"),
+      v.literal("payment_due"),
+      v.literal("order_status"),
+      v.literal("system")
+    ),
+    title: v.string(),
+    message: v.string(),
+    entityType: v.optional(v.string()),
+    entityId: v.optional(v.string()),
+    isRead: v.boolean(),
+    createdAt: v.string(),
+  })
+    .index("by_orgId", ["orgId"])
+    .index("by_orgId_unread", ["orgId", "isRead"]),
+
+  // Temporary storage for onboarding data that survives the OAuth redirect.
+  // Keyed by WorkOS userId. Consumed and deleted after org initialization.
+  pendingOnboarding: defineTable({
+    workosUserId: v.string(),
+    businessName: v.string(),
+    businessType: v.union(
+      v.literal("retail"),
+      v.literal("wholesale"),
+      v.literal("service")
+    ),
+    currentFiscalYear: v.string(),
+    location: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    panNumber: v.optional(v.string()),
+  }).index("by_workosUserId", ["workosUserId"]),
+
+  // Maps user subjects (from JWT `sub` claim) to their WorkOS org IDs.
+  // Needed because non-org-scoped JWTs don't contain org_id.
+  userOrgMappings: defineTable({
+    subject: v.string(),
+    orgId: v.string(),
+  })
+    .index("by_subject", ["subject"])
+    .index("by_orgId", ["orgId"]),
 
   billTemplates: defineTable({
     orgId: v.string(),
