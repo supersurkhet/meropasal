@@ -4,6 +4,7 @@
 	import { useConvexQuery } from '$lib/convex-helpers.svelte';
 	import { api } from '$lib/api';
 	import { formatNPR } from '$lib/currency';
+	import { t } from '$lib/t.svelte';
 	import * as Table from '$lib/components/ui/table';
 	import {
 		Package,
@@ -176,7 +177,7 @@
 				<Search class="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
 				<input
 					type="text"
-					placeholder="Search products..."
+					placeholder="{t('search_products')}"
 					bind:value={searchQuery}
 					class="w-full rounded-md border border-zinc-200 bg-white py-1.5 pl-8 pr-3 text-sm dark:border-zinc-700 dark:bg-zinc-800"
 				/>

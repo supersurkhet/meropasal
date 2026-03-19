@@ -131,7 +131,7 @@
 					<span
 						class="flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400"
 					>
-						{d.totalSaleInvoices} sales
+						{d.totalSaleInvoices} {t('sale_title_plural').toLowerCase()}
 						<ArrowUpRight class="size-3" />
 					</span>
 				</div>
@@ -155,7 +155,7 @@
 					<span
 						class="flex items-center gap-1 text-xs font-medium text-red-600 dark:text-red-400"
 					>
-						{d.totalPurchaseInvoices} purchases
+						{d.totalPurchaseInvoices} {t('invoice_type_purchase').toLowerCase()}
 						<ArrowDownRight class="size-3" />
 					</span>
 				</div>
@@ -299,7 +299,7 @@
 					</div>
 					{#if recentSales.data}
 						<span class="text-xs text-zinc-500">
-							{recentSales.data.count} invoices &middot; {formatNPR(recentSales.data.totalAmount, true)}
+							{recentSales.data.count} {t('invoice_title_plural').toLowerCase()} &middot; {formatNPR(recentSales.data.totalAmount, true)}
 						</span>
 					{/if}
 				</div>
