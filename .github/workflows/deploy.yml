@@ -28,6 +28,9 @@ jobs:
         run: bun run build
         env:
           VITE_CONVEX_URL: ${{ secrets.CONVEX_URL }}
+          WORKOS_API_KEY: ${{ secrets.WORKOS_API_KEY }}
+          WORKOS_CLIENT_ID: ${{ secrets.WORKOS_CLIENT_ID }}
+          WORKOS_COOKIE_PASSWORD: ${{ secrets.WORKOS_COOKIE_PASSWORD }}
 
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
