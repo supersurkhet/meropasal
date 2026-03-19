@@ -1,6 +1,6 @@
 import { mutation, query } from "../_generated/server";
 import { v } from "convex/values";
-import { requireOrg } from "../lib/orgGuard";
+import { requireOrg, getOrg } from "../lib/orgGuard";
 import { buildFiscalCloseRows } from "../lib/stockAggregation";
 import { getNextFiscalYear } from "../lib/nepaliCalendar";
 import { Id } from "../_generated/dataModel";
@@ -8,7 +8,8 @@ import { Id } from "../_generated/dataModel";
 export const current = query({
   args: {},
   handler: async (ctx) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await getOrg(ctx);
+    if (!orgId) return null;
     const settings = await ctx.db
       .query("orgSettings")
       .withIndex("by_orgId", (q) => q.eq("orgId", orgId))
