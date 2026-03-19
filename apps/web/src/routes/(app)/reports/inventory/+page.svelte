@@ -6,12 +6,14 @@
 	import { formatNPR } from '$lib/currency';
 	import { t } from '$lib/t.svelte';
 	import * as Table from '$lib/components/ui/table';
+	import * as Select from '$lib/components/ui/select';
 	import {
 		Package,
 		AlertTriangle,
 		ArrowLeft,
 		Search,
 	} from '@lucide/svelte';
+	import { Checkbox } from '$lib/components/ui/checkbox';
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 
@@ -183,23 +185,25 @@
 				/>
 			</div>
 			{#if categories.length > 0}
-				<select
-					bind:value={categoryFilter}
-					onchange={() => {
-						if (categoryFilter) {
-							searchQuery = categoryFilter;
-						}
-					}}
-					class="rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800"
-				>
-					<option value="">All Categories</option>
-					{#each categories as cat}
-						<option value={cat}>{cat}</option>
-					{/each}
-				</select>
+				<Select.Root type="single" value={categoryFilter || 'all'} onValueChange={(v) => {
+					categoryFilter = v === 'all' ? '' : v;
+					if (categoryFilter) {
+						searchQuery = categoryFilter;
+					}
+				}}>
+					<Select.Trigger size="sm">
+						{categoryFilter || 'All Categories'}
+					</Select.Trigger>
+					<Select.Content>
+						<Select.Item value="all">All Categories</Select.Item>
+						{#each categories as cat}
+							<Select.Item value={cat}>{cat}</Select.Item>
+						{/each}
+					</Select.Content>
+				</Select.Root>
 			{/if}
 			<label class="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-				<input type="checkbox" bind:checked={showLowStockOnly} class="rounded" />
+				<Checkbox bind:checked={showLowStockOnly} />
 				Low stock only
 			</label>
 		</div>

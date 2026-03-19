@@ -6,6 +6,7 @@
 	import { formatNPR } from '$lib/currency';
 	import { formatDate } from '$lib/date-utils';
 	import * as Table from '$lib/components/ui/table';
+	import * as Select from '$lib/components/ui/select';
 	import {
 		DollarSign,
 		TrendingUp,
@@ -105,17 +106,18 @@
 			</div>
 			<!-- Fiscal Year Selector -->
 			{#if fiscalYears.length > 0}
-				<select
-					class="rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium dark:border-zinc-700 dark:bg-zinc-900"
-					value={activeFY}
-					onchange={(e) => {
-						selectedFY = (e.target as HTMLSelectElement).value || undefined;
-					}}
-				>
-					{#each fiscalYears as fy}
-						<option value={fy}>FY {fy}</option>
-					{/each}
-				</select>
+				<Select.Root type="single" value={activeFY ?? ''} onValueChange={(v) => {
+					selectedFY = v || undefined;
+				}}>
+					<Select.Trigger size="sm">
+						{activeFY ? `FY ${activeFY}` : 'Select FY'}
+					</Select.Trigger>
+					<Select.Content>
+						{#each fiscalYears as fy}
+							<Select.Item value={fy}>FY {fy}</Select.Item>
+						{/each}
+					</Select.Content>
+				</Select.Root>
 			{/if}
 		</div>
 	</div>

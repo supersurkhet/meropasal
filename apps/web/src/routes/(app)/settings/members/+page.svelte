@@ -19,6 +19,7 @@
 		DialogTitle,
 	} from '$lib/components/ui/dialog';
 	import { ArrowLeft, Users, UserPlus, Shield, Trash2 } from '@lucide/svelte';
+	import * as Select from '$lib/components/ui/select';
 	import { enhance } from '$app/forms';
 	import { t } from '$lib/t.svelte';
 
@@ -225,16 +226,17 @@
 						</div>
 						<div class="space-y-2">
 							<label for="role" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Base Role</label>
-							<select
-								id="role"
-								name="role"
-								bind:value={inviteRole}
-								class="flex h-9 w-full rounded-lg border border-zinc-200 bg-white px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
-							>
-								{#each roles as role}
-									<option value={role}>{roleLabel(role)}</option>
-								{/each}
-							</select>
+							<Select.Root type="single" value={inviteRole} onValueChange={(v) => { inviteRole = v; }}>
+								<Select.Trigger class="w-full">
+									{roleLabel(inviteRole)}
+								</Select.Trigger>
+								<Select.Content>
+									{#each roles as role}
+										<Select.Item value={role}>{roleLabel(role)}</Select.Item>
+									{/each}
+								</Select.Content>
+							</Select.Root>
+							<input type="hidden" name="role" value={inviteRole} />
 						</div>
 
 						<!-- Granular Permissions -->
@@ -300,7 +302,7 @@
 	{/if}
 
 	<!-- Members Table -->
-	<div class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+	<div class="overflow-x-auto rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
 		<Table>
 			<TableHeader>
 				<TableRow class="border-zinc-100 bg-zinc-50/80 hover:bg-zinc-50/80 dark:border-zinc-800 dark:bg-zinc-900/50">
@@ -335,19 +337,26 @@
 									{roleLabel(member.role)}
 								</span>
 							{:else}
-								<form method="POST" action="?/changeRole" use:enhance>
+								{@const roleFormId = `role-form-${member.id}`}
+								<form id={roleFormId} method="POST" action="?/changeRole" use:enhance>
 									<input type="hidden" name="membershipId" value={member.id} />
-									<select
-										name="role"
-										class="rounded-full border-0 bg-transparent px-2.5 py-0.5 text-xs font-medium {roleBadgeClass(member.role)} cursor-pointer focus:outline-none focus:ring-1 focus:ring-zinc-400 dark:bg-transparent"
-										value={member.role}
-										onchange={(e) => e.currentTarget.form?.requestSubmit()}
-									>
-										{#each roles as role}
-											<option value={role}>{roleLabel(role)}</option>
-										{/each}
-									</select>
+									<input type="hidden" name="role" value={member.role} />
 								</form>
+								<Select.Root type="single" value={member.role} onValueChange={(v) => {
+									const form = document.getElementById(roleFormId) as HTMLFormElement;
+									const input = form?.querySelector('input[name="role"]') as HTMLInputElement;
+									if (input) input.value = v;
+									form?.requestSubmit();
+								}}>
+									<Select.Trigger class="h-auto rounded-full border-0 bg-transparent px-2.5 py-0.5 text-xs font-medium {roleBadgeClass(member.role)} cursor-pointer shadow-none">
+										{roleLabel(member.role)}
+									</Select.Trigger>
+									<Select.Content>
+										{#each roles as role}
+											<Select.Item value={role}>{roleLabel(role)}</Select.Item>
+										{/each}
+									</Select.Content>
+								</Select.Root>
 							{/if}
 						</TableCell>
 						<TableCell>

@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { MetaTags } from 'svelte-meta-tags';
 	import { goto } from '$app/navigation';
-	import { toast } from 'svelte-sonner';
 	import { Button } from '$lib/components/ui/button';
 	import { ArrowLeft } from '@lucide/svelte';
 	import SaleForm from '$lib/components/modules/sales/SaleForm.svelte';
@@ -17,5 +16,5 @@
 		</Button>
 	</div>
 
-	<SaleForm onSuccess={() => { toast.success('Sale recorded successfully'); goto('/sales'); }} oncancel={() => goto('/sales')} />
+	<SaleForm onSuccess={() => goto('/sales')} oncancel={() => goto('/sales')} />
 </div>
