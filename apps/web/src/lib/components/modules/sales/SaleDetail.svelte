@@ -9,6 +9,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { ArrowLeft, FileText, ShoppingCart } from '@lucide/svelte';
 	import { formatDate } from '$lib/date-utils';
+	import { t } from '$lib/t.svelte';
 
 	type Props = {
 		saleId: string;
@@ -51,15 +52,15 @@
 {#if sale.isLoading}
 	<div class="flex items-center justify-center py-12 text-zinc-500">
 		<div class="size-5 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-600"></div>
-		<span class="ml-2 text-sm">Loading sale...</span>
+		<span class="ml-2 text-sm">{t('detail_loading_sale')}</span>
 	</div>
 {:else if !sale.data}
 	<div class="py-12 text-center text-zinc-500">
 		<ShoppingCart class="mx-auto mb-3 size-10 text-zinc-300 dark:text-zinc-600" />
-		<p class="text-sm">Sale not found.</p>
+		<p class="text-sm">{t('detail_sale_not_found')}</p>
 		<a href="/sales" class="mt-2 inline-flex items-center gap-1 text-sm text-blue-600 hover:underline">
 			<ArrowLeft class="size-3.5" />
-			Back to sales
+			{t('detail_back_to_sales')}
 		</a>
 	</div>
 {:else}
@@ -70,12 +71,12 @@
 		<div class="flex items-center justify-between">
 			<a href="/sales" class="inline-flex items-center gap-1.5 text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">
 				<ArrowLeft class="size-4" />
-				Back to sales
+				{t('detail_back_to_sales')}
 			</a>
 			{#if s.invoiceNumber}
 				<Button href="/invoices/{s._id}" variant="outline" size="sm">
 					<FileText class="mr-1.5 size-4" />
-					View Invoice
+					{t('detail_view_invoice')}
 				</Button>
 			{/if}
 		</div>
@@ -85,25 +86,25 @@
 			<!-- Sale Meta -->
 			<div class="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
 				<div>
-					<p class="text-xs font-medium uppercase tracking-wider text-zinc-500">Customer</p>
+					<p class="text-xs font-medium uppercase tracking-wider text-zinc-500">{t('detail_customer')}</p>
 					<p class="mt-0.5 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-						{customerName ?? (s.partyId ? '...' : 'Walk-in Customer')}
+						{customerName ?? (s.partyId ? '...' : t('detail_walk_in_customer'))}
 					</p>
 				</div>
 				<div>
-					<p class="text-xs font-medium uppercase tracking-wider text-zinc-500">Date</p>
+					<p class="text-xs font-medium uppercase tracking-wider text-zinc-500">{t('common_date')}</p>
 					<p class="mt-0.5 text-sm text-zinc-700 dark:text-zinc-300">{formatDate(s.issuedAt)}</p>
 				</div>
 				{#if s.invoiceNumber}
 					<div>
-						<p class="text-xs font-medium uppercase tracking-wider text-zinc-500">Invoice #</p>
+						<p class="text-xs font-medium uppercase tracking-wider text-zinc-500">{t('detail_invoice_number')}</p>
 						<p class="mt-0.5 font-mono text-sm font-semibold text-zinc-900 dark:text-zinc-100">
 							{s.invoiceNumber}
 						</p>
 					</div>
 				{/if}
 				<div>
-					<p class="text-xs font-medium uppercase tracking-wider text-zinc-500">Status</p>
+					<p class="text-xs font-medium uppercase tracking-wider text-zinc-500">{t('order_status')}</p>
 					<div class="mt-1">
 						<Badge variant={statusBadgeVariant(s.paymentStatus)} class="capitalize">
 							{s.paymentStatus}
@@ -114,7 +115,7 @@
 
 			{#if s.fiscalYear}
 				<div class="mb-6">
-					<p class="text-xs font-medium uppercase tracking-wider text-zinc-500">Fiscal Year</p>
+					<p class="text-xs font-medium uppercase tracking-wider text-zinc-500">{t('fiscal_year')}</p>
 					<p class="mt-0.5 text-sm text-zinc-700 dark:text-zinc-300">{s.fiscalYear}</p>
 				</div>
 			{/if}
@@ -123,17 +124,17 @@
 
 			<!-- Line Items -->
 			<div class="mb-6">
-				<h3 class="mb-3 text-sm font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Items</h3>
+				<h3 class="mb-3 text-sm font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{t('detail_items')}</h3>
 				<div class="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
 					<Table.Root>
 						<Table.Header>
 							<Table.Row class="bg-zinc-50 dark:bg-zinc-900/50">
-								<Table.Head class="w-12 font-semibold">S.N.</Table.Head>
-								<Table.Head class="font-semibold">Product</Table.Head>
-								<Table.Head class="text-center font-semibold">Qty</Table.Head>
-								<Table.Head class="text-center font-semibold">Unit</Table.Head>
-								<Table.Head class="text-right font-semibold">Rate</Table.Head>
-								<Table.Head class="text-right font-semibold">Amount</Table.Head>
+								<Table.Head class="w-12 font-semibold">{t('common_sn')}</Table.Head>
+								<Table.Head class="font-semibold">{t('product_title')}</Table.Head>
+								<Table.Head class="text-center font-semibold">{t('common_quantity')}</Table.Head>
+								<Table.Head class="text-center font-semibold">{t('product_unit')}</Table.Head>
+								<Table.Head class="text-right font-semibold">{t('common_rate')}</Table.Head>
+								<Table.Head class="text-right font-semibold">{t('common_amount')}</Table.Head>
 							</Table.Row>
 						</Table.Header>
 						<Table.Body>
@@ -157,13 +158,13 @@
 				<div class="w-64 space-y-2">
 					{#if s.subTotal != null && s.subTotal !== s.totalAmount}
 						<div class="flex justify-between text-sm">
-							<span class="text-zinc-500">Subtotal</span>
+							<span class="text-zinc-500">{t('detail_subtotal')}</span>
 							<span class="tabular-nums">{formatNPR(s.subTotal)}</span>
 						</div>
 					{/if}
 					{#if s.tax != null && s.tax > 0}
 						<div class="flex justify-between text-sm">
-							<span class="text-zinc-500">Tax</span>
+							<span class="text-zinc-500">{t('detail_tax')}</span>
 							<span class="tabular-nums">{formatNPR(s.tax)}</span>
 						</div>
 					{/if}
@@ -171,18 +172,18 @@
 						<Separator />
 					{/if}
 					<div class="flex justify-between font-semibold text-zinc-900 dark:text-zinc-100">
-						<span>Total</span>
+						<span>{t('common_total')}</span>
 						<span class="font-mono tabular-nums">{formatNPR(s.totalAmount)}</span>
 					</div>
 					{#if s.paidAmount != null && s.paidAmount > 0}
 						<div class="flex justify-between text-sm text-emerald-600">
-							<span>Paid</span>
+							<span>{t('payment_summary_paid')}</span>
 							<span class="tabular-nums">{formatNPR(s.paidAmount)}</span>
 						</div>
 					{/if}
 					{#if s.paidAmount != null && s.totalAmount - s.paidAmount > 0}
 						<div class="flex justify-between text-sm font-medium text-amber-600">
-							<span>Balance Due</span>
+							<span>{t('detail_balance_due')}</span>
 							<span class="tabular-nums">{formatNPR(s.totalAmount - s.paidAmount)}</span>
 						</div>
 					{/if}
@@ -192,7 +193,7 @@
 			<!-- Payments -->
 			{#if s.payments?.length}
 				<div class="mt-6">
-					<h3 class="mb-3 text-sm font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Payments</h3>
+					<h3 class="mb-3 text-sm font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{t('payment_payments')}</h3>
 					<div class="space-y-2">
 						{#each s.payments as payment, i}
 							<div class="flex items-center justify-between rounded-lg border border-zinc-100 px-4 py-2.5 dark:border-zinc-800">
@@ -206,7 +207,7 @@
 									</span>
 									{#if payment.bankVoucherNumber}
 										<span class="font-mono text-xs text-zinc-500">
-											Voucher: {payment.bankVoucherNumber}
+											{t('detail_voucher')}: {payment.bankVoucherNumber}
 										</span>
 									{/if}
 								</div>

@@ -7,6 +7,7 @@
 	import { Plus, Trash2 } from '@lucide/svelte';
 	import DatePicker from '$lib/components/shared/DatePicker.svelte';
 	import { computePaymentStatus, computePaidAmount, type PaymentStatus } from '$lib/payment-status';
+	import { t } from '$lib/t.svelte';
 
 	type PaymentRow = {
 		paidAt: string;
@@ -26,12 +27,12 @@
 	} = $props();
 
 	const PAYMENT_METHODS = [
-		{ value: 'cash', label: 'Cash' },
-		{ value: 'card', label: 'Card' },
-		{ value: 'bankTransfer', label: 'Bank Transfer' },
-		{ value: 'credit', label: 'Credit' },
-		{ value: 'online', label: 'Online' },
-		{ value: 'check', label: 'Check' },
+		{ value: 'cash', label: () => t('payment_method_cash') },
+		{ value: 'card', label: () => t('payment_method_card') },
+		{ value: 'bankTransfer', label: () => t('payment_method_bank_transfer') },
+		{ value: 'credit', label: () => t('payment_method_credit') },
+		{ value: 'online', label: () => t('payment_method_online') },
+		{ value: 'check', label: () => t('payment_method_check') },
 	] as const;
 
 	let paidAmount = $derived(
@@ -79,13 +80,13 @@
 	function statusLabel(status: PaymentStatus): string {
 		switch (status) {
 			case 'paid':
-				return 'Paid';
+				return t('status_paid');
 			case 'partial':
-				return 'Partial';
+				return t('status_partial');
 			case 'pending':
-				return 'Pending';
+				return t('status_pending');
 			case 'overpaid':
-				return 'Overpaid';
+				return t('status_overpaid');
 		}
 	}
 
@@ -103,7 +104,7 @@
 	<!-- Header -->
 	<div class="flex items-center justify-between">
 		<h3 class="text-sm font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-			Payments
+			{t('payment_payments')}
 		</h3>
 		<span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold {statusColor(paymentStatus)}">
 			{statusLabel(paymentStatus)}
@@ -114,10 +115,10 @@
 	{#if payments.length > 0}
 		<div class="rounded-lg border border-zinc-200 dark:border-zinc-700">
 			<div class="grid grid-cols-[110px_1fr_1fr_auto_auto] gap-2 border-b border-zinc-100 bg-zinc-50 px-3 py-2 text-xs font-medium uppercase tracking-wider text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-zinc-400">
-				<span>Date</span>
-				<span>Amount</span>
-				<span>Method</span>
-				<span>Voucher #</span>
+				<span>{t('common_date')}</span>
+				<span>{t('common_amount')}</span>
+				<span>{t('payment_method')}</span>
+				<span>{t('payment_voucher_number')}</span>
 				<span></span>
 			</div>
 			{#each payments as payment, i}
@@ -138,18 +139,18 @@
 					/>
 					<Select.Root type="single" bind:value={payment.paymentMethod}>
 						<Select.Trigger class="h-8 text-sm border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900" disabled={readonly}>
-							{PAYMENT_METHODS.find((m) => m.value === payment.paymentMethod)?.label ?? 'Select'}
+							{PAYMENT_METHODS.find((m) => m.value === payment.paymentMethod)?.label() ?? payment.paymentMethod}
 						</Select.Trigger>
 						<Select.Content>
 							{#each PAYMENT_METHODS as method}
-								<Select.Item value={method.value}>{method.label}</Select.Item>
+								<Select.Item value={method.value}>{method.label()}</Select.Item>
 							{/each}
 						</Select.Content>
 					</Select.Root>
 					{#if needsVoucher(payment.paymentMethod)}
 						<Input
 							bind:value={payment.bankVoucherNumber}
-							placeholder="Voucher #"
+							placeholder={t('payment_voucher_number')}
 							disabled={readonly}
 							class="h-8 w-28 text-sm border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900"
 						/>
@@ -184,7 +185,7 @@
 			class="border-dashed border-zinc-300 text-zinc-600 hover:border-zinc-400 hover:text-zinc-900 dark:border-zinc-600 dark:text-zinc-400 dark:hover:border-zinc-500 dark:hover:text-zinc-200"
 		>
 			<Plus class="mr-1.5 size-3.5" />
-			Add Payment
+			{t('action_add_payment')}
 		</Button>
 	{/if}
 
@@ -192,19 +193,19 @@
 	<div class="rounded-lg border border-zinc-200 bg-zinc-50/50 p-3 dark:border-zinc-700 dark:bg-zinc-900/30">
 		<div class="grid grid-cols-3 gap-4 text-sm">
 			<div>
-				<span class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Total</span>
+				<span class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{t('common_total')}</span>
 				<p class="mt-0.5 font-mono font-semibold text-zinc-900 dark:text-zinc-100">{formatNPR(totalAmount)}</p>
 			</div>
 			<div>
-				<span class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Paid</span>
+				<span class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{t('payment_summary_paid')}</span>
 				<p class="mt-0.5 font-mono font-semibold text-emerald-600 dark:text-emerald-400">{formatNPR(paidAmount)}</p>
 			</div>
 			<div>
-				<span class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Remaining</span>
+				<span class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{t('payment_remaining')}</span>
 				<p class="mt-0.5 font-mono font-semibold {remaining > 0 ? 'text-amber-600 dark:text-amber-400' : remaining < 0 ? 'text-purple-600 dark:text-purple-400' : 'text-zinc-400'}">
 					{formatNPR(Math.abs(remaining))}
 					{#if remaining < 0}
-						<span class="text-xs font-normal">(overpaid)</span>
+						<span class="text-xs font-normal">{t('payment_overpaid_note')}</span>
 					{/if}
 				</p>
 			</div>

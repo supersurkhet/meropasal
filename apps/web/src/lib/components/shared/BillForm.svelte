@@ -29,7 +29,7 @@
 		onadditem,
 		onsubmit,
 		submitting = false,
-		submitLabel = 'Save',
+		submitLabel = t('action_save'),
 		readonly = false,
 		productSelector,
 	}: {
@@ -340,7 +340,7 @@
 			<div class="flex items-center justify-between border-t border-zinc-200 bg-zinc-50/50 px-6 py-4 dark:border-zinc-800 dark:bg-zinc-900/30">
 				<p class="text-xs text-zinc-400">
 					<kbd class="rounded border border-zinc-200 bg-white px-1 py-0.5 font-mono text-[10px] dark:border-zinc-700 dark:bg-zinc-800">⌘S</kbd>
-					to save
+					{t('bill_save_hint')}
 				</p>
 				<Button
 					onclick={onsubmit}
@@ -349,7 +349,7 @@
 				>
 					{#if submitting}
 						<Loader2 class="size-4 animate-spin" />
-						Saving...
+						{t('action_saving')}
 					{:else}
 						<Save class="size-4" />
 						{submitLabel}

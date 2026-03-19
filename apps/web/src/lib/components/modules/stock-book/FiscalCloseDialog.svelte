@@ -8,6 +8,7 @@
 	import { Separator } from '$lib/components/ui/separator';
 	import { AlertTriangle, CalendarCheck, Loader2 } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
+	import { t } from '$lib/t.svelte';
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 
@@ -63,7 +64,7 @@
 				<CalendarCheck class="size-5 text-amber-600" />
 			</div>
 			<div>
-				<h3 class="font-semibold text-zinc-900 dark:text-zinc-100">Current Fiscal Year</h3>
+				<h3 class="font-semibold text-zinc-900 dark:text-zinc-100">{t('fiscal_year_current')}</h3>
 				<p class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
 					{currentFY.data ?? '—'}
 				</p>
@@ -73,17 +74,17 @@
 		<Separator class="my-4" />
 
 		<!-- Stock Snapshot -->
-		<h4 class="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">Stock Snapshot</h4>
+		<h4 class="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">{t('fiscal_close_stock_snapshot')}</h4>
 
 		{#if !stockSnapshot.length}
-			<p class="text-sm text-zinc-500">No stock data for current fiscal year.</p>
+			<p class="text-sm text-zinc-500">{t('fiscal_close_no_stock')}</p>
 		{:else}
 			<div class="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
 				<Table.Root>
 					<Table.Header>
 						<Table.Row class="bg-zinc-50 dark:bg-zinc-900/50">
-							<Table.Head class="font-semibold">Product</Table.Head>
-							<Table.Head class="text-right font-semibold">Available Stock</Table.Head>
+							<Table.Head class="font-semibold">{t('fiscal_close_product')}</Table.Head>
+							<Table.Head class="text-right font-semibold">{t('fiscal_close_available_stock')}</Table.Head>
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
@@ -110,7 +111,7 @@
 			onclick={() => { showConfirm = true; }}
 			disabled={!currentFY.data}
 		>
-			Close Fiscal Year {currentFY.data ?? ''}
+			{t('fiscal_close_button')} {currentFY.data ?? ''}
 		</Button>
 	{:else}
 		<div class="rounded-xl border-2 border-amber-300 bg-amber-50 p-6 dark:border-amber-800 dark:bg-amber-950/30">
@@ -118,18 +119,18 @@
 				<AlertTriangle class="mt-0.5 size-5 text-amber-600 shrink-0" />
 				<div class="space-y-3">
 					<h4 class="font-semibold text-amber-900 dark:text-amber-200">
-						Confirm Fiscal Year Close
+						{t('fiscal_close_confirm_title')}
 					</h4>
 					<p class="text-sm text-amber-800 dark:text-amber-300">
-						This will close fiscal year <strong>{currentFY.data}</strong> and:
+						{t('fiscal_close_confirm_desc').replace('{fy}', currentFY.data ?? '')}
 					</p>
 					<ul class="list-disc pl-5 text-sm text-amber-800 dark:text-amber-300 space-y-1">
-						<li>Create <strong>closing entries</strong> (out) for all products</li>
-						<li>Create <strong>opening entries</strong> (in) for the next fiscal year</li>
-						<li>Advance the org to the next fiscal year</li>
+						<li>{t('fiscal_close_closing_entries')}</li>
+						<li>{t('fiscal_close_opening_entries')}</li>
+						<li>{t('fiscal_close_advance_org')}</li>
 					</ul>
 					<p class="text-sm font-medium text-amber-900 dark:text-amber-200">
-						This action cannot be undone.
+						{t('fiscal_close_irreversible')}
 					</p>
 
 					<div class="flex gap-3 pt-2">
@@ -140,9 +141,9 @@
 						>
 							{#if closeMutation.isLoading}
 								<Loader2 class="mr-1.5 size-4 animate-spin" />
-								Closing...
+								{t('fiscal_close_closing')}
 							{:else}
-								Yes, Close Fiscal Year
+								{t('fiscal_close_yes')}
 							{/if}
 						</Button>
 						<Button
@@ -150,7 +151,7 @@
 							onclick={() => { showConfirm = false; }}
 							disabled={closeMutation.isLoading}
 						>
-							Cancel
+							{t('action_cancel')}
 						</Button>
 					</div>
 				</div>
