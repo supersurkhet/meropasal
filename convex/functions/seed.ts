@@ -6,6 +6,45 @@ import { mutation, internalMutation, internalQuery } from "../_generated/server"
 import { v } from "convex/values";
 import { Id } from "../_generated/dataModel";
 
+import { query } from "../_generated/server";
+
+export const debugAuth = query({
+	args: {},
+	handler: async (ctx) => {
+		const identity = await ctx.auth.getUserIdentity();
+		if (!identity) return { error: "no identity" };
+		const subject = identity.subject;
+		const orgId = (identity as Record<string, unknown>).org_id as string | undefined
+			|| (identity as Record<string, unknown>).orgId as string | undefined;
+		const mapping = subject ? await ctx.db.query("userOrgMappings")
+			.withIndex("by_subject", (q) => q.eq("subject", subject))
+			.first() : null;
+		return {
+			subject,
+			orgId,
+			tokenIdentifier: identity.tokenIdentifier,
+			mappingFound: !!mapping,
+			mappingOrgId: mapping?.orgId ?? null,
+			allClaims: Object.keys(identity),
+		};
+	},
+});
+
+export const createUserOrgMapping = mutation({
+	args: { subject: v.string(), orgId: v.string() },
+	handler: async (ctx, { subject, orgId }) => {
+		const existing = await ctx.db.query("userOrgMappings")
+			.withIndex("by_subject", (q) => q.eq("subject", subject))
+			.first();
+		if (existing) {
+			await ctx.db.patch(existing._id, { orgId });
+			return { updated: true, orgId };
+		}
+		await ctx.db.insert("userOrgMappings", { subject, orgId });
+		return { created: true, orgId };
+	},
+});
+
 export const clearAll = mutation({
 	args: { orgId: v.string() },
 	handler: async (ctx, { orgId }) => {
