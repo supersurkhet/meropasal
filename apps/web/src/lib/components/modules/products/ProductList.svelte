@@ -11,6 +11,8 @@
 	import { toast } from 'svelte-sonner';
 	import { Plus, Search, MoreHorizontal, Pencil, Trash2, Package } from '@lucide/svelte';
 	import ConfirmDialog from '$lib/components/shared/ConfirmDialog.svelte';
+	import EmptyState from '$lib/components/shared/EmptyState.svelte';
+	import { t } from '$lib/t.svelte';
 
 	type Product = {
 		_id: string;
@@ -79,7 +81,7 @@
 		try {
 			const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 			await client.mutation(api.functions.products.remove, { id: confirmDeleteId as any });
-			toast.success('Product deactivated');
+			toast.success(t('toast_product_deleted'));
 			await loadData();
 		} finally {
 			deleting = false;
@@ -90,28 +92,25 @@
 </script>
 
 <div class="space-y-4">
-	<!-- Header -->
-	<div class="flex items-center justify-between">
-		<div>
-			<h1 class="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Products</h1>
-			<p class="mt-0.5 text-sm text-zinc-500">
-				{products.length} product{products.length !== 1 ? 's' : ''} in inventory
-			</p>
+	<!-- Toolbar -->
+	<div class="flex items-center justify-between gap-3">
+		<div class="relative max-w-sm flex-1">
+			<Search class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
+			<Input
+				class="h-9 border-zinc-200 bg-white pl-9 shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
+				placeholder={t('search_products')}
+				bind:value={searchTerm}
+			/>
 		</div>
-		<Button href="/products/new" class="gap-2">
-			<Plus class="size-4" />
-			New Product
-		</Button>
-	</div>
-
-	<!-- Search -->
-	<div class="relative max-w-sm">
-		<Search class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
-		<Input
-			class="pl-9"
-			placeholder="Search products..."
-			bind:value={searchTerm}
-		/>
+		<a href="/products/new">
+			<Button
+				size="sm"
+				class="bg-zinc-900 text-white shadow-sm transition-all hover:bg-zinc-800 hover:shadow-md active:scale-[0.98] dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+			>
+				<Plus class="mr-1.5 size-4" />
+				{t('product_create')}
+			</Button>
+		</a>
 	</div>
 
 	<!-- Table -->
@@ -120,89 +119,98 @@
 			<div class="size-6 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-900 dark:border-zinc-600 dark:border-t-zinc-100"></div>
 		</div>
 	{:else if filteredProducts.length === 0}
-		<div class="flex flex-col items-center justify-center rounded-lg border border-dashed border-zinc-200 py-16 dark:border-zinc-800">
-			<Package class="mb-3 size-10 text-zinc-300 dark:text-zinc-600" />
-			{#if searchTerm}
-				<p class="text-sm text-zinc-500">No products match "{searchTerm}"</p>
-			{:else}
-				<p class="text-sm text-zinc-500">No products yet</p>
-				<Button href="/products/new" variant="outline" size="sm" class="mt-3 gap-2">
-					<Plus class="size-3.5" />
-					Create your first product
-				</Button>
-			{/if}
-		</div>
+		{#if searchTerm}
+			<EmptyState
+				icon={Package}
+				title={t('empty_search')}
+				description={t('empty_search_desc')}
+			/>
+		{:else}
+			<EmptyState
+				icon={Package}
+				title={t('empty_products')}
+				description={t('empty_products_desc')}
+				actionLabel={t('product_create')}
+				actionHref="/products/new"
+				actionIcon={Plus}
+			/>
+		{/if}
 	{:else}
-		<div class="rounded-lg border border-zinc-200 dark:border-zinc-800">
+		<div class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
 			<Table.Root>
 				<Table.Header>
-					<Table.Row class="hover:bg-transparent">
-						<Table.Head>Title</Table.Head>
-						<Table.Head>Supplier</Table.Head>
-						<Table.Head class="text-right">Cost</Table.Head>
-						<Table.Head class="text-right">Selling</Table.Head>
-						<Table.Head class="text-center">Unit</Table.Head>
-						<Table.Head class="text-right">Stock</Table.Head>
-						<Table.Head>Category</Table.Head>
-						<Table.Head class="w-10"></Table.Head>
+					<Table.Row class="border-zinc-100 bg-zinc-50/80 hover:bg-zinc-50/80 dark:border-zinc-800 dark:bg-zinc-900/50">
+						<Table.Head class="font-semibold text-zinc-600 dark:text-zinc-400">{t('product_name')}</Table.Head>
+						<Table.Head class="font-semibold text-zinc-600 dark:text-zinc-400">{t('product_supplier')}</Table.Head>
+						<Table.Head class="text-right font-semibold text-zinc-600 dark:text-zinc-400">{t('table_cost')}</Table.Head>
+						<Table.Head class="text-right font-semibold text-zinc-600 dark:text-zinc-400">{t('table_selling')}</Table.Head>
+						<Table.Head class="text-center font-semibold text-zinc-600 dark:text-zinc-400">{t('product_unit')}</Table.Head>
+						<Table.Head class="text-right font-semibold text-zinc-600 dark:text-zinc-400">{t('table_stock')}</Table.Head>
+						<Table.Head class="font-semibold text-zinc-600 dark:text-zinc-400">{t('product_category')}</Table.Head>
+						<Table.Head class="w-12"></Table.Head>
 					</Table.Row>
 				</Table.Header>
 				<Table.Body>
 					{#each filteredProducts as product (product._id)}
 						{@const parsed = parseUnit(product.unit)}
-						<Table.Row>
-							<Table.Cell class="font-medium">
+						<Table.Row class="group border-zinc-100 transition-colors hover:bg-zinc-50/60 dark:border-zinc-800 dark:hover:bg-zinc-900/40">
+							<Table.Cell>
 								<a
 									href="/products/{product._id}"
-									class="hover:text-zinc-900 hover:underline dark:hover:text-zinc-100"
+									class="block font-medium text-zinc-900 dark:text-zinc-100"
 								>
 									{product.title}
 								</a>
 							</Table.Cell>
-							<Table.Cell class="text-zinc-500">
+							<Table.Cell class="text-sm text-zinc-600 dark:text-zinc-400">
 								{getPartyName(product.purchasePartyId)}
 							</Table.Cell>
-							<Table.Cell class="text-right font-mono text-sm tabular-nums">
+							<Table.Cell class="text-right font-mono text-sm tabular-nums text-zinc-700 dark:text-zinc-300">
 								{formatNPR(product.costPrice, true)}
 							</Table.Cell>
-							<Table.Cell class="text-right font-mono text-sm tabular-nums">
+							<Table.Cell class="text-right font-mono text-sm tabular-nums text-zinc-700 dark:text-zinc-300">
 								{formatNPR(product.sellingPrice ?? 0, true)}
 							</Table.Cell>
 							<Table.Cell class="text-center">
-								<Badge variant="secondary" class="font-mono text-xs">
+								<Badge variant="secondary" class="bg-zinc-100 font-mono text-xs text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
 									{parsed.baseUnit}{parsed.piecesPerUnit > 1 ? `:${parsed.piecesPerUnit}` : ''}
 								</Badge>
 							</Table.Cell>
-							<Table.Cell class="text-right font-mono text-sm tabular-nums">
+							<Table.Cell class="text-right font-mono text-sm tabular-nums text-zinc-700 dark:text-zinc-300">
 								{product.openingStock}
 							</Table.Cell>
 							<Table.Cell>
 								{#if product.category}
 									<Badge variant="outline" class="text-xs capitalize">{product.category}</Badge>
 								{:else}
-									<span class="text-zinc-300 dark:text-zinc-600">—</span>
+									<span class="text-xs text-zinc-400">—</span>
 								{/if}
 							</Table.Cell>
 							<Table.Cell>
 								<DropdownMenu.Root>
 									<DropdownMenu.Trigger>
-										<Button variant="ghost" size="icon" class="size-8" aria-label="More options">
-											<MoreHorizontal class="size-4" />
+										<Button
+											variant="ghost"
+											size="sm"
+											class="size-8 p-0 opacity-0 transition-opacity group-hover:opacity-100"
+											aria-label="More options"
+										>
+											<MoreHorizontal class="size-4 text-zinc-500" />
 										</Button>
 									</DropdownMenu.Trigger>
-									<DropdownMenu.Content align="end">
+									<DropdownMenu.Content align="end" class="w-40">
 										<a href="/products/{product._id}">
-											<DropdownMenu.Item class="gap-2">
-												<Pencil class="size-3.5" />
-												Edit
+											<DropdownMenu.Item class="cursor-pointer">
+												<Pencil class="mr-2 size-4" />
+												{t('action_edit')}
 											</DropdownMenu.Item>
 										</a>
 										<DropdownMenu.Item
-											class="gap-2 text-destructive focus:text-destructive"
+											class="cursor-pointer text-red-600 focus:text-red-600 dark:text-red-400 dark:focus:text-red-400"
 											onclick={() => requestDelete(product._id)}
 										>
-											<Trash2 class="size-3.5" />
-											Deactivate
+											<Trash2 class="mr-2 size-4" />
+											{t('action_deactivate')}
 										</DropdownMenu.Item>
 									</DropdownMenu.Content>
 								</DropdownMenu.Root>
@@ -212,14 +220,18 @@
 				</Table.Body>
 			</Table.Root>
 		</div>
+		<p class="text-xs text-zinc-400 dark:text-zinc-500">
+			{filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'}
+			{#if searchTerm}&middot; filtered from {products.length}{/if}
+		</p>
 	{/if}
 </div>
 
 <ConfirmDialog
 	bind:open={confirmOpen}
-	title="Deactivate Product"
-	description="This will deactivate the product. It won't appear in new transactions."
-	confirmLabel="Deactivate"
+	title={t('action_deactivate') + ' ' + t('product_title')}
+	description={t('confirm_delete_product')}
+	confirmLabel={t('action_deactivate')}
 	loading={deleting}
 	onconfirm={handleDelete}
 />

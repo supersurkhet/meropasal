@@ -2,6 +2,7 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import { Pencil, Trash2, Car, FileText, Loader2 } from '@lucide/svelte';
+	import { formatTimestamp } from '$lib/date-utils';
 
 	type Vehicle = {
 		_id: string;
@@ -42,7 +43,7 @@
 				{vehicle.name}
 			</h2>
 			<p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
-				Created {new Date(vehicle._creationTime).toLocaleDateString('en-NP', { year: 'numeric', month: 'long', day: 'numeric' })}
+				Created {formatTimestamp(vehicle._creationTime)}
 			</p>
 		</div>
 		<div class="flex items-center gap-2">

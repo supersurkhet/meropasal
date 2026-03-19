@@ -7,6 +7,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Separator } from '$lib/components/ui/separator';
 	import { ArrowLeft, Printer } from '@lucide/svelte';
+	import { formatDate } from '$lib/date-utils';
 
 	type Props = {
 		invoiceId: string;
@@ -23,14 +24,6 @@
 	const orgSettings = useConvexQuery(client, api.functions.organizations.getSettings, () => ({}));
 
 	let showPrint = $state(false);
-
-	function formatDate(iso: string) {
-		return new Date(iso).toLocaleDateString('en-NP', {
-			year: 'numeric',
-			month: 'long',
-			day: 'numeric',
-		});
-	}
 
 	function statusBadgeClass(status: string) {
 		switch (status) {

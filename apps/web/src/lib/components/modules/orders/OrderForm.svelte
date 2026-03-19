@@ -6,8 +6,11 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import * as Select from '$lib/components/ui/select';
 	import { Loader2, Save, Plus, Trash2, AlertTriangle } from '@lucide/svelte';
+	import DatePicker from '$lib/components/shared/DatePicker.svelte';
 	import PaymentSection from '$lib/components/shared/PaymentSection.svelte';
 	import { getConvexClient, api } from '$lib/convex';
+	import { orderSchema } from '$lib/schemas/order';
+	import { t } from '$lib/t.svelte';
 
 	let {
 		onSuccess,
@@ -40,6 +43,7 @@
 	let payments = $state<PaymentRow[]>([]);
 	let submitting = $state(false);
 	let error = $state('');
+	let fieldErrors = $state<Record<string, string>>({});
 
 	let customers = $state<Customer[]>([]);
 	let products = $state<Product[]>([]);
@@ -89,23 +93,65 @@
 		}, 0),
 	);
 
-	async function handleSubmit(e: Event) {
-		e.preventDefault();
-		error = '';
+	function validate(): boolean {
+		const validItems = items
+			.filter((i) => i.productId && Number(i.quantity) > 0)
+			.map((i) => ({
+				productId: i.productId,
+				productTitle: i.productTitle,
+				quantity: Number(i.quantity),
+				rate: Number(i.rate),
+				unit: i.unit || undefined,
+			}))
 
-		const validItems = items.filter((i) => i.productId && Number(i.quantity) > 0);
-		if (validItems.length === 0) {
-			error = 'Add at least one item';
-			return;
+		const validPayments = payments
+			.filter((p) => Number(p.paidAmount) > 0)
+			.map((p) => ({
+				paidAt: p.paidAt,
+				paidAmount: Number(p.paidAmount),
+				paymentMethod: p.paymentMethod as any,
+				bankVoucherNumber: p.bankVoucherNumber.trim() || undefined,
+			}))
+
+		const result = orderSchema.safeParse({
+			customerId: customerId || undefined,
+			orderDate,
+			items: validItems,
+			payments: validPayments.length > 0 ? validPayments : undefined,
+			notes: notes.trim() || undefined,
+		})
+
+		if (!result.success) {
+			fieldErrors = {}
+			for (const issue of result.error.issues) {
+				const key = issue.path.join('.')
+				if (!fieldErrors[key]) fieldErrors[key] = issue.message
+			}
+			const firstError = result.error.issues[0]?.message
+			error = firstError || t('validation_form_errors')
+			toast.error(error)
+			return false
 		}
+		fieldErrors = {}
 
 		// Validate bank voucher numbers where required
 		for (const p of payments) {
 			if ((p.paymentMethod === 'bankTransfer' || p.paymentMethod === 'check') && !p.bankVoucherNumber.trim()) {
 				error = 'Bank voucher number is required for bank transfer and check payments';
-				return;
+				return false;
 			}
 		}
+
+		return true
+	}
+
+	async function handleSubmit(e: Event) {
+		e.preventDefault();
+		error = '';
+
+		if (!validate()) return;
+
+		const validItems = items.filter((i) => i.productId && Number(i.quantity) > 0);
 
 		submitting = true;
 		try {
@@ -130,7 +176,7 @@
 					})),
 				notes: notes.trim() || undefined,
 			});
-			toast.success('Order created successfully');
+			toast.success(t('toast_order_created'));
 			onSuccess?.();
 		} catch (err: any) {
 			error = err.message || 'Failed to create order';
@@ -188,14 +234,23 @@
 			<Label for="orderDate" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
 				Order Date
 			</Label>
-			<Input
-				id="orderDate"
-				type="date"
+			<DatePicker
 				bind:value={orderDate}
-				class="h-10 border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
+				name="orderDate"
+				class="h-10 border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900 {fieldErrors.orderDate ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
 			/>
+			{#if fieldErrors.orderDate}
+				<p class="text-xs text-red-500 mt-1">{fieldErrors.orderDate}</p>
+			{/if}
 		</div>
 	</div>
+
+	{#if fieldErrors.items}
+		<div class="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
+			<AlertTriangle class="size-4 shrink-0" />
+			{fieldErrors.items}
+		</div>
+	{/if}
 
 	<!-- Line Items -->
 	<div class="space-y-3">

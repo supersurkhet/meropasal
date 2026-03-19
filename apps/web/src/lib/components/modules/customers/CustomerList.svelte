@@ -29,6 +29,8 @@
 	} from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 	import ConfirmDialog from '$lib/components/shared/ConfirmDialog.svelte';
+	import EmptyState from '$lib/components/shared/EmptyState.svelte';
+	import { t } from '$lib/t.svelte';
 
 	type Customer = {
 		_id: string;
@@ -78,7 +80,7 @@
 		deletingId = confirmDeleteId;
 		try {
 			await ondelete(confirmDeleteId);
-			toast.success('Customer deactivated');
+			toast.success(t('toast_customer_deleted'));
 		} finally {
 			deletingId = null;
 			confirmDeleteId = null;
@@ -102,7 +104,7 @@
 			<Search class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
 			<Input
 				bind:value={searchQuery}
-				placeholder="Search customers..."
+				placeholder={t('search_customers')}
 				class="h-9 border-zinc-200 bg-white pl-9 shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
 			/>
 		</div>
@@ -112,7 +114,7 @@
 				class="bg-zinc-900 text-white shadow-sm transition-all hover:bg-zinc-800 hover:shadow-md active:scale-[0.98] dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
 			>
 				<Plus class="mr-1.5 size-4" />
-				New Customer
+				{t('customer_create')}
 			</Button>
 		</a>
 	</div>
@@ -122,42 +124,35 @@
 		<div class="flex items-center justify-center py-20">
 			<div class="flex flex-col items-center gap-3">
 				<Loader2 class="size-8 animate-spin text-zinc-400" />
-				<p class="text-sm text-zinc-500">Loading customers...</p>
+				<p class="text-sm text-zinc-500">{t('common_loading_customers')}</p>
 			</div>
 		</div>
 	{:else if filteredCustomers.length === 0}
-		<div class="flex flex-col items-center justify-center rounded-xl border border-dashed border-zinc-200 py-16 dark:border-zinc-800">
-			<div class="mb-3 flex size-12 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800">
-				<UserRound class="size-6 text-zinc-400" />
-			</div>
-			<h3 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-				{searchQuery ? 'No customers found' : 'No customers yet'}
-			</h3>
-			<p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-				{searchQuery ? 'Try a different search term' : 'Create your first customer to get started'}
-			</p>
-			{#if !searchQuery}
-				<a href="/customers/new" class="mt-4">
-					<Button
-						size="sm"
-						variant="outline"
-						class="border-zinc-300 shadow-sm dark:border-zinc-700"
-					>
-						<Plus class="mr-1.5 size-4" />
-						Add Customer
-					</Button>
-				</a>
-			{/if}
-		</div>
+		{#if searchQuery}
+			<EmptyState
+				icon={UserRound}
+				title={t('empty_search')}
+				description={t('empty_search_desc')}
+			/>
+		{:else}
+			<EmptyState
+				icon={UserRound}
+				title={t('empty_customers')}
+				description={t('empty_customers_desc')}
+				actionLabel={t('action_add_customer')}
+				actionHref="/customers/new"
+				actionIcon={Plus}
+			/>
+		{/if}
 	{:else}
 		<div class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
 			<Table>
 				<TableHeader>
 					<TableRow class="border-zinc-100 bg-zinc-50/80 hover:bg-zinc-50/80 dark:border-zinc-800 dark:bg-zinc-900/50">
-						<TableHead class="font-semibold text-zinc-600 dark:text-zinc-400">Name</TableHead>
-						<TableHead class="font-semibold text-zinc-600 dark:text-zinc-400">PAN Number</TableHead>
-						<TableHead class="hidden font-semibold text-zinc-600 dark:text-zinc-400 md:table-cell">Contact</TableHead>
-						<TableHead class="hidden font-semibold text-zinc-600 dark:text-zinc-400 lg:table-cell">Credit Limit</TableHead>
+						<TableHead class="font-semibold text-zinc-600 dark:text-zinc-400">{t('customer_name')}</TableHead>
+						<TableHead class="font-semibold text-zinc-600 dark:text-zinc-400">{t('customer_pan_number')}</TableHead>
+						<TableHead class="hidden font-semibold text-zinc-600 dark:text-zinc-400 md:table-cell">{t('customer_phone')}</TableHead>
+						<TableHead class="hidden font-semibold text-zinc-600 dark:text-zinc-400 lg:table-cell">{t('customer_credit_limit')}</TableHead>
 						<TableHead class="w-12"></TableHead>
 					</TableRow>
 				</TableHeader>
@@ -225,7 +220,7 @@
 										<a href="/customers/{customer._id}">
 											<DropdownMenuItem class="cursor-pointer">
 												<Pencil class="mr-2 size-4" />
-												Edit
+												{t('action_edit')}
 											</DropdownMenuItem>
 										</a>
 										{#if ondelete}
@@ -239,7 +234,7 @@
 												{:else}
 													<Trash2 class="mr-2 size-4" />
 												{/if}
-												Deactivate
+												{t('action_deactivate')}
 											</DropdownMenuItem>
 										{/if}
 									</DropdownMenuContent>
@@ -259,9 +254,9 @@
 
 <ConfirmDialog
 	bind:open={confirmOpen}
-	title="Deactivate Customer"
-	description="Are you sure you want to deactivate this customer? This action cannot be undone."
-	confirmLabel="Deactivate"
+	title={t('action_deactivate') + ' ' + t('customer_title')}
+	description={t('confirm_delete_customer')}
+	confirmLabel={t('action_deactivate')}
 	loading={deletingId !== null}
 	onconfirm={handleDelete}
 	oncancel={() => { confirmDeleteId = null; }}

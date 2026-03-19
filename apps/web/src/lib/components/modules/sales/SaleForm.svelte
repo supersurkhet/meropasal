@@ -4,12 +4,15 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Button } from '$lib/components/ui/button';
 	import * as Select from '$lib/components/ui/select';
+	import DatePicker from '$lib/components/shared/DatePicker.svelte';
 	import { Loader2, Save, Plus, Trash2, AlertTriangle } from '@lucide/svelte';
 	import { getConvexClient, api } from '$lib/convex';
 	import {
 		aggregateStockBookEntries,
 		getProductTotalAvailable,
 	} from '$lib/stock-aggregation';
+	import { saleSchema } from '$lib/schemas/sale';
+	import { t } from '$lib/t.svelte';
 
 	let {
 		onSuccess,
@@ -35,6 +38,7 @@
 	let items = $state<LineItem[]>([{ productId: '', productTitle: '', quantity: '', rate: '', unit: '', available: 0 }]);
 	let submitting = $state(false);
 	let error = $state('');
+	let fieldErrors = $state<Record<string, string>>({});
 
 	let customers = $state<Customer[]>([]);
 	let products = $state<Product[]>([]);
@@ -103,20 +107,50 @@
 		}),
 	);
 
+	function validate(): boolean {
+		const validItems = items
+			.filter((i) => i.productId && Number(i.quantity) > 0)
+			.map((i) => ({
+				productId: i.productId,
+				productTitle: i.productTitle,
+				quantity: Number(i.quantity),
+				rate: Number(i.rate),
+				unit: i.unit || undefined,
+			}))
+
+		const result = saleSchema.safeParse({
+			customerId: customerId || undefined,
+			saleDate,
+			items: validItems,
+		})
+
+		if (!result.success) {
+			fieldErrors = {}
+			for (const issue of result.error.issues) {
+				const key = issue.path.join('.')
+				if (!fieldErrors[key]) fieldErrors[key] = issue.message
+			}
+			const firstError = result.error.issues[0]?.message
+			error = firstError || t('validation_form_errors')
+			toast.error(error)
+			return false
+		}
+		fieldErrors = {}
+		return true
+	}
+
 	async function handleSubmit(e: Event) {
 		e.preventDefault();
 		error = '';
 
-		const validItems = items.filter((i) => i.productId && Number(i.quantity) > 0);
-		if (validItems.length === 0) {
-			error = 'Add at least one item';
-			return;
-		}
+		if (!validate()) return;
 
 		if (hasStockError) {
 			error = 'Some items exceed available stock';
 			return;
 		}
+
+		const validItems = items.filter((i) => i.productId && Number(i.quantity) > 0);
 
 		submitting = true;
 		try {
@@ -132,7 +166,7 @@
 					unit: i.unit || undefined,
 				})),
 			});
-			toast.success('Sale recorded successfully');
+			toast.success(t('toast_sale_created'));
 			onSuccess?.();
 		} catch (err: any) {
 			error = err.message || 'Failed to create sale';
@@ -190,14 +224,23 @@
 			<Label for="saleDate" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
 				Sale Date
 			</Label>
-			<Input
-				id="saleDate"
-				type="date"
+			<DatePicker
 				bind:value={saleDate}
-				class="h-10 border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
+				name="saleDate"
+				class="h-10 border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900 {fieldErrors.saleDate ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
 			/>
+			{#if fieldErrors.saleDate}
+				<p class="text-xs text-red-500 mt-1">{fieldErrors.saleDate}</p>
+			{/if}
 		</div>
 	</div>
+
+	{#if fieldErrors.items}
+		<div class="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
+			<AlertTriangle class="size-4 shrink-0" />
+			{fieldErrors.items}
+		</div>
+	{/if}
 
 	<!-- Line Items -->
 	<div class="space-y-3">

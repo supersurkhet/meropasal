@@ -5,6 +5,9 @@
 	import { formatNPR } from '$lib/currency';
 	import * as Table from '$lib/components/ui/table';
 	import { FileText, Filter } from '@lucide/svelte';
+	import { t } from '$lib/t.svelte';
+	import EmptyState from '$lib/components/shared/EmptyState.svelte';
+	import { formatDate } from '$lib/date-utils';
 
 	type InvoiceType = 'purchase' | 'sale';
 	type PaymentStatusFilter = 'pending' | 'paid' | 'partial' | 'overpaid';
@@ -28,7 +31,7 @@
 	}
 
 	function typeLabel(type: string) {
-		return type === 'purchase' ? 'Purchase' : 'Sale';
+		return type === 'purchase' ? t('invoice_type_purchase') : t('invoice_type_sale');
 	}
 
 	function statusBadgeClass(status: string) {
@@ -44,14 +47,6 @@
 			default:
 				return '';
 		}
-	}
-
-	function formatDate(iso: string) {
-		return new Date(iso).toLocaleDateString('en-NP', {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric',
-		});
 	}
 
 	const fiscalYears = $derived.by(() => {
@@ -73,7 +68,7 @@
 	<div class="flex flex-wrap items-center gap-3">
 		<div class="flex items-center gap-2">
 			<Filter class="size-4 text-zinc-500" />
-			<span class="text-sm font-medium text-zinc-600 dark:text-zinc-400">Filters</span>
+			<span class="text-sm font-medium text-zinc-600 dark:text-zinc-400">{t('common_filters')}</span>
 		</div>
 
 		<select
@@ -83,9 +78,9 @@
 				typeFilter = val ? (val as InvoiceType) : undefined;
 			}}
 		>
-			<option value="">All Types</option>
-			<option value="purchase">Purchase</option>
-			<option value="sale">Sale</option>
+			<option value="">{t('common_all_types')}</option>
+			<option value="purchase">{t('invoice_type_purchase')}</option>
+			<option value="sale">{t('invoice_type_sale')}</option>
 		</select>
 
 		<select
@@ -95,7 +90,7 @@
 				fiscalYearFilter = val || undefined;
 			}}
 		>
-			<option value="">All Fiscal Years</option>
+			<option value="">{t('common_all_fiscal_years')}</option>
 			{#each fiscalYears as fy}
 				<option value={fy}>{fy}</option>
 			{/each}
@@ -108,36 +103,38 @@
 				paymentStatusFilter = val ? (val as PaymentStatusFilter) : undefined;
 			}}
 		>
-			<option value="">All Statuses</option>
-			<option value="pending">Pending</option>
-			<option value="partial">Partial</option>
-			<option value="paid">Paid</option>
-			<option value="overpaid">Overpaid</option>
+			<option value="">{t('common_all_statuses')}</option>
+			<option value="pending">{t('status_pending')}</option>
+			<option value="partial">{t('status_partial')}</option>
+			<option value="paid">{t('status_paid')}</option>
+			<option value="overpaid">{t('status_overpaid')}</option>
 		</select>
 	</div>
 
 	{#if invoices.isLoading}
 		<div class="flex items-center justify-center py-12 text-zinc-500">
 			<div class="size-5 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-600"></div>
-			<span class="ml-2 text-sm">Loading invoices...</span>
+			<span class="ml-2 text-sm">{t('common_loading_invoices')}</span>
 		</div>
 	{:else if !invoices.data?.length}
-		<div class="flex flex-col items-center justify-center py-16 text-zinc-500">
-			<FileText class="mb-3 size-10 opacity-40" />
-			<p class="text-sm">No invoices found</p>
-			<p class="mt-1 text-xs text-zinc-400">Invoices are auto-generated from purchases, sales, and orders.</p>
-		</div>
+		<EmptyState
+			icon={FileText}
+			title={t('empty_invoices')}
+			description={t('empty_invoices_desc')}
+			actionLabel={t('stock_import_create')}
+			actionHref="/stock-import/new"
+		/>
 	{:else}
 		<div class="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
 			<Table.Root>
 				<Table.Header>
 					<Table.Row class="bg-zinc-50 dark:bg-zinc-900/50">
-						<Table.Head class="font-semibold">Invoice #</Table.Head>
-						<Table.Head class="font-semibold">Type</Table.Head>
-						<Table.Head class="font-semibold">Party</Table.Head>
-						<Table.Head class="font-semibold">Date</Table.Head>
-						<Table.Head class="text-right font-semibold">Total</Table.Head>
-						<Table.Head class="font-semibold">Status</Table.Head>
+						<Table.Head class="font-semibold">{t('invoice_number')}</Table.Head>
+						<Table.Head class="font-semibold">{t('invoice_type')}</Table.Head>
+						<Table.Head class="font-semibold">{t('invoice_party')}</Table.Head>
+						<Table.Head class="font-semibold">{t('common_date')}</Table.Head>
+						<Table.Head class="text-right font-semibold">{t('common_total')}</Table.Head>
+						<Table.Head class="font-semibold">{t('order_status')}</Table.Head>
 					</Table.Row>
 				</Table.Header>
 				<Table.Body>
@@ -173,7 +170,7 @@
 								<span
 									class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize {statusBadgeClass(invoice.paymentStatus)}"
 								>
-									{invoice.paymentStatus}
+									{t(`status_${invoice.paymentStatus}`)}
 								</span>
 							</Table.Cell>
 						</Table.Row>

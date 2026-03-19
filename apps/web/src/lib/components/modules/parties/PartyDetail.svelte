@@ -13,6 +13,7 @@
 		Loader2,
 		Trash2,
 	} from '@lucide/svelte';
+	import { formatTimestamp } from '$lib/date-utils';
 
 	type Party = {
 		_id: string;
@@ -48,14 +49,6 @@
 		}).format(amount);
 	}
 
-	function formatDate(timestamp: number): string {
-		return new Date(timestamp).toLocaleDateString('en-US', {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric',
-		});
-	}
-
 	async function handleDelete() {
 		if (!ondelete) return;
 		deleting = true;
@@ -82,7 +75,7 @@
 				{/if}
 			</div>
 			<p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
-				Added {formatDate(party._creationTime)}
+				Added {formatTimestamp(party._creationTime)}
 			</p>
 		</div>
 		<div class="flex items-center gap-2">

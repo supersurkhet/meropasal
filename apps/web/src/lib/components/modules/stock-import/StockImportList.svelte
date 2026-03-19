@@ -6,6 +6,9 @@
 	import { getConvexClient } from '$lib/convex';
 	import { api } from '$lib/api';
 	import { Plus, PackageOpen } from '@lucide/svelte';
+	import { t } from '$lib/t.svelte';
+	import EmptyState from '$lib/components/shared/EmptyState.svelte';
+	import { formatDate } from '$lib/date-utils';
 
 	type Invoice = {
 		_id: string;
@@ -43,14 +46,6 @@
 		return parties.find((p) => p._id === partyId)?.name ?? '—';
 	}
 
-	function formatDate(iso: string): string {
-		return new Date(iso).toLocaleDateString('en-NP', {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric',
-		});
-	}
-
 	function statusVariant(status: string): 'default' | 'secondary' | 'destructive' | 'outline' {
 		switch (status) {
 			case 'paid': return 'default';
@@ -62,65 +57,71 @@
 </script>
 
 <div class="space-y-4">
-	<!-- Header -->
-	<div class="flex items-center justify-between">
-		<div>
-			<h1 class="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Stock Import</h1>
-			<p class="mt-0.5 text-sm text-zinc-500">
-				{invoices.length} import{invoices.length !== 1 ? 's' : ''} recorded
-			</p>
-		</div>
-		<Button href="/stock-import/new" class="gap-2">
-			<Plus class="size-4" />
-			New Import
-		</Button>
+	<!-- Toolbar -->
+	<div class="flex items-center justify-end gap-3">
+		<a href="/stock-import/new">
+			<Button
+				size="sm"
+				class="bg-zinc-900 text-white shadow-sm transition-all hover:bg-zinc-800 hover:shadow-md active:scale-[0.98] dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+			>
+				<Plus class="mr-1.5 size-4" />
+				{t('action_new_import')}
+			</Button>
+		</a>
 	</div>
 
 	<!-- Table -->
 	{#if !loaded}
 		<div class="flex items-center justify-center py-20">
-			<div class="size-6 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-900 dark:border-zinc-600 dark:border-t-zinc-100"></div>
+			<div class="flex flex-col items-center gap-3">
+				<div class="size-6 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-900 dark:border-zinc-600 dark:border-t-zinc-100"></div>
+				<p class="text-sm text-zinc-500">{t('common_loading')}</p>
+			</div>
 		</div>
 	{:else if invoices.length === 0}
-		<div class="flex flex-col items-center justify-center rounded-lg border border-dashed border-zinc-200 py-16 dark:border-zinc-800">
-			<PackageOpen class="mb-3 size-10 text-zinc-300 dark:text-zinc-600" />
-			<p class="text-sm text-zinc-500">No stock imports yet</p>
-			<Button href="/stock-import/new" variant="outline" size="sm" class="mt-3 gap-2">
-				<Plus class="size-3.5" />
-				Import your first stock
-			</Button>
-		</div>
+		<EmptyState
+			icon={PackageOpen}
+			title={t('empty_stock_import')}
+			description={t('empty_stock_import_desc')}
+			actionLabel={t('stock_import_create')}
+			actionHref="/stock-import/new"
+			actionIcon={Plus}
+		/>
 	{:else}
-		<div class="rounded-lg border border-zinc-200 dark:border-zinc-800">
+		<div class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
 			<Table.Root>
 				<Table.Header>
-					<Table.Row class="hover:bg-transparent">
-						<Table.Head>Invoice #</Table.Head>
-						<Table.Head>Supplier</Table.Head>
-						<Table.Head>Date</Table.Head>
-						<Table.Head class="text-center">Items</Table.Head>
-						<Table.Head class="text-right">Total</Table.Head>
-						<Table.Head>Status</Table.Head>
+					<Table.Row class="border-zinc-100 bg-zinc-50/80 hover:bg-zinc-50/80 dark:border-zinc-800 dark:bg-zinc-900/50">
+						<Table.Head class="font-semibold text-zinc-600 dark:text-zinc-400">{t('invoice_number')}</Table.Head>
+						<Table.Head class="font-semibold text-zinc-600 dark:text-zinc-400">{t('stock_import_party')}</Table.Head>
+						<Table.Head class="font-semibold text-zinc-600 dark:text-zinc-400">{t('common_date')}</Table.Head>
+						<Table.Head class="text-center font-semibold text-zinc-600 dark:text-zinc-400">{t('stock_import_items')}</Table.Head>
+						<Table.Head class="text-right font-semibold text-zinc-600 dark:text-zinc-400">{t('common_total')}</Table.Head>
+						<Table.Head class="font-semibold text-zinc-600 dark:text-zinc-400">{t('order_status')}</Table.Head>
 					</Table.Row>
 				</Table.Header>
 				<Table.Body>
 					{#each invoices as inv (inv._id)}
-						<Table.Row class="cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900/30" onclick={() => { window.location.href = `/stock-import/${inv._id}`; }}>
-							<Table.Cell class="font-mono text-sm">
-								<span class="font-medium">
-									{inv.invoiceNumber ?? '—'}
-								</span>
+						<Table.Row class="group border-zinc-100 transition-colors hover:bg-zinc-50/60 dark:border-zinc-800 dark:hover:bg-zinc-900/40" onclick={() => { window.location.href = `/stock-import/${inv._id}`; }}>
+							<Table.Cell>
+								{#if inv.invoiceNumber}
+									<Badge variant="secondary" class="bg-zinc-100 font-mono text-xs text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+										{inv.invoiceNumber}
+									</Badge>
+								{:else}
+									<span class="text-xs text-zinc-400">—</span>
+								{/if}
 							</Table.Cell>
-							<Table.Cell class="text-zinc-600 dark:text-zinc-400">
+							<Table.Cell class="text-sm text-zinc-600 dark:text-zinc-400">
 								{getPartyName(inv.partyId)}
 							</Table.Cell>
-							<Table.Cell class="text-sm text-zinc-500">
+							<Table.Cell class="text-sm text-zinc-500 dark:text-zinc-400">
 								{formatDate(inv.issuedAt)}
 							</Table.Cell>
-							<Table.Cell class="text-center font-mono text-sm">
+							<Table.Cell class="text-center font-mono text-sm text-zinc-700 dark:text-zinc-300">
 								{inv.items.length}
 							</Table.Cell>
-							<Table.Cell class="text-right font-mono text-sm tabular-nums font-medium">
+							<Table.Cell class="text-right font-mono text-sm font-medium tabular-nums text-zinc-900 dark:text-zinc-100">
 								{formatNPR(inv.totalAmount)}
 							</Table.Cell>
 							<Table.Cell>
@@ -133,5 +134,8 @@
 				</Table.Body>
 			</Table.Root>
 		</div>
+		<p class="text-xs text-zinc-400 dark:text-zinc-500">
+			{invoices.length} {invoices.length === 1 ? 'import' : 'imports'}
+		</p>
 	{/if}
 </div>

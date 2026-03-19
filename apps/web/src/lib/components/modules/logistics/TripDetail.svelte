@@ -25,6 +25,7 @@
 		Loader2,
 		ArrowRight,
 	} from '@lucide/svelte';
+	import { formatDateTime } from '$lib/date-utils';
 
 	type TripProduct = {
 		productId: string;
@@ -78,16 +79,6 @@
 		returned: { label: 'Returned', class: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400', icon: CheckCircle2 },
 		cancelled: { label: 'Cancelled', class: 'bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400', icon: XCircle },
 	};
-
-	function formatDateTime(iso: string): string {
-		return new Date(iso).toLocaleDateString('en-NP', {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric',
-			hour: '2-digit',
-			minute: '2-digit',
-		});
-	}
 
 	function markAllReturned() {
 		returnQuantities = Object.fromEntries(

@@ -5,6 +5,8 @@
 	import { formatNumber } from '$lib/currency';
 	import * as Table from '$lib/components/ui/table';
 	import { ChevronDown, ChevronRight, Package, Filter } from '@lucide/svelte';
+	import { t } from '$lib/t.svelte';
+	import EmptyState from '$lib/components/shared/EmptyState.svelte';
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 
@@ -100,7 +102,7 @@
 				fiscalYearFilter = val || undefined;
 			}}
 		>
-			<option value="">All Fiscal Years</option>
+			<option value="">{t('common_all_fiscal_years')}</option>
 			{#each fiscalYears as fy}
 				<option value={fy}>{fy}</option>
 			{/each}
@@ -110,22 +112,23 @@
 	{#if aggregation.isLoading || products.isLoading}
 		<div class="flex items-center justify-center py-12 text-zinc-500">
 			<div class="size-5 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-600"></div>
-			<span class="ml-2 text-sm">Loading stock data...</span>
+			<span class="ml-2 text-sm">{t('common_loading_stock')}</span>
 		</div>
 	{:else if !aggregatedProducts.length}
-		<div class="flex flex-col items-center justify-center py-16 text-zinc-500">
-			<Package class="mb-3 size-10 opacity-40" />
-			<p class="text-sm">No stock data available</p>
-		</div>
+		<EmptyState
+			icon={Package}
+			title={t('empty_stock_book')}
+			description={t('empty_stock_book_desc')}
+		/>
 	{:else}
 		<div class="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
 			<Table.Root>
 				<Table.Header>
 					<Table.Row class="bg-zinc-50 dark:bg-zinc-900/50">
 						<Table.Head class="w-8"></Table.Head>
-						<Table.Head class="font-semibold">Product</Table.Head>
-						<Table.Head class="text-right font-semibold">Total Available</Table.Head>
-						<Table.Head class="text-right font-semibold">Reorder Level</Table.Head>
+						<Table.Head class="font-semibold">{t('stock_book_product')}</Table.Head>
+						<Table.Head class="text-right font-semibold">{t('stock_aggregation_total_available')}</Table.Head>
+						<Table.Head class="text-right font-semibold">{t('product_reorder_level')}</Table.Head>
 						<Table.Head class="w-12"></Table.Head>
 					</Table.Row>
 				</Table.Header>
@@ -168,7 +171,7 @@
 								<Table.Row class="bg-zinc-50/50 dark:bg-zinc-900/20">
 									<Table.Cell></Table.Cell>
 									<Table.Cell class="pl-8 text-sm text-zinc-500">
-										{bucket.partyId === '__UNASSIGNED__' ? 'Unassigned' : bucket.partyId}
+										{bucket.partyId === '__UNASSIGNED__' ? t('common_unassigned') : bucket.partyId}
 									</Table.Cell>
 									<Table.Cell class="text-right tabular-nums text-sm text-zinc-600 dark:text-zinc-400">
 										{formatNumber(bucket.available)}

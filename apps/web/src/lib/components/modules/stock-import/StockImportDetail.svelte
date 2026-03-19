@@ -8,6 +8,7 @@
 	import { Separator } from '$lib/components/ui/separator';
 	import { Button } from '$lib/components/ui/button';
 	import { ArrowLeft, FileText, PackageOpen } from '@lucide/svelte';
+	import { formatDate } from '$lib/date-utils';
 
 	type Props = {
 		importId: string;
@@ -32,14 +33,6 @@
 				});
 		}
 	});
-
-	function formatDate(iso: string) {
-		return new Date(iso).toLocaleDateString('en-NP', {
-			year: 'numeric',
-			month: 'long',
-			day: 'numeric',
-		});
-	}
 
 	function statusBadgeVariant(status: string): 'default' | 'secondary' | 'outline' | 'destructive' {
 		switch (status) {

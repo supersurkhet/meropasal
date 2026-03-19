@@ -7,10 +7,13 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import * as Select from '$lib/components/ui/select';
 	import CurrencyInput from '$lib/components/shared/CurrencyInput.svelte';
+	import UnitBuilder from '$lib/components/shared/UnitBuilder.svelte';
 	import InlineCreateDialog from '$lib/components/shared/InlineCreateDialog.svelte';
 	import { getConvexClient } from '$lib/convex';
 	import { api } from '$lib/api';
 	import { Save, Loader2 } from '@lucide/svelte';
+	import { productSchema } from '$lib/schemas/product';
+	import { t } from '$lib/t.svelte';
 
 	type Party = { _id: string; name: string };
 
@@ -64,6 +67,7 @@
 	let reorderLevel = $state(initial?.reorderLevel ?? 0);
 	let description = $state(initial?.description ?? '');
 	let submitting = $state(false);
+	let errors = $state<Record<string, string>>({});
 
 	let sellingPriceManual = $state(!!initial?.sellingPrice);
 
@@ -82,8 +86,36 @@
 		}
 	});
 
+	function validate(): boolean {
+		const result = productSchema.safeParse({
+			title: title.trim(),
+			purchasePartyId,
+			unit: unit || undefined,
+			costPrice,
+			sellingPrice: sellingPrice > 0 ? sellingPrice : undefined,
+			openingStock,
+			reorderLevel: reorderLevel > 0 ? reorderLevel : undefined,
+			hsCode: hsCode || undefined,
+			barcode: barcode || undefined,
+			sku: sku || undefined,
+			category: category || undefined,
+			description: description || undefined,
+		})
+		if (!result.success) {
+			errors = {}
+			for (const issue of result.error.issues) {
+				const key = issue.path.join('.')
+				if (!errors[key]) errors[key] = issue.message
+			}
+			toast.error(t('validation_form_errors'))
+			return false
+		}
+		errors = {}
+		return true
+	}
+
 	async function handleSubmit() {
-		if (!title.trim() || !purchasePartyId) return;
+		if (!validate()) return;
 		submitting = true;
 		try {
 			const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
@@ -105,10 +137,10 @@
 			if (initial?._id) {
 				data.id = initial._id;
 				await client.mutation(api.functions.products.update, data as any);
-				toast.success('Product updated successfully');
+				toast.success(t('toast_product_updated'));
 			} else {
 				const id = await client.mutation(api.functions.products.create, data as any);
-				toast.success('Product created successfully');
+				toast.success(t('toast_product_created'));
 				if (onsaved) {
 					onsaved(id);
 					return;
@@ -116,7 +148,7 @@
 			}
 			if (!inline) goto('/products');
 		} catch (err) {
-			console.error('Failed to save product:', err);
+			toast.error(`Failed to save product: ${(err as Error).message}`);
 		} finally {
 			submitting = false;
 		}
@@ -172,7 +204,11 @@
 			bind:value={title}
 			placeholder="e.g. Rice 25kg Basmati"
 			required
+			class={errors.title ? 'border-red-400 ring-1 ring-red-400/30' : ''}
 		/>
+		{#if errors.title}
+			<p class="text-xs text-red-500 mt-1">{errors.title}</p>
+		{/if}
 	</div>
 
 	<!-- Supplier -->
@@ -180,7 +216,7 @@
 		<Label>Supplier <span class="text-destructive">*</span></Label>
 		<div class="flex gap-2">
 			<Select.Root type="single" bind:value={purchasePartyId}>
-				<Select.Trigger class="flex-1">
+				<Select.Trigger class="flex-1 {errors.purchasePartyId ? 'border-red-400 ring-1 ring-red-400/30' : ''}">
 					{parties.find((p) => p._id === purchasePartyId)?.name || 'Select supplier...'}
 				</Select.Trigger>
 				<Select.Content>
@@ -205,17 +241,15 @@
 				</div>
 			</InlineCreateDialog>
 		</div>
+		{#if errors.purchasePartyId}
+			<p class="text-xs text-red-500 mt-1">{errors.purchasePartyId}</p>
+		{/if}
 	</div>
 
 	<!-- Unit -->
 	<div class="space-y-1.5">
-		<Label for="unit">Unit</Label>
-		<Input
-			id="unit"
-			bind:value={unit}
-			placeholder="e.g. piece, box:12, kg"
-		/>
-		<p class="text-xs text-zinc-400">Use "box:12" for compound units (12 pieces per box)</p>
+		<Label>Unit</Label>
+		<UnitBuilder bind:value={unit} />
 	</div>
 
 	<!-- Prices -->
@@ -223,6 +257,9 @@
 		<div class="space-y-1.5">
 			<Label>Cost Price <span class="text-destructive">*</span></Label>
 			<CurrencyInput bind:value={costPrice} placeholder="0.00" />
+			{#if errors.costPrice}
+				<p class="text-xs text-red-500 mt-1">{errors.costPrice}</p>
+			{/if}
 		</div>
 		<div class="space-y-1.5">
 			<Label>Selling Price</Label>
@@ -243,7 +280,11 @@
 				min="0"
 				bind:value={openingStock}
 				placeholder="0"
+				class={errors.openingStock ? 'border-red-400 ring-1 ring-red-400/30' : ''}
 			/>
+			{#if errors.openingStock}
+				<p class="text-xs text-red-500 mt-1">{errors.openingStock}</p>
+			{/if}
 		</div>
 		<div class="space-y-1.5">
 			<Label for="reorderLevel">Reorder Level</Label>
@@ -304,7 +345,7 @@
 	<div class="flex justify-end gap-3 pt-2">
 		<Button
 			type="submit"
-			disabled={submitting || !title.trim() || !purchasePartyId}
+			disabled={submitting}
 			class="gap-2"
 		>
 			{#if submitting}

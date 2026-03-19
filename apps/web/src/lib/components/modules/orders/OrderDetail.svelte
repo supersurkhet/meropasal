@@ -6,6 +6,7 @@
 	import { getConvexClient, api } from '$lib/convex';
 	import { type PaymentStatus } from '$lib/payment-status';
 	import { Loader2, CheckCircle, AlertTriangle } from '@lucide/svelte';
+	import { formatDate } from '$lib/date-utils';
 
 	let {
 		orderId,
@@ -117,10 +118,6 @@
 		} finally {
 			actionLoading = '';
 		}
-	}
-
-	function formatDate(iso: string): string {
-		return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 	}
 
 	function formatNPR(amount: number): string {

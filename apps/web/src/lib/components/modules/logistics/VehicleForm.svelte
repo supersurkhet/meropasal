@@ -4,6 +4,9 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { Loader2, Save, ArrowLeft } from '@lucide/svelte';
+	import { toast } from 'svelte-sonner';
+	import { vehicleSchema } from '$lib/schemas/vehicle';
+	import { t } from '$lib/t.svelte';
 
 	type Vehicle = {
 		_id: string;
@@ -34,22 +37,31 @@
 	let licensePlate = $state(vehicle?.licensePlate ?? '');
 	let description = $state(vehicle?.description ?? '');
 	let submitting = $state(false);
-	let nameError = $state('');
-	let plateError = $state('');
+	let errors = $state<Record<string, string>>({});
+
+	function validate(): boolean {
+		const result = vehicleSchema.safeParse({
+			name: name.trim(),
+			licensePlate: licensePlate.trim(),
+			description: description.trim() || undefined,
+		})
+		if (!result.success) {
+			errors = {}
+			for (const issue of result.error.issues) {
+				const key = issue.path.join('.')
+				if (!errors[key]) errors[key] = issue.message
+			}
+			toast.error(t('validation_form_errors'))
+			return false
+		}
+		errors = {}
+		return true
+	}
 
 	async function handleSubmit(e: Event) {
 		e.preventDefault();
-		nameError = '';
-		plateError = '';
 
-		if (!name.trim()) {
-			nameError = 'Vehicle name is required';
-			return;
-		}
-		if (!licensePlate.trim()) {
-			plateError = 'License plate is required';
-			return;
-		}
+		if (!validate()) return;
 
 		submitting = true;
 		try {
@@ -89,10 +101,10 @@
 			id="vehicle-name"
 			bind:value={name}
 			placeholder="e.g. Delivery Truck"
-			class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900 {nameError ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
+			class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900 {errors.name ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
 		/>
-		{#if nameError}
-			<p class="text-xs text-red-500">{nameError}</p>
+		{#if errors.name}
+			<p class="text-xs text-red-500">{errors.name}</p>
 		{/if}
 	</div>
 
@@ -105,10 +117,10 @@
 			id="license-plate"
 			bind:value={licensePlate}
 			placeholder="e.g. Ba 1 Kha 1234"
-			class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900 {plateError ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
+			class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900 {errors.licensePlate ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
 		/>
-		{#if plateError}
-			<p class="text-xs text-red-500">{plateError}</p>
+		{#if errors.licensePlate}
+			<p class="text-xs text-red-500">{errors.licensePlate}</p>
 		{/if}
 	</div>
 

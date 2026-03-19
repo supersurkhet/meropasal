@@ -5,6 +5,8 @@
 	import { formatNPR } from '$lib/currency';
 	import * as Table from '$lib/components/ui/table';
 	import { Filter, BookText } from '@lucide/svelte';
+	import DatePicker from '$lib/components/shared/DatePicker.svelte';
+	import { formatDate } from '$lib/date-utils';
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 
@@ -65,13 +67,6 @@
 		}
 	}
 
-	function formatDate(iso: string) {
-		return new Date(iso).toLocaleDateString('en-NP', {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric',
-		});
-	}
 </script>
 
 <div class="space-y-4">
@@ -107,18 +102,16 @@
 		</select>
 
 		<div class="flex items-center gap-1.5">
-			<input
-				type="date"
-				class="rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-				placeholder="From"
+			<DatePicker
 				bind:value={dateFrom}
+				placeholder="From"
+				class="rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
 			/>
 			<span class="text-zinc-400">—</span>
-			<input
-				type="date"
-				class="rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-				placeholder="To"
+			<DatePicker
 				bind:value={dateTo}
+				placeholder="To"
+				class="rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
 			/>
 		</div>
 	</div>

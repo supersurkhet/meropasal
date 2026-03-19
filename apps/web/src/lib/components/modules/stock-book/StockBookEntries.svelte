@@ -5,6 +5,7 @@
 	import { formatNPR, formatNumber } from '$lib/currency';
 	import * as Table from '$lib/components/ui/table';
 	import { ArrowDownToLine, ArrowUpFromLine, Filter, BookOpen } from '@lucide/svelte';
+	import { formatDate } from '$lib/date-utils';
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 
@@ -70,13 +71,6 @@
 		}
 	}
 
-	function formatDate(iso: string) {
-		return new Date(iso).toLocaleDateString('en-NP', {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric',
-		});
-	}
 </script>
 
 <div class="space-y-4">

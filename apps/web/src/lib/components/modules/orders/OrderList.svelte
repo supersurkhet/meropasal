@@ -1,7 +1,11 @@
 <script lang="ts">
 	import * as Table from '$lib/components/ui/table';
 	import * as Select from '$lib/components/ui/select';
+	import { ClipboardList, Plus } from '@lucide/svelte';
 	import { getConvexClient, api } from '$lib/convex';
+	import { t } from '$lib/t.svelte';
+	import EmptyState from '$lib/components/shared/EmptyState.svelte';
+	import { formatDate } from '$lib/date-utils';
 
 	type Order = {
 		_id: string;
@@ -76,10 +80,6 @@
 		}
 	}
 
-	function formatDate(iso: string): string {
-		return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-	}
-
 	function formatNPR(amount: number): string {
 		return new Intl.NumberFormat('en-NP', {
 			style: 'currency',
@@ -101,51 +101,66 @@
 <div class="mb-4">
 	<Select.Root type="single" bind:value={statusFilter}>
 		<Select.Trigger class="h-9 w-44 text-sm border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
-			{statusFilter === 'all' ? 'All Orders' : statusFilter === 'pending' ? 'Pending' : statusFilter === 'done' ? 'Done' : 'Cancelled'}
+			{statusFilter === 'all' ? t('common_all_orders') : statusFilter === 'pending' ? t('status_pending') : statusFilter === 'done' ? t('status_done') : t('status_cancelled')}
 		</Select.Trigger>
 		<Select.Content>
-			<Select.Item value="all">All Orders</Select.Item>
-			<Select.Item value="pending">Pending</Select.Item>
-			<Select.Item value="done">Done</Select.Item>
-			<Select.Item value="cancelled">Cancelled</Select.Item>
+			<Select.Item value="all">{t('common_all_orders')}</Select.Item>
+			<Select.Item value="pending">{t('status_pending')}</Select.Item>
+			<Select.Item value="done">{t('status_done')}</Select.Item>
+			<Select.Item value="cancelled">{t('status_cancelled')}</Select.Item>
 		</Select.Content>
 	</Select.Root>
 </div>
 
 {#if !loaded}
-	<div class="flex items-center justify-center py-12">
-		<div class="size-6 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-900 dark:border-zinc-600 dark:border-t-zinc-100"></div>
+	<div class="flex items-center justify-center py-20">
+		<div class="flex flex-col items-center gap-3">
+			<div class="size-6 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-900 dark:border-zinc-600 dark:border-t-zinc-100"></div>
+			<p class="text-sm text-zinc-500">{t('common_loading')}</p>
+		</div>
 	</div>
 {:else if filteredOrders.length === 0}
-	<div class="flex flex-col items-center justify-center py-16 text-center">
-		<p class="text-sm text-zinc-500 dark:text-zinc-400">No orders found</p>
-		<p class="mt-1 text-xs text-zinc-400 dark:text-zinc-500">Create your first order to get started</p>
-	</div>
+	{#if statusFilter !== 'all' || orders.length > 0}
+		<EmptyState
+			icon={ClipboardList}
+			title={t('empty_filtered')}
+			description={t('empty_filtered_desc')}
+		/>
+	{:else}
+		<EmptyState
+			icon={ClipboardList}
+			title={t('empty_orders')}
+			description={t('empty_orders_desc')}
+			actionLabel={t('order_create')}
+			actionHref="/orders/new"
+			actionIcon={Plus}
+		/>
+	{/if}
 {:else}
-	<div class="rounded-lg border border-zinc-200 dark:border-zinc-700">
+	<div class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
 		<Table.Root>
 			<Table.Header>
-				<Table.Row class="bg-zinc-50 dark:bg-zinc-900/50">
-					<Table.Head class="text-xs font-medium uppercase tracking-wider">Date</Table.Head>
-					<Table.Head class="text-xs font-medium uppercase tracking-wider">Customer</Table.Head>
-					<Table.Head class="text-xs font-medium uppercase tracking-wider">Items</Table.Head>
-					<Table.Head class="text-xs font-medium uppercase tracking-wider text-right">Total</Table.Head>
-					<Table.Head class="text-xs font-medium uppercase tracking-wider text-right">Paid</Table.Head>
-					<Table.Head class="text-xs font-medium uppercase tracking-wider text-center">Status</Table.Head>
-					<Table.Head class="text-xs font-medium uppercase tracking-wider text-center">Payment</Table.Head>
+				<Table.Row class="border-zinc-100 bg-zinc-50/80 hover:bg-zinc-50/80 dark:border-zinc-800 dark:bg-zinc-900/50">
+					<Table.Head class="font-semibold text-zinc-600 dark:text-zinc-400">{t('common_date')}</Table.Head>
+					<Table.Head class="font-semibold text-zinc-600 dark:text-zinc-400">{t('order_customer')}</Table.Head>
+					<Table.Head class="font-semibold text-zinc-600 dark:text-zinc-400">{t('order_items')}</Table.Head>
+					<Table.Head class="text-right font-semibold text-zinc-600 dark:text-zinc-400">{t('common_total')}</Table.Head>
+					<Table.Head class="text-right font-semibold text-zinc-600 dark:text-zinc-400">{t('order_paid')}</Table.Head>
+					<Table.Head class="text-center font-semibold text-zinc-600 dark:text-zinc-400">{t('order_status')}</Table.Head>
+					<Table.Head class="text-center font-semibold text-zinc-600 dark:text-zinc-400">{t('payment_method')}</Table.Head>
 				</Table.Row>
 			</Table.Header>
 			<Table.Body>
 				{#each filteredOrders as order}
 					{@const status = orderStatus(order)}
-					<Table.Row class="cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900/30">
+					<Table.Row class="group border-zinc-100 transition-colors hover:bg-zinc-50/60 dark:border-zinc-800 dark:hover:bg-zinc-900/40">
 						<Table.Cell>
-							<a href="/orders/{order._id}" class="text-sm text-zinc-700 dark:text-zinc-300 hover:underline">
+							<a href="/orders/{order._id}" class="text-sm text-zinc-700 hover:underline dark:text-zinc-300">
 								{formatDate(order.issuedAt)}
 							</a>
 						</Table.Cell>
 						<Table.Cell class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-							{order.partyId ? (customerNames[order.partyId] ?? '—') : 'Walk-in'}
+							{order.partyId ? (customerNames[order.partyId] ?? '—') : t('common_walk_in')}
 						</Table.Cell>
 						<Table.Cell class="max-w-[200px] truncate text-sm text-zinc-600 dark:text-zinc-400">
 							{itemsSummary(order.items)}
@@ -158,12 +173,12 @@
 						</Table.Cell>
 						<Table.Cell class="text-center">
 							<span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold {statusBadgeClass(status)}">
-								{status === 'done' ? 'Done' : status === 'cancelled' ? 'Cancelled' : 'Pending'}
+								{status === 'done' ? t('status_done') : status === 'cancelled' ? t('status_cancelled') : t('status_pending')}
 							</span>
 						</Table.Cell>
 						<Table.Cell class="text-center">
 							<span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold {paymentBadgeClass(order.paymentStatus)}">
-								{order.paymentStatus === 'paid' ? 'Paid' : order.paymentStatus === 'partial' ? 'Partial' : order.paymentStatus === 'pending' ? 'Pending' : order.paymentStatus}
+								{order.paymentStatus === 'paid' ? t('status_paid') : order.paymentStatus === 'partial' ? t('status_partial') : order.paymentStatus === 'pending' ? t('status_pending') : order.paymentStatus}
 							</span>
 						</Table.Cell>
 					</Table.Row>
@@ -171,4 +186,7 @@
 			</Table.Body>
 		</Table.Root>
 	</div>
+	<p class="mt-4 text-xs text-zinc-400 dark:text-zinc-500">
+		{filteredOrders.length} {filteredOrders.length === 1 ? 'order' : 'orders'}
+	</p>
 {/if}

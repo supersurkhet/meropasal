@@ -5,6 +5,7 @@
 	import { formatNPR } from '$lib/currency';
 	import { Button } from '$lib/components/ui/button';
 	import { X, Printer } from '@lucide/svelte';
+	import { formatDate } from '$lib/date-utils';
 
 	type InvoiceData = {
 		invoiceNumber?: string;
@@ -83,14 +84,6 @@
 			default: return 'text-sm';
 		}
 	});
-
-	function formatDate(iso: string) {
-		return new Date(iso).toLocaleDateString('en-NP', {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric',
-		});
-	}
 
 	function handlePrint() {
 		window.print();
