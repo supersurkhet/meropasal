@@ -181,7 +181,7 @@
 							</Table.Cell>
 							<Table.Cell>
 								{#if product.category}
-									<Badge variant="outline" class="text-xs capitalize">{product.category}</Badge>
+									<Badge variant="outline" class="text-xs capitalize border-zinc-300 text-zinc-700 dark:border-zinc-600 dark:text-zinc-300">{product.category}</Badge>
 								{:else}
 									<span class="text-xs text-zinc-400">—</span>
 								{/if}
@@ -221,8 +221,8 @@
 			</Table.Root>
 		</div>
 		<p class="text-xs text-zinc-400 dark:text-zinc-500">
-			{filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'}
-			{#if searchTerm}&middot; filtered from {products.length}{/if}
+			{filteredProducts.length} {filteredProducts.length === 1 ? t('product_title') : t('product_title_plural')}
+			{#if searchTerm}&middot; {t('common_filtered_from')} {products.length}{/if}
 		</p>
 	{/if}
 </div>

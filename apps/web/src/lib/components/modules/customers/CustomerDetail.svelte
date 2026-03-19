@@ -67,7 +67,7 @@
 					{customer.name}
 				</h2>
 				{#if customer.panNumber}
-					<Badge variant="secondary" class="shrink-0 bg-zinc-100 font-mono text-xs dark:bg-zinc-800">
+					<Badge variant="secondary" class="shrink-0 bg-zinc-100 font-mono text-xs text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
 						PAN: {customer.panNumber}
 					</Badge>
 				{/if}

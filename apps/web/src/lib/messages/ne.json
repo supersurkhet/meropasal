@@ -222,6 +222,7 @@
 	"common_rate": "दर",
 	"common_amount": "रकम",
 	"common_of": "को",
+	"common_filtered_from": "मध्ये छानिएको",
 
 	"auth_login": "लग इन",
 	"auth_logout": "लग आउट",

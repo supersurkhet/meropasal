@@ -222,6 +222,7 @@
 	"common_rate": "Rate",
 	"common_amount": "Amount",
 	"common_of": "of",
+	"common_filtered_from": "filtered from",
 
 	"auth_login": "Sign In",
 	"auth_logout": "Sign Out",
