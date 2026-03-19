@@ -32,6 +32,6 @@
 	});
 </script>
 
-<AppShell user={data.user}>
+<AppShell user={data.user} workosOrgName={data.workosOrgName} userOrgs={data.userOrgs} currentOrgId={data.orgId}>
 	{@render children()}
 </AppShell>

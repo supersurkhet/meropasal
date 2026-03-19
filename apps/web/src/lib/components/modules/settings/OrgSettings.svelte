@@ -31,24 +31,28 @@
 	let featureStockBook = $state(true);
 	let featureLogistics = $state(false);
 	let featureLedger = $state(true);
-	let initialized = $state(false);
+	let lastSettingsId = $state<string | null>(null);
 	let errors = $state<Record<string, string>>({});
 
 	$effect(() => {
-		if (settings.data && !initialized) {
+		if (settings.data) {
 			const s = settings.data as any;
-			// Use WorkOS org name as fallback when Convex has no businessName yet
-			businessName = s.businessName || workosOrgName || '';
-			location = s.location ?? '';
-			phone = s.phone ?? '';
-			panNumber = s.panNumber ?? '';
-			currentFiscalYear = s.currentFiscalYear || calculateFiscalYear();
-			taxRate = s.taxRate ?? 13;
-			featureInvoicing = s.features?.invoicing ?? true;
-			featureStockBook = s.features?.stockBook ?? true;
-			featureLogistics = s.features?.logistics ?? false;
-			featureLedger = s.features?.ledger ?? true;
-			initialized = true;
+			const currentId = s._id ?? null;
+			// Re-sync form when settings data changes (different record or first load)
+			if (currentId !== lastSettingsId) {
+				// Use WorkOS org name as pre-fill only when Convex businessName is empty
+				businessName = s.businessName || workosOrgName || '';
+				location = s.location ?? '';
+				phone = s.phone ?? '';
+				panNumber = s.panNumber ?? '';
+				currentFiscalYear = s.currentFiscalYear || calculateFiscalYear();
+				taxRate = s.taxRate ?? 13;
+				featureInvoicing = s.features?.invoicing ?? true;
+				featureStockBook = s.features?.stockBook ?? true;
+				featureLogistics = s.features?.logistics ?? false;
+				featureLedger = s.features?.ledger ?? true;
+				lastSettingsId = currentId;
+			}
 		}
 	});
 
@@ -81,7 +85,7 @@
 	}
 
 	let isDirty = $derived(
-		!!settings.data && initialized && (() => {
+		!!settings.data && lastSettingsId !== null && (() => {
 			const s = settings.data as any;
 			return (
 				businessName !== (s.businessName || workosOrgName || '') ||

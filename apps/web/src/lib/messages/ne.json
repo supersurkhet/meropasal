@@ -18,6 +18,7 @@
 	"nav_trips": "यात्रा",
 	"nav_reports": "रिपोर्ट",
 	"nav_settings": "सेटिङ",
+	"nav_switch_org": "संस्था बदल्नुहोस्",
 
 	"action_save": "सेभ गर्नुहोस्",
 	"action_cancel": "रद्द गर्नुहोस्",
@@ -228,6 +229,8 @@
 
 	"auth_login": "लग इन",
 	"auth_logout": "लग आउट",
+	"auth_logout_confirm_title": "लग आउट गर्नुहुन्छ?",
+	"auth_logout_confirm_desc": "तपाईंको खाता पहुँच गर्न पुनः लग इन गर्नुपर्नेछ।",
 	"auth_switch_org": "संस्था परिवर्तन",
 
 	"empty_parties": "अहिलेसम्म कुनै आपूर्तिकर्ता छैन",

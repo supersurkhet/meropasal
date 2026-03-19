@@ -18,6 +18,7 @@
 	"nav_trips": "Trips",
 	"nav_reports": "Reports",
 	"nav_settings": "Settings",
+	"nav_switch_org": "Switch organization",
 
 	"action_save": "Save",
 	"action_cancel": "Cancel",
@@ -228,6 +229,8 @@
 
 	"auth_login": "Sign In",
 	"auth_logout": "Sign Out",
+	"auth_logout_confirm_title": "Sign out?",
+	"auth_logout_confirm_desc": "You will need to sign in again to access your account.",
 	"auth_switch_org": "Switch Organization",
 
 	"empty_parties": "No parties yet",
