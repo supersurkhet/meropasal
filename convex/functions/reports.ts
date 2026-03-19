@@ -1,12 +1,22 @@
 import { query } from "../_generated/server";
 import { v } from "convex/values";
-import { requireOrg } from "../lib/orgGuard";
+import { getOrg } from "../lib/orgGuard";
 import { aggregateStockBookEntries } from "../lib/stockAggregation";
 
 export const dashboard = query({
   args: { fiscalYear: v.optional(v.string()) },
   handler: async (ctx, args) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await getOrg(ctx);
+    if (!orgId) return {
+      totalRevenue: 0,
+      totalExpenses: 0,
+      netIncome: 0,
+      outstandingReceivables: 0,
+      outstandingPayables: 0,
+      lowStockCount: 0,
+      totalSaleInvoices: 0,
+      totalPurchaseInvoices: 0,
+    };
 
     // Get invoices
     const allInvoices = await ctx.db
@@ -79,7 +89,8 @@ export const salesByPeriod = query({
     endDate: v.string(),
   },
   handler: async (ctx, { startDate, endDate }) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await getOrg(ctx);
+    if (!orgId) return { invoices: [], totalAmount: 0, totalPaid: 0, totalOutstanding: 0, count: 0 };
     const invoices = await ctx.db
       .query("invoices")
       .withIndex("by_orgId_type", (q) =>
@@ -110,7 +121,8 @@ export const topProducts = query({
     fiscalYear: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await getOrg(ctx);
+    if (!orgId) return [];
     const limit = args.limit ?? 10;
 
     const saleInvoices = await ctx.db

@@ -1,6 +1,6 @@
 import { mutation, query } from "../_generated/server";
 import { v } from "convex/values";
-import { requireOrg } from "../lib/orgGuard";
+import { getOrg, requirePermission } from "../lib/orgGuard";
 import { tripProductValidator } from "../lib/validators";
 import { calculateFiscalYear } from "../lib/nepaliCalendar";
 import {
@@ -11,7 +11,8 @@ import {
 export const list = query({
   args: {},
   handler: async (ctx) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await getOrg(ctx);
+    if (!orgId) return [];
     return await ctx.db
       .query("trips")
       .withIndex("by_orgId", (q) => q.eq("orgId", orgId))
@@ -22,7 +23,8 @@ export const list = query({
 export const getById = query({
   args: { id: v.id("trips") },
   handler: async (ctx, { id }) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await getOrg(ctx);
+    if (!orgId) return null;
     const trip = await ctx.db.get(id);
     if (!trip || trip.orgId !== orgId) return null;
     return trip;
@@ -32,7 +34,8 @@ export const getById = query({
 export const listByVehicle = query({
   args: { vehicleId: v.id("vehicles") },
   handler: async (ctx, { vehicleId }) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await getOrg(ctx);
+    if (!orgId) return [];
     return await ctx.db
       .query("trips")
       .withIndex("by_orgId_vehicle", (q) =>
@@ -50,7 +53,7 @@ export const dispatch = mutation({
     products: v.array(tripProductValidator),
   },
   handler: async (ctx, args) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await requirePermission(ctx, 'trips:dispatch');
 
     const vehicle = await ctx.db.get(args.vehicleId);
     if (!vehicle || vehicle.orgId !== orgId)
@@ -129,7 +132,7 @@ export const returnTrip = mutation({
     returnedProducts: v.array(tripProductValidator),
   },
   handler: async (ctx, args) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await requirePermission(ctx, 'trips:return');
     const trip = await ctx.db.get(args.tripId);
     if (!trip || trip.orgId !== orgId) throw new Error("Trip not found");
     if (trip.status !== "dispatched")
@@ -250,7 +253,7 @@ export const returnTrip = mutation({
 export const cancel = mutation({
   args: { tripId: v.id("trips") },
   handler: async (ctx, { tripId }) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await requirePermission(ctx, 'trips:dispatch');
     const trip = await ctx.db.get(tripId);
     if (!trip || trip.orgId !== orgId) throw new Error("Trip not found");
     if (trip.status !== "dispatched")

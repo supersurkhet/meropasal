@@ -1,11 +1,12 @@
 import { query, mutation } from "../_generated/server";
 import { v } from "convex/values";
-import { requireOrg } from "../lib/orgGuard";
+import { getOrg, requirePermission } from "../lib/orgGuard";
 
 export const listAccounts = query({
   args: {},
   handler: async (ctx) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await getOrg(ctx);
+    if (!orgId) return [];
     return await ctx.db
       .query("accounts")
       .withIndex("by_orgId", (q) => q.eq("orgId", orgId))
@@ -27,7 +28,7 @@ export const createAccount = mutation({
     parentCode: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await requirePermission(ctx, 'ledger:edit');
 
     // Check for duplicate code
     const existing = await ctx.db
@@ -53,7 +54,8 @@ export const listEntries = query({
     invoiceId: v.optional(v.id("invoices")),
   },
   handler: async (ctx, args) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await getOrg(ctx);
+    if (!orgId) return [];
 
     if (args.accountCode) {
       return await ctx.db
@@ -110,7 +112,7 @@ export const createEntry = mutation({
     voucherNumber: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await requirePermission(ctx, 'ledger:edit');
     return await ctx.db.insert("ledgerEntries", { orgId, ...args });
   },
 });
@@ -137,7 +139,7 @@ export const createDoubleEntry = mutation({
     voucherNumber: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await requirePermission(ctx, 'ledger:edit');
 
     // Debit entry
     await ctx.db.insert("ledgerEntries", {
@@ -174,7 +176,8 @@ export const createDoubleEntry = mutation({
 export const trialBalance = query({
   args: { fiscalYear: v.string() },
   handler: async (ctx, { fiscalYear }) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await getOrg(ctx);
+    if (!orgId) return [];
     const entries = await ctx.db
       .query("ledgerEntries")
       .withIndex("by_orgId_fiscal", (q) =>

@@ -1,6 +1,6 @@
 import { mutation, query } from "../_generated/server";
 import { v } from "convex/values";
-import { requireOrg } from "../lib/orgGuard";
+import { getOrg, requirePermission } from "../lib/orgGuard";
 import { calculateFiscalYear } from "../lib/nepaliCalendar";
 import {
   aggregateStockBookEntries,
@@ -39,7 +39,7 @@ export const create = mutation({
     ),
   },
   handler: async (ctx, args) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await requirePermission(ctx, 'sales:create');
 
     if (args.customerId) {
       const customer = await ctx.db.get(args.customerId);
@@ -159,6 +159,38 @@ export const create = mutation({
       });
     }
 
+    // Check for low stock and create notifications
+    // Re-fetch entries after the sale stock book entries were created
+    const updatedEntries = await ctx.db
+      .query("stockBookEntries")
+      .withIndex("by_orgId", (q) => q.eq("orgId", orgId))
+      .collect();
+    const updatedAggregate = aggregateStockBookEntries(updatedEntries);
+
+    for (const item of args.items) {
+      const product = await ctx.db.get(item.productId);
+      if (!product || !product.reorderLevel) continue;
+
+      const currentStock = getProductPartyAvailability(
+        updatedAggregate,
+        item.productId,
+        product.purchasePartyId,
+      );
+
+      if (currentStock <= product.reorderLevel) {
+        await ctx.db.insert("notifications", {
+          orgId,
+          type: "low_stock",
+          title: "Low Stock Alert",
+          message: `${product.title} is low on stock (${currentStock} remaining, reorder level: ${product.reorderLevel})`,
+          entityType: "products",
+          entityId: item.productId,
+          isRead: false,
+          createdAt: new Date().toISOString(),
+        });
+      }
+    }
+
     return invoiceId;
   },
 });
@@ -166,7 +198,8 @@ export const create = mutation({
 export const list = query({
   args: {},
   handler: async (ctx) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await getOrg(ctx);
+    if (!orgId) return [];
     return await ctx.db
       .query("invoices")
       .withIndex("by_orgId_type", (q) =>

@@ -1,6 +1,6 @@
 import { mutation, query } from "../_generated/server";
 import { v } from "convex/values";
-import { requireOrg } from "../lib/orgGuard";
+import { getOrg, requirePermission } from "../lib/orgGuard";
 import { invoiceItemValidator } from "../lib/validators";
 import { calculateFiscalYear } from "../lib/nepaliCalendar";
 
@@ -19,7 +19,7 @@ export const create = mutation({
     ),
   },
   handler: async (ctx, args) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await requirePermission(ctx, 'stock:import');
 
     // Validate party belongs to org
     const party = await ctx.db.get(args.partyId);
@@ -110,7 +110,8 @@ export const create = mutation({
 export const list = query({
   args: {},
   handler: async (ctx) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await getOrg(ctx);
+    if (!orgId) return [];
     return await ctx.db
       .query("invoices")
       .withIndex("by_orgId_type", (q) =>

@@ -1,6 +1,6 @@
 import { query } from "../_generated/server";
 import { v } from "convex/values";
-import { requireOrg } from "../lib/orgGuard";
+import { getOrg } from "../lib/orgGuard";
 import { aggregateStockBookEntries } from "../lib/stockAggregation";
 
 export const listEntries = query({
@@ -9,7 +9,8 @@ export const listEntries = query({
     productId: v.optional(v.id("products")),
   },
   handler: async (ctx, args) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await getOrg(ctx);
+    if (!orgId) return [];
 
     if (args.productId) {
       return await ctx.db
@@ -39,7 +40,8 @@ export const listEntries = query({
 export const getAggregation = query({
   args: { fiscalYear: v.optional(v.string()) },
   handler: async (ctx, args) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await getOrg(ctx);
+    if (!orgId) return { products: {}, productTotalAvailable: {} };
 
     let entries;
     if (args.fiscalYear) {
@@ -74,7 +76,8 @@ export const getBySource = query({
     sourceId: v.string(),
   },
   handler: async (ctx, { sourceTable, sourceId }) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await getOrg(ctx);
+    if (!orgId) return [];
     return await ctx.db
       .query("stockBookEntries")
       .withIndex("by_orgId_source", (q) =>

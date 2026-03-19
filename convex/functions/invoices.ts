@@ -1,6 +1,6 @@
 import { query } from "../_generated/server";
 import { v } from "convex/values";
-import { requireOrg } from "../lib/orgGuard";
+import { getOrg } from "../lib/orgGuard";
 
 export const list = query({
   args: {
@@ -16,7 +16,8 @@ export const list = query({
     ),
   },
   handler: async (ctx, args) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await getOrg(ctx);
+    if (!orgId) return [];
 
     let invoices;
     if (args.type) {
@@ -54,7 +55,8 @@ export const list = query({
 export const getById = query({
   args: { id: v.id("invoices") },
   handler: async (ctx, { id }) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await getOrg(ctx);
+    if (!orgId) return null;
     const invoice = await ctx.db.get(id);
     if (!invoice || invoice.orgId !== orgId) return null;
     return invoice;
@@ -64,7 +66,8 @@ export const getById = query({
 export const getByParty = query({
   args: { partyId: v.string() },
   handler: async (ctx, { partyId }) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await getOrg(ctx);
+    if (!orgId) return [];
     return await ctx.db
       .query("invoices")
       .withIndex("by_orgId_party", (q) =>

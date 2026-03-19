@@ -1,11 +1,12 @@
 import { query, mutation } from "../_generated/server";
 import { v } from "convex/values";
-import { requireOrg } from "../lib/orgGuard";
+import { getOrg, requirePermission } from "../lib/orgGuard";
 
 export const list = query({
   args: {},
   handler: async (ctx) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await getOrg(ctx);
+    if (!orgId) return [];
     const products = await ctx.db
       .query("products")
       .withIndex("by_orgId", (q) => q.eq("orgId", orgId))
@@ -17,7 +18,8 @@ export const list = query({
 export const listByParty = query({
   args: { purchasePartyId: v.id("parties") },
   handler: async (ctx, { purchasePartyId }) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await getOrg(ctx);
+    if (!orgId) return [];
     const products = await ctx.db
       .query("products")
       .withIndex("by_orgId_party", (q) =>
@@ -31,7 +33,8 @@ export const listByParty = query({
 export const search = query({
   args: { searchTerm: v.string() },
   handler: async (ctx, { searchTerm }) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await getOrg(ctx);
+    if (!orgId) return [];
     const results = await ctx.db
       .query("products")
       .withSearchIndex("search_title", (q) =>
@@ -59,18 +62,48 @@ export const create = mutation({
     imageStorageId: v.optional(v.id("_storage")),
   },
   handler: async (ctx, args) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await requirePermission(ctx, 'products:create');
     const sellingPrice =
       args.sellingPrice ?? Math.round(args.costPrice * 1.1 * 100) / 100;
     const reorderLevel =
       args.reorderLevel ?? Math.ceil(args.openingStock * 0.1);
-    return await ctx.db.insert("products", {
+    const newProductId = await ctx.db.insert("products", {
       orgId,
       ...args,
       sellingPrice,
       reorderLevel,
       isActive: true,
     });
+
+    // Auto-create stock book entry for opening stock
+    if (args.openingStock > 0) {
+      // Get current fiscal year from org settings
+      const settings = await ctx.db
+        .query("orgSettings")
+        .withIndex("by_orgId", (q) => q.eq("orgId", orgId))
+        .first();
+      const currentFiscalYear = settings?.currentFiscalYear ?? "82/83";
+
+      await ctx.db.insert("stockBookEntries", {
+        orgId,
+        entryDate: new Date().toISOString(),
+        transactionType: "stock",
+        movementType: "opening",
+        direction: "in",
+        productId: newProductId,
+        quantityIn: args.openingStock,
+        quantityOut: 0,
+        quantity: args.openingStock,
+        unitRate: args.costPrice,
+        totalAmount: args.openingStock * args.costPrice,
+        particulars: `Opening stock for ${args.title}`,
+        fiscalYear: currentFiscalYear,
+        sourceTable: "product",
+        sourceId: newProductId,
+      });
+    }
+
+    return newProductId;
   },
 });
 
@@ -92,7 +125,7 @@ export const update = mutation({
     imageStorageId: v.optional(v.id("_storage")),
   },
   handler: async (ctx, { id, ...fields }) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await requirePermission(ctx, 'products:edit');
     const product = await ctx.db.get(id);
     if (!product || product.orgId !== orgId)
       throw new Error("Product not found");
@@ -107,7 +140,7 @@ export const update = mutation({
 export const remove = mutation({
   args: { id: v.id("products") },
   handler: async (ctx, { id }) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await requirePermission(ctx, 'products:delete');
     const product = await ctx.db.get(id);
     if (!product || product.orgId !== orgId)
       throw new Error("Product not found");

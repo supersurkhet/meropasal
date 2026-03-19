@@ -1,11 +1,12 @@
 import { query, mutation } from "../_generated/server";
 import { v } from "convex/values";
-import { requireOrg } from "../lib/orgGuard";
+import { getOrg, requirePermission } from "../lib/orgGuard";
 
 export const list = query({
   args: {},
   handler: async (ctx) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await getOrg(ctx);
+    if (!orgId) return [];
     const vehicles = await ctx.db
       .query("vehicles")
       .withIndex("by_orgId", (q) => q.eq("orgId", orgId))
@@ -14,10 +15,26 @@ export const list = query({
   },
 });
 
+export const search = query({
+  args: { searchTerm: v.string() },
+  handler: async (ctx, { searchTerm }) => {
+    const orgId = await getOrg(ctx);
+    if (!orgId) return [];
+    const results = await ctx.db
+      .query("vehicles")
+      .withSearchIndex("search_name", (q) =>
+        q.search("name", searchTerm).eq("orgId", orgId)
+      )
+      .collect();
+    return results.filter((v) => v.isActive);
+  },
+});
+
 export const getById = query({
   args: { id: v.id("vehicles") },
   handler: async (ctx, { id }) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await getOrg(ctx);
+    if (!orgId) return null;
     const vehicle = await ctx.db.get(id);
     if (!vehicle || vehicle.orgId !== orgId) return null;
     return vehicle;
@@ -31,7 +48,7 @@ export const create = mutation({
     description: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await requirePermission(ctx, 'vehicles:manage');
     return await ctx.db.insert("vehicles", {
       orgId,
       ...args,
@@ -48,7 +65,7 @@ export const update = mutation({
     description: v.optional(v.string()),
   },
   handler: async (ctx, { id, ...fields }) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await requirePermission(ctx, 'vehicles:manage');
     const vehicle = await ctx.db.get(id);
     if (!vehicle || vehicle.orgId !== orgId)
       throw new Error("Vehicle not found");
@@ -63,7 +80,7 @@ export const update = mutation({
 export const remove = mutation({
   args: { id: v.id("vehicles") },
   handler: async (ctx, { id }) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await requirePermission(ctx, 'vehicles:manage');
     const vehicle = await ctx.db.get(id);
     if (!vehicle || vehicle.orgId !== orgId)
       throw new Error("Vehicle not found");

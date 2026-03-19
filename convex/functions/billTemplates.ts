@@ -1,6 +1,6 @@
 import { query, mutation } from "../_generated/server";
 import { v } from "convex/values";
-import { requireOrg } from "../lib/orgGuard";
+import { getOrg } from "../lib/orgGuard";
 
 const layoutValidator = v.object({
   headerFields: v.array(v.string()),
@@ -37,7 +37,8 @@ const layoutValidator = v.object({
 export const list = query({
   args: {},
   handler: async (ctx) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await getOrg(ctx);
+    if (!orgId) return [];
     return await ctx.db
       .query("billTemplates")
       .withIndex("by_orgId", (q) => q.eq("orgId", orgId))
@@ -48,7 +49,8 @@ export const list = query({
 export const getDefault = query({
   args: {},
   handler: async (ctx) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await getOrg(ctx);
+    if (!orgId) return null;
     const templates = await ctx.db
       .query("billTemplates")
       .withIndex("by_orgId", (q) => q.eq("orgId", orgId))
@@ -60,7 +62,8 @@ export const getDefault = query({
 export const getById = query({
   args: { id: v.id("billTemplates") },
   handler: async (ctx, { id }) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await getOrg(ctx);
+    if (!orgId) return null;
     const template = await ctx.db.get(id);
     if (!template || template.orgId !== orgId) return null;
     return template;

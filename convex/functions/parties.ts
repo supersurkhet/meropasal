@@ -1,11 +1,12 @@
 import { query, mutation } from "../_generated/server";
 import { v } from "convex/values";
-import { requireOrg } from "../lib/orgGuard";
+import { getOrg, requirePermission } from "../lib/orgGuard";
 
 export const list = query({
   args: {},
   handler: async (ctx) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await getOrg(ctx);
+    if (!orgId) return [];
     const parties = await ctx.db
       .query("parties")
       .withIndex("by_orgId", (q) => q.eq("orgId", orgId))
@@ -14,10 +15,26 @@ export const list = query({
   },
 });
 
+export const search = query({
+  args: { searchTerm: v.string() },
+  handler: async (ctx, { searchTerm }) => {
+    const orgId = await getOrg(ctx);
+    if (!orgId) return [];
+    const results = await ctx.db
+      .query("parties")
+      .withSearchIndex("search_name", (q) =>
+        q.search("name", searchTerm).eq("orgId", orgId)
+      )
+      .collect();
+    return results.filter((p) => p.isActive);
+  },
+});
+
 export const getById = query({
   args: { id: v.id("parties") },
   handler: async (ctx, { id }) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await getOrg(ctx);
+    if (!orgId) return null;
     const party = await ctx.db.get(id);
     if (!party || party.orgId !== orgId) return null;
     return party;
@@ -35,7 +52,7 @@ export const create = mutation({
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await requirePermission(ctx, 'parties:manage');
     return await ctx.db.insert("parties", {
       orgId,
       ...args,
@@ -56,7 +73,7 @@ export const update = mutation({
     notes: v.optional(v.string()),
   },
   handler: async (ctx, { id, ...fields }) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await requirePermission(ctx, 'parties:manage');
     const party = await ctx.db.get(id);
     if (!party || party.orgId !== orgId) throw new Error("Party not found");
     const updates: Record<string, unknown> = {};
@@ -70,7 +87,7 @@ export const update = mutation({
 export const remove = mutation({
   args: { id: v.id("parties") },
   handler: async (ctx, { id }) => {
-    const orgId = await requireOrg(ctx);
+    const orgId = await requirePermission(ctx, 'parties:manage');
     const party = await ctx.db.get(id);
     if (!party || party.orgId !== orgId) throw new Error("Party not found");
     await ctx.db.patch(id, { isActive: false });
