@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import { onMount } from 'svelte';
-	import { MetaTags } from 'svelte-meta-tags';
-	import { Button } from '$lib/components/ui/button';
+	import { goto } from '$app/navigation'
+	import { onMount } from 'svelte'
+	import { MetaTags } from 'svelte-meta-tags'
+	import { Button } from '$lib/components/ui/button'
 	import {
 		Store,
 		Package,
@@ -13,65 +13,110 @@
 		Shield,
 		Zap,
 		Globe,
-		ChevronRight,
 		ArrowRight,
 		Check,
-		Star,
-	} from '@lucide/svelte';
+		Download,
+		Monitor,
+		Smartphone,
+		ChevronDown,
+		ExternalLink,
+	} from '@lucide/svelte'
 
-	let { data } = $props();
+	let { data } = $props()
 
 	onMount(() => {
 		if (data.user) {
-			goto('/dashboard');
+			goto('/dashboard')
 		}
-	});
+	})
+
+	const RELEASE_BASE = 'https://github.com/supersurkhet/meropasal/releases/download/v0.1.0'
+
+	type Platform = 'macos' | 'windows' | 'linux' | 'android' | 'unknown'
+
+	let detectedPlatform = $state<Platform>('unknown')
+	let showAllPlatforms = $state(false)
+
+	onMount(() => {
+		const ua = navigator.userAgent.toLowerCase()
+		if (ua.includes('android')) detectedPlatform = 'android'
+		else if (ua.includes('mac')) detectedPlatform = 'macos'
+		else if (ua.includes('win')) detectedPlatform = 'windows'
+		else if (ua.includes('linux')) detectedPlatform = 'linux'
+	})
+
+	const platforms = [
+		{
+			id: 'macos' as Platform,
+			label: 'macOS',
+			sublabel: 'Apple Silicon',
+			file: 'MeroPasal_0.1.0_aarch64.dmg',
+			alt: { label: 'Intel Mac', file: 'MeroPasal_0.1.0_x64.dmg' },
+		},
+		{
+			id: 'windows' as Platform,
+			label: 'Windows',
+			sublabel: 'x64 Installer',
+			file: 'MeroPasal_0.1.0_x64-setup.exe',
+			alt: { label: 'MSI Package', file: 'MeroPasal_0.1.0_x64_en-US.msi' },
+		},
+		{
+			id: 'linux' as Platform,
+			label: 'Linux',
+			sublabel: 'AppImage',
+			file: 'MeroPasal_0.1.0_amd64.AppImage',
+			alt: { label: 'Debian (.deb)', file: 'MeroPasal_0.1.0_amd64.deb' },
+		},
+		{
+			id: 'android' as Platform,
+			label: 'Android',
+			sublabel: 'APK',
+			file: 'app-universal-release-unsigned.apk',
+			alt: null,
+		},
+	]
+
+	const primaryPlatform = $derived(platforms.find(p => p.id === detectedPlatform) ?? platforms[0])
+	const otherPlatforms = $derived(platforms.filter(p => p.id !== detectedPlatform))
 
 	const features = [
 		{
 			icon: Package,
-			title: 'Inventory Management',
-			nepali: 'सामान व्यवस्थापन',
-			description: 'Track stock levels per supplier, compound units, barcode scanning, and automatic reorder alerts.',
+			title: 'Inventory',
+			nepali: 'सामान',
+			description: 'Per-supplier stock tracking, compound units, barcodes, and automatic reorder alerts when you run low.',
 		},
 		{
 			icon: Receipt,
-			title: 'Invoicing & Sales',
-			nepali: 'बिल र बिक्री',
-			description: 'Auto-generated invoices, partial payments, customizable bill templates for thermal & A4 printers.',
+			title: 'Invoicing',
+			nepali: 'बिल',
+			description: 'Auto-generated purchase and sales invoices. Partial payments, custom bill templates for thermal and A4.',
 		},
 		{
 			icon: BookOpen,
-			title: 'Stock Book & Ledger',
-			nepali: 'स्टक बुक र खाता',
-			description: 'Double-entry bookkeeping, fiscal year management with Nepali BS calendar, and trial balance.',
+			title: 'Ledger',
+			nepali: 'खाता',
+			description: 'Double-entry bookkeeping tied to every transaction. Trial balance, P&L, and fiscal year close in one click.',
 		},
 		{
 			icon: Truck,
-			title: 'Logistics & Trips',
-			nepali: 'यातायात व्यवस्थापन',
-			description: 'Vehicle fleet tracking, dispatch & return management, auto-invoicing for trip sales.',
+			title: 'Logistics',
+			nepali: 'यातायात',
+			description: 'Fleet management, dispatch tracking, return reconciliation. Every trip auto-generates invoices and stock entries.',
 		},
 		{
 			icon: BarChart3,
-			title: 'Reports & Analytics',
-			nepali: 'रिपोर्ट र विश्लेषण',
-			description: 'Sales analytics, inventory reports, P&L statements, receivables and payables tracking.',
+			title: 'Reports',
+			nepali: 'रिपोर्ट',
+			description: 'Sales trends, top products, receivables and payables. Know exactly where your business stands.',
 		},
 		{
 			icon: Shield,
-			title: 'Multi-Tenant & Secure',
-			nepali: 'सुरक्षित प्रणाली',
-			description: 'Organization-level data isolation, role-based access, enterprise SSO via WorkOS.',
+			title: 'Multi-Org',
+			nepali: 'संस्था',
+			description: 'Run multiple businesses from one account. Each organization is fully isolated with role-based access.',
 		},
-	];
-
-	const highlights = [
-		{ label: 'Real-time sync across all devices', icon: Zap },
-		{ label: 'Nepali calendar (BS) & NPR currency', icon: Globe },
-		{ label: 'Works offline with desktop app', icon: Shield },
-		{ label: 'Customizable bill templates', icon: Receipt },
-	];
+	]
 </script>
 
 <MetaTags
@@ -79,136 +124,116 @@
 	description="The complete retail management platform for Nepal. Inventory, invoicing, stock book, logistics, and accounting — all in one place."
 />
 
-<!-- Skip if authenticated (handled in onMount) -->
 {#if !data.user}
 <div class="min-h-screen bg-white dark:bg-zinc-950">
-	<!-- Navigation -->
-	<nav class="fixed top-0 z-50 w-full border-b border-zinc-200/60 bg-white/80 backdrop-blur-xl dark:border-zinc-800/60 dark:bg-zinc-950/80">
-		<div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-			<div class="flex items-center gap-3">
-				<div class="flex size-9 items-center justify-center rounded-xl bg-zinc-900 dark:bg-zinc-100">
-					<Store class="size-5 text-white dark:text-zinc-900" />
+
+	<!-- ─── Navigation ─── -->
+	<nav class="fixed top-0 z-50 w-full border-b border-zinc-200/50 bg-white/70 backdrop-blur-2xl dark:border-zinc-800/50 dark:bg-zinc-950/70">
+		<div class="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
+			<a href="/" class="flex items-center gap-2.5">
+				<div class="flex size-8 items-center justify-center rounded-lg bg-primary">
+					<Store class="size-4 text-primary-foreground" />
 				</div>
-				<span class="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">MeroPasal</span>
-			</div>
-			<div class="flex items-center gap-3">
-				<Button variant="ghost" href="/login" class="text-zinc-600 dark:text-zinc-400">Sign in</Button>
-				<Button href="/login" size="sm">
+				<span class="text-[15px] font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">MeroPasal</span>
+			</a>
+			<div class="flex items-center gap-1">
+				<a href="#features" class="hidden rounded-md px-3 py-1.5 text-[13px] font-medium text-zinc-500 transition-colors hover:text-zinc-900 sm:block dark:text-zinc-400 dark:hover:text-zinc-100">Features</a>
+				<a href="#download" class="hidden rounded-md px-3 py-1.5 text-[13px] font-medium text-zinc-500 transition-colors hover:text-zinc-900 sm:block dark:text-zinc-400 dark:hover:text-zinc-100">Download</a>
+				<div class="ml-2 h-4 w-px bg-zinc-200 dark:bg-zinc-800"></div>
+				<a href="/login" class="ml-2 rounded-md px-3 py-1.5 text-[13px] font-medium text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">Sign in</a>
+				<Button href="/login" size="sm" class="ml-1 h-8 rounded-lg px-3.5 text-[13px]">
 					Get Started
-					<ArrowRight class="size-4" />
 				</Button>
 			</div>
 		</div>
 	</nav>
 
-	<!-- Hero Section -->
-	<section class="relative overflow-hidden pt-16">
-		<!-- Gradient background -->
-		<div class="pointer-events-none absolute inset-0 overflow-hidden">
-			<div class="absolute -top-[40%] left-1/2 h-[800px] w-[800px] -translate-x-1/2 rounded-full bg-gradient-to-b from-zinc-100 to-transparent opacity-60 dark:from-zinc-900 dark:opacity-40"></div>
-			<div class="absolute top-[20%] left-[10%] h-[400px] w-[400px] rounded-full bg-gradient-to-br from-blue-50 to-transparent opacity-40 blur-3xl dark:from-blue-950 dark:opacity-20"></div>
-			<div class="absolute top-[30%] right-[10%] h-[300px] w-[300px] rounded-full bg-gradient-to-bl from-amber-50 to-transparent opacity-40 blur-3xl dark:from-amber-950 dark:opacity-20"></div>
+	<!-- ─── Hero ─── -->
+	<section class="relative overflow-hidden pt-14">
+		<div class="pointer-events-none absolute inset-0">
+			<div class="absolute top-0 left-1/2 h-[600px] w-[900px] -translate-x-1/2 rounded-full bg-gradient-to-b from-amber-50/80 via-transparent to-transparent blur-3xl dark:from-amber-950/20"></div>
 		</div>
 
-		<div class="relative mx-auto max-w-7xl px-6 pb-24 pt-24 sm:pb-32 sm:pt-32 lg:pt-40">
-			<div class="mx-auto max-w-3xl text-center">
-				<!-- Badge -->
-				<div class="mb-8 inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 px-4 py-1.5 text-sm text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
-					<span class="relative flex size-2">
-						<span class="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-						<span class="relative inline-flex size-2 rounded-full bg-emerald-500"></span>
-					</span>
-					Now in active development
-				</div>
-
-				<!-- Title -->
-				<h1 class="text-5xl font-bold tracking-tight text-zinc-900 sm:text-6xl lg:text-7xl dark:text-zinc-50">
-					MeroPasal
-					<span class="mt-2 block font-semibold text-zinc-400 dark:text-zinc-500" style="font-family: 'Mukta', sans-serif;">
-						मेरो पसल
+		<div class="relative mx-auto max-w-6xl px-6 pt-20 pb-16 sm:pt-28 sm:pb-20 lg:pt-36">
+			<div class="mx-auto max-w-[680px] text-center">
+				<h1 class="text-[clamp(2.5rem,6vw,4.5rem)] font-bold leading-[1.05] tracking-tight text-zinc-900 dark:text-zinc-50">
+					Run your pasal,<br>
+					<span class="text-zinc-400 dark:text-zinc-500" style="font-family: 'Mukta', sans-serif; font-weight: 600;">
+						not spreadsheets.
 					</span>
 				</h1>
 
-				<!-- Subtitle -->
-				<p class="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-zinc-600 sm:text-xl dark:text-zinc-400">
-					The complete retail management platform for Nepal.
-					<span class="text-zinc-900 dark:text-zinc-200">Inventory, invoicing, stock book, logistics, and accounting</span>
-					— all in one place.
+				<p class="mx-auto mt-6 max-w-md text-[17px] leading-relaxed text-zinc-500 dark:text-zinc-400">
+					Inventory, invoicing, ledger, logistics — one platform built for Nepali retail. In English and नेपाली.
 				</p>
 
-				<!-- CTA Buttons -->
-				<div class="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-					<Button href="/login" size="lg" class="h-12 px-8 text-base shadow-lg shadow-zinc-900/10 dark:shadow-zinc-100/5">
+				<div class="mt-8 flex items-center justify-center gap-3">
+					<Button href="/login" size="lg" class="h-11 rounded-xl px-6 text-sm shadow-lg shadow-zinc-900/10 dark:shadow-zinc-100/5">
 						Start Free
-						<ArrowRight class="size-5" />
+						<ArrowRight class="ml-1 size-4" />
 					</Button>
-					<Button href="#features" variant="outline" size="lg" class="h-12 px-8 text-base">
-						See Features
-						<ChevronRight class="size-5" />
+					<Button href="#download" variant="outline" size="lg" class="h-11 rounded-xl px-6 text-sm">
+						<Download class="mr-1 size-4" />
+						Download App
 					</Button>
 				</div>
 
-				<!-- Social proof -->
-				<div class="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-zinc-500 dark:text-zinc-500">
-					<div class="flex items-center gap-1.5">
-						<Check class="size-4 text-emerald-500" />
-						<span>Free to start</span>
-					</div>
-					<div class="flex items-center gap-1.5">
-						<Check class="size-4 text-emerald-500" />
-						<span>Nepali calendar built-in</span>
-					</div>
-					<div class="flex items-center gap-1.5">
-						<Check class="size-4 text-emerald-500" />
-						<span>Real-time sync</span>
-					</div>
+				<div class="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[13px] text-zinc-400 dark:text-zinc-500">
+					<span class="flex items-center gap-1.5"><Check class="size-3.5 text-emerald-500" /> Free to use</span>
+					<span class="flex items-center gap-1.5"><Check class="size-3.5 text-emerald-500" /> Nepali calendar</span>
+					<span class="flex items-center gap-1.5"><Check class="size-3.5 text-emerald-500" /> Real-time sync</span>
 				</div>
 			</div>
 
 			<!-- Dashboard Preview -->
-			<div class="relative mx-auto mt-20 max-w-5xl">
-				<div class="rounded-2xl border border-zinc-200 bg-zinc-50 p-2 shadow-2xl shadow-zinc-900/10 dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-zinc-950/50">
-					<div class="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-						<!-- Fake browser chrome -->
-						<div class="flex items-center gap-2 border-b border-zinc-200 bg-zinc-50 px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900">
+			<div class="relative mx-auto mt-16 max-w-4xl sm:mt-20">
+				<div class="rounded-2xl border border-zinc-200/80 bg-white p-1.5 shadow-2xl shadow-zinc-900/8 ring-1 ring-zinc-900/5 dark:border-zinc-800/80 dark:bg-zinc-900 dark:shadow-black/30 dark:ring-white/5">
+					<div class="overflow-hidden rounded-[10px] border border-zinc-100 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950">
+						<!-- Browser chrome -->
+						<div class="flex items-center gap-2 border-b border-zinc-200/80 px-4 py-2.5 dark:border-zinc-800/80">
 							<div class="flex gap-1.5">
-								<div class="size-3 rounded-full bg-zinc-300 dark:bg-zinc-700"></div>
-								<div class="size-3 rounded-full bg-zinc-300 dark:bg-zinc-700"></div>
-								<div class="size-3 rounded-full bg-zinc-300 dark:bg-zinc-700"></div>
+								<div class="size-[10px] rounded-full bg-red-400/80 dark:bg-red-500/60"></div>
+								<div class="size-[10px] rounded-full bg-amber-400/80 dark:bg-amber-500/60"></div>
+								<div class="size-[10px] rounded-full bg-emerald-400/80 dark:bg-emerald-500/60"></div>
 							</div>
-							<div class="ml-4 flex-1 rounded-md bg-zinc-100 px-3 py-1 text-xs text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500">
-								app.meropasal.com/dashboard
+							<div class="mx-auto max-w-xs flex-1 rounded-md bg-zinc-100 px-3 py-1 text-center text-[11px] text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500">
+								pasal.surkhet.app/dashboard
 							</div>
 						</div>
-						<!-- Dashboard mockup content -->
-						<div class="p-6 sm:p-8">
-							<div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+						<!-- Dashboard content -->
+						<div class="p-5 sm:p-6">
+							<div class="mb-5 flex items-center justify-between">
+								<div>
+									<p class="text-[13px] font-medium text-zinc-900 dark:text-zinc-100">Dashboard</p>
+									<p class="text-[11px] text-zinc-400 dark:text-zinc-500" style="font-family: 'Mukta', sans-serif;">बि.सं. २०८२ माघ</p>
+								</div>
+								<div class="rounded-md bg-zinc-100 px-2.5 py-1 text-[11px] font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">FY 82/83</div>
+							</div>
+							<div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
 								{#each [
-									{ label: 'Revenue', value: 'Rs. 4,52,380', change: '+12.5%', color: 'text-emerald-600 dark:text-emerald-400' },
-									{ label: 'Expenses', value: 'Rs. 2,18,450', change: '-3.2%', color: 'text-emerald-600 dark:text-emerald-400' },
-									{ label: 'Net Income', value: 'Rs. 2,33,930', change: '+18.7%', color: 'text-emerald-600 dark:text-emerald-400' },
-									{ label: 'Low Stock', value: '7 items', change: '', color: 'text-amber-600 dark:text-amber-400' },
+									{ label: 'Revenue', value: 'Rs. 4,52,380', change: '+12.5%', up: true },
+									{ label: 'Expenses', value: 'Rs. 2,18,450', change: '-3.2%', up: true },
+									{ label: 'Net Income', value: 'Rs. 2,33,930', change: '+18.7%', up: true },
+									{ label: 'Low Stock', value: '7 items', change: 'Action needed', up: false },
 								] as kpi}
-									<div class="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-										<p class="text-xs text-zinc-500 dark:text-zinc-400">{kpi.label}</p>
-										<p class="mt-1 text-lg font-semibold text-zinc-900 dark:text-zinc-100">{kpi.value}</p>
-										{#if kpi.change}
-											<p class="mt-0.5 text-xs {kpi.color}">{kpi.change}</p>
-										{/if}
+									<div class="rounded-lg border border-zinc-100 bg-white p-3.5 dark:border-zinc-800 dark:bg-zinc-900/80">
+										<p class="text-[11px] font-medium text-zinc-400 dark:text-zinc-500">{kpi.label}</p>
+										<p class="mt-1 text-base font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">{kpi.value}</p>
+										<p class="mt-0.5 text-[11px] {kpi.up ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}">{kpi.change}</p>
 									</div>
 								{/each}
 							</div>
-							<!-- Chart placeholder -->
-							<div class="mt-6 rounded-lg border border-zinc-200 bg-zinc-50 p-6 dark:border-zinc-800 dark:bg-zinc-900/50">
-								<div class="mb-4 flex items-center justify-between">
-									<span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Sales (Last 14 Days)</span>
-									<span class="text-xs text-zinc-400">Bikram Sambat 2082</span>
+							<!-- Chart -->
+							<div class="mt-4 rounded-lg border border-zinc-100 p-4 dark:border-zinc-800">
+								<div class="mb-3 flex items-center justify-between">
+									<span class="text-[12px] font-medium text-zinc-600 dark:text-zinc-300">Sales — Last 14 days</span>
+									<span class="text-[11px] text-zinc-400 dark:text-zinc-500">बिक्री</span>
 								</div>
-								<div class="flex h-32 items-end gap-1.5 sm:gap-2">
-									{#each [40, 65, 45, 80, 55, 70, 90, 60, 75, 85, 50, 95, 70, 80] as height}
+								<div class="flex h-24 items-end gap-[3px] sm:gap-1.5">
+									{#each [35, 58, 42, 75, 48, 65, 88, 55, 72, 82, 45, 92, 68, 78] as h, i}
 										<div
-											class="flex-1 rounded-t bg-zinc-900 dark:bg-zinc-100 transition-all"
-											style="height: {height}%"
+											class="flex-1 rounded-t bg-primary transition-all duration-500"
+											style="height: {h}%; opacity: {0.4 + (i / 14) * 0.6}; animation: grow 0.6s ease-out {i * 0.04}s both;"
 										></div>
 									{/each}
 								</div>
@@ -216,142 +241,213 @@
 						</div>
 					</div>
 				</div>
-				<!-- Decorative glow -->
-				<div class="pointer-events-none absolute -inset-4 -z-10 rounded-3xl bg-gradient-to-b from-zinc-100/50 via-transparent to-transparent blur-2xl dark:from-zinc-800/30"></div>
+				<!-- Glow -->
+				<div class="pointer-events-none absolute -inset-8 -z-10 rounded-[32px] bg-gradient-to-b from-amber-100/30 via-transparent to-transparent blur-2xl dark:from-amber-900/10"></div>
 			</div>
 		</div>
 	</section>
 
-	<!-- Features Section -->
-	<section id="features" class="relative border-t border-zinc-100 bg-zinc-50/50 py-24 sm:py-32 dark:border-zinc-900 dark:bg-zinc-900/30">
-		<div class="mx-auto max-w-7xl px-6">
-			<div class="mx-auto max-w-2xl text-center">
-				<p class="text-sm font-medium tracking-wide uppercase text-zinc-500 dark:text-zinc-400">Everything you need</p>
+	<!-- ─── Features ─── -->
+	<section id="features" class="border-t border-zinc-100 py-20 sm:py-28 dark:border-zinc-900">
+		<div class="mx-auto max-w-6xl px-6">
+			<div class="mx-auto max-w-lg text-center">
+				<p class="text-[13px] font-medium uppercase tracking-[0.15em] text-zinc-400 dark:text-zinc-500">सबै एकैठाउँमा</p>
 				<h2 class="mt-3 text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl dark:text-zinc-50">
-					Built for Nepali retail businesses
+					Everything in one place
 				</h2>
-				<p class="mt-4 text-lg text-zinc-600 dark:text-zinc-400">
-					From a single pasal to a wholesale network — manage your entire operation in one platform.
-				</p>
 			</div>
 
-			<div class="mx-auto mt-16 grid max-w-5xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
-				{#each features as feature}
-					<div class="group relative rounded-2xl border border-zinc-200 bg-white p-6 transition-all hover:border-zinc-300 hover:shadow-lg hover:shadow-zinc-900/5 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700 dark:hover:shadow-zinc-950/50">
-						<div class="flex size-11 items-center justify-center rounded-xl bg-zinc-100 transition-colors group-hover:bg-zinc-900 dark:bg-zinc-800 dark:group-hover:bg-zinc-100">
-							<feature.icon class="size-5 text-zinc-600 transition-colors group-hover:text-white dark:text-zinc-400 dark:group-hover:text-zinc-900" />
+			<div class="mx-auto mt-14 grid max-w-4xl gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
+				{#each features as feature, i}
+					<div class="flex flex-col bg-card p-6 transition-colors hover:bg-accent" style="animation: fadeUp 0.5s ease-out {i * 0.08}s both;">
+						<div class="flex items-center gap-3">
+							<feature.icon class="size-5 text-zinc-400 dark:text-zinc-500" />
+							<div>
+								<h3 class="text-[15px] font-semibold text-zinc-900 dark:text-zinc-100">{feature.title}</h3>
+								<span class="text-[12px] text-zinc-400 dark:text-zinc-500" style="font-family: 'Mukta', sans-serif;">{feature.nepali}</span>
+							</div>
 						</div>
-						<h3 class="mt-4 text-base font-semibold text-zinc-900 dark:text-zinc-100">{feature.title}</h3>
-						<p class="mt-0.5 text-sm text-zinc-400 dark:text-zinc-500" style="font-family: 'Mukta', sans-serif;">{feature.nepali}</p>
-						<p class="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{feature.description}</p>
+						<p class="mt-3 text-[13px] leading-relaxed text-zinc-500 dark:text-zinc-400">{feature.description}</p>
 					</div>
 				{/each}
 			</div>
 		</div>
 	</section>
 
-	<!-- Highlights / Why MeroPasal -->
-	<section class="border-t border-zinc-100 py-24 sm:py-32 dark:border-zinc-900">
-		<div class="mx-auto max-w-7xl px-6">
-			<div class="grid items-center gap-16 lg:grid-cols-2">
-				<div>
-					<p class="text-sm font-medium tracking-wide uppercase text-zinc-500 dark:text-zinc-400">Why MeroPasal</p>
-					<h2 class="mt-3 text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl dark:text-zinc-50">
-						Designed for how you actually work
+	<!-- ─── Why MeroPasal ─── -->
+	<section class="border-t border-zinc-100 py-20 sm:py-28 dark:border-zinc-900">
+		<div class="mx-auto max-w-6xl px-6">
+			<div class="grid items-start gap-12 lg:grid-cols-5 lg:gap-16">
+				<div class="lg:col-span-2">
+					<p class="text-[13px] font-medium uppercase tracking-[0.15em] text-zinc-400 dark:text-zinc-500">किन MeroPasal?</p>
+					<h2 class="mt-3 text-3xl font-bold tracking-tight text-zinc-900 sm:text-[2.25rem] dark:text-zinc-50">
+						Your khata,<br>modernized.
 					</h2>
-					<p class="mt-4 text-lg text-zinc-600 dark:text-zinc-400">
-						No more juggling spreadsheets, paper khatas, and separate billing software. MeroPasal understands Nepali retail — from bikram sambat dates to Rs. currency formatting.
+					<p class="mt-4 text-[15px] leading-relaxed text-zinc-500 dark:text-zinc-400">
+						Stop juggling spreadsheets, paper registers, and billing software. One platform that understands बिक्रम सम्बत dates, रुपैयाँ formatting, and how Nepali retail actually works.
 					</p>
-					<div class="mt-10 space-y-5">
-						{#each highlights as highlight}
-							<div class="flex items-center gap-4">
-								<div class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800">
-									<highlight.icon class="size-5 text-zinc-600 dark:text-zinc-400" />
-								</div>
-								<span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{highlight.label}</span>
-							</div>
-						{/each}
-					</div>
 				</div>
 
-				<!-- Feature detail card -->
-				<div class="rounded-2xl border border-zinc-200 bg-white p-8 dark:border-zinc-800 dark:bg-zinc-950">
-					<div class="space-y-6">
-						<div class="flex items-start gap-4">
-							<div class="mt-1 flex size-8 shrink-0 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-950">
-								<Star class="size-4 text-emerald-600 dark:text-emerald-400" />
+				<div class="space-y-3 lg:col-span-3">
+					{#each [
+						{ icon: Zap, title: 'Real-time sync', description: 'Changes appear instantly across all devices. Powered by Convex — no manual refresh, no stale data.', color: 'text-amber-500' },
+						{ icon: Globe, title: 'Bilingual by default', description: 'Full English and नेपाली interface. Dates in BS, currency in NPR. Switch anytime — everything adapts.', color: 'text-blue-500' },
+						{ icon: Shield, title: 'Enterprise security', description: 'Organization-level data isolation, role-based access control, and SSO. Your data stays yours.', color: 'text-emerald-500' },
+						{ icon: Receipt, title: 'Auto-generated everything', description: 'Import stock and invoices auto-create. Sell something and ledger entries write themselves. Close fiscal year in one click.', color: 'text-rose-500' },
+					] as item}
+						<div class="group flex gap-4 rounded-xl border border-border bg-card p-5 transition-all hover:bg-accent hover:shadow-sm">
+							<div class="mt-0.5 shrink-0">
+								<item.icon class="size-5 {item.color}" />
 							</div>
 							<div>
-								<h4 class="font-semibold text-zinc-900 dark:text-zinc-100">Smart Automation</h4>
-								<p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Auto-generated invoices, stock entries from purchases and sales, fiscal year closing with one click.</p>
+								<h4 class="text-[14px] font-semibold text-zinc-900 dark:text-zinc-100">{item.title}</h4>
+								<p class="mt-1 text-[13px] leading-relaxed text-zinc-500 dark:text-zinc-400">{item.description}</p>
 							</div>
 						</div>
-						<div class="border-t border-zinc-100 dark:border-zinc-800"></div>
-						<div class="flex items-start gap-4">
-							<div class="mt-1 flex size-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950">
-								<Globe class="size-4 text-blue-600 dark:text-blue-400" />
-							</div>
-							<div>
-								<h4 class="font-semibold text-zinc-900 dark:text-zinc-100">Bilingual Interface</h4>
-								<p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Full English and Nepali support. Switch languages anytime — dates, currency, and labels all adapt.</p>
-							</div>
-						</div>
-						<div class="border-t border-zinc-100 dark:border-zinc-800"></div>
-						<div class="flex items-start gap-4">
-							<div class="mt-1 flex size-8 shrink-0 items-center justify-center rounded-lg bg-amber-50 dark:bg-amber-950">
-								<Zap class="size-4 text-amber-600 dark:text-amber-400" />
-							</div>
-							<div>
-								<h4 class="font-semibold text-zinc-900 dark:text-zinc-100">Real-time Everything</h4>
-								<p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Powered by Convex — changes sync instantly across all your devices. No refresh needed.</p>
-							</div>
-						</div>
-					</div>
+					{/each}
 				</div>
 			</div>
 		</div>
 	</section>
 
-	<!-- CTA Section -->
-	<section class="border-t border-zinc-100 dark:border-zinc-900">
-		<div class="mx-auto max-w-7xl px-6 py-24 sm:py-32">
-			<div class="relative overflow-hidden rounded-3xl bg-zinc-900 px-8 py-16 text-center sm:px-16 dark:bg-zinc-100">
-				<!-- Subtle grid pattern -->
-				<div class="pointer-events-none absolute inset-0 opacity-[0.03]" style="background-image: url(&quot;data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E&quot;);"></div>
-				<h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl dark:text-zinc-900">
+	<!-- ─── Download ─── -->
+	<section id="download" class="border-t border-zinc-100 py-20 sm:py-28 dark:border-zinc-900">
+		<div class="mx-auto max-w-6xl px-6">
+			<div class="mx-auto max-w-2xl text-center">
+				<p class="text-[13px] font-medium uppercase tracking-[0.15em] text-zinc-400 dark:text-zinc-500">डाउनलोड</p>
+				<h2 class="mt-3 text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl dark:text-zinc-50">
+					Get the app
+				</h2>
+				<p class="mt-3 text-[15px] text-zinc-500 dark:text-zinc-400">
+					Available on every platform. Or just use the web — no install needed.
+				</p>
+			</div>
+
+			<div class="mx-auto mt-12 max-w-lg">
+				<!-- Primary download for detected platform -->
+				<a
+					href="{RELEASE_BASE}/{primaryPlatform.file}"
+					class="group flex items-center gap-4 rounded-2xl border border-primary/20 bg-primary p-5 transition-all hover:bg-primary/90"
+				>
+					<div class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary-foreground/15">
+						<Download class="size-6 text-primary-foreground" />
+					</div>
+					<div class="flex-1">
+						<p class="text-[15px] font-semibold text-primary-foreground">
+							Download for {primaryPlatform.label}
+						</p>
+						<p class="text-[13px] text-primary-foreground/60">{primaryPlatform.sublabel} &middot; v0.1.0</p>
+					</div>
+					<ArrowRight class="size-5 text-primary-foreground/50 transition-transform group-hover:translate-x-1" />
+				</a>
+
+				{#if primaryPlatform.alt}
+					<a
+						href="{RELEASE_BASE}/{primaryPlatform.alt.file}"
+						class="mt-2 block text-center text-[13px] text-zinc-400 transition-colors hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300"
+					>
+						Also available: {primaryPlatform.alt.label}
+					</a>
+				{/if}
+
+				<!-- Web app option -->
+				<a
+					href="/login"
+					class="mt-4 flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-5 py-3.5 text-[14px] font-medium text-foreground transition-all hover:bg-accent"
+				>
+					<Globe class="size-4 text-zinc-400" />
+					Use the web app instead
+					<ExternalLink class="ml-0.5 size-3.5 text-zinc-400" />
+				</a>
+
+				<!-- Other platforms toggle -->
+				<div class="mt-6">
+					<button
+						onclick={() => showAllPlatforms = !showAllPlatforms}
+						class="mx-auto flex items-center gap-1.5 text-[13px] font-medium text-zinc-400 transition-colors hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300"
+					>
+						All platforms
+						<ChevronDown class="size-3.5 transition-transform {showAllPlatforms ? 'rotate-180' : ''}" />
+					</button>
+
+					{#if showAllPlatforms}
+						<div class="mt-4 grid gap-2 sm:grid-cols-2" style="animation: fadeUp 0.2s ease-out;">
+							{#each otherPlatforms as platform}
+								<a
+									href="{RELEASE_BASE}/{platform.file}"
+									class="flex items-center gap-3 rounded-xl border border-border bg-card p-3.5 transition-all hover:bg-accent"
+								>
+									<Monitor class="size-4 text-muted-foreground" />
+									<div class="flex-1">
+										<p class="text-[13px] font-medium text-foreground">{platform.label}</p>
+										<p class="text-[11px] text-muted-foreground">{platform.sublabel}</p>
+									</div>
+									<Download class="size-3.5 text-muted-foreground/50" />
+								</a>
+							{/each}
+						</div>
+					{/if}
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- ─── Final CTA ─── -->
+	<section class="border-t border-border">
+		<div class="mx-auto max-w-6xl px-6 py-20 sm:py-28">
+			<div class="text-center">
+				<h2 class="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
 					Ready to modernize your pasal?
 				</h2>
-				<p class="mx-auto mt-4 max-w-xl text-lg text-zinc-400 dark:text-zinc-600">
-					Set up your business in under 2 minutes. No credit card required.
+				<p class="mx-auto mt-3 max-w-md text-[15px] text-muted-foreground">
+					Set up in under 2 minutes. Free to start, no credit card.
 				</p>
-				<div class="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+				<div class="mt-7">
 					<Button
 						href="/login"
 						size="lg"
-						class="h-12 bg-white px-8 text-base text-zinc-900 hover:bg-zinc-100 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+						class="h-11 rounded-xl px-7 text-sm"
 					>
-						Get Started Free
-						<ArrowRight class="size-5" />
+						Get Started
+						<ArrowRight class="ml-1 size-4" />
 					</Button>
 				</div>
 			</div>
 		</div>
 	</section>
 
-	<!-- Footer -->
-	<footer class="border-t border-zinc-100 py-12 dark:border-zinc-900">
-		<div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 sm:flex-row">
-			<div class="flex items-center gap-2">
-				<div class="flex size-7 items-center justify-center rounded-lg bg-zinc-900 dark:bg-zinc-100">
-					<Store class="size-4 text-white dark:text-zinc-900" />
+	<!-- ─── Footer ─── -->
+	<footer class="border-t border-zinc-100 py-10 dark:border-zinc-900">
+		<div class="mx-auto max-w-6xl px-6">
+			<div class="flex flex-col items-center justify-between gap-6 sm:flex-row">
+				<div class="flex items-center gap-2.5">
+					<div class="flex size-7 items-center justify-center rounded-lg bg-primary">
+						<Store class="size-3.5 text-primary-foreground" />
+					</div>
+					<span class="text-[14px] font-semibold text-zinc-900 dark:text-zinc-100">MeroPasal</span>
+					<span class="text-[13px] text-zinc-300 dark:text-zinc-700">/</span>
+					<span class="text-[13px] text-zinc-400 dark:text-zinc-500" style="font-family: 'Mukta', sans-serif;">मेरो पसल</span>
 				</div>
-				<span class="text-sm font-medium text-zinc-900 dark:text-zinc-100">MeroPasal</span>
-				<span class="text-sm text-zinc-400" style="font-family: 'Mukta', sans-serif;">मेरो पसल</span>
+				<nav class="flex flex-wrap items-center gap-5 text-[13px]">
+					<a href="#features" class="text-zinc-400 transition-colors hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300">Features</a>
+					<a href="#download" class="text-zinc-400 transition-colors hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300">Download</a>
+					<a href="/login" class="text-zinc-400 transition-colors hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300">Sign in</a>
+				</nav>
 			</div>
-			<p class="text-sm text-zinc-400 dark:text-zinc-500">
-				Built with care for Nepali businesses.
-			</p>
+			<div class="mt-6 border-t border-zinc-100 pt-6 text-center text-[12px] text-zinc-400 dark:border-zinc-900 dark:text-zinc-600">
+				Built for Nepali businesses &middot; नेपाली व्यापारको लागि बनाइएको
+			</div>
 		</div>
 	</footer>
 </div>
 {/if}
+
+<style>
+	@keyframes grow {
+		from { height: 0%; }
+	}
+	@keyframes fadeUp {
+		from { opacity: 0; transform: translateY(12px); }
+		to { opacity: 1; transform: translateY(0); }
+	}
+</style>
