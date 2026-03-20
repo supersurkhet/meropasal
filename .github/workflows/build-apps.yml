@@ -94,6 +94,7 @@ jobs:
         working-directory: apps/mobile
         run: |
           bunx cap add android || true
+          mkdir -p android/app/src/main/assets
           bunx cap sync android
 
       - name: Build APK
