@@ -6,7 +6,7 @@ const config: CapacitorConfig = {
   webDir: '../web/.svelte-kit/output/client',
   server: {
     // In production, load from the hosted URL
-    url: 'https://meropasal.com',
+    url: 'https://pasal.surkhet.app',
     cleartext: false,
   },
   plugins: {

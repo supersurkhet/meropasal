@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "identifier": "com.meropasal.app",
   "build": {
-    "frontendDist": "../../web/.svelte-kit/output/client",
+    "frontendDist": "https://pasal.surkhet.app",
     "devUrl": "http://localhost:5173",
     "beforeDevCommand": "",
     "beforeBuildCommand": ""

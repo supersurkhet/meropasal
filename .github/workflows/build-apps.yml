@@ -19,27 +19,7 @@ permissions:
   contents: write
 
 jobs:
-  build-web:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-      - run: bun install --frozen-lockfile
-      - run: bun run --filter @meropasal/web build
-        env:
-          VITE_CONVEX_URL: ${{ secrets.CONVEX_URL }}
-          WORKOS_API_KEY: ${{ secrets.WORKOS_API_KEY }}
-          WORKOS_CLIENT_ID: ${{ secrets.WORKOS_CLIENT_ID }}
-          WORKOS_COOKIE_PASSWORD: ${{ secrets.WORKOS_COOKIE_PASSWORD }}
-      - uses: actions/upload-artifact@v4
-        with:
-          name: web-build
-          path: apps/web/.svelte-kit/output/client
-
   build-tauri:
-    needs: build-web
     if: ${{ github.event_name == 'push' || inputs.build_desktop }}
     strategy:
       fail-fast: false
@@ -57,11 +37,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v4
-        with:
-          name: web-build
-          path: apps/web/.svelte-kit/output/client
-
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
@@ -77,7 +52,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
-      - run: bun install --frozen-lockfile
+      - run: bun install
+        working-directory: apps/desktop
 
       - name: Build Tauri app
         working-directory: apps/desktop
@@ -94,16 +70,10 @@ jobs:
             apps/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.exe
 
   build-android:
-    needs: build-web
     if: ${{ github.event_name == 'push' || inputs.build_mobile }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: web-build
-          path: apps/web/.svelte-kit/output/client
 
       - uses: oven-sh/setup-bun@v2
         with:
@@ -117,7 +87,8 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - run: bun install --frozen-lockfile
+      - run: bun install
+        working-directory: apps/mobile
 
       - name: Add Android platform
         working-directory: apps/mobile
@@ -149,9 +120,7 @@ jobs:
       - name: Collect release assets
         run: |
           mkdir -p release
-          # Desktop — flatten nested bundle directories
           find artifacts/desktop-* -type f \( -name '*.dmg' -o -name '*.AppImage' -o -name '*.deb' -o -name '*.msi' -o -name '*.exe' \) -exec cp {} release/ \;
-          # Android
           cp artifacts/android-apk/*.apk release/ 2>/dev/null || true
           ls -lh release/
 
