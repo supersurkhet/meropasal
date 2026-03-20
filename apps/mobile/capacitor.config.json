@@ -1,0 +1,23 @@
+{
+  "appId": "com.meropasal.app",
+  "appName": "MeroPasal",
+  "webDir": "../web/.svelte-kit/output/client",
+  "server": {
+    "url": "https://pasal.surkhet.app",
+    "cleartext": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#ffffff",
+      "showSpinner": false
+    },
+    "Keyboard": {
+      "resize": "body",
+      "resizeOnFullScreen": true
+    },
+    "StatusBar": {
+      "style": "light"
+    }
+  }
+}
