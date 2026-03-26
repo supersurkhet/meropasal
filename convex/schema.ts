@@ -78,6 +78,7 @@ export default defineSchema({
     category: v.optional(v.string()),
     sku: v.optional(v.string()),
     imageStorageId: v.optional(v.id("_storage")),
+    isFeatured: v.optional(v.boolean()),
     isActive: v.boolean(),
   })
     .index("by_orgId", ["orgId"])

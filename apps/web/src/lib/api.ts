@@ -54,6 +54,7 @@ export const api = {
 		},
 		reports: {
 			dashboard: makeFunctionReference<'query'>('functions/reports:dashboard'),
+			dashboardBreakdowns: makeFunctionReference<'query'>('functions/reports:dashboardBreakdowns'),
 			salesByPeriod: makeFunctionReference<'query'>('functions/reports:salesByPeriod'),
 			topProducts: makeFunctionReference<'query'>('functions/reports:topProducts'),
 		},

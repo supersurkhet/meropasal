@@ -68,6 +68,7 @@
 	let category = $state(initial?.category ?? '');
 	let reorderLevel = $state(initial?.reorderLevel ?? 0);
 	let description = $state(initial?.description ?? '');
+	let isFeatured = $state((initial as any)?.isFeatured ?? false);
 	let submitting = $state(false);
 	let errors = $state<Record<string, string>>({});
 
@@ -135,6 +136,7 @@
 			if (category) data.category = category;
 			if (reorderLevel > 0) data.reorderLevel = reorderLevel;
 			if (description) data.description = description;
+			if (isFeatured) data.isFeatured = true;
 
 			if (initial?._id) {
 				data.id = initial._id;
@@ -320,6 +322,20 @@
 				<Label for="hsCode" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('product_hs_code')}</Label>
 				<Input id="hsCode" bind:value={hsCode} placeholder="Optional" />
 			</div>
+		</div>
+
+		<!-- Featured Toggle -->
+		<div class="flex items-center gap-3">
+			<button
+				type="button"
+				role="switch"
+				aria-checked={isFeatured}
+				class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors {isFeatured ? 'bg-emerald-600' : 'bg-zinc-300 dark:bg-zinc-600'}"
+				onclick={() => { isFeatured = !isFeatured }}
+			>
+				<span class="pointer-events-none inline-block size-4 transform rounded-full bg-white shadow-sm ring-0 transition-transform {isFeatured ? 'translate-x-4' : 'translate-x-0'}"></span>
+			</button>
+			<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300 cursor-pointer" onclick={() => { isFeatured = !isFeatured }}>{t('product_featured')}</Label>
 		</div>
 
 		<div class="space-y-1.5">

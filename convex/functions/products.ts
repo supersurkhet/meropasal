@@ -60,6 +60,7 @@ export const create = mutation({
     category: v.optional(v.string()),
     sku: v.optional(v.string()),
     imageStorageId: v.optional(v.id("_storage")),
+    isFeatured: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     const orgId = await requirePermission(ctx, 'products:create');
@@ -123,6 +124,7 @@ export const update = mutation({
     category: v.optional(v.string()),
     sku: v.optional(v.string()),
     imageStorageId: v.optional(v.id("_storage")),
+    isFeatured: v.optional(v.boolean()),
   },
   handler: async (ctx, { id, ...fields }) => {
     const orgId = await requirePermission(ctx, 'products:edit');
