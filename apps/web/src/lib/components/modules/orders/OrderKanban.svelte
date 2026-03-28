@@ -6,6 +6,7 @@
 	import { formatNPR } from '$lib/currency'
 	import { formatDate } from '$lib/date-utils'
 	import { toast } from 'svelte-sonner'
+	import { Skeleton } from '$lib/components/ui/skeleton'
 	import { Plus } from '@lucide/svelte'
 	import { Button } from '$lib/components/ui/button'
 
@@ -187,25 +188,37 @@
 		</a>
 	</div>
 
-	{#if !loaded}
-		<div class="flex items-center justify-center py-20">
-			<div class="flex flex-col items-center gap-3">
-				<div class="size-6 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-900 dark:border-zinc-600 dark:border-t-zinc-100"></div>
-				<p class="text-sm text-zinc-500">{t('common_loading')}</p>
+	<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+		<!-- Pending Column -->
+		<div class="flex flex-col rounded-xl border border-blue-200 bg-white dark:border-blue-800 dark:bg-zinc-950">
+			<div class="flex items-center justify-between rounded-t-xl bg-blue-50 px-4 py-3 dark:bg-blue-950">
+				<span class="text-sm font-semibold text-blue-700 dark:text-blue-300">
+					{t('status_pending')}
+				</span>
+				<span class="rounded-full bg-blue-200 px-2 py-0.5 text-xs font-bold text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+					{#if !loaded}<Skeleton class="inline-block h-3 w-4" />{:else}{pendingItems.length}{/if}
+				</span>
 			</div>
-		</div>
-	{:else}
-		<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-			<!-- Pending Column -->
-			<div class="flex flex-col rounded-xl border border-blue-200 bg-white dark:border-blue-800 dark:bg-zinc-950">
-				<div class="flex items-center justify-between rounded-t-xl bg-blue-50 px-4 py-3 dark:bg-blue-950">
-					<span class="text-sm font-semibold text-blue-700 dark:text-blue-300">
-						{t('status_pending')}
-					</span>
-					<span class="rounded-full bg-blue-200 px-2 py-0.5 text-xs font-bold text-blue-700 dark:bg-blue-900 dark:text-blue-300">
-						{pendingItems.length}
-					</span>
+			{#if !loaded}
+				<div class="flex min-h-[200px] flex-col gap-2 p-3">
+					{#each Array(3) as _}
+						<div class="rounded-lg border border-zinc-200 bg-white p-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+							<div class="flex items-start justify-between gap-2">
+								<div class="min-w-0 flex-1">
+									<Skeleton class="h-3 w-16" />
+									<Skeleton class="mt-0.5 h-4 w-28" />
+								</div>
+								<Skeleton class="h-5 w-14 rounded-full" />
+							</div>
+							<Skeleton class="mt-1.5 h-3 w-40" />
+							<div class="mt-2 flex items-baseline justify-between border-t border-zinc-100 pt-2 dark:border-zinc-800">
+								<Skeleton class="h-4 w-16" />
+								<Skeleton class="h-3 w-14" />
+							</div>
+						</div>
+					{/each}
 				</div>
+			{:else}
 				<div
 					class="flex min-h-[200px] flex-col gap-2 p-3"
 					use:dndzone={{
@@ -249,18 +262,38 @@
 						</a>
 					{/each}
 				</div>
-			</div>
+			{/if}
+		</div>
 
-			<!-- Done Column -->
-			<div class="flex flex-col rounded-xl border border-emerald-200 bg-white dark:border-emerald-800 dark:bg-zinc-950">
-				<div class="flex items-center justify-between rounded-t-xl bg-emerald-50 px-4 py-3 dark:bg-emerald-950">
-					<span class="text-sm font-semibold text-emerald-700 dark:text-emerald-300">
-						{t('status_done')}
-					</span>
-					<span class="rounded-full bg-emerald-200 px-2 py-0.5 text-xs font-bold text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
-						{doneItems.length}
-					</span>
+		<!-- Done Column -->
+		<div class="flex flex-col rounded-xl border border-emerald-200 bg-white dark:border-emerald-800 dark:bg-zinc-950">
+			<div class="flex items-center justify-between rounded-t-xl bg-emerald-50 px-4 py-3 dark:bg-emerald-950">
+				<span class="text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+					{t('status_done')}
+				</span>
+				<span class="rounded-full bg-emerald-200 px-2 py-0.5 text-xs font-bold text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
+					{#if !loaded}<Skeleton class="inline-block h-3 w-4" />{:else}{doneItems.length}{/if}
+				</span>
+			</div>
+			{#if !loaded}
+				<div class="flex min-h-[200px] flex-col gap-2 p-3">
+					{#each Array(3) as _}
+						<div class="rounded-lg border border-emerald-100 bg-emerald-50/50 p-3 shadow-sm dark:border-emerald-900 dark:bg-emerald-950/30">
+							<div class="flex items-start justify-between gap-2">
+								<div class="min-w-0 flex-1">
+									<Skeleton class="h-3 w-16" />
+									<Skeleton class="mt-0.5 h-4 w-28" />
+								</div>
+							</div>
+							<Skeleton class="mt-1.5 h-3 w-40" />
+							<div class="mt-2 flex items-baseline justify-between border-t border-emerald-100 pt-2 dark:border-emerald-900">
+								<Skeleton class="h-4 w-16" />
+								<Skeleton class="h-3 w-14" />
+							</div>
+						</div>
+					{/each}
 				</div>
+			{:else}
 				<div
 					class="flex min-h-[200px] flex-col gap-2 p-3"
 					use:dndzone={{
@@ -299,18 +332,37 @@
 						</a>
 					{/each}
 				</div>
-			</div>
+			{/if}
+		</div>
 
-			<!-- Cancelled Column -->
-			<div class="flex flex-col rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-950">
-				<div class="flex items-center justify-between rounded-t-xl bg-zinc-100 px-4 py-3 dark:bg-zinc-800">
-					<span class="text-sm font-semibold text-zinc-500 dark:text-zinc-400">
-						{t('status_cancelled')}
-					</span>
-					<span class="rounded-full bg-zinc-200 px-2 py-0.5 text-xs font-bold text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400">
-						{cancelledItems.length}
-					</span>
+		<!-- Cancelled Column -->
+		<div class="flex flex-col rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-950">
+			<div class="flex items-center justify-between rounded-t-xl bg-zinc-100 px-4 py-3 dark:bg-zinc-800">
+				<span class="text-sm font-semibold text-zinc-500 dark:text-zinc-400">
+					{t('status_cancelled')}
+				</span>
+				<span class="rounded-full bg-zinc-200 px-2 py-0.5 text-xs font-bold text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400">
+					{#if !loaded}<Skeleton class="inline-block h-3 w-4" />{:else}{cancelledItems.length}{/if}
+				</span>
+			</div>
+			{#if !loaded}
+				<div class="flex min-h-[200px] flex-col gap-2 p-3">
+					{#each Array(3) as _}
+						<div class="rounded-lg border border-zinc-200 bg-zinc-50 p-3 opacity-60 dark:border-zinc-800 dark:bg-zinc-900">
+							<div class="flex items-start justify-between gap-2">
+								<div class="min-w-0 flex-1">
+									<Skeleton class="h-3 w-16" />
+									<Skeleton class="mt-0.5 h-4 w-28" />
+								</div>
+							</div>
+							<Skeleton class="mt-1.5 h-3 w-40" />
+							<div class="mt-2 border-t border-zinc-200 pt-2 dark:border-zinc-800">
+								<Skeleton class="h-4 w-16" />
+							</div>
+						</div>
+					{/each}
 				</div>
+			{:else}
 				<div
 					class="flex min-h-[200px] flex-col gap-2 p-3"
 					use:dndzone={{
@@ -345,7 +397,7 @@
 						</div>
 					{/each}
 				</div>
-			</div>
+			{/if}
 		</div>
-	{/if}
+	</div>
 </div>

@@ -5,6 +5,7 @@
 	import { api } from '$lib/api';
 	import * as Table from '$lib/components/ui/table';
 	import { Button } from '$lib/components/ui/button';
+	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { ArrowLeft, List, Lock } from '@lucide/svelte';
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
@@ -48,29 +49,37 @@
 		</div>
 	</div>
 
-	{#if accounts.isLoading}
-		<div class="flex items-center justify-center py-12 text-zinc-500">
-			<div class="size-5 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-600"></div>
-			<span class="ml-2 text-sm">Loading accounts...</span>
-		</div>
-	{:else if !sortedAccounts.length}
-		<div class="flex flex-col items-center justify-center py-16 text-zinc-500">
-			<List class="mb-3 size-10 opacity-40" />
-			<p class="text-sm">No accounts configured</p>
-			<p class="mt-1 text-xs text-zinc-400">Accounts are created during org initialization.</p>
-		</div>
-	{:else}
-		<div class="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
-			<Table.Root>
-				<Table.Header>
-					<Table.Row class="bg-zinc-50 dark:bg-zinc-900/50">
-						<Table.Head class="font-semibold">Code</Table.Head>
-						<Table.Head class="font-semibold">Name</Table.Head>
-						<Table.Head class="font-semibold">Type</Table.Head>
-						<Table.Head class="text-center font-semibold">System</Table.Head>
+	<div class="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
+		<Table.Root>
+			<Table.Header>
+				<Table.Row class="bg-zinc-50 dark:bg-zinc-900/50">
+					<Table.Head class="font-semibold">Code</Table.Head>
+					<Table.Head class="font-semibold">Name</Table.Head>
+					<Table.Head class="font-semibold">Type</Table.Head>
+					<Table.Head class="text-center font-semibold">System</Table.Head>
+				</Table.Row>
+			</Table.Header>
+			<Table.Body>
+				{#if accounts.isLoading}
+					{#each Array(8) as _}
+						<Table.Row>
+							<Table.Cell><Skeleton class="h-4 w-16" /></Table.Cell>
+							<Table.Cell><Skeleton class="h-4 w-40" /></Table.Cell>
+							<Table.Cell><Skeleton class="h-5 w-16 rounded-full" /></Table.Cell>
+							<Table.Cell class="text-center"><Skeleton class="mx-auto h-4 w-4" /></Table.Cell>
+						</Table.Row>
+					{/each}
+				{:else if !sortedAccounts.length}
+					<Table.Row>
+						<Table.Cell colspan={4}>
+							<div class="flex flex-col items-center justify-center py-16 text-zinc-500">
+								<List class="mb-3 size-10 opacity-40" />
+								<p class="text-sm">No accounts configured</p>
+								<p class="mt-1 text-xs text-zinc-400">Accounts are created during org initialization.</p>
+							</div>
+						</Table.Cell>
 					</Table.Row>
-				</Table.Header>
-				<Table.Body>
+				{:else}
 					{#each sortedAccounts as account}
 						<Table.Row class="transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900/30">
 							<Table.Cell class="font-mono text-sm font-medium">{account.code}</Table.Cell>
@@ -87,8 +96,8 @@
 							</Table.Cell>
 						</Table.Row>
 					{/each}
-				</Table.Body>
-			</Table.Root>
-		</div>
-	{/if}
+				{/if}
+			</Table.Body>
+		</Table.Root>
+	</div>
 </div>

@@ -6,7 +6,8 @@
 	import { useConvexQuery, useConvexMutation } from '$lib/convex-helpers.svelte';
 	import { api } from '$lib/api';
 	import VehicleForm from '$lib/components/modules/logistics/VehicleForm.svelte';
-	import { ArrowLeft, Loader2 } from '@lucide/svelte';
+	import { ArrowLeft } from '@lucide/svelte';
+	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { toast } from 'svelte-sonner';
 	import { breadcrumbLabel } from '$lib/breadcrumb-label.svelte';
 
@@ -38,17 +39,33 @@
 		</a>
 	</div>
 
-	{#if vehicleQuery.isLoading}
-		<div class="flex items-center justify-center py-20">
-			<div class="flex flex-col items-center gap-3">
-				<Loader2 class="size-8 animate-spin text-zinc-400" />
-				<p class="text-sm text-zinc-500">Loading vehicle...</p>
-			</div>
-		</div>
-	{:else if !vehicleQuery.data}
+	{#if !vehicleQuery.isLoading && !vehicleQuery.data}
 		<div class="py-20 text-center">
 			<p class="text-zinc-500">Vehicle not found</p>
 			<a href="/vehicles" class="mt-2 inline-block text-sm text-zinc-900 underline dark:text-zinc-100">Back to vehicles</a>
+		</div>
+	{:else if vehicleQuery.isLoading}
+		<div class="space-y-5 max-w-2xl">
+			<!-- Name -->
+			<div class="space-y-1.5">
+				<Skeleton class="h-4 w-16" />
+				<Skeleton class="h-10 w-full rounded-md" />
+			</div>
+			<!-- License Plate -->
+			<div class="space-y-1.5">
+				<Skeleton class="h-4 w-24" />
+				<Skeleton class="h-10 w-full rounded-md" />
+			</div>
+			<!-- Description -->
+			<div class="space-y-1.5">
+				<Skeleton class="h-4 w-24" />
+				<Skeleton class="h-20 w-full rounded-md" />
+			</div>
+			<!-- Actions -->
+			<div class="flex justify-end gap-2">
+				<Skeleton class="h-10 w-20 rounded-md" />
+				<Skeleton class="h-10 w-32 rounded-md" />
+			</div>
 		</div>
 	{:else}
 		<VehicleForm

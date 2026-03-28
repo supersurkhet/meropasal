@@ -13,6 +13,7 @@
 		ArrowLeft,
 		Search,
 	} from '@lucide/svelte';
+	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { Checkbox } from '$lib/components/ui/checkbox';
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
@@ -95,6 +96,8 @@
 	});
 
 	let categoryFilter = $state<string>('');
+
+	const isLoading = $derived(products.isLoading || stockAgg.isLoading);
 </script>
 
 <MetaTags title="Inventory Report — MeroPasal" />
@@ -126,30 +129,32 @@
 		</div>
 	</div>
 
-	{#if products.isLoading || stockAgg.isLoading}
-		<div class="flex items-center justify-center py-16 text-zinc-500">
-			<div class="size-5 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-600"
-			></div>
-			<span class="ml-2 text-sm">Loading inventory data...</span>
-		</div>
-	{:else}
-		<!-- Summary Cards -->
-		<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-			<div class="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-				<p class="text-xs text-zinc-500 dark:text-zinc-400">Total Stock Value</p>
+	<!-- Summary Cards -->
+	<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+		<div class="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+			<p class="text-xs text-zinc-500 dark:text-zinc-400">Total Stock Value</p>
+			{#if isLoading}
+				<Skeleton class="mt-1 h-7 w-32" />
+				<Skeleton class="mt-1 h-3 w-20" />
+			{:else}
 				<p class="mt-1 text-xl font-bold tabular-nums text-zinc-900 dark:text-zinc-100">
 					{formatNPR(totalStockValue, true)}
 				</p>
 				<p class="mt-0.5 text-xs text-zinc-400">{totalItems} products</p>
-			</div>
-			<div
-				class="rounded-xl border p-4 {lowStockCount > 0
-					? 'border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-900/10'
-					: 'border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900'}"
-			>
-				<p class="text-xs {lowStockCount > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-zinc-500 dark:text-zinc-400'}">
-					Low Stock Alerts
-				</p>
+			{/if}
+		</div>
+		<div
+			class="rounded-xl border p-4 {!isLoading && lowStockCount > 0
+				? 'border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-900/10'
+				: 'border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900'}"
+		>
+			<p class="text-xs {!isLoading && lowStockCount > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-zinc-500 dark:text-zinc-400'}">
+				Low Stock Alerts
+			</p>
+			{#if isLoading}
+				<Skeleton class="mt-1 h-7 w-12" />
+				<Skeleton class="mt-1 h-3 w-24" />
+			{:else}
 				<p
 					class="mt-1 text-xl font-bold tabular-nums {lowStockCount > 0
 						? 'text-amber-700 dark:text-amber-400'
@@ -162,134 +167,154 @@
 				{:else}
 					<p class="mt-0.5 text-xs text-emerald-600 dark:text-emerald-400">All stocked</p>
 				{/if}
-			</div>
-			<div class="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-				<p class="text-xs text-zinc-500 dark:text-zinc-400">Categories</p>
+			{/if}
+		</div>
+		<div class="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+			<p class="text-xs text-zinc-500 dark:text-zinc-400">Categories</p>
+			{#if isLoading}
+				<Skeleton class="mt-1 h-7 w-10" />
+			{:else}
 				<p class="mt-1 text-xl font-bold tabular-nums text-zinc-900 dark:text-zinc-100">
 					{categories.length}
 				</p>
-			</div>
-		</div>
-
-		<!-- Filters -->
-		<div
-			class="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900"
-		>
-			<div class="relative flex-1 sm:max-w-xs">
-				<Search class="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
-				<input
-					type="text"
-					placeholder="{t('search_products')}"
-					bind:value={searchQuery}
-					class="w-full rounded-md border border-zinc-200 bg-white py-1.5 pl-8 pr-3 text-sm dark:border-zinc-700 dark:bg-zinc-800"
-				/>
-			</div>
-			{#if categories.length > 0}
-				<Select.Root type="single" value={categoryFilter || 'all'} onValueChange={(v) => {
-					categoryFilter = v === 'all' ? '' : v;
-					if (categoryFilter) {
-						searchQuery = categoryFilter;
-					}
-				}}>
-					<Select.Trigger size="sm">
-						{categoryFilter || 'All Categories'}
-					</Select.Trigger>
-					<Select.Content>
-						<Select.Item value="all">All Categories</Select.Item>
-						{#each categories as cat}
-							<Select.Item value={cat}>{cat}</Select.Item>
-						{/each}
-					</Select.Content>
-				</Select.Root>
 			{/if}
-			<label class="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-				<Checkbox bind:checked={showLowStockOnly} />
-				Low stock only
-			</label>
 		</div>
+	</div>
 
-		<!-- Inventory Table -->
-		{#if inventoryItems.length === 0}
-			<div class="flex flex-col items-center justify-center py-16 text-zinc-500">
-				<Package class="mb-3 size-10 opacity-40" />
-				<p class="text-sm">No products found</p>
-			</div>
-		{:else}
-			<div class="overflow-x-auto rounded-xl border border-zinc-200 dark:border-zinc-800">
-				<Table.Root>
-					<Table.Header>
-						<Table.Row class="bg-zinc-50 dark:bg-zinc-900/50">
-							<Table.Head class="font-semibold">Product</Table.Head>
-							<Table.Head class="font-semibold">Category</Table.Head>
-							<Table.Head class="text-right font-semibold">Stock</Table.Head>
-							<Table.Head class="text-right font-semibold">Reorder</Table.Head>
-							<Table.Head class="text-right font-semibold">Cost Price</Table.Head>
-							<Table.Head class="text-right font-semibold">Stock Value</Table.Head>
-							<Table.Head class="font-semibold">Status</Table.Head>
+	<!-- Filters -->
+	<div
+		class="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900"
+	>
+		<div class="relative flex-1 sm:max-w-xs">
+			<Search class="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
+			<input
+				type="text"
+				placeholder="{t('search_products')}"
+				bind:value={searchQuery}
+				class="w-full rounded-md border border-zinc-200 bg-white py-1.5 pl-8 pr-3 text-sm dark:border-zinc-700 dark:bg-zinc-800"
+			/>
+		</div>
+		{#if categories.length > 0}
+			<Select.Root type="single" value={categoryFilter || 'all'} onValueChange={(v) => {
+				categoryFilter = v === 'all' ? '' : v;
+				if (categoryFilter) {
+					searchQuery = categoryFilter;
+				}
+			}}>
+				<Select.Trigger size="sm">
+					{categoryFilter || 'All Categories'}
+				</Select.Trigger>
+				<Select.Content>
+					<Select.Item value="all">All Categories</Select.Item>
+					{#each categories as cat}
+						<Select.Item value={cat}>{cat}</Select.Item>
+					{/each}
+				</Select.Content>
+			</Select.Root>
+		{/if}
+		<label class="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+			<Checkbox bind:checked={showLowStockOnly} />
+			Low stock only
+		</label>
+	</div>
+
+	<!-- Inventory Table -->
+	<div class="overflow-x-auto rounded-xl border border-zinc-200 dark:border-zinc-800">
+		<Table.Root>
+			<Table.Header>
+				<Table.Row class="bg-zinc-50 dark:bg-zinc-900/50">
+					<Table.Head class="font-semibold">Product</Table.Head>
+					<Table.Head class="font-semibold">Category</Table.Head>
+					<Table.Head class="text-right font-semibold">Stock</Table.Head>
+					<Table.Head class="text-right font-semibold">Reorder</Table.Head>
+					<Table.Head class="text-right font-semibold">Cost Price</Table.Head>
+					<Table.Head class="text-right font-semibold">Stock Value</Table.Head>
+					<Table.Head class="font-semibold">Status</Table.Head>
+				</Table.Row>
+			</Table.Header>
+			<Table.Body>
+				{#if isLoading}
+					{#each Array(8) as _}
+						<Table.Row>
+							<Table.Cell><Skeleton class="h-4 w-36" /></Table.Cell>
+							<Table.Cell><Skeleton class="h-4 w-20" /></Table.Cell>
+							<Table.Cell class="text-right"><Skeleton class="ml-auto h-4 w-12" /></Table.Cell>
+							<Table.Cell class="text-right"><Skeleton class="ml-auto h-4 w-10" /></Table.Cell>
+							<Table.Cell class="text-right"><Skeleton class="ml-auto h-4 w-20" /></Table.Cell>
+							<Table.Cell class="text-right"><Skeleton class="ml-auto h-4 w-24" /></Table.Cell>
+							<Table.Cell><Skeleton class="h-5 w-16 rounded-full" /></Table.Cell>
 						</Table.Row>
-					</Table.Header>
-					<Table.Body>
-						{#each inventoryItems as item}
-							<Table.Row
-								class={item.isLowStock
-									? 'bg-red-50/50 dark:bg-red-900/5'
-									: ''}
+					{/each}
+				{:else if inventoryItems.length === 0}
+					<Table.Row>
+						<Table.Cell colspan={7}>
+							<div class="flex flex-col items-center justify-center py-16 text-zinc-500">
+								<Package class="mb-3 size-10 opacity-40" />
+								<p class="text-sm">No products found</p>
+							</div>
+						</Table.Cell>
+					</Table.Row>
+				{:else}
+					{#each inventoryItems as item}
+						<Table.Row
+							class={item.isLowStock
+								? 'bg-red-50/50 dark:bg-red-900/5'
+								: ''}
+						>
+							<Table.Cell class="font-medium text-zinc-900 dark:text-zinc-100">
+								{#if item.isLowStock}
+									<span class="mr-1.5 inline-block">
+										<AlertTriangle class="inline size-3.5 text-red-500" />
+									</span>
+								{/if}
+								{item.title}
+							</Table.Cell>
+							<Table.Cell class="text-zinc-500 dark:text-zinc-400">
+								{item.category ?? '—'}
+							</Table.Cell>
+							<Table.Cell
+								class="text-right tabular-nums font-medium {item.isLowStock
+									? 'text-red-600 dark:text-red-400'
+									: 'text-zinc-900 dark:text-zinc-100'}"
 							>
-								<Table.Cell class="font-medium text-zinc-900 dark:text-zinc-100">
-									{#if item.isLowStock}
-										<span class="mr-1.5 inline-block">
-											<AlertTriangle class="inline size-3.5 text-red-500" />
+								{item.available}
+							</Table.Cell>
+							<Table.Cell class="text-right tabular-nums text-zinc-500 dark:text-zinc-400">
+								{item.reorderLevel ?? '—'}
+							</Table.Cell>
+							<Table.Cell class="text-right tabular-nums text-zinc-600 dark:text-zinc-400">
+								{formatNPR(item.costPrice)}
+							</Table.Cell>
+							<Table.Cell class="text-right tabular-nums font-medium text-zinc-900 dark:text-zinc-100">
+								{formatNPR(item.stockValue)}
+							</Table.Cell>
+							<Table.Cell>
+								{#if item.isLowStock}
+									{#if item.available === 0}
+										<span
+											class="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700 dark:bg-red-900/30 dark:text-red-400"
+										>
+											Out of stock
 										</span>
-									{/if}
-									{item.title}
-								</Table.Cell>
-								<Table.Cell class="text-zinc-500 dark:text-zinc-400">
-									{item.category ?? '—'}
-								</Table.Cell>
-								<Table.Cell
-									class="text-right tabular-nums font-medium {item.isLowStock
-										? 'text-red-600 dark:text-red-400'
-										: 'text-zinc-900 dark:text-zinc-100'}"
-								>
-									{item.available}
-								</Table.Cell>
-								<Table.Cell class="text-right tabular-nums text-zinc-500 dark:text-zinc-400">
-									{item.reorderLevel ?? '—'}
-								</Table.Cell>
-								<Table.Cell class="text-right tabular-nums text-zinc-600 dark:text-zinc-400">
-									{formatNPR(item.costPrice)}
-								</Table.Cell>
-								<Table.Cell class="text-right tabular-nums font-medium text-zinc-900 dark:text-zinc-100">
-									{formatNPR(item.stockValue)}
-								</Table.Cell>
-								<Table.Cell>
-									{#if item.isLowStock}
-										{#if item.available === 0}
-											<span
-												class="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700 dark:bg-red-900/30 dark:text-red-400"
-											>
-												Out of stock
-											</span>
-										{:else}
-											<span
-												class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
-											>
-												Low stock
-											</span>
-										{/if}
 									{:else}
 										<span
-											class="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+											class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
 										>
-											In stock
+											Low stock
 										</span>
 									{/if}
-								</Table.Cell>
-							</Table.Row>
-						{/each}
-					</Table.Body>
-				</Table.Root>
-			</div>
-		{/if}
-	{/if}
+								{:else}
+									<span
+										class="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+									>
+										In stock
+									</span>
+								{/if}
+							</Table.Cell>
+						</Table.Row>
+					{/each}
+				{/if}
+			</Table.Body>
+		</Table.Root>
+	</div>
 </div>

@@ -6,6 +6,7 @@
 	import * as Table from '$lib/components/ui/table';
 	import * as Select from '$lib/components/ui/select';
 	import { Filter, Scale } from '@lucide/svelte';
+	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { t } from '$lib/t.svelte';
 	import EmptyState from '$lib/components/shared/EmptyState.svelte';
 
@@ -78,11 +79,34 @@
 	</div>
 
 	{#if trialBalance.isLoading}
-		<div class="flex items-center justify-center py-20">
-			<div class="flex flex-col items-center gap-3">
-				<div class="size-6 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-900 dark:border-zinc-600 dark:border-t-zinc-100"></div>
-				<p class="text-sm text-zinc-500 dark:text-zinc-400">{t('common_loading')}</p>
-			</div>
+		<div class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+			<Table.Root>
+				<Table.Header>
+					<Table.Row class="bg-zinc-50 dark:bg-zinc-900/50">
+						<Table.Head class="font-semibold">Account Code</Table.Head>
+						<Table.Head class="font-semibold">Account Name</Table.Head>
+						<Table.Head class="text-right font-semibold">Debit Total</Table.Head>
+						<Table.Head class="text-right font-semibold">Credit Total</Table.Head>
+					</Table.Row>
+				</Table.Header>
+				<Table.Body>
+					{#each Array(8) as _}
+						<Table.Row>
+							<Table.Cell><Skeleton class="h-4 w-16" /></Table.Cell>
+							<Table.Cell><Skeleton class="h-4 w-36" /></Table.Cell>
+							<Table.Cell class="text-right"><Skeleton class="ml-auto h-4 w-24" /></Table.Cell>
+							<Table.Cell class="text-right"><Skeleton class="ml-auto h-4 w-24" /></Table.Cell>
+						</Table.Row>
+					{/each}
+				</Table.Body>
+				<Table.Footer>
+					<Table.Row class="bg-zinc-100 dark:bg-zinc-800 font-semibold">
+						<Table.Cell colspan={2} class="text-right font-bold">Grand Total</Table.Cell>
+						<Table.Cell class="text-right"><Skeleton class="ml-auto h-4 w-24" /></Table.Cell>
+						<Table.Cell class="text-right"><Skeleton class="ml-auto h-4 w-24" /></Table.Cell>
+					</Table.Row>
+				</Table.Footer>
+			</Table.Root>
 		</div>
 	{:else if !trialBalance.data?.length}
 		<EmptyState

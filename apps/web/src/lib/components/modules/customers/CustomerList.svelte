@@ -16,6 +16,7 @@
 		DropdownMenuItem,
 		DropdownMenuTrigger,
 	} from '$lib/components/ui/dropdown-menu'
+	import { Skeleton } from '$lib/components/ui/skeleton'
 	import {
 		Plus,
 		Search,
@@ -266,14 +267,7 @@
 	</div>
 
 	<!-- Content -->
-	{#if isLoading}
-		<div class="flex items-center justify-center py-20">
-			<div class="flex flex-col items-center gap-3">
-				<Loader2 class="size-8 animate-spin text-zinc-400" />
-				<p class="text-sm text-zinc-500">{t('common_loading_customers')}</p>
-			</div>
-		</div>
-	{:else if filteredCustomers.length === 0}
+	{#if !isLoading && filteredCustomers.length === 0}
 		{#if searchQuery}
 			<EmptyState
 				icon={UserRound}
@@ -304,84 +298,176 @@
 						</TableRow>
 					</TableHeader>
 					<TableBody>
-						{#each filteredCustomers as customer (customer._id)}
-							<TableRow class="group border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/60">
-								<TableCell>
-									<a href="/customers/{customer._id}" class="block">
-										<div class="font-medium text-zinc-900 dark:text-zinc-100">{customer.name}</div>
-										{#if customer.address}
-											<div class="mt-0.5 text-xs text-zinc-500">{customer.address}</div>
-										{/if}
-									</a>
-								</TableCell>
-								<TableCell>
-									{#if customer.panNumber}
-										<Badge variant="secondary" class="bg-zinc-100 font-mono text-xs text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-											{customer.panNumber}
-										</Badge>
-									{:else}
-										<span class="text-xs text-zinc-400">—</span>
-									{/if}
-								</TableCell>
-								<TableCell class="hidden md:table-cell">
-									<div class="space-y-0.5">
-										{#if customer.phone}
-											<div class="flex items-center gap-1.5 text-sm text-zinc-600 dark:text-zinc-400">
-												<Phone class="size-3.5" />
-												{customer.phone}
-											</div>
-										{/if}
-										{#if customer.email}
-											<div class="flex items-center gap-1.5 text-sm text-zinc-600 dark:text-zinc-400">
-												<Mail class="size-3.5" />
-												{customer.email}
-											</div>
-										{/if}
-										{#if !customer.phone && !customer.email}
+						{#if isLoading}
+							{#each Array(6) as _, i}
+								<TableRow class="group border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/60">
+									<TableCell>
+										<Skeleton class="h-4 w-32" />
+										<Skeleton class="mt-1 h-3 w-24" />
+									</TableCell>
+									<TableCell>
+										<Skeleton class="h-5 w-20 rounded-full" />
+									</TableCell>
+									<TableCell class="hidden md:table-cell">
+										<Skeleton class="h-4 w-24" />
+										<Skeleton class="mt-1 h-4 w-28" />
+									</TableCell>
+									<TableCell class="hidden lg:table-cell">
+										<Skeleton class="h-4 w-20" />
+									</TableCell>
+									<TableCell>
+										<Skeleton class="size-8 rounded-md" />
+									</TableCell>
+								</TableRow>
+							{/each}
+						{:else}
+							{#each filteredCustomers as customer (customer._id)}
+								<TableRow class="group border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/60">
+									<TableCell>
+										<a href="/customers/{customer._id}" class="block">
+											<div class="font-medium text-zinc-900 dark:text-zinc-100">{customer.name}</div>
+											{#if customer.address}
+												<div class="mt-0.5 text-xs text-zinc-500">{customer.address}</div>
+											{/if}
+										</a>
+									</TableCell>
+									<TableCell>
+										{#if customer.panNumber}
+											<Badge variant="secondary" class="bg-zinc-100 font-mono text-xs text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+												{customer.panNumber}
+											</Badge>
+										{:else}
 											<span class="text-xs text-zinc-400">—</span>
 										{/if}
-									</div>
-								</TableCell>
-								<TableCell class="hidden lg:table-cell">
-									{#if customer.creditLimit}
-										<span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-											{formatCurrency(customer.creditLimit)}
-										</span>
-									{:else}
-										<span class="text-xs text-zinc-400">—</span>
-									{/if}
-								</TableCell>
-								<TableCell>
-									{@render actionDropdown(customer)}
-								</TableCell>
-							</TableRow>
-						{/each}
+									</TableCell>
+									<TableCell class="hidden md:table-cell">
+										<div class="space-y-0.5">
+											{#if customer.phone}
+												<div class="flex items-center gap-1.5 text-sm text-zinc-600 dark:text-zinc-400">
+													<Phone class="size-3.5" />
+													{customer.phone}
+												</div>
+											{/if}
+											{#if customer.email}
+												<div class="flex items-center gap-1.5 text-sm text-zinc-600 dark:text-zinc-400">
+													<Mail class="size-3.5" />
+													{customer.email}
+												</div>
+											{/if}
+											{#if !customer.phone && !customer.email}
+												<span class="text-xs text-zinc-400">—</span>
+											{/if}
+										</div>
+									</TableCell>
+									<TableCell class="hidden lg:table-cell">
+										{#if customer.creditLimit}
+											<span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+												{formatCurrency(customer.creditLimit)}
+											</span>
+										{:else}
+											<span class="text-xs text-zinc-400">—</span>
+										{/if}
+									</TableCell>
+									<TableCell>
+										{@render actionDropdown(customer)}
+									</TableCell>
+								</TableRow>
+							{/each}
+						{/if}
 					</TableBody>
 				</Table>
 			</div>
 		{:else if viewPref.mode === 'grid-3'}
 			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-				{#each filteredCustomers as customer (customer._id)}
-					{@render customerCard(customer)}
-				{/each}
+				{#if isLoading}
+					{#each Array(6) as _}
+						<div class="group rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+							<div class="flex items-start justify-between gap-3">
+								<div class="min-w-0 flex-1">
+									<Skeleton class="h-5 w-32" />
+									<Skeleton class="mt-1 h-3 w-24" />
+								</div>
+								<Skeleton class="size-8 rounded-md" />
+							</div>
+							<div class="mt-3 space-y-1.5">
+								<Skeleton class="h-4 w-28" />
+								<Skeleton class="h-4 w-36" />
+							</div>
+							<div class="mt-3 flex items-center gap-2">
+								<Skeleton class="h-5 w-20 rounded-full" />
+								<Skeleton class="h-4 w-16" />
+							</div>
+						</div>
+					{/each}
+				{:else}
+					{#each filteredCustomers as customer (customer._id)}
+						{@render customerCard(customer)}
+					{/each}
+				{/if}
 			</div>
 		{:else if viewPref.mode === 'grid-2'}
 			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-				{#each filteredCustomers as customer (customer._id)}
-					{@render customerCard(customer)}
-				{/each}
+				{#if isLoading}
+					{#each Array(6) as _}
+						<div class="group rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+							<div class="flex items-start justify-between gap-3">
+								<div class="min-w-0 flex-1">
+									<Skeleton class="h-5 w-32" />
+									<Skeleton class="mt-1 h-3 w-24" />
+								</div>
+								<Skeleton class="size-8 rounded-md" />
+							</div>
+							<div class="mt-3 space-y-1.5">
+								<Skeleton class="h-4 w-28" />
+								<Skeleton class="h-4 w-36" />
+							</div>
+							<div class="mt-3 flex items-center gap-2">
+								<Skeleton class="h-5 w-20 rounded-full" />
+								<Skeleton class="h-4 w-16" />
+							</div>
+						</div>
+					{/each}
+				{:else}
+					{#each filteredCustomers as customer (customer._id)}
+						{@render customerCard(customer)}
+					{/each}
+				{/if}
 			</div>
 		{:else if viewPref.mode === 'list'}
 			<div class="flex flex-col gap-2">
-				{#each filteredCustomers as customer (customer._id)}
-					{@render customerListItem(customer)}
-				{/each}
+				{#if isLoading}
+					{#each Array(6) as _}
+						<div class="group flex items-center gap-4 rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+							<div class="min-w-0 flex-1">
+								<div class="flex items-center gap-3">
+									<Skeleton class="h-5 w-32" />
+									<Skeleton class="h-5 w-20 rounded-full" />
+									<Skeleton class="hidden h-3 w-24 sm:block" />
+								</div>
+							</div>
+							<div class="hidden items-center gap-4 sm:flex">
+								<Skeleton class="h-4 w-24" />
+								<Skeleton class="h-4 w-32" />
+								<Skeleton class="h-4 w-16" />
+							</div>
+							<Skeleton class="size-8 shrink-0 rounded-md" />
+						</div>
+					{/each}
+				{:else}
+					{#each filteredCustomers as customer (customer._id)}
+						{@render customerListItem(customer)}
+					{/each}
+				{/if}
 			</div>
 		{/if}
-		<p class="text-xs text-zinc-400 dark:text-zinc-500">
-			{filteredCustomers.length} {filteredCustomers.length === 1 ? 'customer' : 'customers'}
-			{#if searchQuery}&middot; filtered from {customers.length}{/if}
-		</p>
+		{#if isLoading}
+			<Skeleton class="h-4 w-32" />
+		{:else}
+			<p class="text-xs text-zinc-400 dark:text-zinc-500">
+				{filteredCustomers.length} {filteredCustomers.length === 1 ? 'customer' : 'customers'}
+				{#if searchQuery}&middot; filtered from {customers.length}{/if}
+			</p>
+		{/if}
 	{/if}
 </div>
 

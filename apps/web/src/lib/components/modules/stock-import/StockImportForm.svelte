@@ -13,6 +13,8 @@
 	import { getConvexClient } from '$lib/convex';
 	import { api } from '$lib/api';
 	import { stockImportSchema } from '$lib/schemas/stock-import';
+	import { Skeleton } from '$lib/components/ui/skeleton';
+	import { formatDate } from '$lib/date-utils';
 	import { t } from '$lib/t.svelte';
 
 	type Party = { _id: string; name: string; panNumber?: string; address?: string; phone?: string; creditLimit?: number; paymentTerms?: string; notes?: string };
@@ -199,8 +201,73 @@
 </script>
 
 {#if !loaded}
-	<div class="flex items-center justify-center py-20">
-		<div class="size-6 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-900 dark:border-zinc-600 dark:border-t-zinc-100"></div>
+	<div class="mx-auto max-w-4xl">
+		<div class="rounded-lg border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+			<!-- Header -->
+			<div class="border-b border-dashed border-zinc-300 px-6 py-5 dark:border-zinc-700">
+				<div class="flex items-start justify-between">
+					<div>
+						<h2 class="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Stock Import</h2>
+						<p class="mt-0.5 text-xs font-medium uppercase tracking-widest text-zinc-400">
+							{formatDate(new Date().toISOString().split('T')[0])}
+						</p>
+					</div>
+					<div class="text-right text-xs text-zinc-400">
+						<span class="font-mono">0 items</span>
+					</div>
+				</div>
+				<div class="mt-4">
+					<div class="grid grid-cols-2 gap-4">
+						<div class="space-y-1.5">
+							<span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('stock_import_party')} <span class="ml-1 text-xs font-normal text-zinc-400">({t('common_optional')})</span></span>
+							<Skeleton class="h-9 w-full rounded-md" />
+						</div>
+						<div class="space-y-1.5">
+							<span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('stock_import_date')}</span>
+							<Skeleton class="h-9 w-full rounded-md" />
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Grid header -->
+			<div class="bill-grid max-h-[30vh] overflow-y-auto">
+				<div class="sticky top-0 z-10 grid grid-cols-[2.5rem_1fr_6rem_5.5rem_8rem_8rem_2rem] items-stretch border-b border-zinc-200 bg-zinc-50 text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
+					<span class="flex items-center justify-center border-r border-zinc-200 px-2 py-2 dark:border-zinc-800">{t('common_sn')}</span>
+					<span class="flex items-center border-r border-zinc-200 px-3 py-2 dark:border-zinc-800">{t('product_title')}</span>
+					<span class="flex items-center justify-center border-r border-zinc-200 px-2 py-2 dark:border-zinc-800">{t('common_quantity')}</span>
+					<span class="flex items-center justify-center border-r border-zinc-200 px-2 py-2 dark:border-zinc-800">{t('product_unit')}</span>
+					<span class="flex items-center justify-end border-r border-zinc-200 px-2 py-2 dark:border-zinc-800">{t('common_rate')}</span>
+					<span class="flex items-center justify-end px-2 py-2">{t('common_amount')}</span>
+					<span></span>
+				</div>
+				{#each Array(5) as _, i}
+					<div class="grid grid-cols-[2.5rem_1fr_6rem_5.5rem_8rem_8rem_2rem] items-stretch border-b border-zinc-100/30 dark:border-zinc-800/20">
+						<span class="flex items-center justify-center border-r border-zinc-100/30 px-2 py-2.5 font-mono text-xs text-zinc-300 dark:border-zinc-800/20 dark:text-zinc-600">{i + 1}</span>
+						<div class="flex items-center border-r border-zinc-100/30 px-3 dark:border-zinc-800/20"><Skeleton class="h-4 w-24" /></div>
+						<div class="flex items-center justify-center border-r border-zinc-100/30 dark:border-zinc-800/20"><Skeleton class="h-4 w-8" /></div>
+						<div class="flex items-center justify-center border-r border-zinc-100/30 dark:border-zinc-800/20"><Skeleton class="h-4 w-10" /></div>
+						<div class="flex items-center justify-end border-r border-zinc-100/30 px-2 dark:border-zinc-800/20"><Skeleton class="h-4 w-14" /></div>
+						<div class="flex items-center justify-end px-2"><Skeleton class="h-4 w-14" /></div>
+						<span></span>
+					</div>
+				{/each}
+			</div>
+
+			<!-- Footer -->
+			<div class="border-t border-dashed border-zinc-300 dark:border-zinc-700">
+				<div class="flex items-center justify-between px-6 py-3">
+					<span class="text-sm text-zinc-500">{t('invoice_subtotal')}</span>
+					<Skeleton class="h-4 w-20" />
+				</div>
+				<div class="border-t border-double border-zinc-300 px-6 py-3 dark:border-zinc-600">
+					<div class="flex items-center justify-between">
+						<span class="text-base font-bold text-zinc-900 dark:text-zinc-100">{t('common_total')}</span>
+						<Skeleton class="h-6 w-24" />
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 {:else}
 	<BillForm

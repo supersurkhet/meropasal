@@ -5,6 +5,7 @@
 	import { formatNumber } from '$lib/currency';
 	import * as Table from '$lib/components/ui/table';
 	import * as Select from '$lib/components/ui/select';
+	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { ChevronDown, ChevronRight, Package, Filter } from '@lucide/svelte';
 	import { t } from '$lib/t.svelte';
 	import EmptyState from '$lib/components/shared/EmptyState.svelte';
@@ -109,14 +110,7 @@
 		</Select.Root>
 	</div>
 
-	{#if aggregation.isLoading || products.isLoading}
-		<div class="flex items-center justify-center py-20">
-			<div class="flex flex-col items-center gap-3">
-				<div class="size-6 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-900 dark:border-zinc-600 dark:border-t-zinc-100"></div>
-				<p class="text-sm text-zinc-500 dark:text-zinc-400">{t('common_loading_stock')}</p>
-			</div>
-		</div>
-	{:else if !aggregatedProducts.length}
+	{#if !(aggregation.isLoading || products.isLoading) && !aggregatedProducts.length}
 		<EmptyState
 			icon={Package}
 			title={t('empty_stock_book')}
@@ -135,55 +129,75 @@
 					</Table.Row>
 				</Table.Header>
 				<Table.Body>
-					{#each aggregatedProducts as item}
-						{@const isExpanded = expandedProducts.has(item.productId)}
-						<Table.Row
-							class="cursor-pointer transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
-							onclick={() => toggleExpand(item.productId)}
-						>
-							<Table.Cell class="w-8 pr-0">
-								{#if item.buckets.length > 1}
-									{#if isExpanded}
-										<ChevronDown class="size-4 text-zinc-400" />
-									{:else}
-										<ChevronRight class="size-4 text-zinc-400" />
+					{#if aggregation.isLoading || products.isLoading}
+						{#each Array(6) as _, i}
+							<Table.Row class="transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
+								<Table.Cell class="w-8 pr-0">
+									<Skeleton class="size-4" />
+								</Table.Cell>
+								<Table.Cell>
+									<Skeleton class="h-4 w-40" />
+								</Table.Cell>
+								<Table.Cell class="text-right">
+									<Skeleton class="ml-auto h-4 w-20" />
+								</Table.Cell>
+								<Table.Cell class="text-right">
+									<Skeleton class="ml-auto h-4 w-20" />
+								</Table.Cell>
+								<Table.Cell></Table.Cell>
+							</Table.Row>
+						{/each}
+					{:else}
+						{#each aggregatedProducts as item}
+							{@const isExpanded = expandedProducts.has(item.productId)}
+							<Table.Row
+								class="cursor-pointer transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
+								onclick={() => toggleExpand(item.productId)}
+							>
+								<Table.Cell class="w-8 pr-0">
+									{#if item.buckets.length > 1}
+										{#if isExpanded}
+											<ChevronDown class="size-4 text-zinc-400" />
+										{:else}
+											<ChevronRight class="size-4 text-zinc-400" />
+										{/if}
 									{/if}
-								{/if}
-							</Table.Cell>
-							<Table.Cell class="font-medium">{item.productTitle}</Table.Cell>
-							<Table.Cell class="text-right">
-								<div class="flex items-center justify-end gap-2">
-									{#if stockIndicator(item.totalAvailable, item.reorderLevel)}
-										<span class="inline-block size-2 rounded-full {stockIndicator(item.totalAvailable, item.reorderLevel)}"></span>
-									{/if}
-									<span class="tabular-nums {stockColorClass(item.totalAvailable, item.reorderLevel)}">
-										{formatNumber(item.totalAvailable)}
-									</span>
-								</div>
-							</Table.Cell>
-							<Table.Cell class="text-right tabular-nums text-zinc-500">
-								{item.reorderLevel > 0 ? formatNumber(item.reorderLevel) : '—'}
-							</Table.Cell>
-							<Table.Cell></Table.Cell>
-						</Table.Row>
+								</Table.Cell>
+								<Table.Cell class="font-medium">{item.productTitle}</Table.Cell>
+								<Table.Cell class="text-right">
+									<div class="flex items-center justify-end gap-2">
+										{#if stockIndicator(item.totalAvailable, item.reorderLevel)}
+											<span class="inline-block size-2 rounded-full {stockIndicator(item.totalAvailable, item.reorderLevel)}"></span>
+										{/if}
+										<span class="tabular-nums {stockColorClass(item.totalAvailable, item.reorderLevel)}">
+											{formatNumber(item.totalAvailable)}
+										</span>
+									</div>
+								</Table.Cell>
+								<Table.Cell class="text-right tabular-nums text-zinc-500">
+									{item.reorderLevel > 0 ? formatNumber(item.reorderLevel) : '—'}
+								</Table.Cell>
+								<Table.Cell></Table.Cell>
+							</Table.Row>
 
-						<!-- Expanded Supplier Buckets -->
-						{#if isExpanded && item.buckets.length > 0}
-							{#each item.buckets as bucket}
-								<Table.Row class="bg-zinc-50/50 dark:bg-zinc-900/20">
-									<Table.Cell></Table.Cell>
-									<Table.Cell class="pl-8 text-sm text-zinc-500">
-										{bucket.partyId === '__UNASSIGNED__' ? t('common_unassigned') : bucket.partyId}
-									</Table.Cell>
-									<Table.Cell class="text-right tabular-nums text-sm text-zinc-600 dark:text-zinc-400">
-										{formatNumber(bucket.available)}
-									</Table.Cell>
-									<Table.Cell></Table.Cell>
-									<Table.Cell></Table.Cell>
-								</Table.Row>
-							{/each}
-						{/if}
-					{/each}
+							<!-- Expanded Supplier Buckets -->
+							{#if isExpanded && item.buckets.length > 0}
+								{#each item.buckets as bucket}
+									<Table.Row class="bg-zinc-50/50 dark:bg-zinc-900/20">
+										<Table.Cell></Table.Cell>
+										<Table.Cell class="pl-8 text-sm text-zinc-500">
+											{bucket.partyId === '__UNASSIGNED__' ? t('common_unassigned') : bucket.partyId}
+										</Table.Cell>
+										<Table.Cell class="text-right tabular-nums text-sm text-zinc-600 dark:text-zinc-400">
+											{formatNumber(bucket.available)}
+										</Table.Cell>
+										<Table.Cell></Table.Cell>
+										<Table.Cell></Table.Cell>
+									</Table.Row>
+								{/each}
+							{/if}
+						{/each}
+					{/if}
 				</Table.Body>
 			</Table.Root>
 		</div>

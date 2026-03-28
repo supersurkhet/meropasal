@@ -6,6 +6,7 @@
 	import EmptyState from '$lib/components/shared/EmptyState.svelte'
 	import { createViewPreference } from '$lib/view-preference.svelte'
 	import { breadcrumbViewToggle } from '$lib/breadcrumb-view-toggle.svelte'
+	import { Skeleton } from '$lib/components/ui/skeleton'
 	import { ShoppingCart, Plus } from '@lucide/svelte'
 	import { formatDate } from '$lib/date-utils'
 	import { formatNPR } from '$lib/currency'
@@ -62,14 +63,7 @@
 </script>
 
 <div class="space-y-4">
-{#if !loaded}
-	<div class="flex items-center justify-center py-20">
-		<div class="flex flex-col items-center gap-3">
-			<div class="size-6 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-900 dark:border-zinc-600 dark:border-t-zinc-100"></div>
-			<p class="text-sm text-zinc-500">{t('common_loading')}</p>
-		</div>
-	</div>
-{:else if sales.length === 0}
+{#if loaded && sales.length === 0}
 	<EmptyState
 		icon={ShoppingCart}
 		title={t('empty_sales')}
@@ -105,25 +99,37 @@
 					</Table.Row>
 				</Table.Header>
 				<Table.Body>
-					{#each sales as sale}
-						<Table.Row class="group border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/60" onclick={() => { window.location.href = `/sales/${sale._id}` }}>
-							<Table.Cell class="text-sm text-zinc-700 dark:text-zinc-300">
-								{formatDate(sale.issuedAt)}
-							</Table.Cell>
-							<Table.Cell class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-								{sale.partyId ? (customerNames[sale.partyId] ?? '—') : t('common_walk_in')}
-							</Table.Cell>
-							<Table.Cell class="max-w-[240px] truncate text-sm text-zinc-600 dark:text-zinc-400">
-								{itemsSummary(sale.items)}
-							</Table.Cell>
-							<Table.Cell class="text-right font-mono text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-								{formatNPR(sale.totalAmount, true)}
-							</Table.Cell>
-							<Table.Cell class="font-mono text-xs text-zinc-500 dark:text-zinc-400">
-								{sale.invoiceNumber ?? '—'}
-							</Table.Cell>
-						</Table.Row>
-					{/each}
+					{#if !loaded}
+						{#each Array(6) as _, i}
+							<Table.Row class="border-zinc-100 dark:border-zinc-800">
+								<Table.Cell><Skeleton class="h-4 w-20" /></Table.Cell>
+								<Table.Cell><Skeleton class="h-4 w-32" /></Table.Cell>
+								<Table.Cell><Skeleton class="h-4 w-40" /></Table.Cell>
+								<Table.Cell class="text-right"><Skeleton class="ml-auto h-4 w-20" /></Table.Cell>
+								<Table.Cell><Skeleton class="h-4 w-24" /></Table.Cell>
+							</Table.Row>
+						{/each}
+					{:else}
+						{#each sales as sale}
+							<Table.Row class="group border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/60" onclick={() => { window.location.href = `/sales/${sale._id}` }}>
+								<Table.Cell class="text-sm text-zinc-700 dark:text-zinc-300">
+									{formatDate(sale.issuedAt)}
+								</Table.Cell>
+								<Table.Cell class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+									{sale.partyId ? (customerNames[sale.partyId] ?? '—') : t('common_walk_in')}
+								</Table.Cell>
+								<Table.Cell class="max-w-[240px] truncate text-sm text-zinc-600 dark:text-zinc-400">
+									{itemsSummary(sale.items)}
+								</Table.Cell>
+								<Table.Cell class="text-right font-mono text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+									{formatNPR(sale.totalAmount, true)}
+								</Table.Cell>
+								<Table.Cell class="font-mono text-xs text-zinc-500 dark:text-zinc-400">
+									{sale.invoiceNumber ?? '—'}
+								</Table.Cell>
+							</Table.Row>
+						{/each}
+					{/if}
 				</Table.Body>
 			</Table.Root>
 		</div>
@@ -133,35 +139,57 @@
 			: viewPref.mode === 'grid-2'
 				? 'grid grid-cols-1 gap-4 md:grid-cols-2'
 				: 'flex flex-col gap-2'}>
-			{#each sales as sale}
-				<a
-					href="/sales/{sale._id}"
-					class="block rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950"
-				>
-					<div class="flex items-start justify-between gap-3">
-						<div class="min-w-0 flex-1 space-y-1">
-							<div class="flex items-center gap-2">
-								<span class="text-sm text-zinc-500 dark:text-zinc-400">{formatDate(sale.issuedAt)}</span>
-								<span class="font-mono text-xs text-zinc-400 dark:text-zinc-500">{sale.invoiceNumber ?? '—'}</span>
+			{#if !loaded}
+				{#each Array(6) as _}
+					<div class="block rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+						<div class="flex items-start justify-between gap-3">
+							<div class="min-w-0 flex-1 space-y-1">
+								<div class="flex items-center gap-2">
+									<Skeleton class="h-4 w-20" />
+									<Skeleton class="h-3 w-16" />
+								</div>
+								<Skeleton class="h-4 w-32" />
+								<Skeleton class="h-4 w-40" />
 							</div>
-							<p class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-								{sale.partyId ? (customerNames[sale.partyId] ?? '—') : t('common_walk_in')}
-							</p>
-							<p class="truncate text-sm text-zinc-500 dark:text-zinc-400">
-								{itemsSummary(sale.items)}
-							</p>
+							<Skeleton class="h-5 w-20" />
 						</div>
-						<span class="shrink-0 font-mono text-base font-bold text-zinc-900 dark:text-zinc-100">
-							{formatNPR(sale.totalAmount, true)}
-						</span>
 					</div>
-				</a>
-			{/each}
+				{/each}
+			{:else}
+				{#each sales as sale}
+					<a
+						href="/sales/{sale._id}"
+						class="block rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950"
+					>
+						<div class="flex items-start justify-between gap-3">
+							<div class="min-w-0 flex-1 space-y-1">
+								<div class="flex items-center gap-2">
+									<span class="text-sm text-zinc-500 dark:text-zinc-400">{formatDate(sale.issuedAt)}</span>
+									<span class="font-mono text-xs text-zinc-400 dark:text-zinc-500">{sale.invoiceNumber ?? '—'}</span>
+								</div>
+								<p class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+									{sale.partyId ? (customerNames[sale.partyId] ?? '—') : t('common_walk_in')}
+								</p>
+								<p class="truncate text-sm text-zinc-500 dark:text-zinc-400">
+									{itemsSummary(sale.items)}
+								</p>
+							</div>
+							<span class="shrink-0 font-mono text-base font-bold text-zinc-900 dark:text-zinc-100">
+								{formatNPR(sale.totalAmount, true)}
+							</span>
+						</div>
+					</a>
+				{/each}
+			{/if}
 		</div>
 	{/if}
 
 	<p class="text-xs text-zinc-400 dark:text-zinc-500">
-		{sales.length} {sales.length === 1 ? t('sale_title') : t('sale_title_plural')}
+		{#if !loaded}
+			<Skeleton class="inline-block h-3 w-16" />
+		{:else}
+			{sales.length} {sales.length === 1 ? t('sale_title') : t('sale_title_plural')}
+		{/if}
 	</p>
 {/if}
 </div>

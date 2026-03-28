@@ -33,6 +33,7 @@
 		CreditCard,
 		PackageCheck,
 	} from '@lucide/svelte'
+	import { Skeleton } from '$lib/components/ui/skeleton'
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL)
 
@@ -96,6 +97,7 @@
 
 	const d = $derived(dashboardData.data)
 	const b = $derived(breakdowns.data)
+	const isLoading = $derived(dashboardData.isLoading)
 	const netIncomePositive = $derived((d?.netIncome ?? 0) >= 0)
 
 	// Payment method label
@@ -178,13 +180,6 @@
 <MetaTags title="{t('dashboard_title')} — {t('app_name')}" />
 
 <div class="p-6 lg:p-8">
-	{#if dashboardData.isLoading}
-		<div class="flex items-center justify-center py-24 text-zinc-500">
-			<div class="size-6 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-600"
-			></div>
-			<span class="ml-3 text-sm">{t('dashboard_loading')}</span>
-		</div>
-	{:else if d}
 		<!-- Header with Period Selector + Export -->
 		<div class="mb-6 flex flex-wrap items-center justify-between gap-3">
 			<div class="flex flex-wrap gap-3">
@@ -273,43 +268,51 @@
 						<TrendingUp class="size-4 text-emerald-600 dark:text-emerald-400" />
 					</div>
 					<div class="flex items-center gap-2">
-						<span
-							class="flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400"
-						>
-							{formatCount(d.totalSaleInvoices)} {t('sale_title_plural').toLowerCase()}
-							<ArrowUpRight class="size-3" />
-						</span>
-						<!-- Revenue Breakdown Popover -->
-						{#if b?.revenueBreakdown?.length}
-							<Popover.Root>
-								<Popover.Trigger>
-									<button class="rounded-full p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300">
-										<Info class="size-3.5" />
-									</button>
-								</Popover.Trigger>
-								<Popover.Content class="w-80 max-h-64 overflow-y-auto" align="end">
-									<p class="mb-2 text-xs font-semibold text-zinc-700 dark:text-zinc-300">{t('dashboard_revenue_breakdown')}</p>
-									<div class="space-y-2">
-										{#each b.revenueBreakdown.slice(0, 10) as r}
-											<div class="flex items-center justify-between text-xs">
-												<span class="truncate text-zinc-600 dark:text-zinc-400">{r.customer}</span>
-												<div class="flex gap-3 shrink-0">
-													<span class="font-medium text-emerald-600">{formatNPR(r.total, true)}</span>
-													{#if r.due > 0}
-														<span class="text-amber-600">{t('dashboard_due')}: {formatNPR(r.due, true)}</span>
-													{/if}
+						{#if isLoading}
+							<Skeleton class="h-4 w-16" />
+						{:else if d}
+							<span
+								class="flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400"
+							>
+								{formatCount(d.totalSaleInvoices)} {t('sale_title_plural').toLowerCase()}
+								<ArrowUpRight class="size-3" />
+							</span>
+							<!-- Revenue Breakdown Popover -->
+							{#if b?.revenueBreakdown?.length}
+								<Popover.Root>
+									<Popover.Trigger>
+										<button class="rounded-full p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300">
+											<Info class="size-3.5" />
+										</button>
+									</Popover.Trigger>
+									<Popover.Content class="w-80 max-h-64 overflow-y-auto" align="end">
+										<p class="mb-2 text-xs font-semibold text-zinc-700 dark:text-zinc-300">{t('dashboard_revenue_breakdown')}</p>
+										<div class="space-y-2">
+											{#each b.revenueBreakdown.slice(0, 10) as r}
+												<div class="flex items-center justify-between text-xs">
+													<span class="truncate text-zinc-600 dark:text-zinc-400">{r.customer}</span>
+													<div class="flex gap-3 shrink-0">
+														<span class="font-medium text-emerald-600">{formatNPR(r.total, true)}</span>
+														{#if r.due > 0}
+															<span class="text-amber-600">{t('dashboard_due')}: {formatNPR(r.due, true)}</span>
+														{/if}
+													</div>
 												</div>
-											</div>
-										{/each}
-									</div>
-								</Popover.Content>
-							</Popover.Root>
+											{/each}
+										</div>
+									</Popover.Content>
+								</Popover.Root>
+							{/if}
 						{/if}
 					</div>
 				</div>
-				<p class="text-2xl font-bold tabular-nums text-zinc-900 dark:text-zinc-100">
-					{formatNPR(d.totalRevenue, true)}
-				</p>
+				{#if isLoading}
+					<Skeleton class="h-8 w-32" />
+				{:else if d}
+					<p class="text-2xl font-bold tabular-nums text-zinc-900 dark:text-zinc-100">
+						{formatNPR(d.totalRevenue, true)}
+					</p>
+				{/if}
 				<p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{t('dashboard_total_revenue')}</p>
 			</div>
 
@@ -325,43 +328,51 @@
 						<TrendingDown class="size-4 text-red-600 dark:text-red-400" />
 					</div>
 					<div class="flex items-center gap-2">
-						<span
-							class="flex items-center gap-1 text-xs font-medium text-red-600 dark:text-red-400"
-						>
-							{formatCount(d.totalPurchaseInvoices)} {t('invoice_type_purchase').toLowerCase()}
-							<ArrowDownRight class="size-3" />
-						</span>
-						<!-- Cost Breakdown Popover -->
-						{#if b?.costBreakdown?.length}
-							<Popover.Root>
-								<Popover.Trigger>
-									<button class="rounded-full p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300">
-										<Info class="size-3.5" />
-									</button>
-								</Popover.Trigger>
-								<Popover.Content class="w-80 max-h-64 overflow-y-auto" align="end">
-									<p class="mb-2 text-xs font-semibold text-zinc-700 dark:text-zinc-300">{t('dashboard_cost_breakdown')}</p>
-									<div class="space-y-2">
-										{#each b.costBreakdown.slice(0, 10) as c}
-											<div class="flex items-center justify-between text-xs">
-												<span class="truncate text-zinc-600 dark:text-zinc-400">{c.supplier}</span>
-												<div class="flex gap-3 shrink-0">
-													<span class="font-medium text-red-600">{formatNPR(c.total, true)}</span>
-													{#if c.due > 0}
-														<span class="text-amber-600">{t('dashboard_due')}: {formatNPR(c.due, true)}</span>
-													{/if}
+						{#if isLoading}
+							<Skeleton class="h-4 w-16" />
+						{:else if d}
+							<span
+								class="flex items-center gap-1 text-xs font-medium text-red-600 dark:text-red-400"
+							>
+								{formatCount(d.totalPurchaseInvoices)} {t('invoice_type_purchase').toLowerCase()}
+								<ArrowDownRight class="size-3" />
+							</span>
+							<!-- Cost Breakdown Popover -->
+							{#if b?.costBreakdown?.length}
+								<Popover.Root>
+									<Popover.Trigger>
+										<button class="rounded-full p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300">
+											<Info class="size-3.5" />
+										</button>
+									</Popover.Trigger>
+									<Popover.Content class="w-80 max-h-64 overflow-y-auto" align="end">
+										<p class="mb-2 text-xs font-semibold text-zinc-700 dark:text-zinc-300">{t('dashboard_cost_breakdown')}</p>
+										<div class="space-y-2">
+											{#each b.costBreakdown.slice(0, 10) as c}
+												<div class="flex items-center justify-between text-xs">
+													<span class="truncate text-zinc-600 dark:text-zinc-400">{c.supplier}</span>
+													<div class="flex gap-3 shrink-0">
+														<span class="font-medium text-red-600">{formatNPR(c.total, true)}</span>
+														{#if c.due > 0}
+															<span class="text-amber-600">{t('dashboard_due')}: {formatNPR(c.due, true)}</span>
+														{/if}
+													</div>
 												</div>
-											</div>
-										{/each}
-									</div>
-								</Popover.Content>
-							</Popover.Root>
+											{/each}
+										</div>
+									</Popover.Content>
+								</Popover.Root>
+							{/if}
 						{/if}
 					</div>
 				</div>
-				<p class="text-2xl font-bold tabular-nums text-zinc-900 dark:text-zinc-100">
-					{formatNPR(d.totalExpenses, true)}
-				</p>
+				{#if isLoading}
+					<Skeleton class="h-8 w-32" />
+				{:else if d}
+					<p class="text-2xl font-bold tabular-nums text-zinc-900 dark:text-zinc-100">
+						{formatNPR(d.totalExpenses, true)}
+					</p>
+				{/if}
 				<p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{t('dashboard_total_expenses')}</p>
 			</div>
 
@@ -369,63 +380,75 @@
 			<div
 				class="group relative overflow-hidden rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900"
 			>
-				<div class="absolute inset-x-0 top-0 h-1 {netIncomePositive ? 'bg-gradient-to-r from-emerald-400 to-emerald-600' : 'bg-gradient-to-r from-red-400 to-red-600'}"></div>
+				<div class="absolute inset-x-0 top-0 h-1 {isLoading ? 'bg-gradient-to-r from-zinc-200 to-zinc-300 dark:from-zinc-700 dark:to-zinc-600' : netIncomePositive ? 'bg-gradient-to-r from-emerald-400 to-emerald-600' : 'bg-gradient-to-r from-red-400 to-red-600'}"></div>
 				<div class="mb-3 flex items-center justify-between">
 					<div
-						class="flex size-9 items-center justify-center rounded-lg {netIncomePositive
-							? 'bg-emerald-100 dark:bg-emerald-900/30'
-							: 'bg-red-100 dark:bg-red-900/30'}"
+						class="flex size-9 items-center justify-center rounded-lg {isLoading
+							? 'bg-zinc-100 dark:bg-zinc-800'
+							: netIncomePositive
+								? 'bg-emerald-100 dark:bg-emerald-900/30'
+								: 'bg-red-100 dark:bg-red-900/30'}"
 					>
 						<DollarSign
-							class="size-4 {netIncomePositive
-								? 'text-emerald-600 dark:text-emerald-400'
-								: 'text-red-600 dark:text-red-400'}"
+							class="size-4 {isLoading
+								? 'text-zinc-400'
+								: netIncomePositive
+									? 'text-emerald-600 dark:text-emerald-400'
+									: 'text-red-600 dark:text-red-400'}"
 						/>
 					</div>
 					<div class="flex items-center gap-2">
-						<span
-							class="text-xs font-medium {netIncomePositive
-								? 'text-emerald-600 dark:text-emerald-400'
-								: 'text-red-600 dark:text-red-400'}"
-						>
-							{netIncomePositive ? t('dashboard_profit') : t('dashboard_loss')}
-						</span>
-						<!-- Net Profit Breakdown Popover -->
-						<Popover.Root>
-							<Popover.Trigger>
-								<button class="rounded-full p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300">
-									<Info class="size-3.5" />
-								</button>
-							</Popover.Trigger>
-							<Popover.Content class="w-64" align="end">
-								<p class="mb-2 text-xs font-semibold text-zinc-700 dark:text-zinc-300">{t('dashboard_net_profit')}</p>
-								<div class="space-y-1.5 text-xs">
-									<div class="flex justify-between">
-										<span class="text-zinc-500">{t('dashboard_total_revenue')}</span>
-										<span class="font-medium text-emerald-600">{formatNPR(d.totalRevenue, true)}</span>
-									</div>
-									<div class="flex justify-between">
-										<span class="text-zinc-500">{t('dashboard_total_expenses')}</span>
-										<span class="font-medium text-red-600">- {formatNPR(d.totalExpenses, true)}</span>
-									</div>
-									<div class="border-t border-zinc-200 pt-1.5 dark:border-zinc-700">
-										<div class="flex justify-between font-semibold">
-											<span class="text-zinc-700 dark:text-zinc-300">{t('dashboard_net_income')}</span>
-											<span class="{netIncomePositive ? 'text-emerald-600' : 'text-red-600'}">{formatNPR(d.netIncome, true)}</span>
+						{#if isLoading}
+							<Skeleton class="h-4 w-12" />
+						{:else if d}
+							<span
+								class="text-xs font-medium {netIncomePositive
+									? 'text-emerald-600 dark:text-emerald-400'
+									: 'text-red-600 dark:text-red-400'}"
+							>
+								{netIncomePositive ? t('dashboard_profit') : t('dashboard_loss')}
+							</span>
+							<!-- Net Profit Breakdown Popover -->
+							<Popover.Root>
+								<Popover.Trigger>
+									<button class="rounded-full p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300">
+										<Info class="size-3.5" />
+									</button>
+								</Popover.Trigger>
+								<Popover.Content class="w-64" align="end">
+									<p class="mb-2 text-xs font-semibold text-zinc-700 dark:text-zinc-300">{t('dashboard_net_profit')}</p>
+									<div class="space-y-1.5 text-xs">
+										<div class="flex justify-between">
+											<span class="text-zinc-500">{t('dashboard_total_revenue')}</span>
+											<span class="font-medium text-emerald-600">{formatNPR(d.totalRevenue, true)}</span>
+										</div>
+										<div class="flex justify-between">
+											<span class="text-zinc-500">{t('dashboard_total_expenses')}</span>
+											<span class="font-medium text-red-600">- {formatNPR(d.totalExpenses, true)}</span>
+										</div>
+										<div class="border-t border-zinc-200 pt-1.5 dark:border-zinc-700">
+											<div class="flex justify-between font-semibold">
+												<span class="text-zinc-700 dark:text-zinc-300">{t('dashboard_net_income')}</span>
+												<span class="{netIncomePositive ? 'text-emerald-600' : 'text-red-600'}">{formatNPR(d.netIncome, true)}</span>
+											</div>
 										</div>
 									</div>
-								</div>
-							</Popover.Content>
-						</Popover.Root>
+								</Popover.Content>
+							</Popover.Root>
+						{/if}
 					</div>
 				</div>
-				<p
-					class="text-2xl font-bold tabular-nums {netIncomePositive
-						? 'text-emerald-700 dark:text-emerald-400'
-						: 'text-red-700 dark:text-red-400'}"
-				>
-					{formatNPR(Math.abs(d.netIncome), true)}
-				</p>
+				{#if isLoading}
+					<Skeleton class="h-8 w-32" />
+				{:else if d}
+					<p
+						class="text-2xl font-bold tabular-nums {netIncomePositive
+							? 'text-emerald-700 dark:text-emerald-400'
+							: 'text-red-700 dark:text-red-400'}"
+					>
+						{formatNPR(Math.abs(d.netIncome), true)}
+					</p>
+				{/if}
 				<p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{t('dashboard_net_income')}</p>
 			</div>
 
@@ -433,20 +456,20 @@
 			<div
 				class="group relative overflow-hidden rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900"
 			>
-				<div class="absolute inset-x-0 top-0 h-1 {d.lowStockCount > 0 ? 'bg-gradient-to-r from-amber-400 to-orange-500' : 'bg-gradient-to-r from-zinc-200 to-zinc-300 dark:from-zinc-700 dark:to-zinc-600'}"></div>
+				<div class="absolute inset-x-0 top-0 h-1 {isLoading ? 'bg-gradient-to-r from-zinc-200 to-zinc-300 dark:from-zinc-700 dark:to-zinc-600' : (d?.lowStockCount ?? 0) > 0 ? 'bg-gradient-to-r from-amber-400 to-orange-500' : 'bg-gradient-to-r from-zinc-200 to-zinc-300 dark:from-zinc-700 dark:to-zinc-600'}"></div>
 				<div class="mb-3 flex items-center justify-between">
 					<div
-						class="flex size-9 items-center justify-center rounded-lg {d.lowStockCount > 0
+						class="flex size-9 items-center justify-center rounded-lg {!isLoading && (d?.lowStockCount ?? 0) > 0
 							? 'bg-amber-100 dark:bg-amber-900/30'
 							: 'bg-zinc-100 dark:bg-zinc-800'}"
 					>
-						{#if d.lowStockCount > 0}
+						{#if !isLoading && (d?.lowStockCount ?? 0) > 0}
 							<AlertTriangle class="size-4 text-amber-600 dark:text-amber-400" />
 						{:else}
 							<Package class="size-4 text-zinc-500 dark:text-zinc-400" />
 						{/if}
 					</div>
-					{#if d.lowStockCount > 0}
+					{#if !isLoading && d && d.lowStockCount > 0}
 						<a
 							href="/reports/inventory"
 							class="text-xs font-medium text-amber-600 underline-offset-2 hover:underline dark:text-amber-400"
@@ -455,13 +478,17 @@
 						</a>
 					{/if}
 				</div>
-				<p
-					class="text-2xl font-bold tabular-nums {d.lowStockCount > 0
-						? 'text-amber-700 dark:text-amber-400'
-						: 'text-zinc-900 dark:text-zinc-100'}"
-				>
-					{formatCount(d.lowStockCount)}
-				</p>
+				{#if isLoading}
+					<Skeleton class="h-8 w-16" />
+				{:else if d}
+					<p
+						class="text-2xl font-bold tabular-nums {d.lowStockCount > 0
+							? 'text-amber-700 dark:text-amber-400'
+							: 'text-zinc-900 dark:text-zinc-100'}"
+					>
+						{formatCount(d.lowStockCount)}
+					</p>
+				{/if}
 				<p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{t('dashboard_low_stock')}</p>
 			</div>
 		</div>
@@ -479,9 +506,13 @@
 				</div>
 				<div class="min-w-0 flex-1">
 					<p class="text-sm text-zinc-500 dark:text-zinc-400">{t('dashboard_outstanding_receivables')}</p>
-					<p class="text-lg font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
-						{formatNPR(d.outstandingReceivables)}
-					</p>
+					{#if isLoading}
+						<Skeleton class="h-6 w-28" />
+					{:else if d}
+						<p class="text-lg font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
+							{formatNPR(d.outstandingReceivables)}
+						</p>
+					{/if}
 				</div>
 				<div class="flex items-center gap-2">
 					{#if b?.receivablesBreakdown?.length}
@@ -529,9 +560,13 @@
 				</div>
 				<div class="min-w-0 flex-1">
 					<p class="text-sm text-zinc-500 dark:text-zinc-400">{t('dashboard_outstanding_payables')}</p>
-					<p class="text-lg font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
-						{formatNPR(d.outstandingPayables)}
-					</p>
+					{#if isLoading}
+						<Skeleton class="h-6 w-28" />
+					{:else if d}
+						<p class="text-lg font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
+							{formatNPR(d.outstandingPayables)}
+						</p>
+					{/if}
 				</div>
 				<div class="flex items-center gap-2">
 					{#if b?.payablesBreakdown?.length}
@@ -582,14 +617,27 @@
 							{t('dashboard_sales_chart')}
 						</h2>
 					</div>
-					{#if recentSales.data}
+					{#if !recentSales.isLoading && recentSales.data}
 						<span class="text-xs text-zinc-500">
 							{formatCount(recentSales.data.count)} {t('invoice_title_plural').toLowerCase()} &middot; {formatNPR(recentSales.data.totalAmount, true)}
 						</span>
 					{/if}
 				</div>
 
-				{#if dailySales.length === 0}
+				{#if isLoading || recentSales.isLoading}
+					<div class="flex h-48 items-end gap-1.5">
+						{#each Array(14) as _, i}
+							{@const h = [30, 50, 40, 65, 45, 70, 55, 35, 60, 80, 50, 40, 55, 45][i]}
+							<div class="flex flex-1 flex-col items-center justify-end">
+								<Skeleton class="w-full min-w-[6px] rounded-t-sm" style="height: {h}%" />
+							</div>
+						{/each}
+					</div>
+					<div class="mt-2 flex justify-between text-[10px] text-zinc-400">
+						<Skeleton class="h-3 w-14" />
+						<Skeleton class="h-3 w-14" />
+					</div>
+				{:else if dailySales.length === 0}
 					<div class="flex h-48 items-center justify-center text-sm text-zinc-400">
 						{t('dashboard_no_sales_period')}
 					</div>
@@ -636,9 +684,20 @@
 					</a>
 				</div>
 
-				{#if topProducts.isLoading}
-					<div class="flex h-48 items-center justify-center text-sm text-zinc-400">
-						{t('common_loading')}
+				{#if isLoading || topProducts.isLoading}
+					<div class="space-y-3">
+						{#each Array(5) as _, i}
+							<div>
+								<div class="mb-1 flex items-center justify-between text-sm">
+									<span class="flex items-center gap-2">
+										<span class="flex size-5 shrink-0 items-center justify-center rounded text-[10px] font-bold bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">{i + 1}</span>
+										<Skeleton class="h-4 w-28" />
+									</span>
+									<Skeleton class="h-4 w-20" />
+								</div>
+								<Skeleton class="h-1.5 w-full rounded-full" />
+							</div>
+						{/each}
 					</div>
 				{:else if !topProducts.data?.length}
 					<div class="flex h-48 items-center justify-center text-sm text-zinc-400">
@@ -679,93 +738,147 @@
 		</div>
 
 		<!-- New Row: Top Customers + Top Suppliers + Payment Methods + Inventory Status -->
-		{#if b}
-			<div class="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-				<!-- Top Customers -->
-				<div class="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-					<div class="mb-4 flex items-center gap-2">
-						<Users class="size-4 text-blue-500" />
-						<h2 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{t('dashboard_top_customers')}</h2>
+		<div class="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+			<!-- Top Customers -->
+			<div class="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+				<div class="mb-4 flex items-center gap-2">
+					<Users class="size-4 text-blue-500" />
+					<h2 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{t('dashboard_top_customers')}</h2>
+				</div>
+				{#if isLoading || breakdowns.isLoading}
+					<div class="space-y-3">
+						{#each Array(5) as _, i}
+							<div class="flex items-center justify-between text-sm">
+								<span class="flex items-center gap-2">
+									<span class="flex size-5 shrink-0 items-center justify-center rounded text-[10px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400">{i + 1}</span>
+									<Skeleton class="h-4 w-24" />
+								</span>
+								<div class="ml-2 shrink-0 text-right">
+									<Skeleton class="h-3 w-16" />
+									<Skeleton class="mt-1 h-2.5 w-12" />
+								</div>
+							</div>
+						{/each}
 					</div>
-					{#if b.topCustomers.length === 0}
-						<p class="text-xs text-zinc-400">{t('dashboard_no_data')}</p>
-					{:else}
-						<div class="space-y-3">
-							{#each b.topCustomers.slice(0, 5) as customer, i}
-								<div class="flex items-center justify-between text-sm">
-									<span class="flex items-center gap-2 truncate text-zinc-700 dark:text-zinc-300">
-										<span class="flex size-5 shrink-0 items-center justify-center rounded text-[10px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400">{i + 1}</span>
-										<span class="truncate">{customer.name}</span>
+				{:else if !b || b.topCustomers.length === 0}
+					<p class="text-xs text-zinc-400">{t('dashboard_no_data')}</p>
+				{:else}
+					<div class="space-y-3">
+						{#each b.topCustomers.slice(0, 5) as customer, i}
+							<div class="flex items-center justify-between text-sm">
+								<span class="flex items-center gap-2 truncate text-zinc-700 dark:text-zinc-300">
+									<span class="flex size-5 shrink-0 items-center justify-center rounded text-[10px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400">{i + 1}</span>
+									<span class="truncate">{customer.name}</span>
+								</span>
+								<div class="ml-2 shrink-0 text-right">
+									<span class="block tabular-nums text-xs font-medium text-zinc-900 dark:text-zinc-100">{formatNPR(customer.totalSpent, true)}</span>
+									<span class="text-[10px] text-zinc-400">{formatCount(customer.purchaseCount)} {t('dashboard_purchases').toLowerCase()}</span>
+								</div>
+							</div>
+						{/each}
+					</div>
+				{/if}
+			</div>
+
+			<!-- Top Suppliers -->
+			<div class="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+				<div class="mb-4 flex items-center gap-2">
+					<Building2 class="size-4 text-violet-500" />
+					<h2 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{t('dashboard_top_suppliers')}</h2>
+				</div>
+				{#if isLoading || breakdowns.isLoading}
+					<div class="space-y-3">
+						{#each Array(5) as _, i}
+							<div class="flex items-center justify-between text-sm">
+								<span class="flex items-center gap-2">
+									<span class="flex size-5 shrink-0 items-center justify-center rounded text-[10px] font-bold bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-400">{i + 1}</span>
+									<Skeleton class="h-4 w-24" />
+								</span>
+								<Skeleton class="ml-2 h-3 w-20" />
+							</div>
+						{/each}
+					</div>
+				{:else if !b || b.topSuppliers.length === 0}
+					<p class="text-xs text-zinc-400">{t('dashboard_no_data')}</p>
+				{:else}
+					<div class="space-y-3">
+						{#each b.topSuppliers.slice(0, 5) as supplier, i}
+							<div class="flex items-center justify-between text-sm">
+								<span class="flex items-center gap-2 truncate text-zinc-700 dark:text-zinc-300">
+									<span class="flex size-5 shrink-0 items-center justify-center rounded text-[10px] font-bold bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-400">{i + 1}</span>
+									<span class="truncate">{supplier.name}</span>
+								</span>
+								<span class="ml-2 shrink-0 tabular-nums text-xs font-medium text-zinc-900 dark:text-zinc-100">{formatNPR(supplier.totalAmount, true)}</span>
+							</div>
+						{/each}
+					</div>
+				{/if}
+			</div>
+
+			<!-- Payment Methods -->
+			<div class="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+				<div class="mb-4 flex items-center gap-2">
+					<CreditCard class="size-4 text-cyan-500" />
+					<h2 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{t('dashboard_payment_methods')}</h2>
+				</div>
+				{#if isLoading || breakdowns.isLoading}
+					<div class="space-y-3">
+						{#each Array(3) as _}
+							<div>
+								<div class="mb-1 flex items-center justify-between text-xs">
+									<Skeleton class="h-3 w-16" />
+									<Skeleton class="h-3 w-20" />
+								</div>
+								<Skeleton class="h-1.5 w-full rounded-full" />
+							</div>
+						{/each}
+					</div>
+				{:else if !b || b.paymentMethods.length === 0}
+					<p class="text-xs text-zinc-400">{t('dashboard_no_data')}</p>
+				{:else}
+					{@const maxMethod = Math.max(...b.paymentMethods.map((m: any) => m.amount), 1)}
+					<div class="space-y-3">
+						{#each b.paymentMethods as pm}
+							{@const pct = (pm.amount / maxMethod) * 100}
+							<div>
+								<div class="mb-1 flex items-center justify-between text-xs">
+									<span class="text-zinc-600 dark:text-zinc-400">{methodLabel(pm.method)}</span>
+									<span class="tabular-nums font-medium text-zinc-900 dark:text-zinc-100">{formatNPR(pm.amount, true)}</span>
+								</div>
+								<div class="h-1.5 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
+									<div
+										class="h-full rounded-full {methodColor(pm.method)} transition-all"
+										style="width: {pct}%"
+									></div>
+								</div>
+							</div>
+						{/each}
+					</div>
+				{/if}
+			</div>
+
+			<!-- Inventory Status -->
+			<div class="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+				<div class="mb-4 flex items-center gap-2">
+					<PackageCheck class="size-4 text-amber-500" />
+					<h2 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{t('dashboard_inventory_status')}</h2>
+				</div>
+				{#if isLoading || breakdowns.isLoading}
+					<div class="space-y-3">
+						{#each ['bg-emerald-500', 'bg-amber-500', 'bg-red-500'] as color}
+							<div>
+								<div class="mb-1 flex items-center justify-between text-xs">
+									<span class="flex items-center gap-1.5">
+										<span class="size-2 rounded-full {color}"></span>
+										<Skeleton class="h-3 w-16" />
 									</span>
-									<div class="ml-2 shrink-0 text-right">
-										<span class="block tabular-nums text-xs font-medium text-zinc-900 dark:text-zinc-100">{formatNPR(customer.totalSpent, true)}</span>
-										<span class="text-[10px] text-zinc-400">{formatCount(customer.purchaseCount)} {t('dashboard_purchases').toLowerCase()}</span>
-									</div>
+									<Skeleton class="h-3 w-8" />
 								</div>
-							{/each}
-						</div>
-					{/if}
-				</div>
-
-				<!-- Top Suppliers -->
-				<div class="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-					<div class="mb-4 flex items-center gap-2">
-						<Building2 class="size-4 text-violet-500" />
-						<h2 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{t('dashboard_top_suppliers')}</h2>
+								<Skeleton class="h-2 w-full rounded-full" />
+							</div>
+						{/each}
 					</div>
-					{#if b.topSuppliers.length === 0}
-						<p class="text-xs text-zinc-400">{t('dashboard_no_data')}</p>
-					{:else}
-						<div class="space-y-3">
-							{#each b.topSuppliers.slice(0, 5) as supplier, i}
-								<div class="flex items-center justify-between text-sm">
-									<span class="flex items-center gap-2 truncate text-zinc-700 dark:text-zinc-300">
-										<span class="flex size-5 shrink-0 items-center justify-center rounded text-[10px] font-bold bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-400">{i + 1}</span>
-										<span class="truncate">{supplier.name}</span>
-									</span>
-									<span class="ml-2 shrink-0 tabular-nums text-xs font-medium text-zinc-900 dark:text-zinc-100">{formatNPR(supplier.totalAmount, true)}</span>
-								</div>
-							{/each}
-						</div>
-					{/if}
-				</div>
-
-				<!-- Payment Methods -->
-				<div class="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-					<div class="mb-4 flex items-center gap-2">
-						<CreditCard class="size-4 text-cyan-500" />
-						<h2 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{t('dashboard_payment_methods')}</h2>
-					</div>
-					{#if b.paymentMethods.length === 0}
-						<p class="text-xs text-zinc-400">{t('dashboard_no_data')}</p>
-					{:else}
-						{@const maxMethod = Math.max(...b.paymentMethods.map((m: any) => m.amount), 1)}
-						<div class="space-y-3">
-							{#each b.paymentMethods as pm}
-								{@const pct = (pm.amount / maxMethod) * 100}
-								<div>
-									<div class="mb-1 flex items-center justify-between text-xs">
-										<span class="text-zinc-600 dark:text-zinc-400">{methodLabel(pm.method)}</span>
-										<span class="tabular-nums font-medium text-zinc-900 dark:text-zinc-100">{formatNPR(pm.amount, true)}</span>
-									</div>
-									<div class="h-1.5 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
-										<div
-											class="h-full rounded-full {methodColor(pm.method)} transition-all"
-											style="width: {pct}%"
-										></div>
-									</div>
-								</div>
-							{/each}
-						</div>
-					{/if}
-				</div>
-
-				<!-- Inventory Status -->
-				<div class="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-					<div class="mb-4 flex items-center gap-2">
-						<PackageCheck class="size-4 text-amber-500" />
-						<h2 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{t('dashboard_inventory_status')}</h2>
-					</div>
+				{:else if b}
 					<div class="space-y-3">
 						<!-- In Stock -->
 						<div>
@@ -816,9 +929,9 @@
 							</div>
 						</div>
 					</div>
-				</div>
+				{/if}
 			</div>
-		{/if}
+		</div>
 
 		<!-- Reports Links -->
 		<div class="mt-8">
@@ -853,5 +966,4 @@
 				</a>
 			</div>
 		</div>
-	{/if}
 </div>

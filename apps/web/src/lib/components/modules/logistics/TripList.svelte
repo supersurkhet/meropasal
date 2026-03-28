@@ -11,12 +11,12 @@
 	import { Input } from '$lib/components/ui/input'
 	import { Badge } from '$lib/components/ui/badge'
 	import * as Select from '$lib/components/ui/select'
+	import { Skeleton } from '$lib/components/ui/skeleton'
 	import {
 		Plus,
 		Search,
 		Truck,
 		MapPin,
-		Loader2,
 		Clock,
 		Package,
 	} from '@lucide/svelte'
@@ -137,14 +137,7 @@
 	</div>
 
 	<!-- Content -->
-	{#if isLoading}
-		<div class="flex items-center justify-center py-20">
-			<div class="flex flex-col items-center gap-3">
-				<Loader2 class="size-8 animate-spin text-zinc-400" />
-				<p class="text-sm text-zinc-500">{t('common_loading_trips')}</p>
-			</div>
-		</div>
-	{:else if filteredTrips.length === 0}
+	{#if !isLoading && filteredTrips.length === 0}
 		{#if searchQuery || statusFilter !== 'all'}
 			<EmptyState
 				icon={Truck}
@@ -175,104 +168,156 @@
 					</TableRow>
 				</TableHeader>
 				<TableBody>
-					{#each filteredTrips as trip (trip._id)}
-						{@const cfg = statusConfig[trip.status]}
-						<TableRow class="group border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/60">
-							<TableCell>
-								<a href="/trips/{trip._id}" class="block">
-									<div class="font-medium text-zinc-900 dark:text-zinc-100">
-										{getVehicleName(trip.vehicleId)}
-									</div>
-								</a>
-							</TableCell>
-							<TableCell class="hidden md:table-cell">
-								{#if trip.destination}
+					{#if isLoading}
+						{#each Array(6) as _, i}
+							<TableRow class="group border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/60">
+								<TableCell>
+									<Skeleton class="h-4 w-36" />
+								</TableCell>
+								<TableCell class="hidden md:table-cell">
+									<Skeleton class="h-4 w-24" />
+								</TableCell>
+								<TableCell>
+									<Skeleton class="h-4 w-32" />
+								</TableCell>
+								<TableCell class="hidden lg:table-cell">
+									<Skeleton class="h-4 w-32" />
+								</TableCell>
+								<TableCell>
+									<Skeleton class="h-5 w-20 rounded-full" />
+								</TableCell>
+								<TableCell>
+									<Skeleton class="h-4 w-8" />
+								</TableCell>
+							</TableRow>
+						{/each}
+					{:else}
+						{#each filteredTrips as trip (trip._id)}
+							{@const cfg = statusConfig[trip.status]}
+							<TableRow class="group border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/60">
+								<TableCell>
+									<a href="/trips/{trip._id}" class="block">
+										<div class="font-medium text-zinc-900 dark:text-zinc-100">
+											{getVehicleName(trip.vehicleId)}
+										</div>
+									</a>
+								</TableCell>
+								<TableCell class="hidden md:table-cell">
+									{#if trip.destination}
+										<div class="flex items-center gap-1.5 text-sm text-zinc-600 dark:text-zinc-400">
+											<MapPin class="size-3.5" />
+											{trip.destination}
+										</div>
+									{:else}
+										<span class="text-xs text-zinc-400">—</span>
+									{/if}
+								</TableCell>
+								<TableCell>
 									<div class="flex items-center gap-1.5 text-sm text-zinc-600 dark:text-zinc-400">
-										<MapPin class="size-3.5" />
-										{trip.destination}
+										<Clock class="size-3.5" />
+										{formatDateTime(trip.dispatchTime)}
 									</div>
-								{:else}
-									<span class="text-xs text-zinc-400">—</span>
-								{/if}
-							</TableCell>
-							<TableCell>
-								<div class="flex items-center gap-1.5 text-sm text-zinc-600 dark:text-zinc-400">
-									<Clock class="size-3.5" />
-									{formatDateTime(trip.dispatchTime)}
-								</div>
-							</TableCell>
-							<TableCell class="hidden lg:table-cell">
-								{#if trip.returnTime}
-									<span class="text-sm text-zinc-600 dark:text-zinc-400">{formatDateTime(trip.returnTime)}</span>
-								{:else}
-									<span class="text-xs text-zinc-400">—</span>
-								{/if}
-							</TableCell>
-							<TableCell>
-								<Badge variant="secondary" class={cfg.class}>
-									{cfg.label}
-								</Badge>
-							</TableCell>
-							<TableCell>
-								<span class="font-mono text-sm text-zinc-600 dark:text-zinc-400">
-									{trip.products.length}
-								</span>
-							</TableCell>
-						</TableRow>
-					{/each}
+								</TableCell>
+								<TableCell class="hidden lg:table-cell">
+									{#if trip.returnTime}
+										<span class="text-sm text-zinc-600 dark:text-zinc-400">{formatDateTime(trip.returnTime)}</span>
+									{:else}
+										<span class="text-xs text-zinc-400">—</span>
+									{/if}
+								</TableCell>
+								<TableCell>
+									<Badge variant="secondary" class={cfg.class}>
+										{cfg.label}
+									</Badge>
+								</TableCell>
+								<TableCell>
+									<span class="font-mono text-sm text-zinc-600 dark:text-zinc-400">
+										{trip.products.length}
+									</span>
+								</TableCell>
+							</TableRow>
+						{/each}
+					{/if}
 				</TableBody>
 			</Table>
 		</div>
-		<p class="text-xs text-zinc-400 dark:text-zinc-500">
-			{filteredTrips.length} {filteredTrips.length === 1 ? 'trip' : 'trips'}
-			{#if searchQuery || statusFilter !== 'all'}&middot; filtered from {trips.length}{/if}
-		</p>
+		{#if isLoading}
+			<Skeleton class="h-4 w-32" />
+		{:else}
+			<p class="text-xs text-zinc-400 dark:text-zinc-500">
+				{filteredTrips.length} {filteredTrips.length === 1 ? 'trip' : 'trips'}
+				{#if searchQuery || statusFilter !== 'all'}&middot; filtered from {trips.length}{/if}
+			</p>
+		{/if}
 	{:else}
 		<div class={gridClass}>
-			{#each filteredTrips as trip (trip._id)}
-				{@const cfg = statusConfig[trip.status]}
-				<a
-					href="/trips/{trip._id}"
-					class="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950"
-				>
-					<div class="flex items-start justify-between gap-3">
-						<div class="min-w-0 flex-1">
-							<p class="truncate font-semibold text-zinc-900 dark:text-zinc-100">
-								{getVehicleName(trip.vehicleId)}
-							</p>
-							{#if trip.destination}
-								<div class="mt-1.5 flex items-center gap-1.5 text-sm text-zinc-600 dark:text-zinc-400">
-									<MapPin class="size-3.5 shrink-0" />
-									<span class="truncate">{trip.destination}</span>
-								</div>
-							{/if}
+			{#if isLoading}
+				{#each Array(6) as _}
+					<div class="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+						<div class="flex items-start justify-between gap-3">
+							<div class="min-w-0 flex-1">
+								<Skeleton class="h-5 w-36" />
+								<Skeleton class="mt-1.5 h-4 w-24" />
+							</div>
+							<Skeleton class="h-5 w-20 shrink-0 rounded-full" />
 						</div>
-						<Badge variant="secondary" class="{cfg.class} shrink-0">
-							{cfg.label}
-						</Badge>
+						<div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
+							<Skeleton class="h-4 w-32" />
+							<Skeleton class="h-4 w-32" />
+							<Skeleton class="h-4 w-8" />
+						</div>
 					</div>
-					<div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-zinc-500 dark:text-zinc-400">
-						<div class="flex items-center gap-1.5">
-							<Clock class="size-3.5" />
-							{formatDateTime(trip.dispatchTime)}
+				{/each}
+			{:else}
+				{#each filteredTrips as trip (trip._id)}
+					{@const cfg = statusConfig[trip.status]}
+					<a
+						href="/trips/{trip._id}"
+						class="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950"
+					>
+						<div class="flex items-start justify-between gap-3">
+							<div class="min-w-0 flex-1">
+								<p class="truncate font-semibold text-zinc-900 dark:text-zinc-100">
+									{getVehicleName(trip.vehicleId)}
+								</p>
+								{#if trip.destination}
+									<div class="mt-1.5 flex items-center gap-1.5 text-sm text-zinc-600 dark:text-zinc-400">
+										<MapPin class="size-3.5 shrink-0" />
+										<span class="truncate">{trip.destination}</span>
+									</div>
+								{/if}
+							</div>
+							<Badge variant="secondary" class="{cfg.class} shrink-0">
+								{cfg.label}
+							</Badge>
 						</div>
-						{#if trip.returnTime}
+						<div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-zinc-500 dark:text-zinc-400">
 							<div class="flex items-center gap-1.5">
 								<Clock class="size-3.5" />
-								{formatDateTime(trip.returnTime)}
+								{formatDateTime(trip.dispatchTime)}
 							</div>
-						{/if}
-						<div class="flex items-center gap-1.5">
-							<Package class="size-3.5" />
-							<span class="font-mono">{trip.products.length}</span>
+							{#if trip.returnTime}
+								<div class="flex items-center gap-1.5">
+									<Clock class="size-3.5" />
+									{formatDateTime(trip.returnTime)}
+								</div>
+							{/if}
+							<div class="flex items-center gap-1.5">
+								<Package class="size-3.5" />
+								<span class="font-mono">{trip.products.length}</span>
+							</div>
 						</div>
-					</div>
-				</a>
-			{/each}
+					</a>
+				{/each}
+			{/if}
 		</div>
-		<p class="text-xs text-zinc-400 dark:text-zinc-500">
-			{filteredTrips.length} {filteredTrips.length === 1 ? 'trip' : 'trips'}
-			{#if searchQuery || statusFilter !== 'all'}&middot; filtered from {trips.length}{/if}
-		</p>
+		{#if isLoading}
+			<Skeleton class="h-4 w-32" />
+		{:else}
+			<p class="text-xs text-zinc-400 dark:text-zinc-500">
+				{filteredTrips.length} {filteredTrips.length === 1 ? 'trip' : 'trips'}
+				{#if searchQuery || statusFilter !== 'all'}&middot; filtered from {trips.length}{/if}
+			</p>
+		{/if}
 	{/if}
 </div>

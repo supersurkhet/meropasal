@@ -6,6 +6,7 @@
 	import * as Table from '$lib/components/ui/table';
 	import * as Select from '$lib/components/ui/select';
 	import { Filter, BookText } from '@lucide/svelte';
+	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { t } from '$lib/t.svelte';
 	import EmptyState from '$lib/components/shared/EmptyState.svelte';
 	import DatePicker from '$lib/components/shared/DatePicker.svelte';
@@ -118,11 +119,36 @@
 	</div>
 
 	{#if entries.isLoading}
-		<div class="flex items-center justify-center py-20">
-			<div class="flex flex-col items-center gap-3">
-				<div class="size-6 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-900 dark:border-zinc-600 dark:border-t-zinc-100"></div>
-				<p class="text-sm text-zinc-500 dark:text-zinc-400">{t('common_loading')}</p>
-			</div>
+		<div class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+			<Table.Root>
+				<Table.Header>
+					<Table.Row class="bg-zinc-50 dark:bg-zinc-900/50">
+						<Table.Head class="font-semibold">{t('common_date')}</Table.Head>
+						<Table.Head class="font-semibold">{t('ledger_account')}</Table.Head>
+						<Table.Head class="text-right font-semibold">{t('ledger_debit')}</Table.Head>
+						<Table.Head class="text-right font-semibold">{t('ledger_credit')}</Table.Head>
+						<Table.Head class="font-semibold">{t('ledger_narration')}</Table.Head>
+						<Table.Head class="font-semibold">{t('ledger_voucher_type')}</Table.Head>
+					</Table.Row>
+				</Table.Header>
+				<Table.Body>
+					{#each Array(8) as _}
+						<Table.Row>
+							<Table.Cell><Skeleton class="h-4 w-20" /></Table.Cell>
+							<Table.Cell>
+								<div class="flex flex-col gap-1">
+									<Skeleton class="h-4 w-28" />
+									<Skeleton class="h-3 w-16" />
+								</div>
+							</Table.Cell>
+							<Table.Cell class="text-right"><Skeleton class="ml-auto h-4 w-20" /></Table.Cell>
+							<Table.Cell class="text-right"><Skeleton class="ml-auto h-4 w-20" /></Table.Cell>
+							<Table.Cell><Skeleton class="h-4 w-40" /></Table.Cell>
+							<Table.Cell><Skeleton class="h-5 w-16 rounded-full" /></Table.Cell>
+						</Table.Row>
+					{/each}
+				</Table.Body>
+			</Table.Root>
 		</div>
 	{:else if !filteredEntries.length}
 		<EmptyState

@@ -7,6 +7,7 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Separator } from '$lib/components/ui/separator';
 	import { Save, Loader2, AlertTriangle, RotateCcw, Store, Upload, Trash2, TriangleAlert } from '@lucide/svelte';
+	import { Skeleton } from '$lib/components/ui/skeleton';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import StickyActions from '$lib/components/shared/StickyActions.svelte';
 	import { toast } from 'svelte-sonner';
@@ -219,9 +220,60 @@
 </script>
 
 {#if settings.isLoading}
-	<div class="flex items-center justify-center py-12 text-zinc-500">
-		<div class="size-5 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-600"></div>
-		<span class="ml-2 text-sm">{t('settings_loading')}</span>
+	<div class="space-y-8">
+		<!-- Logo -->
+		<div class="space-y-4">
+			<h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{t('settings_logo')}</h3>
+			<div class="flex items-center gap-4">
+				<div class="flex size-16 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+					<Store class="size-7 text-zinc-400 dark:text-zinc-500" />
+				</div>
+				<Skeleton class="h-8 w-28 rounded-md" />
+			</div>
+		</div>
+
+		<Separator />
+
+		<!-- Business Info -->
+		<div class="space-y-4">
+			<h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{t('settings_business_info')}</h3>
+			<div class="grid gap-4 sm:grid-cols-2">
+				<div class="space-y-1.5">
+					<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('settings_business_name')}</Label>
+					<Skeleton class="h-10 w-full rounded-md" />
+				</div>
+				<div class="space-y-1.5">
+					<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('settings_location')}</Label>
+					<Skeleton class="h-10 w-full rounded-md" />
+				</div>
+				<div class="space-y-1.5">
+					<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('settings_phone')}</Label>
+					<Skeleton class="h-10 w-full rounded-md" />
+				</div>
+				<div class="space-y-1.5">
+					<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('settings_pan_number')}</Label>
+					<Skeleton class="h-10 w-full rounded-md" />
+				</div>
+			</div>
+		</div>
+
+		<Separator />
+
+		<!-- Fiscal & Tax -->
+		<div class="space-y-4">
+			<h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{t('settings_fiscal_tax')}</h3>
+			<div class="grid gap-4 sm:grid-cols-2">
+				<div class="space-y-1.5">
+					<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('settings_fiscal_year')}</Label>
+					<Skeleton class="h-10 w-full rounded-md" />
+					<p class="text-xs text-zinc-500">{t('settings_fiscal_year_hint')}</p>
+				</div>
+				<div class="space-y-1.5">
+					<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('settings_tax_rate')}</Label>
+					<Skeleton class="h-10 w-full rounded-md" />
+				</div>
+			</div>
+		</div>
 	</div>
 {:else if !settings.data}
 	<div class="rounded-xl border border-amber-200 bg-amber-50 p-8 text-center dark:border-amber-800 dark:bg-amber-950/30">

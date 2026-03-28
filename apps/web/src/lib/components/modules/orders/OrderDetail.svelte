@@ -6,6 +6,7 @@
 	import { getConvexClient, api } from '$lib/convex';
 	import { type PaymentStatus } from '$lib/payment-status';
 	import { Loader2, CheckCircle, AlertTriangle } from '@lucide/svelte';
+	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { formatDate } from '$lib/date-utils';
 	import { t } from '$lib/t.svelte';
 	import { breadcrumbLabel } from '$lib/breadcrumb-label.svelte';
@@ -164,8 +165,90 @@
 </script>
 
 {#if !loaded}
-	<div class="flex items-center justify-center py-12">
-		<div class="size-6 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-900 dark:border-zinc-600 dark:border-t-zinc-100"></div>
+	<div class="max-w-4xl space-y-6">
+		<!-- Order header -->
+		<div class="flex items-start justify-between">
+			<div class="space-y-1">
+				<div class="flex items-center gap-3">
+					<Skeleton class="h-6 w-40" />
+					<Skeleton class="h-5 w-16 rounded-full" />
+					<Skeleton class="h-5 w-16 rounded-full" />
+				</div>
+				<Skeleton class="h-4 w-48" />
+			</div>
+		</div>
+
+		<!-- Items table -->
+		<div class="space-y-3">
+			<h3 class="text-sm font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{t('detail_items')}</h3>
+			<div class="rounded-lg border border-zinc-200 dark:border-zinc-700">
+				<Table.Root>
+					<Table.Header>
+						<Table.Row class="bg-zinc-50 dark:bg-zinc-900/50">
+							<Table.Head class="text-xs font-medium uppercase tracking-wider">{t('product_title')}</Table.Head>
+							<Table.Head class="text-xs font-medium uppercase tracking-wider text-right">{t('common_quantity')}</Table.Head>
+							<Table.Head class="text-xs font-medium uppercase tracking-wider text-right">{t('common_rate')}</Table.Head>
+							<Table.Head class="text-xs font-medium uppercase tracking-wider text-right">{t('common_total')}</Table.Head>
+						</Table.Row>
+					</Table.Header>
+					<Table.Body>
+						{#each Array(3) as _}
+							<Table.Row>
+								<Table.Cell><Skeleton class="h-4 w-36" /></Table.Cell>
+								<Table.Cell class="text-right"><Skeleton class="ml-auto h-4 w-10" /></Table.Cell>
+								<Table.Cell class="text-right"><Skeleton class="ml-auto h-4 w-16" /></Table.Cell>
+								<Table.Cell class="text-right"><Skeleton class="ml-auto h-4 w-20" /></Table.Cell>
+							</Table.Row>
+						{/each}
+					</Table.Body>
+				</Table.Root>
+				<div class="flex justify-end border-t border-zinc-200 bg-zinc-50/50 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-900/30">
+					<div class="text-right">
+						<span class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{t('common_total')}</span>
+						<Skeleton class="mt-0.5 h-6 w-28" />
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Payment history -->
+		<div class="space-y-3">
+			<h3 class="text-sm font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{t('detail_payment_history')}</h3>
+			<div class="rounded-lg border border-zinc-200 dark:border-zinc-700">
+				<div class="grid grid-cols-[110px_1fr_1fr_auto] gap-2 border-b border-zinc-100 bg-zinc-50 px-3 py-2 text-xs font-medium uppercase tracking-wider text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-zinc-400">
+					<span>{t('common_date')}</span>
+					<span>{t('payment_amount')}</span>
+					<span>{t('payment_method')}</span>
+					<span>{t('payment_voucher_number')}</span>
+				</div>
+				{#each Array(2) as _}
+					<div class="grid grid-cols-[110px_1fr_1fr_auto] items-center gap-2 border-b border-zinc-100 px-3 py-2.5 last:border-b-0 dark:border-zinc-800">
+						<Skeleton class="h-4 w-20" />
+						<Skeleton class="h-4 w-24" />
+						<Skeleton class="h-4 w-20" />
+						<Skeleton class="h-4 w-16" />
+					</div>
+				{/each}
+			</div>
+		</div>
+
+		<!-- Payment summary -->
+		<div class="rounded-lg border border-zinc-200 bg-zinc-50/50 p-4 dark:border-zinc-700 dark:bg-zinc-900/30">
+			<div class="grid grid-cols-3 gap-4 text-sm">
+				<div>
+					<span class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{t('common_total')}</span>
+					<Skeleton class="mt-0.5 h-5 w-24" />
+				</div>
+				<div>
+					<span class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{t('payment_summary_paid')}</span>
+					<Skeleton class="mt-0.5 h-5 w-24" />
+				</div>
+				<div>
+					<span class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{t('payment_remaining')}</span>
+					<Skeleton class="mt-0.5 h-5 w-24" />
+				</div>
+			</div>
+		</div>
 	</div>
 {:else if !order}
 	<div class="py-12 text-center">

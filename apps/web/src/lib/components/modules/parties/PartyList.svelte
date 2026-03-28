@@ -16,6 +16,7 @@
 		DropdownMenuItem,
 		DropdownMenuTrigger,
 	} from '$lib/components/ui/dropdown-menu'
+	import { Skeleton } from '$lib/components/ui/skeleton'
 	import {
 		Plus,
 		Search,
@@ -264,14 +265,7 @@
 	</div>
 
 	<!-- Content -->
-	{#if isLoading}
-		<div class="flex items-center justify-center py-20">
-			<div class="flex flex-col items-center gap-3">
-				<Loader2 class="size-8 animate-spin text-zinc-400" />
-				<p class="text-sm text-zinc-500">{t('common_loading_parties')}</p>
-			</div>
-		</div>
-	{:else if filteredParties.length === 0}
+	{#if !isLoading && filteredParties.length === 0}
 		{#if searchQuery}
 			<EmptyState
 				icon={Users}
@@ -302,74 +296,140 @@
 						</TableRow>
 					</TableHeader>
 					<TableBody>
-						{#each filteredParties as party (party._id)}
-							<TableRow class="group border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/60">
-								<TableCell>
-									<a href="/parties/{party._id}" class="block">
-										<div class="font-medium text-zinc-900 dark:text-zinc-100">{party.name}</div>
-										{#if party.address}
-											<div class="mt-0.5 flex items-center gap-1 text-xs text-zinc-500">
-												<MapPin class="size-3" />
-												{party.address}
-											</div>
+						{#if isLoading}
+							{#each Array(6) as _, i}
+								<TableRow class="group border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/60">
+									<TableCell>
+										<Skeleton class="h-4 w-32" />
+										<Skeleton class="mt-1 h-3 w-24" />
+									</TableCell>
+									<TableCell>
+										<Skeleton class="h-5 w-20 rounded-full" />
+									</TableCell>
+									<TableCell class="hidden md:table-cell">
+										<Skeleton class="h-4 w-24" />
+									</TableCell>
+									<TableCell class="hidden lg:table-cell">
+										<Skeleton class="h-4 w-20" />
+									</TableCell>
+									<TableCell>
+										<Skeleton class="size-8 rounded-md" />
+									</TableCell>
+								</TableRow>
+							{/each}
+						{:else}
+							{#each filteredParties as party (party._id)}
+								<TableRow class="group border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/60">
+									<TableCell>
+										<a href="/parties/{party._id}" class="block">
+											<div class="font-medium text-zinc-900 dark:text-zinc-100">{party.name}</div>
+											{#if party.address}
+												<div class="mt-0.5 flex items-center gap-1 text-xs text-zinc-500">
+													<MapPin class="size-3" />
+													{party.address}
+												</div>
+											{/if}
+										</a>
+									</TableCell>
+									<TableCell>
+										{#if party.panNumber}
+											<Badge variant="secondary" class="bg-zinc-100 font-mono text-xs text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+												{party.panNumber}
+											</Badge>
+										{:else}
+											<span class="text-xs text-zinc-400">—</span>
 										{/if}
-									</a>
-								</TableCell>
-								<TableCell>
-									{#if party.panNumber}
-										<Badge variant="secondary" class="bg-zinc-100 font-mono text-xs text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-											{party.panNumber}
-										</Badge>
-									{:else}
-										<span class="text-xs text-zinc-400">—</span>
-									{/if}
-								</TableCell>
-								<TableCell class="hidden md:table-cell">
-									{#if party.phone}
-										<div class="flex items-center gap-1.5 text-sm text-zinc-600 dark:text-zinc-400">
-											<Phone class="size-3.5" />
-											{party.phone}
-										</div>
-									{:else}
-										<span class="text-xs text-zinc-400">—</span>
-									{/if}
-								</TableCell>
-								<TableCell class="hidden lg:table-cell">
-									{#if party.creditLimit}
-										<span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-											{formatCurrency(party.creditLimit)}
-										</span>
-									{:else}
-										<span class="text-xs text-zinc-400">—</span>
-									{/if}
-								</TableCell>
-								<TableCell>
-									{@render actionDropdown(party)}
-								</TableCell>
-							</TableRow>
-						{/each}
+									</TableCell>
+									<TableCell class="hidden md:table-cell">
+										{#if party.phone}
+											<div class="flex items-center gap-1.5 text-sm text-zinc-600 dark:text-zinc-400">
+												<Phone class="size-3.5" />
+												{party.phone}
+											</div>
+										{:else}
+											<span class="text-xs text-zinc-400">—</span>
+										{/if}
+									</TableCell>
+									<TableCell class="hidden lg:table-cell">
+										{#if party.creditLimit}
+											<span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+												{formatCurrency(party.creditLimit)}
+											</span>
+										{:else}
+											<span class="text-xs text-zinc-400">—</span>
+										{/if}
+									</TableCell>
+									<TableCell>
+										{@render actionDropdown(party)}
+									</TableCell>
+								</TableRow>
+							{/each}
+						{/if}
 					</TableBody>
 				</Table>
 			</div>
 		{:else if viewPref.mode === 'list'}
 			<div class="flex flex-col gap-2">
-				{#each filteredParties as party (party._id)}
-					{@render partyListItem(party)}
-				{/each}
+				{#if isLoading}
+					{#each Array(6) as _}
+						<div class="group rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+							<div class="flex items-center gap-4">
+								<div class="min-w-0 flex-1">
+									<div class="flex items-center gap-3">
+										<Skeleton class="h-5 w-32" />
+										<Skeleton class="h-5 w-20 rounded-full" />
+									</div>
+									<div class="mt-0.5 flex flex-wrap items-center gap-x-4 gap-y-1">
+										<Skeleton class="h-4 w-24" />
+										<Skeleton class="h-4 w-20" />
+										<Skeleton class="h-4 w-16" />
+									</div>
+								</div>
+								<Skeleton class="size-8 shrink-0 rounded-md" />
+							</div>
+						</div>
+					{/each}
+				{:else}
+					{#each filteredParties as party (party._id)}
+						{@render partyListItem(party)}
+					{/each}
+				{/if}
 			</div>
 		{:else}
 			<div class={viewPref.mode === 'grid-3'
 				? 'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'
 				: 'grid grid-cols-1 gap-4 md:grid-cols-2'}>
-				{#each filteredParties as party (party._id)}
-					{@render partyCard(party)}
-				{/each}
+				{#if isLoading}
+					{#each Array(6) as _}
+						<div class="group rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+							<div class="flex items-start justify-between gap-2">
+								<Skeleton class="h-5 w-32" />
+								<Skeleton class="size-8 rounded-md" />
+							</div>
+							<Skeleton class="mt-2 h-4 w-28" />
+							<Skeleton class="mt-2 h-5 w-20 rounded-full" />
+							<Skeleton class="mt-2 h-4 w-24" />
+							<div class="mt-3 flex flex-wrap items-center gap-3 border-t border-zinc-100 pt-3 dark:border-zinc-800">
+								<Skeleton class="h-4 w-20" />
+								<Skeleton class="h-4 w-16" />
+							</div>
+						</div>
+					{/each}
+				{:else}
+					{#each filteredParties as party (party._id)}
+						{@render partyCard(party)}
+					{/each}
+				{/if}
 			</div>
 		{/if}
-		<p class="text-xs text-zinc-400 dark:text-zinc-500">
-			{filteredParties.length} {filteredParties.length === 1 ? 'party' : 'parties'}
-			{#if searchQuery}&middot; filtered from {parties.length}{/if}
-		</p>
+		{#if isLoading}
+			<Skeleton class="h-4 w-32" />
+		{:else}
+			<p class="text-xs text-zinc-400 dark:text-zinc-500">
+				{filteredParties.length} {filteredParties.length === 1 ? 'party' : 'parties'}
+				{#if searchQuery}&middot; filtered from {parties.length}{/if}
+			</p>
+		{/if}
 	{/if}
 </div>
 

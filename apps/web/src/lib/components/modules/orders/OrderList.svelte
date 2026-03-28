@@ -2,6 +2,7 @@
 	import * as Table from '$lib/components/ui/table'
 	import * as Select from '$lib/components/ui/select'
 	import { Button } from '$lib/components/ui/button'
+	import { Skeleton } from '$lib/components/ui/skeleton'
 	import { ClipboardList, Plus } from '@lucide/svelte'
 	import { getConvexClient, api } from '$lib/convex'
 	import { t } from '$lib/t.svelte'
@@ -150,14 +151,7 @@
 	</div>
 </div>
 
-{#if !loaded}
-	<div class="flex items-center justify-center py-20">
-		<div class="flex flex-col items-center gap-3">
-			<div class="size-6 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-900 dark:border-zinc-600 dark:border-t-zinc-100"></div>
-			<p class="text-sm text-zinc-500">{t('common_loading')}</p>
-		</div>
-	</div>
-{:else if filteredOrders.length === 0}
+{#if loaded && filteredOrders.length === 0}
 	{#if statusFilter !== 'all' || orders.length > 0}
 		<EmptyState
 			icon={ClipboardList}
@@ -174,99 +168,138 @@
 			actionIcon={Plus}
 		/>
 	{/if}
-{:else if viewPref.mode === 'table'}
-	<div class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-		<Table.Root>
-			<Table.Header>
-				<Table.Row class="border-zinc-100 bg-zinc-50/80 hover:bg-zinc-50/80 dark:border-zinc-800 dark:bg-zinc-900/50">
-					<Table.Head class="font-semibold text-zinc-600 dark:text-zinc-400">{t('common_date')}</Table.Head>
-					<Table.Head class="font-semibold text-zinc-600 dark:text-zinc-400">{t('order_customer')}</Table.Head>
-					<Table.Head class="font-semibold text-zinc-600 dark:text-zinc-400">{t('order_items')}</Table.Head>
-					<Table.Head class="text-right font-semibold text-zinc-600 dark:text-zinc-400">{t('common_total')}</Table.Head>
-					<Table.Head class="text-right font-semibold text-zinc-600 dark:text-zinc-400">{t('order_paid')}</Table.Head>
-					<Table.Head class="text-center font-semibold text-zinc-600 dark:text-zinc-400">{t('order_status')}</Table.Head>
-					<Table.Head class="text-center font-semibold text-zinc-600 dark:text-zinc-400">{t('payment_method')}</Table.Head>
-				</Table.Row>
-			</Table.Header>
-			<Table.Body>
+{:else}
+	{#if viewPref.mode === 'table'}
+		<div class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+			<Table.Root>
+				<Table.Header>
+					<Table.Row class="border-zinc-100 bg-zinc-50/80 hover:bg-zinc-50/80 dark:border-zinc-800 dark:bg-zinc-900/50">
+						<Table.Head class="font-semibold text-zinc-600 dark:text-zinc-400">{t('common_date')}</Table.Head>
+						<Table.Head class="font-semibold text-zinc-600 dark:text-zinc-400">{t('order_customer')}</Table.Head>
+						<Table.Head class="font-semibold text-zinc-600 dark:text-zinc-400">{t('order_items')}</Table.Head>
+						<Table.Head class="text-right font-semibold text-zinc-600 dark:text-zinc-400">{t('common_total')}</Table.Head>
+						<Table.Head class="text-right font-semibold text-zinc-600 dark:text-zinc-400">{t('order_paid')}</Table.Head>
+						<Table.Head class="text-center font-semibold text-zinc-600 dark:text-zinc-400">{t('order_status')}</Table.Head>
+						<Table.Head class="text-center font-semibold text-zinc-600 dark:text-zinc-400">{t('payment_method')}</Table.Head>
+					</Table.Row>
+				</Table.Header>
+				<Table.Body>
+					{#if !loaded}
+						{#each Array(6) as _, i}
+							<Table.Row class="border-zinc-100 dark:border-zinc-800">
+								<Table.Cell><Skeleton class="h-4 w-20" /></Table.Cell>
+								<Table.Cell><Skeleton class="h-4 w-32" /></Table.Cell>
+								<Table.Cell><Skeleton class="h-4 w-36" /></Table.Cell>
+								<Table.Cell class="text-right"><Skeleton class="ml-auto h-4 w-20" /></Table.Cell>
+								<Table.Cell class="text-right"><Skeleton class="ml-auto h-4 w-16" /></Table.Cell>
+								<Table.Cell class="text-center"><Skeleton class="mx-auto h-5 w-16 rounded-full" /></Table.Cell>
+								<Table.Cell class="text-center"><Skeleton class="mx-auto h-5 w-16 rounded-full" /></Table.Cell>
+							</Table.Row>
+						{/each}
+					{:else}
+						{#each filteredOrders as order}
+							{@const status = orderStatus(order)}
+							<Table.Row class="group border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/60">
+								<Table.Cell>
+									<a href="/orders/{order._id}" class="text-sm text-zinc-700 hover:underline dark:text-zinc-300">
+										{formatDate(order.issuedAt)}
+									</a>
+								</Table.Cell>
+								<Table.Cell class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+									{order.partyId ? (customerNames[order.partyId] ?? '—') : t('common_walk_in')}
+								</Table.Cell>
+								<Table.Cell class="max-w-[200px] truncate text-sm text-zinc-600 dark:text-zinc-400">
+									{itemsSummary(order.items)}
+								</Table.Cell>
+								<Table.Cell class="text-right font-mono text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+									{formatNPR(order.totalAmount, true)}
+								</Table.Cell>
+								<Table.Cell class="text-right font-mono text-sm text-emerald-600 dark:text-emerald-400">
+									{formatNPR(order.paidAmount, true)}
+								</Table.Cell>
+								<Table.Cell class="text-center">
+									<span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold {statusBadgeClass(status)}">
+										{statusLabel(status)}
+									</span>
+								</Table.Cell>
+								<Table.Cell class="text-center">
+									<span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold {paymentBadgeClass(order.paymentStatus)}">
+										{paymentLabel(order.paymentStatus)}
+									</span>
+								</Table.Cell>
+							</Table.Row>
+						{/each}
+					{/if}
+				</Table.Body>
+			</Table.Root>
+		</div>
+	{:else}
+		<div class={gridClass}>
+			{#if !loaded}
+				{#each Array(6) as _}
+					<div class="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+						<div class="flex items-start justify-between gap-2">
+							<div class="min-w-0">
+								<Skeleton class="h-3 w-20" />
+								<Skeleton class="mt-0.5 h-4 w-32" />
+							</div>
+							<div class="flex shrink-0 gap-1.5">
+								<Skeleton class="h-5 w-16 rounded-full" />
+								<Skeleton class="h-5 w-16 rounded-full" />
+							</div>
+						</div>
+						<Skeleton class="mt-2 h-3 w-40" />
+						<div class="mt-3 flex items-baseline justify-between border-t border-zinc-100 pt-3 dark:border-zinc-800">
+							<Skeleton class="h-6 w-24" />
+							<Skeleton class="h-4 w-20" />
+						</div>
+					</div>
+				{/each}
+			{:else}
 				{#each filteredOrders as order}
 					{@const status = orderStatus(order)}
-					<Table.Row class="group border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/60">
-						<Table.Cell>
-							<a href="/orders/{order._id}" class="text-sm text-zinc-700 hover:underline dark:text-zinc-300">
-								{formatDate(order.issuedAt)}
-							</a>
-						</Table.Cell>
-						<Table.Cell class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-							{order.partyId ? (customerNames[order.partyId] ?? '—') : t('common_walk_in')}
-						</Table.Cell>
-						<Table.Cell class="max-w-[200px] truncate text-sm text-zinc-600 dark:text-zinc-400">
+					<a
+						href="/orders/{order._id}"
+						class="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950"
+					>
+						<div class="flex items-start justify-between gap-2">
+							<div class="min-w-0">
+								<p class="text-xs text-zinc-500 dark:text-zinc-400">{formatDate(order.issuedAt)}</p>
+								<p class="mt-0.5 text-sm font-medium text-zinc-900 dark:text-zinc-100">
+									{order.partyId ? (customerNames[order.partyId] ?? '—') : t('common_walk_in')}
+								</p>
+							</div>
+							<div class="flex shrink-0 gap-1.5">
+								<span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold {statusBadgeClass(status)}">
+									{statusLabel(status)}
+								</span>
+								<span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold {paymentBadgeClass(order.paymentStatus)}">
+									{paymentLabel(order.paymentStatus)}
+								</span>
+							</div>
+						</div>
+						<p class="mt-2 truncate text-xs text-zinc-500 dark:text-zinc-400">
 							{itemsSummary(order.items)}
-						</Table.Cell>
-						<Table.Cell class="text-right font-mono text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-							{formatNPR(order.totalAmount, true)}
-						</Table.Cell>
-						<Table.Cell class="text-right font-mono text-sm text-emerald-600 dark:text-emerald-400">
-							{formatNPR(order.paidAmount, true)}
-						</Table.Cell>
-						<Table.Cell class="text-center">
-							<span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold {statusBadgeClass(status)}">
-								{statusLabel(status)}
-							</span>
-						</Table.Cell>
-						<Table.Cell class="text-center">
-							<span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold {paymentBadgeClass(order.paymentStatus)}">
-								{paymentLabel(order.paymentStatus)}
-							</span>
-						</Table.Cell>
-					</Table.Row>
-				{/each}
-			</Table.Body>
-		</Table.Root>
-	</div>
-	<p class="mt-4 text-xs text-zinc-400 dark:text-zinc-500">
-		{filteredOrders.length} {filteredOrders.length === 1 ? t('order_title') : t('order_title_plural')}
-	</p>
-{:else}
-	<div class={gridClass}>
-		{#each filteredOrders as order}
-			{@const status = orderStatus(order)}
-			<a
-				href="/orders/{order._id}"
-				class="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950"
-			>
-				<div class="flex items-start justify-between gap-2">
-					<div class="min-w-0">
-						<p class="text-xs text-zinc-500 dark:text-zinc-400">{formatDate(order.issuedAt)}</p>
-						<p class="mt-0.5 text-sm font-medium text-zinc-900 dark:text-zinc-100">
-							{order.partyId ? (customerNames[order.partyId] ?? '—') : t('common_walk_in')}
 						</p>
-					</div>
-					<div class="flex shrink-0 gap-1.5">
-						<span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold {statusBadgeClass(status)}">
-							{statusLabel(status)}
-						</span>
-						<span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold {paymentBadgeClass(order.paymentStatus)}">
-							{paymentLabel(order.paymentStatus)}
-						</span>
-					</div>
-				</div>
-				<p class="mt-2 truncate text-xs text-zinc-500 dark:text-zinc-400">
-					{itemsSummary(order.items)}
-				</p>
-				<div class="mt-3 flex items-baseline justify-between border-t border-zinc-100 pt-3 dark:border-zinc-800">
-					<span class="font-mono text-lg font-bold text-zinc-900 dark:text-zinc-100">
-						{formatNPR(order.totalAmount, true)}
-					</span>
-					<span class="font-mono text-sm text-emerald-600 dark:text-emerald-400">
-						{t('order_paid')}: {formatNPR(order.paidAmount, true)}
-					</span>
-				</div>
-			</a>
-		{/each}
-	</div>
+						<div class="mt-3 flex items-baseline justify-between border-t border-zinc-100 pt-3 dark:border-zinc-800">
+							<span class="font-mono text-lg font-bold text-zinc-900 dark:text-zinc-100">
+								{formatNPR(order.totalAmount, true)}
+							</span>
+							<span class="font-mono text-sm text-emerald-600 dark:text-emerald-400">
+								{t('order_paid')}: {formatNPR(order.paidAmount, true)}
+							</span>
+						</div>
+					</a>
+				{/each}
+			{/if}
+		</div>
+	{/if}
 	<p class="mt-4 text-xs text-zinc-400 dark:text-zinc-500">
-		{filteredOrders.length} {filteredOrders.length === 1 ? t('order_title') : t('order_title_plural')}
+		{#if !loaded}
+			<Skeleton class="inline-block h-3 w-16" />
+		{:else}
+			{filteredOrders.length} {filteredOrders.length === 1 ? t('order_title') : t('order_title_plural')}
+		{/if}
 	</p>
 {/if}
 </div>

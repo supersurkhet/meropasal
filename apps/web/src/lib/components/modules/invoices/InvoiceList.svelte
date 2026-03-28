@@ -5,6 +5,7 @@
 	import { formatNPR } from '$lib/currency'
 	import * as Table from '$lib/components/ui/table'
 	import * as Select from '$lib/components/ui/select'
+	import { Skeleton } from '$lib/components/ui/skeleton'
 	import { FileText, Filter } from '@lucide/svelte'
 	import { t } from '$lib/t.svelte'
 	import EmptyState from '$lib/components/shared/EmptyState.svelte'
@@ -150,14 +151,7 @@
 		</Select.Root>
 	</div>
 
-	{#if invoices.isLoading}
-		<div class="flex items-center justify-center py-20">
-			<div class="flex flex-col items-center gap-3">
-				<div class="size-6 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-900 dark:border-zinc-600 dark:border-t-zinc-100"></div>
-				<p class="text-sm text-zinc-500 dark:text-zinc-400">{t('common_loading_invoices')}</p>
-			</div>
-		</div>
-	{:else if !invoices.data?.length}
+	{#if !invoices.isLoading && !invoices.data?.length}
 		<EmptyState
 			icon={FileText}
 			title={t('empty_invoices')}
@@ -165,98 +159,134 @@
 			actionLabel={t('stock_import_create')}
 			actionHref="/stock-import/new"
 		/>
-	{:else if viewPref.mode === 'table'}
-		<div class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-			<Table.Root>
-				<Table.Header>
-					<Table.Row class="bg-zinc-50 dark:bg-zinc-900/50">
-						<Table.Head class="font-semibold">{t('invoice_number')}</Table.Head>
-						<Table.Head class="font-semibold">{t('invoice_type')}</Table.Head>
-						<Table.Head class="font-semibold">{t('invoice_party')}</Table.Head>
-						<Table.Head class="font-semibold">{t('common_date')}</Table.Head>
-						<Table.Head class="text-right font-semibold">{t('common_total')}</Table.Head>
-						<Table.Head class="font-semibold">{t('order_status')}</Table.Head>
-					</Table.Row>
-				</Table.Header>
-				<Table.Body>
+	{:else}
+		{#if viewPref.mode === 'table'}
+			<div class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+				<Table.Root>
+					<Table.Header>
+						<Table.Row class="bg-zinc-50 dark:bg-zinc-900/50">
+							<Table.Head class="font-semibold">{t('invoice_number')}</Table.Head>
+							<Table.Head class="font-semibold">{t('invoice_type')}</Table.Head>
+							<Table.Head class="font-semibold">{t('invoice_party')}</Table.Head>
+							<Table.Head class="font-semibold">{t('common_date')}</Table.Head>
+							<Table.Head class="text-right font-semibold">{t('common_total')}</Table.Head>
+							<Table.Head class="font-semibold">{t('order_status')}</Table.Head>
+						</Table.Row>
+					</Table.Header>
+					<Table.Body>
+						{#if invoices.isLoading}
+							{#each Array(6) as _, i}
+								<Table.Row class="border-zinc-100 dark:border-zinc-800">
+									<Table.Cell><Skeleton class="h-4 w-24" /></Table.Cell>
+									<Table.Cell><Skeleton class="h-5 w-16 rounded-full" /></Table.Cell>
+									<Table.Cell><Skeleton class="h-4 w-32" /></Table.Cell>
+									<Table.Cell><Skeleton class="h-4 w-20" /></Table.Cell>
+									<Table.Cell class="text-right"><Skeleton class="ml-auto h-4 w-20" /></Table.Cell>
+									<Table.Cell><Skeleton class="h-5 w-16 rounded-full" /></Table.Cell>
+								</Table.Row>
+							{/each}
+						{:else}
+							{#each invoices.data as invoice}
+								<Table.Row
+									class="cursor-pointer transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
+									onclick={() => {
+										window.location.href = `/invoices/${invoice._id}`
+									}}
+								>
+									<Table.Cell class="font-mono text-sm">
+										{invoice.invoiceNumber || '—'}
+									</Table.Cell>
+									<Table.Cell>
+										<span
+											class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {typeBadgeClass(invoice.type)}"
+										>
+											{typeLabel(invoice.type)}
+										</span>
+									</Table.Cell>
+									<Table.Cell class="text-zinc-700 dark:text-zinc-300">
+										<span class="block truncate max-w-[200px]">{resolvePartyName(invoice.partyId, invoice.partyType)}</span>
+									</Table.Cell>
+									<Table.Cell class="text-zinc-600 dark:text-zinc-400">
+										{formatDate(invoice.issuedAt)}
+									</Table.Cell>
+									<Table.Cell class="text-right font-medium tabular-nums">
+										{formatNPR(invoice.totalAmount)}
+									</Table.Cell>
+									<Table.Cell>
+										<span
+											class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize {statusBadgeClass(invoice.paymentStatus)}"
+										>
+											{t(`status_${invoice.paymentStatus}`)}
+										</span>
+									</Table.Cell>
+								</Table.Row>
+							{/each}
+						{/if}
+					</Table.Body>
+				</Table.Root>
+			</div>
+		{:else}
+			<div class={gridClass}>
+				{#if invoices.isLoading}
+					{#each Array(6) as _}
+						<div class="block rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+							<div class="flex items-start justify-between gap-2">
+								<div class="min-w-0 flex-1">
+									<Skeleton class="h-4 w-24" />
+									<Skeleton class="mt-1 h-4 w-32" />
+								</div>
+								<Skeleton class="h-5 w-16 rounded-full" />
+							</div>
+							<div class="mt-3 flex items-end justify-between gap-2">
+								<div>
+									<Skeleton class="h-6 w-24" />
+									<Skeleton class="mt-0.5 h-3 w-20" />
+								</div>
+								<Skeleton class="h-5 w-16 rounded-full" />
+							</div>
+						</div>
+					{/each}
+				{:else}
 					{#each invoices.data as invoice}
-						<Table.Row
-							class="cursor-pointer transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
-							onclick={() => {
-								window.location.href = `/invoices/${invoice._id}`
-							}}
+						<a
+							href="/invoices/{invoice._id}"
+							class="block rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950"
 						>
-							<Table.Cell class="font-mono text-sm">
-								{invoice.invoiceNumber || '—'}
-							</Table.Cell>
-							<Table.Cell>
+							<div class="flex items-start justify-between gap-2">
+								<div class="min-w-0 flex-1">
+									<p class="truncate font-mono text-sm text-zinc-900 dark:text-zinc-100">
+										{invoice.invoiceNumber || '—'}
+									</p>
+									<p class="mt-1 truncate text-sm text-zinc-600 dark:text-zinc-400">
+										{resolvePartyName(invoice.partyId, invoice.partyType)}
+									</p>
+								</div>
 								<span
-									class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {typeBadgeClass(invoice.type)}"
+									class="inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-medium {typeBadgeClass(invoice.type)}"
 								>
 									{typeLabel(invoice.type)}
 								</span>
-							</Table.Cell>
-							<Table.Cell class="text-zinc-700 dark:text-zinc-300">
-								<span class="block truncate max-w-[200px]">{resolvePartyName(invoice.partyId, invoice.partyType)}</span>
-							</Table.Cell>
-							<Table.Cell class="text-zinc-600 dark:text-zinc-400">
-								{formatDate(invoice.issuedAt)}
-							</Table.Cell>
-							<Table.Cell class="text-right font-medium tabular-nums">
-								{formatNPR(invoice.totalAmount)}
-							</Table.Cell>
-							<Table.Cell>
+							</div>
+
+							<div class="mt-3 flex items-end justify-between gap-2">
+								<div>
+									<p class="text-lg font-bold tabular-nums text-zinc-900 dark:text-zinc-100">
+										{formatNPR(invoice.totalAmount)}
+									</p>
+									<p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-500">
+										{formatDate(invoice.issuedAt)}
+									</p>
+								</div>
 								<span
-									class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize {statusBadgeClass(invoice.paymentStatus)}"
+									class="inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize {statusBadgeClass(invoice.paymentStatus)}"
 								>
 									{t(`status_${invoice.paymentStatus}`)}
 								</span>
-							</Table.Cell>
-						</Table.Row>
+							</div>
+						</a>
 					{/each}
-				</Table.Body>
-			</Table.Root>
-		</div>
-	{:else}
-		<div class={gridClass}>
-			{#each invoices.data as invoice}
-				<a
-					href="/invoices/{invoice._id}"
-					class="block rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950"
-				>
-					<div class="flex items-start justify-between gap-2">
-						<div class="min-w-0 flex-1">
-							<p class="truncate font-mono text-sm text-zinc-900 dark:text-zinc-100">
-								{invoice.invoiceNumber || '—'}
-							</p>
-							<p class="mt-1 truncate text-sm text-zinc-600 dark:text-zinc-400">
-								{resolvePartyName(invoice.partyId, invoice.partyType)}
-							</p>
-						</div>
-						<span
-							class="inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-medium {typeBadgeClass(invoice.type)}"
-						>
-							{typeLabel(invoice.type)}
-						</span>
-					</div>
-
-					<div class="mt-3 flex items-end justify-between gap-2">
-						<div>
-							<p class="text-lg font-bold tabular-nums text-zinc-900 dark:text-zinc-100">
-								{formatNPR(invoice.totalAmount)}
-							</p>
-							<p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-500">
-								{formatDate(invoice.issuedAt)}
-							</p>
-						</div>
-						<span
-							class="inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize {statusBadgeClass(invoice.paymentStatus)}"
-						>
-							{t(`status_${invoice.paymentStatus}`)}
-						</span>
-					</div>
-				</a>
-			{/each}
-		</div>
+				{/if}
+			</div>
+		{/if}
 	{/if}
 </div>

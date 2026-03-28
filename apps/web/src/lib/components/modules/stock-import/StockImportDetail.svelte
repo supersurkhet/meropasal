@@ -8,6 +8,7 @@
 	import { Separator } from '$lib/components/ui/separator';
 	import { Button } from '$lib/components/ui/button';
 	import { ArrowLeft, FileText, PackageOpen } from '@lucide/svelte';
+	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { formatDate } from '$lib/date-utils';
 	import { t } from '$lib/t.svelte';
 	import { breadcrumbLabel } from '$lib/breadcrumb-label.svelte';
@@ -56,9 +57,89 @@
 </script>
 
 {#if stockImport.isLoading}
-	<div class="flex items-center justify-center py-12 text-zinc-500">
-		<div class="size-5 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-600"></div>
-		<span class="ml-2 text-sm">{t('detail_loading_stock_import')}</span>
+	<div class="space-y-6">
+		<!-- Header Actions -->
+		<div class="flex items-center justify-between">
+			<a href="/stock-import" class="inline-flex items-center gap-1.5 text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">
+				<ArrowLeft class="size-4" />
+				{t('detail_back_to_stock_imports')}
+			</a>
+			<Skeleton class="h-8 w-32 rounded-md" />
+		</div>
+
+		<!-- Import Card -->
+		<div class="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+			<!-- Import Meta -->
+			<div class="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+				<div>
+					<p class="text-xs font-medium uppercase tracking-wider text-zinc-500">{t('detail_supplier')}</p>
+					<Skeleton class="mt-0.5 h-5 w-28" />
+				</div>
+				<div>
+					<p class="text-xs font-medium uppercase tracking-wider text-zinc-500">{t('common_date')}</p>
+					<Skeleton class="mt-0.5 h-5 w-24" />
+				</div>
+				<div>
+					<p class="text-xs font-medium uppercase tracking-wider text-zinc-500">{t('detail_invoice_number')}</p>
+					<Skeleton class="mt-0.5 h-5 w-20" />
+				</div>
+				<div>
+					<p class="text-xs font-medium uppercase tracking-wider text-zinc-500">{t('order_status')}</p>
+					<Skeleton class="mt-1 h-5 w-16 rounded-full" />
+				</div>
+			</div>
+
+			<Separator class="mb-6" />
+
+			<!-- Line Items -->
+			<div class="mb-6">
+				<h3 class="mb-3 text-sm font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{t('detail_items')}</h3>
+				<div class="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
+					<Table.Root>
+						<Table.Header>
+							<Table.Row class="bg-zinc-50 dark:bg-zinc-900/50">
+								<Table.Head class="w-12 font-semibold">{t('common_sn')}</Table.Head>
+								<Table.Head class="font-semibold">{t('product_title')}</Table.Head>
+								<Table.Head class="text-center font-semibold">{t('common_quantity')}</Table.Head>
+								<Table.Head class="text-center font-semibold">{t('product_unit')}</Table.Head>
+								<Table.Head class="text-right font-semibold">{t('common_rate')}</Table.Head>
+								<Table.Head class="text-right font-semibold">{t('common_amount')}</Table.Head>
+							</Table.Row>
+						</Table.Header>
+						<Table.Body>
+							{#each Array(4) as _, i}
+								<Table.Row>
+									<Table.Cell class="text-zinc-500">{i + 1}</Table.Cell>
+									<Table.Cell><Skeleton class="h-4 w-36" /></Table.Cell>
+									<Table.Cell class="text-center"><Skeleton class="mx-auto h-4 w-10" /></Table.Cell>
+									<Table.Cell class="text-center"><Skeleton class="mx-auto h-4 w-10" /></Table.Cell>
+									<Table.Cell class="text-right"><Skeleton class="ml-auto h-4 w-16" /></Table.Cell>
+									<Table.Cell class="text-right"><Skeleton class="ml-auto h-4 w-20" /></Table.Cell>
+								</Table.Row>
+							{/each}
+						</Table.Body>
+					</Table.Root>
+				</div>
+			</div>
+
+			<!-- Totals -->
+			<div class="flex justify-end">
+				<div class="w-64 space-y-2">
+					<div class="flex justify-between font-semibold text-zinc-900 dark:text-zinc-100">
+						<span>{t('common_total')}</span>
+						<Skeleton class="h-5 w-24" />
+					</div>
+					<div class="flex justify-between text-sm">
+						<span class="text-zinc-500">{t('payment_summary_paid')}</span>
+						<Skeleton class="h-4 w-20" />
+					</div>
+					<div class="flex justify-between text-sm">
+						<span class="text-zinc-500">{t('detail_balance_due')}</span>
+						<Skeleton class="h-4 w-20" />
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 {:else if !stockImport.data}
 	<div class="py-12 text-center text-zinc-500">

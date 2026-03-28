@@ -9,6 +9,7 @@
 	import { getConvexClient } from '$lib/convex'
 	import { api } from '$lib/api'
 	import { toast } from 'svelte-sonner'
+	import { Skeleton } from '$lib/components/ui/skeleton'
 	import { Plus, Search, MoreHorizontal, Pencil, Trash2, Package } from '@lucide/svelte'
 	import ConfirmDialog from '$lib/components/shared/ConfirmDialog.svelte'
 	import EmptyState from '$lib/components/shared/EmptyState.svelte'
@@ -156,11 +157,7 @@
 	</div>
 
 	<!-- Content -->
-	{#if !loaded}
-		<div class="flex items-center justify-center py-20">
-			<div class="size-6 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-900 dark:border-zinc-600 dark:border-t-zinc-100"></div>
-		</div>
-	{:else if filteredProducts.length === 0}
+	{#if loaded && filteredProducts.length === 0}
 		{#if searchTerm}
 			<EmptyState
 				icon={Package}
@@ -180,134 +177,207 @@
 	{:else}
 		{#if viewPref.mode === 'grid-3'}
 			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-				{#each filteredProducts as product (product._id)}
-					{@const parsed = parseUnit(product.unit)}
-					<div class="group rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950">
-						<div class="flex items-start justify-between gap-2">
-							<a
-								href="/products/{product._id}"
-								class="text-sm font-semibold text-zinc-900 transition-colors hover:text-zinc-600 dark:text-zinc-100 dark:hover:text-zinc-300"
-							>
-								{product.title}
-							</a>
-							<div class="shrink-0 opacity-0 transition-opacity group-hover:opacity-100">
-								{@render actionMenu(product)}
+				{#if !loaded}
+					{#each Array(6) as _}
+						<div class="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+							<div class="flex items-start justify-between gap-2">
+								<Skeleton class="h-4 w-32" />
+								<Skeleton class="h-8 w-8 rounded-md" />
+							</div>
+							<Skeleton class="mt-0.5 h-3 w-24" />
+							<div class="mt-3 flex items-baseline gap-3">
+								<div>
+									<Skeleton class="h-2 w-8" />
+									<Skeleton class="mt-1 h-4 w-16" />
+								</div>
+								<div>
+									<Skeleton class="h-2 w-8" />
+									<Skeleton class="mt-1 h-4 w-16" />
+								</div>
+							</div>
+							<div class="mt-3 flex flex-wrap items-center gap-1.5">
+								<Skeleton class="h-5 w-12 rounded-full" />
+								<Skeleton class="h-5 w-20 rounded-full" />
+								<Skeleton class="h-5 w-16 rounded-full" />
 							</div>
 						</div>
-						<p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
-							{getPartyName(product.purchasePartyId)}
-						</p>
-						<div class="mt-3 flex items-baseline gap-3">
-							<div>
-								<span class="text-[10px] font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Cost</span>
-								<p class="font-mono text-sm tabular-nums text-zinc-700 dark:text-zinc-300">{formatNPR(product.costPrice, true)}</p>
-							</div>
-							<div>
-								<span class="text-[10px] font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Sell</span>
-								<p class="font-mono text-sm tabular-nums text-zinc-700 dark:text-zinc-300">{formatNPR(product.sellingPrice ?? 0, true)}</p>
-							</div>
-						</div>
-						<div class="mt-3 flex flex-wrap items-center gap-1.5">
-							<Badge variant="secondary" class="bg-zinc-100 font-mono text-[11px] text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
-								{parsed.baseUnit}{parsed.piecesPerUnit > 1 ? `:${parsed.piecesPerUnit}` : ''}
-							</Badge>
-							<Badge variant="secondary" class="bg-zinc-100 font-mono text-[11px] text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
-								{product.openingStock} in stock
-							</Badge>
-							{#if product.category}
-								<Badge variant="outline" class="border-zinc-300 text-[11px] capitalize text-zinc-600 dark:border-zinc-600 dark:text-zinc-300">
-									{product.category}
-								</Badge>
-							{/if}
-						</div>
-					</div>
-				{/each}
-			</div>
-		{:else if viewPref.mode === 'grid-2'}
-			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-				{#each filteredProducts as product (product._id)}
-					{@const parsed = parseUnit(product.unit)}
-					<div class="group rounded-xl border border-zinc-200 bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950">
-						<div class="flex items-start justify-between gap-3">
-							<div class="min-w-0 flex-1">
+					{/each}
+				{:else}
+					{#each filteredProducts as product (product._id)}
+						{@const parsed = parseUnit(product.unit)}
+						<div class="group rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950">
+							<div class="flex items-start justify-between gap-2">
 								<a
 									href="/products/{product._id}"
-									class="text-base font-semibold text-zinc-900 transition-colors hover:text-zinc-600 dark:text-zinc-100 dark:hover:text-zinc-300"
+									class="text-sm font-semibold text-zinc-900 transition-colors hover:text-zinc-600 dark:text-zinc-100 dark:hover:text-zinc-300"
 								>
 									{product.title}
 								</a>
-								<p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
-									{getPartyName(product.purchasePartyId)}
-								</p>
+								<div class="shrink-0 opacity-0 transition-opacity group-hover:opacity-100">
+									{@render actionMenu(product)}
+								</div>
 							</div>
+							<p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+								{getPartyName(product.purchasePartyId)}
+							</p>
+							<div class="mt-3 flex items-baseline gap-3">
+								<div>
+									<span class="text-[10px] font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Cost</span>
+									<p class="font-mono text-sm tabular-nums text-zinc-700 dark:text-zinc-300">{formatNPR(product.costPrice, true)}</p>
+								</div>
+								<div>
+									<span class="text-[10px] font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Sell</span>
+									<p class="font-mono text-sm tabular-nums text-zinc-700 dark:text-zinc-300">{formatNPR(product.sellingPrice ?? 0, true)}</p>
+								</div>
+							</div>
+							<div class="mt-3 flex flex-wrap items-center gap-1.5">
+								<Badge variant="secondary" class="bg-zinc-100 font-mono text-[11px] text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+									{parsed.baseUnit}{parsed.piecesPerUnit > 1 ? `:${parsed.piecesPerUnit}` : ''}
+								</Badge>
+								<Badge variant="secondary" class="bg-zinc-100 font-mono text-[11px] text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+									{product.openingStock} in stock
+								</Badge>
+								{#if product.category}
+									<Badge variant="outline" class="border-zinc-300 text-[11px] capitalize text-zinc-600 dark:border-zinc-600 dark:text-zinc-300">
+										{product.category}
+									</Badge>
+								{/if}
+							</div>
+						</div>
+					{/each}
+				{/if}
+			</div>
+		{:else if viewPref.mode === 'grid-2'}
+			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+				{#if !loaded}
+					{#each Array(6) as _}
+						<div class="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+							<div class="flex items-start justify-between gap-3">
+								<div class="min-w-0 flex-1">
+									<Skeleton class="h-5 w-40" />
+									<Skeleton class="mt-0.5 h-4 w-28" />
+								</div>
+								<Skeleton class="h-8 w-8 rounded-md" />
+							</div>
+							<div class="mt-4 grid grid-cols-2 gap-4">
+								<div class="rounded-lg bg-zinc-50 px-3 py-2 dark:bg-zinc-900">
+									<Skeleton class="h-2 w-16" />
+									<Skeleton class="mt-0.5 h-4 w-20" />
+								</div>
+								<div class="rounded-lg bg-zinc-50 px-3 py-2 dark:bg-zinc-900">
+									<Skeleton class="h-2 w-16" />
+									<Skeleton class="mt-0.5 h-4 w-20" />
+								</div>
+							</div>
+							<div class="mt-4 flex flex-wrap items-center gap-2">
+								<Skeleton class="h-5 w-12 rounded-full" />
+								<Skeleton class="h-5 w-20 rounded-full" />
+								<Skeleton class="h-5 w-16 rounded-full" />
+							</div>
+						</div>
+					{/each}
+				{:else}
+					{#each filteredProducts as product (product._id)}
+						{@const parsed = parseUnit(product.unit)}
+						<div class="group rounded-xl border border-zinc-200 bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950">
+							<div class="flex items-start justify-between gap-3">
+								<div class="min-w-0 flex-1">
+									<a
+										href="/products/{product._id}"
+										class="text-base font-semibold text-zinc-900 transition-colors hover:text-zinc-600 dark:text-zinc-100 dark:hover:text-zinc-300"
+									>
+										{product.title}
+									</a>
+									<p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
+										{getPartyName(product.purchasePartyId)}
+									</p>
+								</div>
+								<div class="shrink-0 opacity-0 transition-opacity group-hover:opacity-100">
+									{@render actionMenu(product)}
+								</div>
+							</div>
+							<div class="mt-4 grid grid-cols-2 gap-4">
+								<div class="rounded-lg bg-zinc-50 px-3 py-2 dark:bg-zinc-900">
+									<span class="text-[10px] font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Cost price</span>
+									<p class="mt-0.5 font-mono text-sm font-medium tabular-nums text-zinc-800 dark:text-zinc-200">{formatNPR(product.costPrice, true)}</p>
+								</div>
+								<div class="rounded-lg bg-zinc-50 px-3 py-2 dark:bg-zinc-900">
+									<span class="text-[10px] font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Selling price</span>
+									<p class="mt-0.5 font-mono text-sm font-medium tabular-nums text-zinc-800 dark:text-zinc-200">{formatNPR(product.sellingPrice ?? 0, true)}</p>
+								</div>
+							</div>
+							<div class="mt-4 flex flex-wrap items-center gap-2">
+								<Badge variant="secondary" class="bg-zinc-100 font-mono text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+									{parsed.baseUnit}{parsed.piecesPerUnit > 1 ? `:${parsed.piecesPerUnit}` : ''}
+								</Badge>
+								<Badge variant="secondary" class="bg-zinc-100 font-mono text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+									{product.openingStock} in stock
+								</Badge>
+								{#if product.category}
+									<Badge variant="outline" class="border-zinc-300 text-xs capitalize text-zinc-600 dark:border-zinc-600 dark:text-zinc-300">
+										{product.category}
+									</Badge>
+								{/if}
+								{#if product.sku}
+									<span class="text-xs text-zinc-400 dark:text-zinc-500">SKU: {product.sku}</span>
+								{/if}
+							</div>
+						</div>
+					{/each}
+				{/if}
+			</div>
+		{:else if viewPref.mode === 'list'}
+			<div class="flex flex-col gap-2">
+				{#if !loaded}
+					{#each Array(6) as _}
+						<div class="flex items-center gap-4 rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+							<Skeleton class="min-w-0 flex-1 h-4 w-36" />
+							<Skeleton class="hidden shrink-0 h-3 w-24 sm:inline-block" />
+							<div class="hidden shrink-0 items-center gap-3 sm:flex">
+								<Skeleton class="h-3 w-16" />
+								<Skeleton class="h-3 w-16" />
+							</div>
+							<Skeleton class="hidden h-5 w-12 rounded-full md:inline-block" />
+							<Skeleton class="hidden h-3 w-10 md:inline-block" />
+							<Skeleton class="hidden h-5 w-16 rounded-full lg:inline-block" />
+							<Skeleton class="h-8 w-8 rounded-md" />
+						</div>
+					{/each}
+				{:else}
+					{#each filteredProducts as product (product._id)}
+						{@const parsed = parseUnit(product.unit)}
+						<div class="group flex items-center gap-4 rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950">
+							<a
+								href="/products/{product._id}"
+								class="min-w-0 flex-1 truncate text-sm font-semibold text-zinc-900 transition-colors hover:text-zinc-600 dark:text-zinc-100 dark:hover:text-zinc-300"
+							>
+								{product.title}
+							</a>
+							<span class="hidden shrink-0 text-xs text-zinc-500 sm:inline dark:text-zinc-400">
+								{getPartyName(product.purchasePartyId)}
+							</span>
+							<div class="hidden shrink-0 items-center gap-3 sm:flex">
+								<span class="font-mono text-xs tabular-nums text-zinc-600 dark:text-zinc-300">{formatNPR(product.costPrice, true)}</span>
+								<span class="text-zinc-300 dark:text-zinc-600">/</span>
+								<span class="font-mono text-xs tabular-nums text-zinc-600 dark:text-zinc-300">{formatNPR(product.sellingPrice ?? 0, true)}</span>
+							</div>
+							<Badge variant="secondary" class="hidden shrink-0 bg-zinc-100 font-mono text-[11px] text-zinc-600 md:inline-flex dark:bg-zinc-800 dark:text-zinc-300">
+								{parsed.baseUnit}{parsed.piecesPerUnit > 1 ? `:${parsed.piecesPerUnit}` : ''}
+							</Badge>
+							<span class="hidden shrink-0 font-mono text-xs tabular-nums text-zinc-500 md:inline dark:text-zinc-400">
+								{product.openingStock}
+							</span>
+							{#if product.category}
+								<Badge variant="outline" class="hidden shrink-0 border-zinc-300 text-[11px] capitalize text-zinc-600 lg:inline-flex dark:border-zinc-600 dark:text-zinc-300">
+									{product.category}
+								</Badge>
+							{/if}
 							<div class="shrink-0 opacity-0 transition-opacity group-hover:opacity-100">
 								{@render actionMenu(product)}
 							</div>
 						</div>
-						<div class="mt-4 grid grid-cols-2 gap-4">
-							<div class="rounded-lg bg-zinc-50 px-3 py-2 dark:bg-zinc-900">
-								<span class="text-[10px] font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Cost price</span>
-								<p class="mt-0.5 font-mono text-sm font-medium tabular-nums text-zinc-800 dark:text-zinc-200">{formatNPR(product.costPrice, true)}</p>
-							</div>
-							<div class="rounded-lg bg-zinc-50 px-3 py-2 dark:bg-zinc-900">
-								<span class="text-[10px] font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Selling price</span>
-								<p class="mt-0.5 font-mono text-sm font-medium tabular-nums text-zinc-800 dark:text-zinc-200">{formatNPR(product.sellingPrice ?? 0, true)}</p>
-							</div>
-						</div>
-						<div class="mt-4 flex flex-wrap items-center gap-2">
-							<Badge variant="secondary" class="bg-zinc-100 font-mono text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
-								{parsed.baseUnit}{parsed.piecesPerUnit > 1 ? `:${parsed.piecesPerUnit}` : ''}
-							</Badge>
-							<Badge variant="secondary" class="bg-zinc-100 font-mono text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
-								{product.openingStock} in stock
-							</Badge>
-							{#if product.category}
-								<Badge variant="outline" class="border-zinc-300 text-xs capitalize text-zinc-600 dark:border-zinc-600 dark:text-zinc-300">
-									{product.category}
-								</Badge>
-							{/if}
-							{#if product.sku}
-								<span class="text-xs text-zinc-400 dark:text-zinc-500">SKU: {product.sku}</span>
-							{/if}
-						</div>
-					</div>
-				{/each}
-			</div>
-		{:else if viewPref.mode === 'list'}
-			<div class="flex flex-col gap-2">
-				{#each filteredProducts as product (product._id)}
-					{@const parsed = parseUnit(product.unit)}
-					<div class="group flex items-center gap-4 rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950">
-						<a
-							href="/products/{product._id}"
-							class="min-w-0 flex-1 truncate text-sm font-semibold text-zinc-900 transition-colors hover:text-zinc-600 dark:text-zinc-100 dark:hover:text-zinc-300"
-						>
-							{product.title}
-						</a>
-						<span class="hidden shrink-0 text-xs text-zinc-500 sm:inline dark:text-zinc-400">
-							{getPartyName(product.purchasePartyId)}
-						</span>
-						<div class="hidden shrink-0 items-center gap-3 sm:flex">
-							<span class="font-mono text-xs tabular-nums text-zinc-600 dark:text-zinc-300">{formatNPR(product.costPrice, true)}</span>
-							<span class="text-zinc-300 dark:text-zinc-600">/</span>
-							<span class="font-mono text-xs tabular-nums text-zinc-600 dark:text-zinc-300">{formatNPR(product.sellingPrice ?? 0, true)}</span>
-						</div>
-						<Badge variant="secondary" class="hidden shrink-0 bg-zinc-100 font-mono text-[11px] text-zinc-600 md:inline-flex dark:bg-zinc-800 dark:text-zinc-300">
-							{parsed.baseUnit}{parsed.piecesPerUnit > 1 ? `:${parsed.piecesPerUnit}` : ''}
-						</Badge>
-						<span class="hidden shrink-0 font-mono text-xs tabular-nums text-zinc-500 md:inline dark:text-zinc-400">
-							{product.openingStock}
-						</span>
-						{#if product.category}
-							<Badge variant="outline" class="hidden shrink-0 border-zinc-300 text-[11px] capitalize text-zinc-600 lg:inline-flex dark:border-zinc-600 dark:text-zinc-300">
-								{product.category}
-							</Badge>
-						{/if}
-						<div class="shrink-0 opacity-0 transition-opacity group-hover:opacity-100">
-							{@render actionMenu(product)}
-						</div>
-					</div>
-				{/each}
+					{/each}
+				{/if}
 			</div>
 		{:else}
 			<div class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
@@ -325,55 +395,74 @@
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
-						{#each filteredProducts as product (product._id)}
-							{@const parsed = parseUnit(product.unit)}
-							<Table.Row class="group border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/60">
-								<Table.Cell>
-									<a
-										href="/products/{product._id}"
-										class="block font-medium text-zinc-900 dark:text-zinc-100"
-									>
-										{product.title}
-									</a>
-								</Table.Cell>
-								<Table.Cell class="text-sm text-zinc-600 dark:text-zinc-400">
-									{getPartyName(product.purchasePartyId)}
-								</Table.Cell>
-								<Table.Cell class="text-right font-mono text-sm tabular-nums text-zinc-700 dark:text-zinc-300">
-									{formatNPR(product.costPrice, true)}
-								</Table.Cell>
-								<Table.Cell class="text-right font-mono text-sm tabular-nums text-zinc-700 dark:text-zinc-300">
-									{formatNPR(product.sellingPrice ?? 0, true)}
-								</Table.Cell>
-								<Table.Cell class="text-center">
-									<Badge variant="secondary" class="bg-zinc-100 font-mono text-xs text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-										{parsed.baseUnit}{parsed.piecesPerUnit > 1 ? `:${parsed.piecesPerUnit}` : ''}
-									</Badge>
-								</Table.Cell>
-								<Table.Cell class="text-right font-mono text-sm tabular-nums text-zinc-700 dark:text-zinc-300">
-									{product.openingStock}
-								</Table.Cell>
-								<Table.Cell>
-									{#if product.category}
-										<Badge variant="outline" class="text-xs capitalize border-zinc-300 text-zinc-700 dark:border-zinc-600 dark:text-zinc-300">{product.category}</Badge>
-									{:else}
-										<span class="text-xs text-zinc-400">—</span>
-									{/if}
-								</Table.Cell>
-								<Table.Cell>
-									<div class="opacity-0 transition-opacity group-hover:opacity-100">
-										{@render actionMenu(product)}
-									</div>
-								</Table.Cell>
-							</Table.Row>
-						{/each}
+						{#if !loaded}
+							{#each Array(6) as _, i}
+								<Table.Row class="border-zinc-100 dark:border-zinc-800">
+									<Table.Cell><Skeleton class="h-4 w-36" /></Table.Cell>
+									<Table.Cell><Skeleton class="h-4 w-24" /></Table.Cell>
+									<Table.Cell class="text-right"><Skeleton class="ml-auto h-4 w-16" /></Table.Cell>
+									<Table.Cell class="text-right"><Skeleton class="ml-auto h-4 w-16" /></Table.Cell>
+									<Table.Cell class="text-center"><Skeleton class="mx-auto h-5 w-12 rounded-full" /></Table.Cell>
+									<Table.Cell class="text-right"><Skeleton class="ml-auto h-4 w-12" /></Table.Cell>
+									<Table.Cell><Skeleton class="h-5 w-16 rounded-full" /></Table.Cell>
+									<Table.Cell><Skeleton class="h-8 w-8 rounded-md" /></Table.Cell>
+								</Table.Row>
+							{/each}
+						{:else}
+							{#each filteredProducts as product (product._id)}
+								{@const parsed = parseUnit(product.unit)}
+								<Table.Row class="group border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/60">
+									<Table.Cell>
+										<a
+											href="/products/{product._id}"
+											class="block font-medium text-zinc-900 dark:text-zinc-100"
+										>
+											{product.title}
+										</a>
+									</Table.Cell>
+									<Table.Cell class="text-sm text-zinc-600 dark:text-zinc-400">
+										{getPartyName(product.purchasePartyId)}
+									</Table.Cell>
+									<Table.Cell class="text-right font-mono text-sm tabular-nums text-zinc-700 dark:text-zinc-300">
+										{formatNPR(product.costPrice, true)}
+									</Table.Cell>
+									<Table.Cell class="text-right font-mono text-sm tabular-nums text-zinc-700 dark:text-zinc-300">
+										{formatNPR(product.sellingPrice ?? 0, true)}
+									</Table.Cell>
+									<Table.Cell class="text-center">
+										<Badge variant="secondary" class="bg-zinc-100 font-mono text-xs text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+											{parsed.baseUnit}{parsed.piecesPerUnit > 1 ? `:${parsed.piecesPerUnit}` : ''}
+										</Badge>
+									</Table.Cell>
+									<Table.Cell class="text-right font-mono text-sm tabular-nums text-zinc-700 dark:text-zinc-300">
+										{product.openingStock}
+									</Table.Cell>
+									<Table.Cell>
+										{#if product.category}
+											<Badge variant="outline" class="text-xs capitalize border-zinc-300 text-zinc-700 dark:border-zinc-600 dark:text-zinc-300">{product.category}</Badge>
+										{:else}
+											<span class="text-xs text-zinc-400">—</span>
+										{/if}
+									</Table.Cell>
+									<Table.Cell>
+										<div class="opacity-0 transition-opacity group-hover:opacity-100">
+											{@render actionMenu(product)}
+										</div>
+									</Table.Cell>
+								</Table.Row>
+							{/each}
+						{/if}
 					</Table.Body>
 				</Table.Root>
 			</div>
 		{/if}
 		<p class="text-xs text-zinc-400 dark:text-zinc-500">
-			{filteredProducts.length} {filteredProducts.length === 1 ? t('product_title') : t('product_title_plural')}
-			{#if searchTerm}&middot; {t('common_filtered_from')} {products.length}{/if}
+			{#if !loaded}
+				<Skeleton class="inline-block h-3 w-20" />
+			{:else}
+				{filteredProducts.length} {filteredProducts.length === 1 ? t('product_title') : t('product_title_plural')}
+				{#if searchTerm}&middot; {t('common_filtered_from')} {products.length}{/if}
+			{/if}
 		</p>
 	{/if}
 </div>

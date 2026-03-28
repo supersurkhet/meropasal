@@ -6,7 +6,8 @@
 	import { useConvexQuery, useConvexMutation } from '$lib/convex-helpers.svelte';
 	import { api } from '$lib/api';
 	import CustomerForm from '$lib/components/modules/customers/CustomerForm.svelte';
-	import { ArrowLeft, Loader2 } from '@lucide/svelte';
+	import { ArrowLeft } from '@lucide/svelte';
+	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { toast } from 'svelte-sonner';
 	import { breadcrumbLabel } from '$lib/breadcrumb-label.svelte';
 
@@ -38,17 +39,51 @@
 		</a>
 	</div>
 
-	{#if customerQuery.isLoading}
-		<div class="flex items-center justify-center py-20">
-			<div class="flex flex-col items-center gap-3">
-				<Loader2 class="size-8 animate-spin text-zinc-400" />
-				<p class="text-sm text-zinc-500">Loading customer...</p>
-			</div>
-		</div>
-	{:else if !customerQuery.data}
+	{#if !customerQuery.isLoading && !customerQuery.data}
 		<div class="py-20 text-center">
 			<p class="text-zinc-500">Customer not found</p>
 			<a href="/customers" class="mt-2 inline-block text-sm text-zinc-900 underline dark:text-zinc-100">Back to customers</a>
+		</div>
+	{:else if customerQuery.isLoading}
+		<div class="space-y-5 max-w-2xl">
+			<!-- Name -->
+			<div class="space-y-1.5">
+				<Skeleton class="h-4 w-16" />
+				<Skeleton class="h-10 w-full rounded-md" />
+			</div>
+			<!-- PAN & Phone row -->
+			<div class="grid gap-4 sm:grid-cols-2">
+				{#each Array(2) as _}
+					<div class="space-y-1.5">
+						<Skeleton class="h-4 w-24" />
+						<Skeleton class="h-10 w-full rounded-md" />
+					</div>
+				{/each}
+			</div>
+			<!-- Email & Address row -->
+			<div class="grid gap-4 sm:grid-cols-2">
+				{#each Array(2) as _}
+					<div class="space-y-1.5">
+						<Skeleton class="h-4 w-20" />
+						<Skeleton class="h-10 w-full rounded-md" />
+					</div>
+				{/each}
+			</div>
+			<!-- Credit Limit -->
+			<div class="max-w-xs space-y-1.5">
+				<Skeleton class="h-4 w-28" />
+				<Skeleton class="h-10 w-full rounded-md" />
+			</div>
+			<!-- Notes -->
+			<div class="space-y-1.5">
+				<Skeleton class="h-4 w-16" />
+				<Skeleton class="h-20 w-full rounded-md" />
+			</div>
+			<!-- Actions -->
+			<div class="flex justify-end gap-2">
+				<Skeleton class="h-10 w-20 rounded-md" />
+				<Skeleton class="h-10 w-32 rounded-md" />
+			</div>
 		</div>
 	{:else}
 		<CustomerForm

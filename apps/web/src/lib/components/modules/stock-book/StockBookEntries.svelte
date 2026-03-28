@@ -5,6 +5,7 @@
 	import { formatNPR, formatNumber } from '$lib/currency';
 	import * as Table from '$lib/components/ui/table';
 	import * as Select from '$lib/components/ui/select';
+	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { ArrowDownToLine, ArrowUpFromLine, Filter, BookOpen } from '@lucide/svelte';
 	import { t } from '$lib/t.svelte';
 	import EmptyState from '$lib/components/shared/EmptyState.svelte';
@@ -129,14 +130,7 @@
 		</Select.Root>
 	</div>
 
-	{#if entries.isLoading}
-		<div class="flex items-center justify-center py-20">
-			<div class="flex flex-col items-center gap-3">
-				<div class="size-6 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-900 dark:border-zinc-600 dark:border-t-zinc-100"></div>
-				<p class="text-sm text-zinc-500 dark:text-zinc-400">{t('common_loading')}</p>
-			</div>
-		</div>
-	{:else if !filteredEntries.length}
+	{#if !entries.isLoading && !filteredEntries.length}
 		<EmptyState
 			icon={BookOpen}
 			title={t('empty_stock_entries')}
@@ -160,51 +154,68 @@
 					</Table.Row>
 				</Table.Header>
 				<Table.Body>
-					{#each filteredEntries as entry}
-						{@const e = entry as any}
-						<Table.Row class="transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
-							<Table.Cell class="text-sm text-zinc-600 dark:text-zinc-400">
-								{formatDate(e.entryDate)}
-							</Table.Cell>
-							<Table.Cell class="font-medium">
-								{productMap.get(e.productId) ?? e.productId}
-							</Table.Cell>
-							<Table.Cell>
-								<span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {movementBadgeClass(e.movementType)}">
-									{e.movementType}
-								</span>
-							</Table.Cell>
-							<Table.Cell class="text-center">
-								{#if e.direction === 'in'}
-									<span class="inline-flex items-center gap-1 text-emerald-600">
-										<ArrowDownToLine class="size-3.5" />
-										<span class="text-xs font-medium">{t('stock_book_direction_in')}</span>
+					{#if entries.isLoading}
+						{#each Array(6) as _, i}
+							<Table.Row class="transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
+								<Table.Cell><Skeleton class="h-4 w-20" /></Table.Cell>
+								<Table.Cell><Skeleton class="h-4 w-28" /></Table.Cell>
+								<Table.Cell><Skeleton class="h-5 w-16 rounded-full" /></Table.Cell>
+								<Table.Cell class="text-center"><Skeleton class="mx-auto h-4 w-12" /></Table.Cell>
+								<Table.Cell class="text-right"><Skeleton class="ml-auto h-4 w-14" /></Table.Cell>
+								<Table.Cell class="text-right"><Skeleton class="ml-auto h-4 w-14" /></Table.Cell>
+								<Table.Cell class="text-right"><Skeleton class="ml-auto h-4 w-16" /></Table.Cell>
+								<Table.Cell class="text-right"><Skeleton class="ml-auto h-4 w-20" /></Table.Cell>
+								<Table.Cell><Skeleton class="h-4 w-16" /></Table.Cell>
+								<Table.Cell><Skeleton class="h-4 w-24" /></Table.Cell>
+							</Table.Row>
+						{/each}
+					{:else}
+						{#each filteredEntries as entry}
+							{@const e = entry as any}
+							<Table.Row class="transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
+								<Table.Cell class="text-sm text-zinc-600 dark:text-zinc-400">
+									{formatDate(e.entryDate)}
+								</Table.Cell>
+								<Table.Cell class="font-medium">
+									{productMap.get(e.productId) ?? e.productId}
+								</Table.Cell>
+								<Table.Cell>
+									<span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {movementBadgeClass(e.movementType)}">
+										{e.movementType}
 									</span>
-								{:else}
-									<span class="inline-flex items-center gap-1 text-red-500">
-										<ArrowUpFromLine class="size-3.5" />
-										<span class="text-xs font-medium">{t('stock_book_direction_out')}</span>
-									</span>
-								{/if}
-							</Table.Cell>
-							<Table.Cell class="text-right tabular-nums {e.quantityIn > 0 ? 'text-emerald-600 font-medium' : 'text-zinc-300 dark:text-zinc-700'}">
-								{e.quantityIn > 0 ? formatNumber(e.quantityIn) : '—'}
-							</Table.Cell>
-							<Table.Cell class="text-right tabular-nums {e.quantityOut > 0 ? 'text-red-500 font-medium' : 'text-zinc-300 dark:text-zinc-700'}">
-								{e.quantityOut > 0 ? formatNumber(e.quantityOut) : '—'}
-							</Table.Cell>
-							<Table.Cell class="text-right tabular-nums">
-								{formatNPR(e.unitRate)}
-							</Table.Cell>
-							<Table.Cell class="text-right tabular-nums font-medium">
-								{formatNPR(e.totalAmount)}
-							</Table.Cell>
-							<Table.Cell class="text-xs text-zinc-500">{e.sourceTable}</Table.Cell>
-							<Table.Cell class="max-w-[200px] truncate text-xs text-zinc-500">
-								{e.particulars}
-							</Table.Cell>
-						</Table.Row>
-					{/each}
+								</Table.Cell>
+								<Table.Cell class="text-center">
+									{#if e.direction === 'in'}
+										<span class="inline-flex items-center gap-1 text-emerald-600">
+											<ArrowDownToLine class="size-3.5" />
+											<span class="text-xs font-medium">{t('stock_book_direction_in')}</span>
+										</span>
+									{:else}
+										<span class="inline-flex items-center gap-1 text-red-500">
+											<ArrowUpFromLine class="size-3.5" />
+											<span class="text-xs font-medium">{t('stock_book_direction_out')}</span>
+										</span>
+									{/if}
+								</Table.Cell>
+								<Table.Cell class="text-right tabular-nums {e.quantityIn > 0 ? 'text-emerald-600 font-medium' : 'text-zinc-300 dark:text-zinc-700'}">
+									{e.quantityIn > 0 ? formatNumber(e.quantityIn) : '—'}
+								</Table.Cell>
+								<Table.Cell class="text-right tabular-nums {e.quantityOut > 0 ? 'text-red-500 font-medium' : 'text-zinc-300 dark:text-zinc-700'}">
+									{e.quantityOut > 0 ? formatNumber(e.quantityOut) : '—'}
+								</Table.Cell>
+								<Table.Cell class="text-right tabular-nums">
+									{formatNPR(e.unitRate)}
+								</Table.Cell>
+								<Table.Cell class="text-right tabular-nums font-medium">
+									{formatNPR(e.totalAmount)}
+								</Table.Cell>
+								<Table.Cell class="text-xs text-zinc-500">{e.sourceTable}</Table.Cell>
+								<Table.Cell class="max-w-[200px] truncate text-xs text-zinc-500">
+									{e.particulars}
+								</Table.Cell>
+							</Table.Row>
+						{/each}
+					{/if}
 				</Table.Body>
 			</Table.Root>
 		</div>

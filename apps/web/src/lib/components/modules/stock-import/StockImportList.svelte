@@ -5,6 +5,7 @@
 	import { formatNPR } from '$lib/currency'
 	import { getConvexClient } from '$lib/convex'
 	import { api } from '$lib/api'
+	import { Skeleton } from '$lib/components/ui/skeleton'
 	import { Plus, PackageOpen } from '@lucide/svelte'
 	import { t } from '$lib/t.svelte'
 	import EmptyState from '$lib/components/shared/EmptyState.svelte'
@@ -100,14 +101,7 @@
 	</div>
 
 	<!-- Content -->
-	{#if !loaded}
-		<div class="flex items-center justify-center py-20">
-			<div class="flex flex-col items-center gap-3">
-				<div class="size-6 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-900 dark:border-zinc-600 dark:border-t-zinc-100"></div>
-				<p class="text-sm text-zinc-500">{t('common_loading')}</p>
-			</div>
-		</div>
-	{:else if invoices.length === 0}
+	{#if loaded && invoices.length === 0}
 		<EmptyState
 			icon={PackageOpen}
 			title={t('empty_stock_import')}
@@ -116,94 +110,129 @@
 			actionHref="/stock-import/new"
 			actionIcon={Plus}
 		/>
-	{:else if viewPref.mode === 'table'}
-		<div class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-			<Table.Root>
-				<Table.Header>
-					<Table.Row class="border-zinc-100 bg-zinc-50/80 hover:bg-zinc-50/80 dark:border-zinc-800 dark:bg-zinc-900/50">
-						<Table.Head class="font-semibold text-zinc-600 dark:text-zinc-400">{t('invoice_number')}</Table.Head>
-						<Table.Head class="font-semibold text-zinc-600 dark:text-zinc-400">{t('stock_import_party')}</Table.Head>
-						<Table.Head class="font-semibold text-zinc-600 dark:text-zinc-400">{t('common_date')}</Table.Head>
-						<Table.Head class="text-center font-semibold text-zinc-600 dark:text-zinc-400">{t('stock_import_items')}</Table.Head>
-						<Table.Head class="text-right font-semibold text-zinc-600 dark:text-zinc-400">{t('common_total')}</Table.Head>
-						<Table.Head class="font-semibold text-zinc-600 dark:text-zinc-400">{t('order_status')}</Table.Head>
-					</Table.Row>
-				</Table.Header>
-				<Table.Body>
+	{:else}
+		{#if viewPref.mode === 'table'}
+			<div class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+				<Table.Root>
+					<Table.Header>
+						<Table.Row class="border-zinc-100 bg-zinc-50/80 hover:bg-zinc-50/80 dark:border-zinc-800 dark:bg-zinc-900/50">
+							<Table.Head class="font-semibold text-zinc-600 dark:text-zinc-400">{t('invoice_number')}</Table.Head>
+							<Table.Head class="font-semibold text-zinc-600 dark:text-zinc-400">{t('stock_import_party')}</Table.Head>
+							<Table.Head class="font-semibold text-zinc-600 dark:text-zinc-400">{t('common_date')}</Table.Head>
+							<Table.Head class="text-center font-semibold text-zinc-600 dark:text-zinc-400">{t('stock_import_items')}</Table.Head>
+							<Table.Head class="text-right font-semibold text-zinc-600 dark:text-zinc-400">{t('common_total')}</Table.Head>
+							<Table.Head class="font-semibold text-zinc-600 dark:text-zinc-400">{t('order_status')}</Table.Head>
+						</Table.Row>
+					</Table.Header>
+					<Table.Body>
+						{#if !loaded}
+							{#each Array(6) as _, i}
+								<Table.Row class="border-zinc-100 dark:border-zinc-800">
+									<Table.Cell><Skeleton class="h-5 w-20 rounded-full" /></Table.Cell>
+									<Table.Cell><Skeleton class="h-4 w-32" /></Table.Cell>
+									<Table.Cell><Skeleton class="h-4 w-20" /></Table.Cell>
+									<Table.Cell class="text-center"><Skeleton class="mx-auto h-4 w-8" /></Table.Cell>
+									<Table.Cell class="text-right"><Skeleton class="ml-auto h-4 w-20" /></Table.Cell>
+									<Table.Cell><Skeleton class="h-5 w-16 rounded-full" /></Table.Cell>
+								</Table.Row>
+							{/each}
+						{:else}
+							{#each invoices as inv (inv._id)}
+								<Table.Row class="group border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/60" onclick={() => { window.location.href = `/stock-import/${inv._id}` }}>
+									<Table.Cell>
+										{#if inv.invoiceNumber}
+											<Badge variant="secondary" class="bg-zinc-100 font-mono text-xs text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+												{inv.invoiceNumber}
+											</Badge>
+										{:else}
+											<span class="text-xs text-zinc-400">—</span>
+										{/if}
+									</Table.Cell>
+									<Table.Cell class="text-sm text-zinc-600 dark:text-zinc-400">
+										{getPartyName(inv.partyId)}
+									</Table.Cell>
+									<Table.Cell class="text-sm text-zinc-500 dark:text-zinc-400">
+										{formatDate(inv.issuedAt)}
+									</Table.Cell>
+									<Table.Cell class="text-center font-mono text-sm text-zinc-700 dark:text-zinc-300">
+										{inv.items.length}
+									</Table.Cell>
+									<Table.Cell class="text-right font-mono text-sm font-medium tabular-nums text-zinc-900 dark:text-zinc-100">
+										{formatNPR(inv.totalAmount)}
+									</Table.Cell>
+									<Table.Cell>
+										<Badge variant={statusVariant(inv.paymentStatus)} class="text-xs capitalize">
+											{statusLabel(inv.paymentStatus)}
+										</Badge>
+									</Table.Cell>
+								</Table.Row>
+							{/each}
+						{/if}
+					</Table.Body>
+				</Table.Root>
+			</div>
+		{:else}
+			<div class={gridClass}>
+				{#if !loaded}
+					{#each Array(6) as _}
+						<div class="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+							<div class="flex items-start justify-between gap-2">
+								<div class="min-w-0 flex-1">
+									<Skeleton class="mb-2 h-5 w-20 rounded-full" />
+									<Skeleton class="h-4 w-32" />
+									<Skeleton class="mt-0.5 h-3 w-20" />
+								</div>
+								<Skeleton class="h-5 w-16 rounded-full" />
+							</div>
+							<div class="mt-3 flex items-end justify-between border-t border-zinc-100 pt-3 dark:border-zinc-800">
+								<Skeleton class="h-3 w-16" />
+								<Skeleton class="h-5 w-24" />
+							</div>
+						</div>
+					{/each}
+				{:else}
 					{#each invoices as inv (inv._id)}
-						<Table.Row class="group border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/60" onclick={() => { window.location.href = `/stock-import/${inv._id}` }}>
-							<Table.Cell>
-								{#if inv.invoiceNumber}
-									<Badge variant="secondary" class="bg-zinc-100 font-mono text-xs text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-										{inv.invoiceNumber}
-									</Badge>
-								{:else}
-									<span class="text-xs text-zinc-400">—</span>
-								{/if}
-							</Table.Cell>
-							<Table.Cell class="text-sm text-zinc-600 dark:text-zinc-400">
-								{getPartyName(inv.partyId)}
-							</Table.Cell>
-							<Table.Cell class="text-sm text-zinc-500 dark:text-zinc-400">
-								{formatDate(inv.issuedAt)}
-							</Table.Cell>
-							<Table.Cell class="text-center font-mono text-sm text-zinc-700 dark:text-zinc-300">
-								{inv.items.length}
-							</Table.Cell>
-							<Table.Cell class="text-right font-mono text-sm font-medium tabular-nums text-zinc-900 dark:text-zinc-100">
-								{formatNPR(inv.totalAmount)}
-							</Table.Cell>
-							<Table.Cell>
-								<Badge variant={statusVariant(inv.paymentStatus)} class="text-xs capitalize">
+						<a
+							href="/stock-import/{inv._id}"
+							class="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950"
+						>
+							<div class="flex items-start justify-between gap-2">
+								<div class="min-w-0 flex-1">
+									{#if inv.invoiceNumber}
+										<Badge variant="secondary" class="mb-2 bg-zinc-100 font-mono text-xs text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+											{inv.invoiceNumber}
+										</Badge>
+									{/if}
+									<p class="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
+										{getPartyName(inv.partyId)}
+									</p>
+									<p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+										{formatDate(inv.issuedAt)}
+									</p>
+								</div>
+								<Badge variant={statusVariant(inv.paymentStatus)} class="shrink-0 text-xs capitalize">
 									{statusLabel(inv.paymentStatus)}
 								</Badge>
-							</Table.Cell>
-						</Table.Row>
+							</div>
+							<div class="mt-3 flex items-end justify-between border-t border-zinc-100 pt-3 dark:border-zinc-800">
+								<span class="text-xs text-zinc-500 dark:text-zinc-400">
+									{inv.items.length} {t('stock_import_items')}
+								</span>
+								<span class="font-mono text-base font-bold tabular-nums text-zinc-900 dark:text-zinc-100">
+									{formatNPR(inv.totalAmount)}
+								</span>
+							</div>
+						</a>
 					{/each}
-				</Table.Body>
-			</Table.Root>
-		</div>
+				{/if}
+			</div>
+		{/if}
 		<p class="text-xs text-zinc-400 dark:text-zinc-500">
-			{invoices.length} {t('stock_import_title')}
-		</p>
-	{:else}
-		<div class={gridClass}>
-			{#each invoices as inv (inv._id)}
-				<a
-					href="/stock-import/{inv._id}"
-					class="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950"
-				>
-					<div class="flex items-start justify-between gap-2">
-						<div class="min-w-0 flex-1">
-							{#if inv.invoiceNumber}
-								<Badge variant="secondary" class="mb-2 bg-zinc-100 font-mono text-xs text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-									{inv.invoiceNumber}
-								</Badge>
-							{/if}
-							<p class="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
-								{getPartyName(inv.partyId)}
-							</p>
-							<p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
-								{formatDate(inv.issuedAt)}
-							</p>
-						</div>
-						<Badge variant={statusVariant(inv.paymentStatus)} class="shrink-0 text-xs capitalize">
-							{statusLabel(inv.paymentStatus)}
-						</Badge>
-					</div>
-					<div class="mt-3 flex items-end justify-between border-t border-zinc-100 pt-3 dark:border-zinc-800">
-						<span class="text-xs text-zinc-500 dark:text-zinc-400">
-							{inv.items.length} {t('stock_import_items')}
-						</span>
-						<span class="font-mono text-base font-bold tabular-nums text-zinc-900 dark:text-zinc-100">
-							{formatNPR(inv.totalAmount)}
-						</span>
-					</div>
-				</a>
-			{/each}
-		</div>
-		<p class="text-xs text-zinc-400 dark:text-zinc-500">
-			{invoices.length} {t('stock_import_title')}
+			{#if !loaded}
+				<Skeleton class="inline-block h-3 w-16" />
+			{:else}
+				{invoices.length} {t('stock_import_title')}
+			{/if}
 		</p>
 	{/if}
 </div>
