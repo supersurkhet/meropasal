@@ -1,14 +1,12 @@
 import { QueryCtx, MutationCtx } from "../_generated/server";
-import { PERMISSIONS, type Role, type Permission } from "./permissions";
+import { PERMISSIONS, ROLES, type Role, type Permission } from "./permissions";
 
 /**
  * Try to get orgId. Returns null if not authenticated.
  * Use for queries that should gracefully return empty data when unauthenticated.
  *
- * Resolution order:
- * 1. org_id / orgId from JWT claims (org-scoped session)
- * 2. userOrgMappings table lookup by subject (non-org-scoped session)
- * 3. null
+ * Resolution: org_id / orgId from JWT claims (org-scoped session).
+ * WorkOS is the single source of truth for org membership.
  */
 export async function getOrg(
   ctx: QueryCtx | MutationCtx
@@ -18,18 +16,7 @@ export async function getOrg(
 
   const orgId = (identity as Record<string, unknown>).org_id as string | undefined
     || (identity as Record<string, unknown>).orgId as string | undefined;
-  if (orgId) return orgId;
-
-  // Non-org-scoped JWT — look up the mapping
-  if (identity.subject) {
-    const mapping = await ctx.db
-      .query("userOrgMappings")
-      .withIndex("by_subject", (q) => q.eq("subject", identity.subject))
-      .first();
-    if (mapping) return mapping.orgId;
-  }
-
-  return null;
+  return orgId ?? null;
 }
 
 /**
@@ -55,8 +42,12 @@ export async function requirePermission(
   const orgId = await requireOrg(ctx);
   const identity = await ctx.auth.getUserIdentity();
 
-  // Get role from JWT claims or default to 'owner' for the org creator
-  const role = (identity as Record<string, unknown>).role as Role | undefined ?? 'owner';
+  // Get role from JWT claims, falling back to 'owner' if absent or not
+  // a recognized app role (e.g. WorkOS defaults to "member"/"admin")
+  const jwtRole = (identity as Record<string, unknown>).role as string | undefined;
+  const role: Role = (jwtRole && (ROLES as readonly string[]).includes(jwtRole))
+    ? jwtRole as Role
+    : 'owner';
 
   const allowed = PERMISSIONS[permission];
   if (!allowed?.includes(role)) {
@@ -66,4 +57,21 @@ export async function requirePermission(
   }
 
   return orgId;
+}
+
+/**
+ * Resolve the current user's effective role.
+ * Returns null if not authenticated or no org.
+ */
+export async function getEffectiveRole(
+  ctx: QueryCtx | MutationCtx
+): Promise<Role | null> {
+  const orgId = await getOrg(ctx);
+  if (!orgId) return null;
+  const identity = await ctx.auth.getUserIdentity();
+  if (!identity) return null;
+  const jwtRole = (identity as Record<string, unknown>).role as string | undefined;
+  return (jwtRole && (ROLES as readonly string[]).includes(jwtRole))
+    ? jwtRole as Role
+    : 'owner';
 }
