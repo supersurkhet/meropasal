@@ -4,7 +4,7 @@
 	import { t } from '$lib/t.svelte';
 	import { page } from '$app/stores';
 
-	let workosOrgName = $derived(($page.data as any).workosOrgName ?? '');
+	let workosOrgName = $derived(($page.data as any).workosOrg?.name ?? '');
 </script>
 
 <MetaTags title={t('nav_settings')} />

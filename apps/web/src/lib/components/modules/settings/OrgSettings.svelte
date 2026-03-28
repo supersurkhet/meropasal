@@ -6,13 +6,14 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Separator } from '$lib/components/ui/separator';
-	import { Save, Loader2, AlertTriangle, RotateCcw } from '@lucide/svelte';
-	import { Checkbox } from '$lib/components/ui/checkbox';
+	import { Save, Loader2, AlertTriangle, RotateCcw, Store, Upload, Trash2, TriangleAlert } from '@lucide/svelte';
+	import * as Dialog from '$lib/components/ui/dialog';
 	import StickyActions from '$lib/components/shared/StickyActions.svelte';
 	import { toast } from 'svelte-sonner';
 	import { t } from '$lib/t.svelte';
 	import { settingsSchema } from '$lib/schemas/settings';
 	import { calculateFiscalYear } from '$lib/fiscal';
+	import { invalidateAll } from '$app/navigation';
 
 	let { workosOrgName = '' }: { workosOrgName?: string } = $props();
 
@@ -20,56 +21,55 @@
 
 	const settings = useConvexQuery(client, api.functions.organizations.getSettings, () => ({}));
 	const updateMutation = useConvexMutation(client, api.functions.organizations.updateSettings);
+	const generateUploadUrlMutation = useConvexMutation(client, api.functions.organizations.generateUploadUrl);
 
-	let businessName = $state('');
+	let businessName = $state(workosOrgName);
+	let lastSyncedOrgName = $state(workosOrgName);
 	let location = $state('');
 	let phone = $state('');
 	let panNumber = $state('');
-	let currentFiscalYear = $state('');
+	let currentFiscalYear = $state(calculateFiscalYear());
 	let taxRate = $state(13);
-	let featureInvoicing = $state(true);
-	let featureStockBook = $state(true);
-	let featureLogistics = $state(false);
-	let featureLedger = $state(true);
 	let lastSettingsId = $state<string | null>(null);
 	let errors = $state<Record<string, string>>({});
+	let uploading = $state(false);
+	let fileInput: HTMLInputElement | undefined = $state();
+
+	// Sync businessName when workosOrgName changes from server (e.g. after invalidateAll)
+	$effect(() => {
+		if (workosOrgName !== lastSyncedOrgName) {
+			businessName = workosOrgName;
+			lastSyncedOrgName = workosOrgName;
+		}
+	});
 
 	$effect(() => {
 		if (settings.data) {
 			const s = settings.data as any;
 			const currentId = s._id ?? null;
-			// Re-sync form when settings data changes (different record or first load)
 			if (currentId !== lastSettingsId) {
-				// Use WorkOS org name as pre-fill only when Convex businessName is empty
-				businessName = s.businessName || workosOrgName || '';
 				location = s.location ?? '';
 				phone = s.phone ?? '';
 				panNumber = s.panNumber ?? '';
 				currentFiscalYear = s.currentFiscalYear || calculateFiscalYear();
 				taxRate = s.taxRate ?? 13;
-				featureInvoicing = s.features?.invoicing ?? true;
-				featureStockBook = s.features?.stockBook ?? true;
-				featureLogistics = s.features?.logistics ?? false;
-				featureLedger = s.features?.ledger ?? true;
 				lastSettingsId = currentId;
 			}
 		}
 	});
 
 	function validate(): boolean {
+		if (!businessName.trim()) {
+			errors = { businessName: 'Business name is required' };
+			toast.error(t('validation_form_errors'));
+			return false;
+		}
 		const result = settingsSchema.safeParse({
-			businessName,
 			location: location || undefined,
 			phone: phone || undefined,
 			panNumber: panNumber || undefined,
 			currentFiscalYear,
 			taxRate,
-			features: {
-				invoicing: featureInvoicing,
-				stockBook: featureStockBook,
-				logistics: featureLogistics,
-				ledger: featureLedger,
-			},
 		})
 		if (!result.success) {
 			errors = {}
@@ -84,60 +84,136 @@
 		return true
 	}
 
+	let isOrgNameDirty = $derived(businessName !== workosOrgName);
 	let isDirty = $derived(
-		!!settings.data && lastSettingsId !== null && (() => {
+		isOrgNameDirty || (!!settings.data && lastSettingsId !== null && (() => {
 			const s = settings.data as any;
 			return (
-				businessName !== (s.businessName || workosOrgName || '') ||
 				location !== (s.location ?? '') ||
 				phone !== (s.phone ?? '') ||
 				panNumber !== (s.panNumber ?? '') ||
 				currentFiscalYear !== (s.currentFiscalYear || calculateFiscalYear()) ||
-				taxRate !== (s.taxRate ?? 13) ||
-				featureInvoicing !== (s.features?.invoicing ?? true) ||
-				featureStockBook !== (s.features?.stockBook ?? true) ||
-				featureLogistics !== (s.features?.logistics ?? false) ||
-				featureLedger !== (s.features?.ledger ?? true)
+				taxRate !== (s.taxRate ?? 13)
 			);
-		})()
+		})())
 	);
 
 	function resetForm() {
 		if (!settings.data) return;
 		const s = settings.data as any;
-		businessName = s.businessName || workosOrgName || '';
+		businessName = workosOrgName;
 		location = s.location ?? '';
 		phone = s.phone ?? '';
 		panNumber = s.panNumber ?? '';
 		currentFiscalYear = s.currentFiscalYear || calculateFiscalYear();
 		taxRate = s.taxRate ?? 13;
-		featureInvoicing = s.features?.invoicing ?? true;
-		featureStockBook = s.features?.stockBook ?? true;
-		featureLogistics = s.features?.logistics ?? false;
-		featureLedger = s.features?.ledger ?? true;
 		errors = {};
 	}
 
 	async function handleSave() {
 		if (!validate()) return;
+		const nameChanged = isOrgNameDirty;
 		try {
+			// Rename org in WorkOS if name changed
+			if (nameChanged) {
+				const res = await fetch('/api/org/rename', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ name: businessName.trim() }),
+				});
+				if (!res.ok) {
+					const { error } = await res.json();
+					toast.error(error || 'Failed to rename organization');
+					return;
+				}
+			}
+
 			await updateMutation.mutate({
-				businessName,
 				location,
 				phone,
 				panNumber,
 				currentFiscalYear,
 				taxRate,
-				features: {
-					invoicing: featureInvoicing,
-					stockBook: featureStockBook,
-					logistics: featureLogistics,
-					ledger: featureLedger,
-				},
 			});
 			toast.success(t('toast_settings_saved'));
+
+			// Re-run layout load so sidebar/org switcher reflect the new name
+			if (nameChanged) {
+				await invalidateAll();
+			}
 		} catch (err) {
 			toast.error(t('settings_save_error').replace('{error}', (err as Error).message));
+		}
+	}
+
+	async function handleLogoUpload(event: Event) {
+		const input = event.target as HTMLInputElement
+		const file = input.files?.[0]
+		if (!file) return
+
+		if (!file.type.startsWith('image/')) {
+			toast.error('Please select an image file')
+			return
+		}
+		if (file.size > 5 * 1024 * 1024) {
+			toast.error('Image must be under 5MB')
+			return
+		}
+
+		uploading = true
+		try {
+			const uploadUrl = await generateUploadUrlMutation.mutate({})
+			const uploadRes = await fetch(uploadUrl as string, {
+				method: 'POST',
+				headers: { 'Content-Type': file.type },
+				body: file,
+			})
+			const { storageId } = await uploadRes.json()
+			await updateMutation.mutate({ logoStorageId: storageId })
+			toast.success(t('toast_logo_uploaded'))
+		} catch (err) {
+			toast.error('Failed to upload logo')
+		} finally {
+			uploading = false
+			if (fileInput) fileInput.value = ''
+		}
+	}
+
+	let deleteDialogOpen = $state(false);
+	let deleteConfirmText = $state('');
+	let deleting = $state(false);
+	const deleteConfirmMatch = $derived(deleteConfirmText === workosOrgName);
+
+	async function handleDeleteOrg() {
+		if (!deleteConfirmMatch || deleting) return;
+		deleting = true;
+		try {
+			const res = await fetch('/api/org/delete', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ organizationId: (settings.data as any)?.orgId }),
+			});
+			const result = await res.json();
+			if (!res.ok) {
+				toast.error(result.error || 'Failed to delete organization');
+				deleting = false;
+				return;
+			}
+			if (result.redirectUrl) {
+				window.location.href = result.redirectUrl;
+			}
+		} catch {
+			toast.error('Failed to delete organization');
+			deleting = false;
+		}
+	}
+
+	async function handleLogoRemove() {
+		try {
+			await updateMutation.mutate({ removeLogo: true })
+			toast.success(t('toast_logo_removed'))
+		} catch (err) {
+			toast.error('Failed to remove logo')
 		}
 	}
 </script>
@@ -172,6 +248,62 @@
 			handleSave();
 		}}
 	>
+		<!-- Logo -->
+		<div class="space-y-4">
+			<h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{t('settings_logo')}</h3>
+			<div class="flex items-center gap-4">
+				{#if settings.data?.logoUrl}
+					<img
+						src={settings.data.logoUrl}
+						alt={workosOrgName}
+						class="size-16 rounded-xl object-cover border border-zinc-200 dark:border-zinc-800"
+					/>
+				{:else}
+					<div class="flex size-16 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+						<Store class="size-7 text-zinc-400 dark:text-zinc-500" />
+					</div>
+				{/if}
+				<div class="flex flex-col gap-2">
+					<input
+						bind:this={fileInput}
+						type="file"
+						accept="image/*"
+						class="hidden"
+						onchange={handleLogoUpload}
+					/>
+					<Button
+						type="button"
+						variant="outline"
+						size="sm"
+						onclick={() => fileInput?.click()}
+						disabled={uploading}
+					>
+						{#if uploading}
+							<Loader2 class="mr-1.5 size-4 animate-spin" />
+							{t('settings_uploading')}
+						{:else}
+							<Upload class="mr-1.5 size-4" />
+							{settings.data?.logoUrl ? t('settings_change_logo') : t('settings_upload_logo')}
+						{/if}
+					</Button>
+					{#if settings.data?.logoUrl}
+						<Button
+							type="button"
+							variant="ghost"
+							size="sm"
+							class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+							onclick={handleLogoRemove}
+						>
+							<Trash2 class="mr-1.5 size-4" />
+							{t('settings_remove_logo')}
+						</Button>
+					{/if}
+				</div>
+			</div>
+		</div>
+
+		<Separator />
+
 		<!-- Business Info -->
 		<div class="space-y-4">
 			<h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{t('settings_business_info')}</h3>
@@ -240,44 +372,6 @@
 			</div>
 		</div>
 
-		<Separator />
-
-		<!-- Feature Toggles -->
-		<div class="space-y-4">
-			<h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{t('settings_features')}</h3>
-			<p class="text-sm text-zinc-500">{t('settings_features_desc')}</p>
-			<div class="grid gap-3 sm:grid-cols-2">
-				<label class="flex items-center gap-3 rounded-lg border border-zinc-200 p-3 cursor-pointer transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/50">
-					<Checkbox bind:checked={featureInvoicing} />
-					<div>
-						<span class="text-sm font-medium text-zinc-900 dark:text-zinc-100">{t('settings_feature_invoicing')}</span>
-						<p class="text-xs text-zinc-500">{t('settings_feature_invoicing_desc')}</p>
-					</div>
-				</label>
-				<label class="flex items-center gap-3 rounded-lg border border-zinc-200 p-3 cursor-pointer transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/50">
-					<Checkbox bind:checked={featureStockBook} />
-					<div>
-						<span class="text-sm font-medium text-zinc-900 dark:text-zinc-100">{t('settings_feature_stock_book')}</span>
-						<p class="text-xs text-zinc-500">{t('settings_feature_stock_book_desc')}</p>
-					</div>
-				</label>
-				<label class="flex items-center gap-3 rounded-lg border border-zinc-200 p-3 cursor-pointer transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/50">
-					<Checkbox bind:checked={featureLogistics} />
-					<div>
-						<span class="text-sm font-medium text-zinc-900 dark:text-zinc-100">{t('settings_feature_logistics')}</span>
-						<p class="text-xs text-zinc-500">{t('settings_feature_logistics_desc')}</p>
-					</div>
-				</label>
-				<label class="flex items-center gap-3 rounded-lg border border-zinc-200 p-3 cursor-pointer transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/50">
-					<Checkbox bind:checked={featureLedger} />
-					<div>
-						<span class="text-sm font-medium text-zinc-900 dark:text-zinc-100">{t('settings_feature_ledger')}</span>
-						<p class="text-xs text-zinc-500">{t('settings_feature_ledger_desc')}</p>
-					</div>
-				</label>
-			</div>
-		</div>
-
 		<StickyActions>
 			<Button type="button" onclick={resetForm} disabled={!isDirty}>
 				<RotateCcw class="mr-1.5 size-4" />
@@ -294,4 +388,82 @@
 			</Button>
 		</StickyActions>
 	</form>
+
+	<Separator class="my-4" />
+
+	<!-- Delete Organization -->
+	<div class="rounded-xl border border-red-200 bg-red-50/50 p-6 dark:border-red-900/50 dark:bg-red-950/20">
+		<div class="flex items-start gap-3">
+			<TriangleAlert class="mt-0.5 size-5 shrink-0 text-red-500 dark:text-red-400" />
+			<div>
+				<h3 class="text-base font-semibold text-red-900 dark:text-red-200">Delete Organization</h3>
+				<p class="mt-1 text-sm text-red-700 dark:text-red-400">
+					Permanently delete <span class="font-medium">{workosOrgName}</span> and all its data including products, invoices, ledger entries, and settings. This action cannot be undone.
+				</p>
+				<Button
+					type="button"
+					variant="destructive"
+					size="sm"
+					class="mt-4"
+					onclick={() => { deleteConfirmText = ''; deleteDialogOpen = true; }}
+				>
+					<Trash2 class="mr-1.5 size-4" />
+					Delete Organization
+				</Button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Delete Confirmation Dialog -->
+	<Dialog.Root bind:open={deleteDialogOpen}>
+		<Dialog.Portal>
+			<Dialog.Overlay class="fixed inset-0 z-50 bg-black/50" />
+			<Dialog.Content class="fixed top-1/2 left-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-zinc-200 bg-white p-6 shadow-xl dark:border-zinc-800 dark:bg-zinc-950">
+				<Dialog.Header>
+					<Dialog.Title class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+						Delete Organization
+					</Dialog.Title>
+					<Dialog.Description class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+						This will permanently delete <span class="font-medium text-zinc-900 dark:text-zinc-100">{workosOrgName}</span> and all associated data. This cannot be undone.
+					</Dialog.Description>
+				</Dialog.Header>
+				<div class="mt-4 space-y-3">
+					<Label for="deleteConfirm" class="text-sm text-zinc-700 dark:text-zinc-300">
+						Type <span class="font-mono font-medium text-zinc-900 dark:text-zinc-100">{workosOrgName}</span> to confirm
+					</Label>
+					<Input
+						id="deleteConfirm"
+						bind:value={deleteConfirmText}
+						placeholder={workosOrgName}
+						class="font-mono"
+						autocomplete="off"
+					/>
+				</div>
+				<Dialog.Footer class="mt-6 flex justify-end gap-3">
+					<Button
+						variant="outline"
+						size="sm"
+						onclick={() => { deleteDialogOpen = false; }}
+						disabled={deleting}
+					>
+						Cancel
+					</Button>
+					<Button
+						variant="destructive"
+						size="sm"
+						onclick={handleDeleteOrg}
+						disabled={!deleteConfirmMatch || deleting}
+					>
+						{#if deleting}
+							<Loader2 class="mr-1.5 size-4 animate-spin" />
+							Deleting...
+						{:else}
+							<Trash2 class="mr-1.5 size-4" />
+							Delete Forever
+						{/if}
+					</Button>
+				</Dialog.Footer>
+			</Dialog.Content>
+		</Dialog.Portal>
+	</Dialog.Root>
 {/if}
