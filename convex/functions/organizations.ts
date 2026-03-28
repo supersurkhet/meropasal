@@ -1,6 +1,19 @@
 import { query, mutation } from "../_generated/server";
 import { v } from "convex/values";
-import { requireOrg, requirePermission, getOrg } from "../lib/orgGuard";
+import { requireOrg, requirePermission, getOrg, getEffectiveRole } from "../lib/orgGuard";
+import { PERMISSIONS } from "../lib/permissions";
+
+export const getMyPermissions = query({
+  args: {},
+  handler: async (ctx) => {
+    const role = await getEffectiveRole(ctx);
+    if (!role) return { role: null, permissions: [] as string[] };
+    const permissions = Object.entries(PERMISSIONS)
+      .filter(([, roles]) => roles.includes(role))
+      .map(([perm]) => perm);
+    return { role, permissions };
+  },
+});
 
 export const getSettings = query({
   args: {},
@@ -16,12 +29,10 @@ export const getSettings = query({
       return {
         _id: null,
         orgId,
-        businessName: '',
         businessType: 'retail' as const,
         currentFiscalYear: '',
         currency: 'NPR',
         taxRate: 13,
-        features: { invoicing: true, stockBook: true, logistics: false, ledger: true },
         logoUrl: null,
       };
     }
@@ -32,33 +43,8 @@ export const getSettings = query({
   },
 });
 
-export const getMultiOrgInfo = query({
-  args: { orgIds: v.array(v.string()) },
-  handler: async (ctx, { orgIds }) => {
-    const results: Record<string, { businessName: string; location?: string; logoUrl: string | null }> = {};
-    for (const orgId of orgIds) {
-      const settings = await ctx.db
-        .query("orgSettings")
-        .withIndex("by_orgId", (q) => q.eq("orgId", orgId))
-        .first();
-      if (settings) {
-        const logoUrl = settings.logoStorageId
-          ? await ctx.storage.getUrl(settings.logoStorageId)
-          : null;
-        results[orgId] = {
-          businessName: settings.businessName,
-          location: settings.location,
-          logoUrl,
-        };
-      }
-    }
-    return results;
-  },
-});
-
 export const updateSettings = mutation({
   args: {
-    businessName: v.optional(v.string()),
     businessType: v.optional(
       v.union(
         v.literal("retail"),
@@ -70,17 +56,10 @@ export const updateSettings = mutation({
     phone: v.optional(v.string()),
     panNumber: v.optional(v.string()),
     logoStorageId: v.optional(v.id("_storage")),
+    removeLogo: v.optional(v.boolean()),
     currentFiscalYear: v.optional(v.string()),
     currency: v.optional(v.string()),
     taxRate: v.optional(v.number()),
-    features: v.optional(
-      v.object({
-        invoicing: v.boolean(),
-        stockBook: v.boolean(),
-        logistics: v.boolean(),
-        ledger: v.boolean(),
-      })
-    ),
   },
   handler: async (ctx, args) => {
     const orgId = await requirePermission(ctx, 'settings:edit');
@@ -89,16 +68,22 @@ export const updateSettings = mutation({
       .withIndex("by_orgId", (q) => q.eq("orgId", orgId))
       .first();
     if (settings) {
+      const { removeLogo, ...rest } = args;
       const updates: Record<string, unknown> = {};
-      for (const [key, value] of Object.entries(args)) {
+      for (const [key, value] of Object.entries(rest)) {
         if (value !== undefined) updates[key] = value;
+      }
+      if (removeLogo) {
+        if (settings.logoStorageId) {
+          await ctx.storage.delete(settings.logoStorageId);
+        }
+        updates.logoStorageId = undefined;
       }
       await ctx.db.patch(settings._id, updates);
     } else {
       // Create orgSettings if it doesn't exist (recovery from failed onboarding)
       await ctx.db.insert("orgSettings", {
         orgId,
-        businessName: args.businessName ?? '',
         businessType: args.businessType ?? 'retail',
         currentFiscalYear: args.currentFiscalYear ?? '',
         location: args.location,
@@ -106,40 +91,65 @@ export const updateSettings = mutation({
         panNumber: args.panNumber,
         currency: args.currency ?? 'NPR',
         taxRate: args.taxRate ?? 13,
-        features: args.features ?? {
-          invoicing: true,
-          stockBook: true,
-          logistics: false,
-          ledger: true,
-        },
       });
     }
   },
 });
 
-/**
- * Ensure a user→org mapping exists. Called after login when the server
- * knows the orgId from WorkOS memberships but the JWT may not contain it.
- */
-export const ensureUserOrgMapping = mutation({
-  args: {
-    orgId: v.string(),
+export const generateUploadUrl = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requirePermission(ctx, 'settings:edit');
+    return await ctx.storage.generateUploadUrl();
   },
-  handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity?.subject) throw new Error("Authentication required");
+});
 
-    const existing = await ctx.db
-      .query("userOrgMappings")
-      .withIndex("by_subject", (q) => q.eq("subject", identity.subject))
-      .first();
+/**
+ * Delete all Convex data for an organization.
+ * Called after the org is deleted from WorkOS.
+ */
+export const deleteOrgData = mutation({
+  args: { orgId: v.string() },
+  handler: async (ctx, { orgId }) => {
+    // Tables with a standard by_orgId index
+    const tablesWithOrgIndex = [
+      "orgSettings",
+      "parties",
+      "customers",
+      "products",
+      "invoices",
+      "stockBookEntries",
+      "ledgerEntries",
+      "accounts",
+      "vehicles",
+      "trips",
+      "notifications",
+      "billTemplates",
+    ] as const;
 
-    if (!existing) {
-      await ctx.db.insert("userOrgMappings", {
-        subject: identity.subject,
-        orgId: args.orgId,
-      });
+    let totalDeleted = 0;
+    for (const table of tablesWithOrgIndex) {
+      const docs = await ctx.db
+        .query(table)
+        .withIndex("by_orgId", (q: any) => q.eq("orgId", orgId))
+        .collect();
+      for (const doc of docs) {
+        await ctx.db.delete(doc._id);
+      }
+      totalDeleted += docs.length;
     }
+
+    // invoiceCounters uses by_orgId_fiscal_type (no plain by_orgId)
+    const counters = await ctx.db
+      .query("invoiceCounters")
+      .withIndex("by_orgId_fiscal_type", (q: any) => q.eq("orgId", orgId))
+      .collect();
+    for (const doc of counters) {
+      await ctx.db.delete(doc._id);
+    }
+    totalDeleted += counters.length;
+
+    return { totalDeleted };
   },
 });
 
@@ -150,7 +160,6 @@ export const ensureUserOrgMapping = mutation({
 export const savePendingOnboarding = mutation({
   args: {
     workosUserId: v.string(),
-    businessName: v.string(),
     businessType: v.union(
       v.literal("retail"),
       v.literal("wholesale"),
@@ -188,7 +197,6 @@ export const consumePendingOnboarding = mutation({
     if (!pending) return null;
     await ctx.db.delete(pending._id);
     return {
-      businessName: pending.businessName,
       businessType: pending.businessType,
       currentFiscalYear: pending.currentFiscalYear,
       location: pending.location,
@@ -222,7 +230,6 @@ const DEFAULT_CHART_OF_ACCOUNTS = [
 
 export const initializeOrg = mutation({
   args: {
-    businessName: v.string(),
     businessType: v.union(
       v.literal("retail"),
       v.literal("wholesale"),
@@ -243,25 +250,9 @@ export const initializeOrg = mutation({
       .first();
     if (existing) throw new Error("Organization already initialized");
 
-    // Create user→org mapping so non-org-scoped JWTs can resolve the org
-    const identity = await ctx.auth.getUserIdentity();
-    if (identity?.subject) {
-      const existingMapping = await ctx.db
-        .query("userOrgMappings")
-        .withIndex("by_subject", (q) => q.eq("subject", identity.subject))
-        .first();
-      if (!existingMapping) {
-        await ctx.db.insert("userOrgMappings", {
-          subject: identity.subject,
-          orgId,
-        });
-      }
-    }
-
     // Create org settings
     await ctx.db.insert("orgSettings", {
       orgId,
-      businessName: args.businessName,
       businessType: args.businessType,
       currentFiscalYear: args.currentFiscalYear,
       location: args.location,
@@ -269,12 +260,6 @@ export const initializeOrg = mutation({
       panNumber: args.panNumber,
       currency: "NPR",
       taxRate: 13,
-      features: {
-        invoicing: true,
-        stockBook: true,
-        logistics: false,
-        ledger: true,
-      },
     });
 
     // Create default chart of accounts
