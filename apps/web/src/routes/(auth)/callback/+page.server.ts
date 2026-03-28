@@ -1,6 +1,6 @@
 import type { PageServerLoad } from './$types'
 import { redirect } from '@sveltejs/kit'
-import { workos, COOKIE_NAME, WORKOS_CLIENT_ID, sessionCookieOptions } from '$lib/server/auth'
+import { workos, COOKIE_NAME, WORKOS_CLIENT_ID, sessionCookieOptions, shortCookieOptions } from '$lib/server/auth'
 import { WORKOS_COOKIE_PASSWORD } from '$env/static/private'
 import { ConvexHttpClient } from 'convex/browser'
 import { api } from '$lib/api'
@@ -22,10 +22,15 @@ export const load: PageServerLoad = async ({ url, cookies }) => {
 		},
 	})
 
-	const { user, sealedSession, accessToken } = authResult
+	const { user, sealedSession, accessToken, organizationId } = authResult
 
 	if (sealedSession) {
 		cookies.set(COOKIE_NAME, sealedSession, sessionCookieOptions(url))
+	}
+
+	// Persist the active org ID so org switching works reliably
+	if (organizationId) {
+		cookies.set('wos-org-id', organizationId, shortCookieOptions(url, 60 * 60 * 24 * 30))
 	}
 
 	const convex = new ConvexHttpClient(CONVEX_URL)
@@ -42,7 +47,6 @@ export const load: PageServerLoad = async ({ url, cookies }) => {
 			// Initialize the org in Convex with the stored business data
 			try {
 				await convex.mutation(api.functions.organizations.initializeOrg, {
-					businessName: pendingData.businessName,
 					businessType: pendingData.businessType,
 					currentFiscalYear: pendingData.currentFiscalYear,
 					location: pendingData.location || undefined,
@@ -66,15 +70,6 @@ export const load: PageServerLoad = async ({ url, cookies }) => {
 		})
 
 		if (memberships.data.length > 0) {
-			const orgId = memberships.data[0].organizationId
-
-			// Ensure user→org mapping exists in Convex
-			try {
-				await convex.mutation(api.functions.organizations.ensureUserOrgMapping, { orgId })
-			} catch {
-				// Non-fatal — mapping may already exist
-			}
-
 			redirect(302, '/dashboard')
 		}
 	} catch (err) {
