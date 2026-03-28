@@ -3,6 +3,9 @@
 	import BillTemplateEditor from '$lib/components/modules/settings/BillTemplateEditor.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { ArrowLeft, FileSliders } from '@lucide/svelte';
+	import { page } from '$app/stores';
+
+	let workosOrgName = $derived(($page.data as any).workosOrgName ?? '');
 </script>
 
 <MetaTags title="Bill Template" />
@@ -25,5 +28,5 @@
 		</div>
 	</div>
 
-	<BillTemplateEditor />
+	<BillTemplateEditor {workosOrgName} />
 </div>

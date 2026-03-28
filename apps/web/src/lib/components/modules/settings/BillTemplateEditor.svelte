@@ -11,6 +11,8 @@
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { toast } from 'svelte-sonner';
 
+	let { workosOrgName = '' }: { workosOrgName?: string } = $props();
+
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 
 	const templates = useConvexQuery(client, api.functions.billTemplates.list, () => ({}));
@@ -404,7 +406,7 @@
 								<div class="mb-2 inline-block rounded bg-zinc-200 px-4 py-2 text-[10px] text-zinc-500 dark:bg-zinc-800">[LOGO]</div>
 							{/if}
 							{#if headerFields.includes('businessName')}
-								<h2 class="font-bold text-base">{orgSettings.data?.businessName ?? 'Business Name'}</h2>
+								<h2 class="font-bold text-base">{workosOrgName || 'Business Name'}</h2>
 							{/if}
 							{#if headerFields.includes('address')}
 								<p class="text-zinc-600">{orgSettings.data?.location ?? 'Surkhet, Nepal'}</p>

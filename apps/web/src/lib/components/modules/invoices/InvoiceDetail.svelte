@@ -13,9 +13,10 @@
 
 	type Props = {
 		invoiceId: string;
+		workosOrgName?: string;
 	};
 
-	let { invoiceId }: Props = $props();
+	let { invoiceId, workosOrgName = '' }: Props = $props();
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 
@@ -83,7 +84,7 @@
 			<!-- Business Header -->
 			<div class="mb-6 text-center">
 				<h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">
-					{org?.businessName || 'Business Name'}
+					{workosOrgName || 'Business Name'}
 				</h2>
 				{#if org?.location}
 					<p class="text-sm text-zinc-500">{org.location}</p>
@@ -247,7 +248,7 @@
 	{#if showPrint}
 		{@const InvoicePrint = import('./InvoicePrint.svelte')}
 		{#await InvoicePrint then module}
-			<module.default invoice={inv} orgSettings={org} onclose={() => { showPrint = false; }} />
+			<module.default invoice={inv} orgSettings={org} {workosOrgName} onclose={() => { showPrint = false; }} />
 		{/await}
 	{/if}
 {/if}
