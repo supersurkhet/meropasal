@@ -213,7 +213,7 @@
 		<!-- Line Items Table — scrollable spreadsheet area -->
 		<div class="bill-grid max-h-[30vh] overflow-y-auto" bind:this={tableEl}>
 			<!-- Table Header -->
-			<div class="sticky top-0 z-10 grid grid-cols-[2.5rem_1fr_6rem_5.5rem_8rem_8rem_2rem] items-stretch border-b border-zinc-200 bg-zinc-50 text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
+			<div class="sticky top-0 z-10 grid grid-cols-[2rem_1fr_4.5rem_4rem_5rem_4.5rem_1.5rem] items-stretch border-b border-zinc-200 bg-zinc-50 text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
 				<span class="flex items-center justify-center border-r border-zinc-200 px-2 py-2 dark:border-zinc-800">{t('common_sn')}</span>
 				<span class="flex items-center border-r border-zinc-200 px-3 py-2 dark:border-zinc-800">{t('product_title')}</span>
 				<span class="flex items-center justify-center border-r border-zinc-200 px-2 py-2 dark:border-zinc-800">{t('common_quantity')}</span>
@@ -237,7 +237,7 @@
 				{@const vb = filled ? 'border-r border-zinc-200/60 dark:border-zinc-700/50' : 'border-r border-zinc-100/30 dark:border-zinc-800/20'}
 				<div
 					data-row-index={i}
-					class="group grid grid-cols-[2.5rem_1fr_6rem_5.5rem_8rem_8rem_2rem] items-stretch border-b transition-colors {filled ? 'border-zinc-200/60 dark:border-zinc-700/50 hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50' : 'border-zinc-100/30 dark:border-zinc-800/20'}"
+					class="group grid grid-cols-[2rem_1fr_4.5rem_4rem_5rem_4.5rem_1.5rem] items-stretch border-b transition-colors {filled ? 'border-zinc-200/60 dark:border-zinc-700/50 hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50' : 'border-zinc-100/30 dark:border-zinc-800/20'}"
 				>
 					<!-- SN -->
 					<span class="{vb} flex items-center justify-center px-2 font-mono text-xs tabular-nums {filled ? 'text-zinc-400' : 'text-zinc-300 dark:text-zinc-600'}">
@@ -245,7 +245,7 @@
 					</span>
 
 					<!-- Product -->
-					<div class="flex min-w-0 items-stretch {vb}">
+					<div class="flex min-w-0 items-stretch overflow-hidden {vb}">
 						{#if productSelector && !readonly}
 							{@render productSelector({ item, index: i })}
 						{:else}

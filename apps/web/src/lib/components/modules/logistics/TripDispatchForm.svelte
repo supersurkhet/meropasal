@@ -242,7 +242,7 @@
 
 			<!-- Grid header -->
 			<div class="bill-grid max-h-[30vh] overflow-y-auto">
-				<div class="sticky top-0 z-10 grid grid-cols-[2.5rem_1fr_6rem_5.5rem_8rem_8rem_2rem] items-stretch border-b border-zinc-200 bg-zinc-50 text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
+				<div class="sticky top-0 z-10 grid grid-cols-[2rem_1fr_4.5rem_4rem_5rem_4.5rem_1.5rem] items-stretch border-b border-zinc-200 bg-zinc-50 text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
 					<span class="flex items-center justify-center border-r border-zinc-200 px-2 py-2 dark:border-zinc-800">{t('common_sn')}</span>
 					<span class="flex items-center border-r border-zinc-200 px-3 py-2 dark:border-zinc-800">{t('product_title')}</span>
 					<span class="flex items-center justify-center border-r border-zinc-200 px-2 py-2 dark:border-zinc-800">{t('common_quantity')}</span>
@@ -252,7 +252,7 @@
 					<span></span>
 				</div>
 				{#each Array(5) as _, i}
-					<div class="grid grid-cols-[2.5rem_1fr_6rem_5.5rem_8rem_8rem_2rem] items-stretch border-b border-zinc-100/30 dark:border-zinc-800/20">
+					<div class="grid grid-cols-[2rem_1fr_4.5rem_4rem_5rem_4.5rem_1.5rem] items-stretch border-b border-zinc-100/30 dark:border-zinc-800/20">
 						<span class="flex items-center justify-center border-r border-zinc-100/30 px-2 py-2.5 font-mono text-xs text-zinc-300 dark:border-zinc-800/20 dark:text-zinc-600">{i + 1}</span>
 						<div class="flex items-center border-r border-zinc-100/30 px-3 dark:border-zinc-800/20"><Skeleton class="h-4 w-24" /></div>
 						<div class="flex items-center justify-center border-r border-zinc-100/30 dark:border-zinc-800/20"><Skeleton class="h-4 w-8" /></div>
