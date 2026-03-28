@@ -123,7 +123,7 @@
 			</Button>
 		</DropdownMenuTrigger>
 		<DropdownMenuContent align="end" class="w-40">
-			<a href="/customers/{customer._id}">
+			<a href="/customers/{customer._id}/edit">
 				<DropdownMenuItem class="cursor-pointer">
 					<Pencil class="mr-2 size-4" />
 					{t('action_edit')}
@@ -140,7 +140,7 @@
 					{:else}
 						<Trash2 class="mr-2 size-4" />
 					{/if}
-					{t('action_deactivate')}
+					{t('action_delete')}
 				</DropdownMenuItem>
 			{/if}
 		</DropdownMenuContent>
@@ -387,9 +387,9 @@
 
 <ConfirmDialog
 	bind:open={confirmOpen}
-	title={t('action_deactivate') + ' ' + t('customer_title')}
+	title={t('action_delete') + ' ' + t('customer_title')}
 	description={t('confirm_delete_customer')}
-	confirmLabel={t('action_deactivate')}
+	confirmLabel={t('action_delete')}
 	loading={deletingId !== null}
 	onconfirm={handleDelete}
 	oncancel={() => { confirmDeleteId = null }}

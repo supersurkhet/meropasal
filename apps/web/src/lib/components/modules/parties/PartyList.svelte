@@ -123,7 +123,7 @@
 			</Button>
 		</DropdownMenuTrigger>
 		<DropdownMenuContent align="end" class="w-40">
-			<a href="/parties/{party._id}">
+			<a href="/parties/{party._id}/edit">
 				<DropdownMenuItem class="cursor-pointer">
 					<Pencil class="mr-2 size-4" />
 					{t('action_edit')}
@@ -140,7 +140,7 @@
 					{:else}
 						<Trash2 class="mr-2 size-4" />
 					{/if}
-					{t('action_deactivate')}
+					{t('action_delete')}
 				</DropdownMenuItem>
 			{/if}
 		</DropdownMenuContent>
@@ -375,9 +375,9 @@
 
 <ConfirmDialog
 	bind:open={confirmOpen}
-	title={t('action_deactivate') + ' ' + t('party_title')}
+	title={t('action_delete') + ' ' + t('party_title')}
 	description={t('confirm_delete_party')}
-	confirmLabel={t('action_deactivate')}
+	confirmLabel={t('action_delete')}
 	loading={deletingId !== null}
 	onconfirm={() => {
 		if (confirmDeleteId) handleDelete(confirmDeleteId)

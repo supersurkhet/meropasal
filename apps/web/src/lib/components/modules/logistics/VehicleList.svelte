@@ -122,7 +122,7 @@
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end" class="w-40">
-						<a href="/vehicles/{vehicle._id}">
+						<a href="/vehicles/{vehicle._id}/edit">
 							<DropdownMenuItem class="cursor-pointer">
 								<Pencil class="mr-2 size-4" />
 								{t('action_edit')}
@@ -139,7 +139,7 @@
 								{:else}
 									<Trash2 class="mr-2 size-4" />
 								{/if}
-								{t('action_deactivate')}
+								{t('action_delete')}
 							</DropdownMenuItem>
 						{/if}
 					</DropdownMenuContent>
@@ -249,7 +249,7 @@
 													{:else}
 														<Trash2 class="mr-2 size-4" />
 													{/if}
-													{t('action_deactivate')}
+													{t('action_delete')}
 												</DropdownMenuItem>
 											{/if}
 										</DropdownMenuContent>
