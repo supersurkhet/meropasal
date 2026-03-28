@@ -1,8 +1,8 @@
 import { json, redirect } from '@sveltejs/kit'
 import type { RequestHandler } from './$types'
-import { workos, WORKOS_CLIENT_ID } from '$lib/server/auth'
+import { workos, WORKOS_CLIENT_ID, shortCookieOptions } from '$lib/server/auth'
 
-export const POST: RequestHandler = async ({ request, locals, url }) => {
+export const POST: RequestHandler = async ({ request, locals, url, cookies }) => {
 	if (!locals.user) {
 		return json({ error: 'Unauthorized' }, { status: 401 })
 	}
@@ -16,6 +16,9 @@ export const POST: RequestHandler = async ({ request, locals, url }) => {
 	if (organizationId === locals.orgId) {
 		return json({ redirectUrl: null })
 	}
+
+	// Persist the target org so hooks.server.ts resolves it after the auth round-trip
+	cookies.set('wos-org-id', organizationId, shortCookieOptions(url, 60 * 60 * 24 * 30))
 
 	// Create an auth URL that will re-authenticate with the target org
 	const authorizationUrl = workos.userManagement.getAuthorizationUrl({
