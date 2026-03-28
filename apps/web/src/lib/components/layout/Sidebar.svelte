@@ -22,6 +22,7 @@
 		ChevronsUpDown,
 		Check,
 		Loader2,
+		Plus,
 	} from '@lucide/svelte';
 	import { Separator } from '$lib/components/ui/separator';
 	import {
@@ -37,6 +38,7 @@
 	import { getConvexClient } from '$lib/convex';
 	import { useConvexQuery } from '$lib/convex-helpers.svelte';
 	import { api } from '$lib/api';
+	import AddOrgDialog from './AddOrgDialog.svelte';
 
 	type NavItem = {
 		labelKey: string;
@@ -112,8 +114,8 @@
 	let orgSwitcherOpen = $state(false);
 	let userMenuOpen = $state(false);
 	let logoutDialogOpen = $state(false);
+	let addOrgDialogOpen = $state(false);
 	let switchingTo = $state<string | null>(null);
-	const hasMultipleOrgs = $derived(userOrgs.length > 1);
 
 	async function switchOrg(orgId: string) {
 		if (orgId === currentOrgId || switchingTo) return;
@@ -137,15 +139,7 @@
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 	const orgSettings = useConvexQuery(client, api.functions.organizations.getSettings, () => ({}));
-	const displayName = $derived(orgSettings.data?.businessName || workosOrgName || t('app_name'));
-
-	// Fetch settings (location, logo) for all user orgs
-	const allOrgIds = $derived(userOrgs.map((o: { id: string; name: string }) => o.id));
-	const multiOrgInfo = useConvexQuery(
-		client,
-		api.functions.organizations.getMultiOrgInfo,
-		() => ({ orgIds: allOrgIds }),
-	);
+	const displayName = $derived(workosOrgName || t('app_name'));
 
 	function isActive(href: string): boolean {
 		return page.url.pathname === href || page.url.pathname.startsWith(href + '/');
@@ -168,8 +162,7 @@
 		<!-- Logo / Brand / Org Switcher -->
 		<Popover.Root bind:open={orgSwitcherOpen}>
 			<Popover.Trigger
-				disabled={!hasMultipleOrgs}
-				class="flex h-14 w-full items-center gap-3 border-b border-zinc-200 px-4 text-left transition-colors dark:border-zinc-800 {hasMultipleOrgs ? 'cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-900' : 'cursor-default'}"
+				class="flex h-14 w-full items-center gap-3 border-b border-zinc-200 px-4 text-left transition-colors cursor-pointer hover:bg-zinc-100 dark:border-zinc-800 dark:hover:bg-zinc-900"
 			>
 				{#if orgSettings.data?.logoUrl}
 					<img
@@ -194,66 +187,59 @@
 							</span>
 						{/if}
 					</div>
-					{#if hasMultipleOrgs}
-						<ChevronsUpDown class="size-4 shrink-0 text-zinc-400" />
-					{/if}
+					<ChevronsUpDown class="size-4 shrink-0 text-zinc-400" />
 				{/if}
 			</Popover.Trigger>
-			{#if hasMultipleOrgs}
 				<Popover.Content
-					side={collapsed ? 'right' : 'bottom'}
-					align="center"
-					sideOffset={collapsed ? 8 : 4}
-					class="z-50 w-60 rounded-lg border border-zinc-200 bg-white p-1 shadow-lg dark:border-zinc-800 dark:bg-zinc-950"
-				>
+				side={collapsed ? 'right' : 'bottom'}
+				align="center"
+				sideOffset={collapsed ? 8 : 4}
+				class="z-50 w-60 rounded-lg border border-zinc-200 bg-white p-1 shadow-lg dark:border-zinc-800 dark:bg-zinc-950"
+			>
+				{#if userOrgs.length > 1}
 					<div class="px-2 py-1.5">
 						<p class="text-xs font-medium text-zinc-500 dark:text-zinc-400">
 							{t('nav_switch_org')}
 						</p>
 					</div>
-					{#each userOrgs as org}
-						{@const isCurrent = org.id === currentOrgId}
-						{@const orgInfo = (multiOrgInfo.data as Record<string, { businessName: string; location?: string; logoUrl: string | null }> | undefined)?.[org.id]}
-						<button
-							onclick={() => { orgSwitcherOpen = false; switchOrg(org.id); }}
-							disabled={isCurrent || !!switchingTo}
-							class="flex w-full items-center gap-3 rounded-md px-2 py-2 text-left transition-colors
-								{isCurrent
-									? 'bg-zinc-100 dark:bg-zinc-800'
-									: 'hover:bg-zinc-50 dark:hover:bg-zinc-900'}
-								{switchingTo ? 'opacity-50' : ''}"
-						>
-							{#if orgInfo?.logoUrl}
-								<img
-									src={orgInfo.logoUrl}
-									alt={orgInfo.businessName || org.name}
-									class="size-8 shrink-0 rounded-lg object-cover"
-								/>
-							{:else}
-								<div class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-zinc-900 dark:bg-zinc-100">
-									<Store class="size-4 text-zinc-100 dark:text-zinc-900" />
-								</div>
-							{/if}
-							<div class="flex min-w-0 flex-1 flex-col">
-								<span class="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
-									{orgInfo?.businessName || org.name}
-								</span>
-								{#if orgInfo?.location}
-									<span class="flex items-center gap-1 text-[10px] text-zinc-400 dark:text-zinc-500">
-										<MapPin class="size-2.5 shrink-0" />
-										<span class="truncate">{orgInfo.location}</span>
-									</span>
-								{/if}
-							</div>
-							{#if switchingTo === org.id}
-								<Loader2 class="size-4 shrink-0 animate-spin text-zinc-400" />
-							{:else if isCurrent}
-								<Check class="size-4 shrink-0 text-zinc-500" />
-							{/if}
-						</button>
-					{/each}
-				</Popover.Content>
-			{/if}
+				{/if}
+				{#each userOrgs as org}
+					{@const isCurrent = org.id === currentOrgId}
+					<button
+						onclick={() => { orgSwitcherOpen = false; switchOrg(org.id); }}
+						disabled={isCurrent || !!switchingTo}
+						class="flex w-full items-center gap-3 rounded-md px-2 py-2 text-left transition-colors
+							{isCurrent
+								? 'bg-zinc-100 dark:bg-zinc-800'
+								: 'hover:bg-zinc-50 dark:hover:bg-zinc-900'}
+							{switchingTo ? 'opacity-50' : ''}"
+					>
+						<div class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-zinc-900 dark:bg-zinc-100">
+							<Store class="size-4 text-zinc-100 dark:text-zinc-900" />
+						</div>
+						<div class="flex min-w-0 flex-1 flex-col">
+							<span class="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
+								{org.name}
+							</span>
+						</div>
+						{#if switchingTo === org.id}
+							<Loader2 class="size-4 shrink-0 animate-spin text-zinc-400" />
+						{:else if isCurrent}
+							<Check class="size-4 shrink-0 text-zinc-500" />
+						{/if}
+					</button>
+				{/each}
+				<div class="my-1 h-px bg-zinc-200 dark:bg-zinc-800"></div>
+				<button
+					onclick={() => { orgSwitcherOpen = false; addOrgDialogOpen = true; }}
+					class="flex w-full items-center gap-3 rounded-md px-2 py-2 text-left text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-100"
+				>
+					<div class="flex size-8 shrink-0 items-center justify-center rounded-lg border-2 border-dashed border-zinc-300 dark:border-zinc-700">
+						<Plus class="size-4 text-zinc-400 dark:text-zinc-500" />
+					</div>
+					{t('nav_add_org')}
+				</button>
+			</Popover.Content>
 		</Popover.Root>
 
 		<!-- Navigation -->
@@ -381,6 +367,9 @@
 				</Popover.Root>
 			{/if}
 		</div>
+
+		<!-- Add Organization Dialog -->
+		<AddOrgDialog bind:open={addOrgDialogOpen} />
 
 		<!-- Logout Confirmation Dialog -->
 		<Dialog.Root bind:open={logoutDialogOpen}>
