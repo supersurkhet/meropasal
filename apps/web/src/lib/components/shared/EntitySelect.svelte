@@ -1,4 +1,5 @@
 <script lang="ts" generics="T">
+	import { onDestroy } from 'svelte'
 	import * as Select from '$lib/components/ui/select'
 	import * as Dialog from '$lib/components/ui/dialog'
 	import { Plus, Pencil } from '@lucide/svelte'
@@ -40,20 +41,29 @@
 	let createDialogOpen = $state(false)
 	let editDialogOpen = $state(false)
 	let editingItem = $state<T | null>(null)
+	let destroyed = false
+	let pendingRaf: number | undefined
+
+	onDestroy(() => {
+		destroyed = true
+		if (pendingRaf) cancelAnimationFrame(pendingRaf)
+		createDialogOpen = false
+		editDialogOpen = false
+	})
 
 	function openCreate() {
 		selectOpen = false
 		// Delay to avoid portal/focus conflicts
-		requestAnimationFrame(() => {
-			createDialogOpen = true
+		pendingRaf = requestAnimationFrame(() => {
+			if (!destroyed) createDialogOpen = true
 		})
 	}
 
 	function openEdit(item: T) {
 		editingItem = item
 		selectOpen = false
-		requestAnimationFrame(() => {
-			editDialogOpen = true
+		pendingRaf = requestAnimationFrame(() => {
+			if (!destroyed) editDialogOpen = true
 		})
 	}
 

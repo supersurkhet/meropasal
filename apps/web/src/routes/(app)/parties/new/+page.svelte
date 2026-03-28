@@ -27,9 +27,13 @@
 
 	<PartyForm
 		onsubmit={async (data) => {
-			await createMutation.mutate(data);
-			toast.success('Supplier created successfully');
-			goto('/parties');
+			try {
+				await createMutation.mutate(data);
+				toast.success('Supplier created successfully');
+				goto('/parties');
+			} catch (e) {
+				toast.error(e instanceof Error ? e.message : 'Failed to create party');
+			}
 		}}
 		oncancel={() => goto('/parties')}
 	/>
