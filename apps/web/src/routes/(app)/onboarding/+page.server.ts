@@ -75,7 +75,6 @@ export const actions: Actions = {
 			const convex = new ConvexHttpClient(CONVEX_URL)
 			await convex.mutation(api.functions.organizations.savePendingOnboarding, {
 				workosUserId: locals.user.id,
-				businessName,
 				businessType: businessType as 'retail' | 'wholesale' | 'service',
 				currentFiscalYear,
 				location,
