@@ -9,7 +9,7 @@ const stockImportItemSchema = z.object({
 })
 
 export const stockImportSchema = z.object({
-	partyId: z.string().min(1, 'Supplier is required'),
+	partyId: z.string().optional(),
 	importDate: z.string().min(1, 'Import date is required'),
 	items: z.array(stockImportItemSchema).min(1, 'At least one item is required'),
 })

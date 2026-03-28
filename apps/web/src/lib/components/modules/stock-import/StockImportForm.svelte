@@ -59,8 +59,25 @@
 	let submitting = $state(false);
 	let errors = $state<Record<string, string>>({});
 
+	const INITIAL_ROWS = 10;
+
+	// Seed empty rows when loaded
+	$effect(() => {
+		if (loaded && items.length === 0) {
+			items = Array.from({ length: INITIAL_ROWS }, () => ({
+				id: genId(),
+				productId: '',
+				productTitle: '',
+				quantity: 1,
+				unit: '',
+				unitStr: '',
+				rate: 0,
+			}));
+		}
+	});
+
 	let filteredProducts = $derived(
-		partyId ? allProducts.filter((p) => p.purchasePartyId === partyId) : [],
+		partyId ? allProducts.filter((p) => p.purchasePartyId === partyId) : allProducts,
 	);
 
 	let nextId = 0;
@@ -97,6 +114,29 @@
 			unit: defaultUnit,
 			rate: Math.round(rate * 100) / 100,
 		};
+		// Grow the grid when a product is picked
+		ensureTrailingRows(index);
+	}
+
+	function changeUnit(index: number, unit: string) {
+		const item = items[index];
+		const product = allProducts.find((p) => p._id === item.productId);
+		if (!product) {
+			items[index].unit = unit;
+			return;
+		}
+		const rate = deriveUnitPrice(product.costPrice, product.unit, unit);
+		items[index] = {
+			...items[index],
+			unit,
+			rate: Math.round(rate * 100) / 100,
+		};
+	}
+
+	function ensureTrailingRows(index: number) {
+		const emptyAfter = items.slice(index + 1).filter((i) => !i.productId).length;
+		const needed = 3 - emptyAfter;
+		for (let n = 0; n < needed; n++) addItem();
 	}
 
 	function validate(): boolean {
@@ -111,7 +151,7 @@
 			}))
 
 		const result = stockImportSchema.safeParse({
-			partyId,
+			partyId: partyId || undefined,
 			importDate,
 			items: validItems,
 		})
@@ -138,7 +178,7 @@
 		try {
 			const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 			await client.mutation(api.functions.stockImport.create, {
-				partyId: partyId as any,
+				...(partyId ? { partyId: partyId as any } : {}),
 				importDate,
 				items: validItems.map((item) => ({
 					productId: item.productId as any,
@@ -169,13 +209,17 @@
 		bind:items
 		onadditem={addItem}
 		onsubmit={handleSubmit}
+		onunitchange={changeUnit}
 		{submitting}
 	>
 		{#snippet headerSlot()}
 			<div class="grid grid-cols-2 gap-4">
 				<!-- Party selector -->
 				<div class="space-y-1.5">
-					<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('stock_import_party')}</Label>
+					<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+						{t('stock_import_party')}
+						<span class="ml-1 text-xs font-normal text-zinc-400">({t('common_optional')})</span>
+					</Label>
 					<EntitySelect
 						bind:value={partyId}
 						items={parties}
@@ -183,7 +227,6 @@
 						getLabel={(p) => p.name}
 						placeholder={t('common_select_supplier')}
 						entityName="Supplier"
-						triggerClass={errors.partyId ? 'border-red-400 ring-1 ring-red-400/30' : ''}
 					>
 						{#snippet createForm({ close, onCreated })}
 							<PartyForm
@@ -211,9 +254,6 @@
 							/>
 						{/snippet}
 					</EntitySelect>
-					{#if errors.partyId}
-						<p class="text-xs text-red-500 mt-1">{errors.partyId}</p>
-					{/if}
 				</div>
 
 				<!-- Date -->
@@ -236,7 +276,11 @@
 				</div>
 			{/if}
 
-			{#if partyId && filteredProducts.length === 0}
+			{#if !partyId}
+				<div class="mt-3 rounded-md bg-blue-50 px-3 py-2 text-xs text-blue-700 dark:bg-blue-950/30 dark:text-blue-400">
+					{t('stock_import_no_supplier_hint')}
+				</div>
+			{:else if filteredProducts.length === 0}
 				<div class="mt-3 rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:bg-amber-950/30 dark:text-amber-400">
 					{t('stock_import_no_products_for_supplier')}
 				</div>
