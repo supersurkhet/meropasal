@@ -74,17 +74,7 @@ export const seedAll = mutation({
 			// Only create minimal settings — user should configure via Settings page
 			await ctx.db.insert("orgSettings", {
 				orgId,
-				businessName: "",
-				businessType: "retail",
 				currentFiscalYear: fiscalYear,
-				currency: "NPR",
-				taxRate: 13,
-				features: {
-					invoicing: true,
-					stockBook: true,
-					logistics: true,
-					ledger: true,
-				},
 			});
 		}
 
@@ -959,33 +949,6 @@ export const listOrgIds = internalQuery({
 	},
 });
 
-export const fixOrgSettings = internalMutation({
-	args: { orgId: v.string() },
-	handler: async (ctx, { orgId }) => {
-		const settings = await ctx.db
-			.query("orgSettings")
-			.withIndex("by_orgId", (q) => q.eq("orgId", orgId))
-			.first();
-		if (settings) {
-			const updates: Record<string, unknown> = {};
-			if (settings.location === "Kathmandu, Nepal") {
-				updates.location = undefined;
-			}
-			if (settings.phone === "01-4567890") {
-				updates.phone = undefined;
-			}
-			if (settings.panNumber === "123456789") {
-				updates.panNumber = undefined;
-			}
-			if (Object.keys(updates).length > 0) {
-				await ctx.db.patch(settings._id, updates);
-				return { status: "cleaned", updates };
-			}
-			return { status: "already_clean" };
-		}
-		return { status: "not_found" };
-	},
-});
 
 export const orgDataCount = internalQuery({
 	args: { orgId: v.string() },

@@ -13,6 +13,9 @@
 		Loader2,
 		Sparkles,
 	} from '@lucide/svelte'
+	import { toast } from 'svelte-sonner'
+	import { businessSetupSchema } from '$lib/schemas/business-setup'
+	import { extractErrors } from '$lib/schemas/shared'
 	import { t } from '$lib/t.svelte'
 
 	export type BusinessFormData = {
@@ -45,6 +48,8 @@
 	let panNumber = $state('')
 	let currentFiscalYear = $state('82/83')
 
+	let errors = $state<Record<string, string>>({})
+
 	const steps = [
 		{ title: 'Business Info', description: 'Tell us about your business' },
 		{ title: 'Location & Contact', description: 'Where can customers find you?' },
@@ -57,27 +62,84 @@
 		{ value: 'service' as const, label: 'Service', nepali: 'सेवा', description: 'Provide services to customers' },
 	]
 
-	function canProceed(): boolean {
-		if (currentStep === 0) return businessName.trim().length > 0
-		if (currentStep === 1) return true
-		if (currentStep === 2) return currentFiscalYear.trim().length > 0
-		return false
+	function validateStep(): boolean {
+		const data = {
+			businessName: businessName.trim(),
+			businessType,
+			location: location.trim() || undefined,
+			phone,
+			panNumber,
+			currentFiscalYear: currentFiscalYear.trim(),
+		}
+
+		// Validate only fields relevant to the current step
+		if (currentStep === 0) {
+			const result = businessSetupSchema.pick({ businessName: true, businessType: true }).safeParse({
+				businessName: data.businessName,
+				businessType: data.businessType,
+			})
+			if (!result.success) {
+				errors = extractErrors(result.error.issues)
+				return false
+			}
+		} else if (currentStep === 1) {
+			// Phone and PAN are optional but format-validated
+			const result = businessSetupSchema.pick({ phone: true, panNumber: true }).safeParse({
+				phone: data.phone,
+				panNumber: data.panNumber,
+			})
+			if (!result.success) {
+				errors = extractErrors(result.error.issues)
+				toast.error('Please fix the errors before continuing')
+				return false
+			}
+		} else if (currentStep === 2) {
+			const result = businessSetupSchema.pick({ currentFiscalYear: true }).safeParse({
+				currentFiscalYear: data.currentFiscalYear,
+			})
+			if (!result.success) {
+				errors = extractErrors(result.error.issues)
+				return false
+			}
+		}
+
+		errors = {}
+		return true
 	}
 
 	function nextStep() {
-		if (currentStep < steps.length - 1 && canProceed()) {
+		if (currentStep < steps.length - 1 && validateStep()) {
 			currentStep++
 		}
 	}
 
 	function prevStep() {
 		if (currentStep > 0) {
+			errors = {}
 			currentStep--
 		}
 	}
 
 	function handleSubmit() {
-		if (!canProceed() || saving) return
+		if (saving) return
+
+		// Full validation on submit
+		const data = {
+			businessName: businessName.trim(),
+			businessType,
+			location: location.trim() || undefined,
+			phone,
+			panNumber,
+			currentFiscalYear: currentFiscalYear.trim(),
+		}
+		const result = businessSetupSchema.safeParse(data)
+		if (!result.success) {
+			errors = extractErrors(result.error.issues)
+			toast.error('Please fix the errors before completing setup')
+			return
+		}
+
+		errors = {}
 		onsubmit({
 			businessName: businessName.trim(),
 			businessType,
@@ -162,9 +224,15 @@
 								type="text"
 								bind:value={businessName}
 								placeholder="e.g. Sharma General Store"
-								class="h-11 w-full rounded-lg border border-zinc-200 bg-white pl-10 pr-4 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-600 dark:focus:ring-zinc-100/10"
+								class="h-11 w-full rounded-lg border bg-white pl-10 pr-4 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500
+									{errors.businessName
+										? 'border-red-400 focus:border-red-400 focus:ring-red-400/30 dark:border-red-400'
+										: 'border-zinc-200 focus:border-zinc-400 focus:ring-zinc-900/10 dark:border-zinc-800 dark:focus:border-zinc-600 dark:focus:ring-zinc-100/10'}"
 							/>
 						</div>
+						{#if errors.businessName}
+							<p class="mt-1 text-xs text-red-500">{errors.businessName}</p>
+						{/if}
 					</div>
 
 					<div>
@@ -219,10 +287,16 @@
 								id="wizardPhone"
 								type="tel"
 								bind:value={phone}
-								placeholder="e.g. 083-520123"
-								class="h-11 w-full rounded-lg border border-zinc-200 bg-white pl-10 pr-4 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-600 dark:focus:ring-zinc-100/10"
+								placeholder="e.g. 9841234567 or 083-520123"
+								class="h-11 w-full rounded-lg border bg-white pl-10 pr-4 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500
+									{errors.phone
+										? 'border-red-400 focus:border-red-400 focus:ring-red-400/30 dark:border-red-400'
+										: 'border-zinc-200 focus:border-zinc-400 focus:ring-zinc-900/10 dark:border-zinc-800 dark:focus:border-zinc-600 dark:focus:ring-zinc-100/10'}"
 							/>
 						</div>
+						{#if errors.phone}
+							<p class="mt-1 text-xs text-red-500">{errors.phone}</p>
+						{/if}
 					</div>
 
 					<div>
@@ -236,9 +310,15 @@
 								type="text"
 								bind:value={panNumber}
 								placeholder="e.g. 123456789"
-								class="h-11 w-full rounded-lg border border-zinc-200 bg-white pl-10 pr-4 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-600 dark:focus:ring-zinc-100/10"
+								class="h-11 w-full rounded-lg border bg-white pl-10 pr-4 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500
+									{errors.panNumber
+										? 'border-red-400 focus:border-red-400 focus:ring-red-400/30 dark:border-red-400'
+										: 'border-zinc-200 focus:border-zinc-400 focus:ring-zinc-900/10 dark:border-zinc-800 dark:focus:border-zinc-600 dark:focus:ring-zinc-100/10'}"
 							/>
 						</div>
+						{#if errors.panNumber}
+							<p class="mt-1 text-xs text-red-500">{errors.panNumber}</p>
+						{/if}
 					</div>
 				</div>
 
@@ -256,9 +336,15 @@
 								type="text"
 								bind:value={currentFiscalYear}
 								placeholder="e.g. 82/83"
-								class="h-11 w-full rounded-lg border border-zinc-200 bg-white pl-10 pr-4 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-600 dark:focus:ring-zinc-100/10"
+								class="h-11 w-full rounded-lg border bg-white pl-10 pr-4 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500
+									{errors.currentFiscalYear
+										? 'border-red-400 focus:border-red-400 focus:ring-red-400/30 dark:border-red-400'
+										: 'border-zinc-200 focus:border-zinc-400 focus:ring-zinc-900/10 dark:border-zinc-800 dark:focus:border-zinc-600 dark:focus:ring-zinc-100/10'}"
 							/>
 						</div>
+						{#if errors.currentFiscalYear}
+							<p class="mt-1 text-xs text-red-500">{errors.currentFiscalYear}</p>
+						{/if}
 						<p class="mt-2 text-xs text-zinc-400 dark:text-zinc-500">Nepal's fiscal year runs from Shrawan 1 to Ashadh end (mid-July to mid-July)</p>
 					</div>
 
@@ -323,12 +409,12 @@
 				{/if}
 
 				{#if currentStep < steps.length - 1}
-					<Button type="button" onclick={nextStep} disabled={!canProceed()}>
+					<Button type="button" onclick={nextStep}>
 						Next
 						<ChevronRight class="size-4" />
 					</Button>
 				{:else}
-					<Button type="button" onclick={handleSubmit} disabled={!canProceed() || saving}>
+					<Button type="button" onclick={handleSubmit} disabled={saving}>
 						{#if saving}
 							<Loader2 class="size-4 animate-spin" />
 							Setting up...

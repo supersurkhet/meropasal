@@ -37,7 +37,7 @@
 		const raw = target.value.replace(/[^0-9.]/g, '');
 		displayValue = raw;
 		const parsed = parseFloat(raw);
-		value = Number.isFinite(parsed) ? Math.round(parsed * 100) / 100 : 0;
+		value = Number.isFinite(parsed) ? Math.max(0, Math.round(parsed * 100) / 100) : 0;
 		onuserinput?.(value);
 	}
 

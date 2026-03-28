@@ -4,18 +4,8 @@ import { v } from "convex/values";
 export default defineSchema({
   orgSettings: defineTable({
     orgId: v.string(),
-    businessType: v.union(
-      v.literal("retail"),
-      v.literal("wholesale"),
-      v.literal("service")
-    ),
-    location: v.optional(v.string()),
-    phone: v.optional(v.string()),
-    panNumber: v.optional(v.string()),
-    logoStorageId: v.optional(v.id("_storage")),
     currentFiscalYear: v.string(),
-    currency: v.optional(v.string()),
-    taxRate: v.optional(v.number()),
+    logoStorageId: v.optional(v.id("_storage")),
   }).index("by_orgId", ["orgId"]),
 
   parties: defineTable({
@@ -305,15 +295,7 @@ export default defineSchema({
   // Keyed by WorkOS userId. Consumed and deleted after org initialization.
   pendingOnboarding: defineTable({
     workosUserId: v.string(),
-    businessType: v.union(
-      v.literal("retail"),
-      v.literal("wholesale"),
-      v.literal("service")
-    ),
     currentFiscalYear: v.string(),
-    location: v.optional(v.string()),
-    phone: v.optional(v.string()),
-    panNumber: v.optional(v.string()),
   }).index("by_workosUserId", ["workosUserId"]),
 
   staffFeedback: defineTable({

@@ -44,14 +44,11 @@ export const load: PageServerLoad = async ({ url, cookies }) => {
 		)
 
 		if (pendingData) {
-			// Initialize the org in Convex with the stored business data
+			// Initialize org in Convex (fiscal year, chart of accounts, counters)
+			// Business metadata (name, type, location) is already in WorkOS org metadata
 			try {
 				await convex.mutation(api.functions.organizations.initializeOrg, {
-					businessType: pendingData.businessType,
 					currentFiscalYear: pendingData.currentFiscalYear,
-					location: pendingData.location || undefined,
-					phone: pendingData.phone || undefined,
-					panNumber: pendingData.panNumber || undefined,
 				})
 			} catch (err) {
 				console.error('Failed to initialize org in Convex:', err)

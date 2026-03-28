@@ -5,6 +5,9 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { Loader2, Save } from '@lucide/svelte';
 	import StickyActions from '$lib/components/shared/StickyActions.svelte';
+	import { toast } from 'svelte-sonner';
+	import { customerSchema } from '$lib/schemas/customer';
+	import { extractErrors } from '$lib/schemas/shared';
 	import { t } from '$lib/t.svelte';
 
 	type Customer = {
@@ -48,16 +51,31 @@
 	let creditLimit = $state(customer?.creditLimit?.toString() ?? '');
 	let notes = $state(customer?.notes ?? '');
 	let submitting = $state(false);
-	let nameError = $state('');
+	let errors = $state<Record<string, string>>({});
+
+	function validate(): boolean {
+		const result = customerSchema.safeParse({
+			name: name.trim(),
+			panNumber,
+			address: address.trim() || undefined,
+			phone,
+			email: email.trim() || undefined,
+			creditLimit: creditLimit ? Number(creditLimit) : undefined,
+			notes: notes.trim() || undefined,
+		})
+		if (!result.success) {
+			errors = extractErrors(result.error.issues)
+			toast.error(t('validation_form_errors'))
+			return false
+		}
+		errors = {}
+		return true
+	}
 
 	async function handleSubmit(e: Event) {
 		e.preventDefault();
-		nameError = '';
 
-		if (!name.trim()) {
-			nameError = t('customer_name_required');
-			return;
-		}
+		if (!validate()) return;
 
 		submitting = true;
 		try {
@@ -101,10 +119,10 @@
 			id="name"
 			bind:value={name}
 			placeholder="e.g. Ram Grocery"
-			class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900 {nameError ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
+			class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900 {errors.name ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
 		/>
-		{#if nameError}
-			<p class="mt-1 text-xs text-red-500">{nameError}</p>
+		{#if errors.name}
+			<p class="mt-1 text-xs text-red-500">{errors.name}</p>
 		{/if}
 	</div>
 
@@ -118,8 +136,11 @@
 				id="panNumber"
 				bind:value={panNumber}
 				placeholder="e.g. 123456789"
-				class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900"
+				class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900 {errors.panNumber ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
 			/>
+			{#if errors.panNumber}
+				<p class="mt-1 text-xs text-red-500">{errors.panNumber}</p>
+			{/if}
 		</div>
 
 		<div class="space-y-1.5">
@@ -131,8 +152,11 @@
 				bind:value={phone}
 				type="tel"
 				placeholder="e.g. 9841234567"
-				class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900"
+				class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900 {errors.phone ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
 			/>
+			{#if errors.phone}
+				<p class="mt-1 text-xs text-red-500">{errors.phone}</p>
+			{/if}
 		</div>
 	</div>
 
@@ -147,8 +171,11 @@
 				bind:value={email}
 				type="email"
 				placeholder="e.g. ram@example.com"
-				class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900"
+				class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900 {errors.email ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
 			/>
+			{#if errors.email}
+				<p class="mt-1 text-xs text-red-500">{errors.email}</p>
+			{/if}
 		</div>
 
 		<div class="space-y-1.5">
@@ -176,8 +203,11 @@
 			min="0"
 			step="100"
 			placeholder="e.g. 50000"
-			class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900"
+			class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900 {errors.creditLimit ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
 		/>
+		{#if errors.creditLimit}
+			<p class="mt-1 text-xs text-red-500">{errors.creditLimit}</p>
+		{/if}
 	</div>
 
 	<!-- Notes -->

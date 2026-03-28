@@ -12,8 +12,9 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 		redirect(302, '/onboarding')
 	}
 
-	// Fetch the current WorkOS org name and all user's org memberships
+	// Fetch the current WorkOS org and all user's org memberships
 	let workosOrgName = ''
+	let orgMetadata: Record<string, unknown> = {}
 	let userOrgs: Array<{ id: string; name: string }> = []
 
 	if (locals.user) {
@@ -26,23 +27,25 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 				memberships.data.map(async (m) => {
 					try {
 						const org = await workos.organizations.getOrganization(m.organizationId)
-						return { id: org.id, name: org.name }
+						return { id: org.id, name: org.name, metadata: org.metadata ?? {} }
 					} catch {
-						return { id: m.organizationId, name: m.organizationId }
+						return { id: m.organizationId, name: m.organizationId, metadata: {} }
 					}
 				})
 			)
-			userOrgs = orgDetails
+			userOrgs = orgDetails.map((o) => ({ id: o.id, name: o.name }))
 
-			// Set current org name
+			// Set current org name and metadata
 			const currentOrg = orgDetails.find((o) => o.id === locals.orgId)
 			workosOrgName = currentOrg?.name ?? ''
+			orgMetadata = (currentOrg?.metadata ?? {}) as Record<string, unknown>
 		} catch {
 			// Fallback: try just the current org
 			if (locals.orgId) {
 				try {
 					const org = await workos.organizations.getOrganization(locals.orgId)
 					workosOrgName = org.name
+					orgMetadata = (org.metadata ?? {}) as Record<string, unknown>
 					userOrgs = [{ id: org.id, name: org.name }]
 				} catch {
 					// Non-critical
@@ -56,6 +59,7 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 		orgId: locals.orgId,
 		convexToken: locals.convexToken,
 		workosOrgName,
+		orgMetadata,
 		userOrgs,
 	}
 }

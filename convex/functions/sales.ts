@@ -2,6 +2,7 @@ import { mutation, query } from "../_generated/server";
 import { v } from "convex/values";
 import { getOrg, requirePermission } from "../lib/orgGuard";
 import { calculateFiscalYear } from "../lib/nepaliCalendar";
+import { validateInvoiceItems, validatePayments } from "../lib/validation";
 import {
   aggregateStockBookEntries,
   getProductPartyAvailability,
@@ -40,6 +41,8 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     const orgId = await requirePermission(ctx, 'sales:create');
+    validateInvoiceItems(args.items);
+    if (args.payments) validatePayments(args.payments);
 
     if (args.customerId) {
       const customer = await ctx.db.get(args.customerId);

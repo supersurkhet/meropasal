@@ -4,6 +4,7 @@ import { getOrg, requireOrg, requirePermission } from "../lib/orgGuard";
 import { paymentValidator } from "../lib/validators";
 import { computePaidAmount, computePaymentStatus } from "../lib/paymentStatus";
 import { calculateFiscalYear } from "../lib/nepaliCalendar";
+import { validateInvoiceItems, validatePayments } from "../lib/validation";
 import {
   aggregateStockBookEntries,
   getProductPartyAvailability,
@@ -68,6 +69,8 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     const orgId = await requirePermission(ctx, 'orders:create');
+    validateInvoiceItems(args.items);
+    if (args.payments) validatePayments(args.payments);
 
     if (args.customerId) {
       const customer = await ctx.db.get(args.customerId);

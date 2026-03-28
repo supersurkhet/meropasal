@@ -1,6 +1,7 @@
 import { query, mutation } from "../_generated/server";
 import { v } from "convex/values";
 import { getOrg, requirePermission } from "../lib/orgGuard";
+import { validatePhone, validatePanNumber, validateCreditLimit } from "../lib/validation";
 
 export const list = query({
   args: {},
@@ -53,6 +54,9 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     const orgId = await requirePermission(ctx, 'parties:manage');
+    validatePhone(args.phone);
+    validatePanNumber(args.panNumber);
+    validateCreditLimit(args.creditLimit);
     return await ctx.db.insert("parties", {
       orgId,
       ...args,
@@ -76,6 +80,9 @@ export const update = mutation({
     const orgId = await requirePermission(ctx, 'parties:manage');
     const party = await ctx.db.get(id);
     if (!party || party.orgId !== orgId) throw new Error("Party not found");
+    validatePhone(fields.phone);
+    validatePanNumber(fields.panNumber);
+    validateCreditLimit(fields.creditLimit);
     const updates: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(fields)) {
       if (value !== undefined) updates[key] = value;

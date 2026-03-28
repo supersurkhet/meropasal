@@ -101,12 +101,14 @@
 		collapsed = $bindable(false),
 		user,
 		workosOrgName = '',
+		orgMetadata = {},
 		userOrgs = [],
 		currentOrgId = '',
 	} = $props<{
 		collapsed?: boolean;
 		user: { firstName: string | null; lastName: string | null; email: string } | null;
 		workosOrgName?: string;
+		orgMetadata?: Record<string, unknown>;
 		userOrgs?: Array<{ id: string; name: string }>;
 		currentOrgId?: string | null;
 	}>();
@@ -180,10 +182,10 @@
 						<span class="truncate text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
 							{displayName}
 						</span>
-						{#if orgSettings.data?.location}
+						{#if orgMetadata.location}
 							<span class="flex items-center gap-1 text-[10px] text-zinc-400 dark:text-zinc-500">
 								<MapPin class="size-2.5 shrink-0 text-zinc-400 dark:text-zinc-500" />
-								<span class="truncate">{orgSettings.data.location}</span>
+								<span class="truncate">{orgMetadata.location}</span>
 							</span>
 						{/if}
 					</div>

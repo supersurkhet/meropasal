@@ -2,6 +2,7 @@ import { query, mutation } from "../_generated/server";
 import { v } from "convex/values";
 import { requireOrg, requirePermission, getOrg, getEffectiveRole } from "../lib/orgGuard";
 import { PERMISSIONS } from "../lib/permissions";
+import { validateFiscalYear } from "../lib/validation";
 
 export const getMyPermissions = query({
   args: {},
@@ -24,15 +25,11 @@ export const getSettings = query({
       .query("orgSettings")
       .withIndex("by_orgId", (q) => q.eq("orgId", orgId))
       .first();
-    // Return defaults if org has no settings yet (e.g. onboarding failed silently)
     if (!settings) {
       return {
         _id: null,
         orgId,
-        businessType: 'retail' as const,
         currentFiscalYear: '',
-        currency: 'NPR',
-        taxRate: 13,
         logoUrl: null,
       };
     }
@@ -45,24 +42,13 @@ export const getSettings = query({
 
 export const updateSettings = mutation({
   args: {
-    businessType: v.optional(
-      v.union(
-        v.literal("retail"),
-        v.literal("wholesale"),
-        v.literal("service")
-      )
-    ),
-    location: v.optional(v.string()),
-    phone: v.optional(v.string()),
-    panNumber: v.optional(v.string()),
     logoStorageId: v.optional(v.id("_storage")),
     removeLogo: v.optional(v.boolean()),
     currentFiscalYear: v.optional(v.string()),
-    currency: v.optional(v.string()),
-    taxRate: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const orgId = await requirePermission(ctx, 'settings:edit');
+    if (args.currentFiscalYear) validateFiscalYear(args.currentFiscalYear);
     const settings = await ctx.db
       .query("orgSettings")
       .withIndex("by_orgId", (q) => q.eq("orgId", orgId))
@@ -81,16 +67,9 @@ export const updateSettings = mutation({
       }
       await ctx.db.patch(settings._id, updates);
     } else {
-      // Create orgSettings if it doesn't exist (recovery from failed onboarding)
       await ctx.db.insert("orgSettings", {
         orgId,
-        businessType: args.businessType ?? 'retail',
         currentFiscalYear: args.currentFiscalYear ?? '',
-        location: args.location,
-        phone: args.phone,
-        panNumber: args.panNumber,
-        currency: args.currency ?? 'NPR',
-        taxRate: args.taxRate ?? 13,
       });
     }
   },
@@ -111,7 +90,6 @@ export const generateUploadUrl = mutation({
 export const deleteOrgData = mutation({
   args: { orgId: v.string() },
   handler: async (ctx, { orgId }) => {
-    // Tables with a standard by_orgId index
     const tablesWithOrgIndex = [
       "orgSettings",
       "parties",
@@ -154,24 +132,16 @@ export const deleteOrgData = mutation({
 });
 
 /**
- * Store onboarding form data before the OAuth redirect.
- * Called from the server without auth (user doesn't have org-scoped JWT yet).
+ * Store onboarding fiscal year before the OAuth redirect.
+ * Business metadata (name, type, location, etc.) is stored in WorkOS org metadata.
  */
 export const savePendingOnboarding = mutation({
   args: {
     workosUserId: v.string(),
-    businessType: v.union(
-      v.literal("retail"),
-      v.literal("wholesale"),
-      v.literal("service")
-    ),
     currentFiscalYear: v.string(),
-    location: v.optional(v.string()),
-    phone: v.optional(v.string()),
-    panNumber: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    // Delete any existing pending onboarding for this user
+    validateFiscalYear(args.currentFiscalYear);
     const existing = await ctx.db
       .query("pendingOnboarding")
       .withIndex("by_workosUserId", (q) => q.eq("workosUserId", args.workosUserId))
@@ -197,11 +167,7 @@ export const consumePendingOnboarding = mutation({
     if (!pending) return null;
     await ctx.db.delete(pending._id);
     return {
-      businessType: pending.businessType,
       currentFiscalYear: pending.currentFiscalYear,
-      location: pending.location,
-      phone: pending.phone,
-      panNumber: pending.panNumber,
     };
   },
 });
@@ -230,15 +196,7 @@ const DEFAULT_CHART_OF_ACCOUNTS = [
 
 export const initializeOrg = mutation({
   args: {
-    businessType: v.union(
-      v.literal("retail"),
-      v.literal("wholesale"),
-      v.literal("service")
-    ),
     currentFiscalYear: v.string(),
-    location: v.optional(v.string()),
-    phone: v.optional(v.string()),
-    panNumber: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const orgId = await requireOrg(ctx);
@@ -250,16 +208,10 @@ export const initializeOrg = mutation({
       .first();
     if (existing) throw new Error("Organization already initialized");
 
-    // Create org settings
+    // Create org settings (only Convex-specific fields)
     await ctx.db.insert("orgSettings", {
       orgId,
-      businessType: args.businessType,
       currentFiscalYear: args.currentFiscalYear,
-      location: args.location,
-      phone: args.phone,
-      panNumber: args.panNumber,
-      currency: "NPR",
-      taxRate: 13,
     });
 
     // Create default chart of accounts

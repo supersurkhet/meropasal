@@ -2,6 +2,7 @@ import { mutation, query } from "../_generated/server";
 import { v } from "convex/values";
 import { getOrg, requirePermission } from "../lib/orgGuard";
 import { calculateFiscalYear } from "../lib/nepaliCalendar";
+import { validateInvoiceItems } from "../lib/validation";
 
 export const create = mutation({
   args: {
@@ -19,6 +20,7 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     const orgId = await requirePermission(ctx, 'stock:import');
+    validateInvoiceItems(args.items);
     const fiscalYear = calculateFiscalYear(args.importDate);
 
     // Resolve supplier for each item — use explicit partyId if given,

@@ -20,10 +20,12 @@
 		payments = $bindable([]),
 		totalAmount = 0,
 		readonly = false,
+		errors = {},
 	}: {
 		payments: PaymentRow[];
 		totalAmount: number;
 		readonly?: boolean;
+		errors?: Record<string, string>;
 	} = $props();
 
 	const PAYMENT_METHODS = [
@@ -148,12 +150,18 @@
 						</Select.Content>
 					</Select.Root>
 					{#if needsVoucher(payment.paymentMethod)}
-						<Input
-							bind:value={payment.bankVoucherNumber}
-							placeholder={t('payment_voucher_number')}
-							disabled={readonly}
-							class="h-8 w-28 text-sm border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900"
-						/>
+						{@const voucherError = errors[`payments.${i}.bankVoucherNumber`]}
+						<div>
+							<Input
+								bind:value={payment.bankVoucherNumber}
+								placeholder={t('payment_voucher_number')}
+								disabled={readonly}
+								class="h-8 w-28 text-sm border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900 {voucherError ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
+							/>
+							{#if voucherError}
+								<p class="mt-0.5 text-[10px] text-red-500">{voucherError}</p>
+							{/if}
+						</div>
 					{:else}
 						<span class="w-28 text-center text-xs text-zinc-400">—</span>
 					{/if}

@@ -6,6 +6,7 @@
 	import { page } from '$app/stores';
 
 	let workosOrgName = $derived(($page.data as any).workosOrgName ?? '');
+	let orgMetadata = $derived(($page.data as any).orgMetadata ?? {});
 </script>
 
 <MetaTags title="Bill Template" />
@@ -28,5 +29,5 @@
 		</div>
 	</div>
 
-	<BillTemplateEditor {workosOrgName} />
+	<BillTemplateEditor {workosOrgName} {orgMetadata} />
 </div>

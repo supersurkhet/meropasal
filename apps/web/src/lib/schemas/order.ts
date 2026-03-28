@@ -8,12 +8,25 @@ const orderItemSchema = z.object({
 	unit: z.string().optional(),
 })
 
-const paymentSchema = z.object({
-	paidAt: z.string().min(1, 'Payment date is required'),
-	paidAmount: z.number().min(0, 'Payment amount must be positive'),
-	paymentMethod: z.enum(['cash', 'card', 'bankTransfer', 'credit', 'online', 'check']),
-	bankVoucherNumber: z.string().optional(),
-})
+const paymentSchema = z
+	.object({
+		paidAt: z.string().min(1, 'Payment date is required'),
+		paidAmount: z.number().min(0, 'Payment amount must be positive'),
+		paymentMethod: z.enum(['cash', 'card', 'bankTransfer', 'credit', 'online', 'check']),
+		bankVoucherNumber: z.string().optional(),
+	})
+	.refine(
+		(data) => {
+			if (data.paymentMethod === 'bankTransfer' || data.paymentMethod === 'check') {
+				return !!data.bankVoucherNumber?.trim()
+			}
+			return true
+		},
+		{
+			message: 'Voucher number is required for bank transfer or check',
+			path: ['bankVoucherNumber'],
+		},
+	)
 
 export const orderSchema = z.object({
 	customerId: z.string().optional(),

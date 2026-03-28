@@ -25,9 +25,17 @@ export const POST: RequestHandler = async ({ request, locals, url }) => {
 	}
 
 	try {
-		// 1. Create WorkOS Organization
+		// 1. Create WorkOS Organization with metadata
 		const org = await workos.organizations.createOrganization({
 			name: businessName.trim(),
+			metadata: {
+				businessType,
+				location: location?.trim() || '',
+				phone: phone?.trim() || '',
+				panNumber: panNumber?.trim() || '',
+				currency: 'NPR',
+				taxRate: 13,
+			},
 		})
 
 		// 2. Add user as owner member
@@ -37,15 +45,11 @@ export const POST: RequestHandler = async ({ request, locals, url }) => {
 			roleSlug: 'owner',
 		})
 
-		// 3. Store business data in Convex (survives OAuth redirect)
+		// 3. Store fiscal year in Convex (survives OAuth redirect)
 		const convex = new ConvexHttpClient(CONVEX_URL)
 		await convex.mutation(api.functions.organizations.savePendingOnboarding, {
 			workosUserId: locals.user.id,
-			businessType,
 			currentFiscalYear: currentFiscalYear.trim(),
-			location: location?.trim() || undefined,
-			phone: phone?.trim() || undefined,
-			panNumber: panNumber?.trim() || undefined,
 		})
 
 		// 4. Redirect through WorkOS OAuth to get org-scoped session

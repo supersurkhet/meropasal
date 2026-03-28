@@ -59,27 +59,31 @@ export const actions: Actions = {
 		}
 
 		try {
-			// 1. Create WorkOS Organization
+			// 1. Create WorkOS Organization with metadata
 			const org = await workos.organizations.createOrganization({
 				name: businessName,
+				metadata: {
+					businessType,
+					location: location || '',
+					phone: phone || '',
+					panNumber: panNumber || '',
+					currency: 'NPR',
+					taxRate: 13,
+				},
 			})
 
-			// 2. Add user as admin member
+			// 2. Add user as owner member
 			await workos.userManagement.createOrganizationMembership({
 				userId: locals.user.id,
 				organizationId: org.id,
 				roleSlug: 'owner',
 			})
 
-			// 3. Store business data in Convex (survives OAuth redirect reliably)
+			// 3. Store fiscal year in Convex (survives OAuth redirect)
 			const convex = new ConvexHttpClient(CONVEX_URL)
 			await convex.mutation(api.functions.organizations.savePendingOnboarding, {
 				workosUserId: locals.user.id,
-				businessType: businessType as 'retail' | 'wholesale' | 'service',
 				currentFiscalYear,
-				location,
-				phone,
-				panNumber,
 			})
 
 			// 4. Redirect through WorkOS OAuth to get org-scoped session

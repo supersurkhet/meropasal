@@ -11,12 +11,14 @@
 		children,
 		user,
 		workosOrgName = '',
+		orgMetadata = {},
 		userOrgs = [],
 		currentOrgId = '',
 	}: {
 		children: import('svelte').Snippet;
 		user: { firstName: string | null; lastName: string | null; email: string } | null;
 		workosOrgName?: string;
+		orgMetadata?: Record<string, unknown>;
 		userOrgs?: Array<{ id: string; name: string }>;
 		currentOrgId?: string | null;
 	} = $props();
@@ -37,13 +39,13 @@
 <div class="flex h-screen bg-white dark:bg-zinc-950">
 	<!-- Desktop sidebar -->
 	<div class="hidden lg:block">
-		<Sidebar bind:collapsed={sidebarCollapsed} {user} {workosOrgName} {userOrgs} {currentOrgId} />
+		<Sidebar bind:collapsed={sidebarCollapsed} {user} {workosOrgName} {orgMetadata} {userOrgs} {currentOrgId} />
 	</div>
 
 	<!-- Mobile sidebar (sheet) -->
 	<Sheet bind:open={mobileOpen}>
 		<SheetContent side="left" class="w-64 p-0" showClose={false}>
-			<Sidebar collapsed={false} {user} {workosOrgName} {userOrgs} {currentOrgId} />
+			<Sidebar collapsed={false} {user} {workosOrgName} {orgMetadata} {userOrgs} {currentOrgId} />
 		</SheetContent>
 	</Sheet>
 

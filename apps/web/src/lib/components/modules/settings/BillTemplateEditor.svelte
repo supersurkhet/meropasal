@@ -11,12 +11,11 @@
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { toast } from 'svelte-sonner';
 
-	let { workosOrgName = '' }: { workosOrgName?: string } = $props();
+	let { workosOrgName = '', orgMetadata = {} }: { workosOrgName?: string; orgMetadata?: Record<string, unknown> } = $props();
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 
 	const templates = useConvexQuery(client, api.functions.billTemplates.list, () => ({}));
-	const orgSettings = useConvexQuery(client, api.functions.organizations.getSettings, () => ({}));
 	const createMutation = useConvexMutation(client, api.functions.billTemplates.create);
 	const updateMutation = useConvexMutation(client, api.functions.billTemplates.update);
 	const setDefaultMutation = useConvexMutation(client, api.functions.billTemplates.setDefault);
@@ -409,13 +408,13 @@
 								<h2 class="font-bold text-base">{workosOrgName || 'Business Name'}</h2>
 							{/if}
 							{#if headerFields.includes('address')}
-								<p class="text-zinc-600">{orgSettings.data?.location ?? 'Surkhet, Nepal'}</p>
+								<p class="text-zinc-600">{orgMetadata.location ?? 'Surkhet, Nepal'}</p>
 							{/if}
 							{#if headerFields.includes('phone')}
-								<p class="text-zinc-600">Tel: {orgSettings.data?.phone ?? '+977-...'}</p>
+								<p class="text-zinc-600">Tel: {orgMetadata.phone ?? '+977-...'}</p>
 							{/if}
 							{#if headerFields.includes('pan')}
-								<p class="text-zinc-600">PAN: {orgSettings.data?.panNumber ?? '000000000'}</p>
+								<p class="text-zinc-600">PAN: {orgMetadata.panNumber ?? '000000000'}</p>
 							{/if}
 						</div>
 

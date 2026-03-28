@@ -12,138 +12,144 @@
 	import StickyActions from '$lib/components/shared/StickyActions.svelte';
 	import { toast } from 'svelte-sonner';
 	import { t } from '$lib/t.svelte';
-	import { settingsSchema } from '$lib/schemas/settings';
 	import { calculateFiscalYear } from '$lib/fiscal';
 	import { invalidateAll } from '$app/navigation';
+	import { page } from '$app/stores';
 
-	let { workosOrgName = '' }: { workosOrgName?: string } = $props();
+	let { workosOrgName = '', orgMetadata = {} }: { workosOrgName?: string; orgMetadata?: Record<string, unknown> } = $props();
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 
+	// Convex query — only for currentFiscalYear and logo
 	const settings = useConvexQuery(client, api.functions.organizations.getSettings, () => ({}));
 	const updateMutation = useConvexMutation(client, api.functions.organizations.updateSettings);
 	const generateUploadUrlMutation = useConvexMutation(client, api.functions.organizations.generateUploadUrl);
 
+	// WorkOS fields (from layout data)
 	let businessName = $state(workosOrgName);
-	let lastSyncedOrgName = $state(workosOrgName);
-	let location = $state('');
-	let phone = $state('');
-	let panNumber = $state('');
+	let location = $state((orgMetadata.location as string) ?? '');
+	let phone = $state((orgMetadata.phone as string) ?? '');
+	let panNumber = $state((orgMetadata.panNumber as string) ?? '');
+	let taxRate = $state(Number(orgMetadata.taxRate) || 13);
+	let currency = $state((orgMetadata.currency as string) || 'NPR');
+
+	// Convex fields
 	let currentFiscalYear = $state(calculateFiscalYear());
-	let taxRate = $state(13);
 	let lastSettingsId = $state<string | null>(null);
+
 	let errors = $state<Record<string, string>>({});
 	let uploading = $state(false);
+	let saving = $state(false);
 	let fileInput: HTMLInputElement | undefined = $state();
 
-	// Sync businessName when workosOrgName changes from server (e.g. after invalidateAll)
+	// Sync WorkOS fields when props change (e.g. after invalidateAll)
+	let lastSyncedOrgName = $state(workosOrgName);
+	let lastSyncedMetadata = $state(JSON.stringify(orgMetadata));
 	$effect(() => {
-		if (workosOrgName !== lastSyncedOrgName) {
+		const metaStr = JSON.stringify(orgMetadata);
+		if (workosOrgName !== lastSyncedOrgName || metaStr !== lastSyncedMetadata) {
 			businessName = workosOrgName;
+			location = (orgMetadata.location as string) ?? '';
+			phone = (orgMetadata.phone as string) ?? '';
+			panNumber = (orgMetadata.panNumber as string) ?? '';
+			taxRate = Number(orgMetadata.taxRate) || 13;
+			currency = (orgMetadata.currency as string) || 'NPR';
 			lastSyncedOrgName = workosOrgName;
+			lastSyncedMetadata = metaStr;
 		}
 	});
 
+	// Sync Convex fields when settings data changes
 	$effect(() => {
 		if (settings.data) {
 			const s = settings.data as any;
 			const currentId = s._id ?? null;
 			if (currentId !== lastSettingsId) {
-				location = s.location ?? '';
-				phone = s.phone ?? '';
-				panNumber = s.panNumber ?? '';
 				currentFiscalYear = s.currentFiscalYear || calculateFiscalYear();
-				taxRate = s.taxRate ?? 13;
 				lastSettingsId = currentId;
 			}
 		}
 	});
 
 	function validate(): boolean {
+		errors = {};
 		if (!businessName.trim()) {
-			errors = { businessName: 'Business name is required' };
+			errors.businessName = 'Business name is required';
+		}
+		if (!currentFiscalYear.trim()) {
+			errors.currentFiscalYear = 'Fiscal year is required';
+		}
+		if (taxRate < 0 || taxRate > 100) {
+			errors.taxRate = 'Tax rate must be between 0 and 100';
+		}
+		if (Object.keys(errors).length > 0) {
 			toast.error(t('validation_form_errors'));
 			return false;
 		}
-		const result = settingsSchema.safeParse({
-			location: location || undefined,
-			phone: phone || undefined,
-			panNumber: panNumber || undefined,
-			currentFiscalYear,
-			taxRate,
-		})
-		if (!result.success) {
-			errors = {}
-			for (const issue of result.error.issues) {
-				const key = issue.path.join('.')
-				if (!errors[key]) errors[key] = issue.message
-			}
-			toast.error(t('validation_form_errors'))
-			return false
-		}
-		errors = {}
-		return true
+		return true;
 	}
 
-	let isOrgNameDirty = $derived(businessName !== workosOrgName);
-	let isDirty = $derived(
-		isOrgNameDirty || (!!settings.data && lastSettingsId !== null && (() => {
-			const s = settings.data as any;
-			return (
-				location !== (s.location ?? '') ||
-				phone !== (s.phone ?? '') ||
-				panNumber !== (s.panNumber ?? '') ||
-				currentFiscalYear !== (s.currentFiscalYear || calculateFiscalYear()) ||
-				taxRate !== (s.taxRate ?? 13)
-			);
-		})())
-	);
+	let isDirty = $derived((() => {
+		const nameChanged = businessName !== workosOrgName;
+		const metaChanged =
+			location !== ((orgMetadata.location as string) ?? '') ||
+			phone !== ((orgMetadata.phone as string) ?? '') ||
+			panNumber !== ((orgMetadata.panNumber as string) ?? '') ||
+			taxRate !== (Number(orgMetadata.taxRate) || 13);
+		const convexChanged = !!settings.data && lastSettingsId !== null &&
+			currentFiscalYear !== ((settings.data as any).currentFiscalYear || calculateFiscalYear());
+		return nameChanged || metaChanged || convexChanged;
+	})());
 
 	function resetForm() {
-		if (!settings.data) return;
-		const s = settings.data as any;
 		businessName = workosOrgName;
-		location = s.location ?? '';
-		phone = s.phone ?? '';
-		panNumber = s.panNumber ?? '';
-		currentFiscalYear = s.currentFiscalYear || calculateFiscalYear();
-		taxRate = s.taxRate ?? 13;
+		location = (orgMetadata.location as string) ?? '';
+		phone = (orgMetadata.phone as string) ?? '';
+		panNumber = (orgMetadata.panNumber as string) ?? '';
+		taxRate = Number(orgMetadata.taxRate) || 13;
+		if (settings.data) {
+			currentFiscalYear = (settings.data as any).currentFiscalYear || calculateFiscalYear();
+		}
 		errors = {};
 	}
 
 	async function handleSave() {
 		if (!validate()) return;
-		const nameChanged = isOrgNameDirty;
+		saving = true;
 		try {
-			// Rename org in WorkOS if name changed
-			if (nameChanged) {
-				const res = await fetch('/api/org/rename', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ name: businessName.trim() }),
-				});
-				if (!res.ok) {
-					const { error } = await res.json();
-					toast.error(error || 'Failed to rename organization');
-					return;
-				}
+			// Save WorkOS fields (name + metadata) via API
+			const res = await fetch('/api/org/update', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					name: businessName.trim(),
+					location: location.trim(),
+					phone: phone.trim(),
+					panNumber: panNumber.trim(),
+					taxRate,
+					currency,
+				}),
+			});
+			if (!res.ok) {
+				const { error } = await res.json();
+				toast.error(error || 'Failed to update organization');
+				saving = false;
+				return;
 			}
 
+			// Save Convex fields (fiscal year)
 			await updateMutation.mutate({
-				location,
-				phone,
-				panNumber,
 				currentFiscalYear,
-				taxRate,
 			});
+
 			toast.success(t('toast_settings_saved'));
 
-			// Re-run layout load so sidebar/org switcher reflect the new name
-			if (nameChanged) {
-				await invalidateAll();
-			}
+			// Re-run layout load to refresh WorkOS data everywhere
+			await invalidateAll();
 		} catch (err) {
 			toast.error(t('settings_save_error').replace('{error}', (err as Error).message));
+		} finally {
+			saving = false;
 		}
 	}
 
@@ -192,7 +198,7 @@
 			const res = await fetch('/api/org/delete', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ organizationId: (settings.data as any)?.orgId }),
+				body: JSON.stringify({ organizationId: ($page.data as any)?.orgId }),
 			});
 			const result = await res.json();
 			if (!res.ok) {
@@ -429,8 +435,8 @@
 				<RotateCcw class="mr-1.5 size-4" />
 				{t('action_reset_changes')}
 			</Button>
-			<Button type="submit" disabled={updateMutation.isLoading || !isDirty}>
-				{#if updateMutation.isLoading}
+			<Button type="submit" disabled={saving || !isDirty}>
+				{#if saving}
 					<Loader2 class="mr-1.5 size-4 animate-spin" />
 					{t('settings_saving')}
 				{:else}

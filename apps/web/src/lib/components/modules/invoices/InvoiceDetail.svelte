@@ -12,12 +12,15 @@
 	import { t } from '$lib/t.svelte';
 	import { breadcrumbLabel } from '$lib/breadcrumb-label.svelte';
 
+	import { page } from '$app/stores';
+
 	type Props = {
 		invoiceId: string;
 		workosOrgName?: string;
+		orgMetadata?: Record<string, unknown>;
 	};
 
-	let { invoiceId, workosOrgName = '' }: Props = $props();
+	let { invoiceId, workosOrgName = '', orgMetadata = {} }: Props = $props();
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 
@@ -30,7 +33,12 @@
 		return () => breadcrumbLabel.set(null);
 	});
 
-	const orgSettings = useConvexQuery(client, api.functions.organizations.getSettings, () => ({}));
+	// Org details for invoice header come from WorkOS metadata
+	const org = $derived({
+		location: (orgMetadata.location as string) ?? '',
+		phone: (orgMetadata.phone as string) ?? '',
+		panNumber: (orgMetadata.panNumber as string) ?? '',
+	});
 
 	let showPrint = $state(false);
 

@@ -3,6 +3,7 @@ import { v } from "convex/values";
 import { getOrg, requirePermission } from "../lib/orgGuard";
 import { tripProductValidator } from "../lib/validators";
 import { calculateFiscalYear } from "../lib/nepaliCalendar";
+import { validateTripProducts } from "../lib/validation";
 import {
   aggregateStockBookEntries,
   getProductPartyAvailability,
@@ -54,6 +55,7 @@ export const dispatch = mutation({
   },
   handler: async (ctx, args) => {
     const orgId = await requirePermission(ctx, 'trips:dispatch');
+    validateTripProducts(args.products);
 
     const vehicle = await ctx.db.get(args.vehicleId);
     if (!vehicle || vehicle.orgId !== orgId)

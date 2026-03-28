@@ -5,10 +5,11 @@
 	import InvoiceDetail from '$lib/components/modules/invoices/InvoiceDetail.svelte';
 
 	let workosOrgName = $derived(($page.data as any).workosOrgName ?? '');
+	let orgMetadata = $derived(($page.data as any).orgMetadata ?? {});
 </script>
 
 <MetaTags title="Invoice Detail" />
 
 <div class="p-6">
-	<InvoiceDetail invoiceId={pageState.params.id!} {workosOrgName} />
+	<InvoiceDetail invoiceId={pageState.params.id!} {workosOrgName} {orgMetadata} />
 </div>
