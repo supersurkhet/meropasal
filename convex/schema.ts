@@ -316,6 +316,27 @@ export default defineSchema({
     panNumber: v.optional(v.string()),
   }).index("by_workosUserId", ["workosUserId"]),
 
+  staffFeedback: defineTable({
+    orgId: v.string(),
+    pathname: v.string(),
+    noteId: v.string(),
+    kind: v.union(
+      v.literal("element"),
+      v.literal("text"),
+      v.literal("group"),
+      v.literal("area")
+    ),
+    comment: v.string(),
+    authorEmail: v.string(),
+    authorName: v.string(),
+    inspectorNoteJson: v.string(),
+    createdAt: v.string(),
+    updatedAt: v.string(),
+  })
+    .index("by_orgId", ["orgId"])
+    .index("by_orgId_pathname", ["orgId", "pathname"])
+    .index("by_orgId_noteId", ["orgId", "noteId"]),
+
   billTemplates: defineTable({
     orgId: v.string(),
     templateName: v.string(),

@@ -12,6 +12,7 @@ declare global {
 			} | null;
 			orgId: string | null;
 			convexToken: string | null;
+			isInternalStaff: boolean;
 		}
 		// interface PageData {}
 		// interface PageState {}

@@ -5,5 +5,6 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 		user: locals.user,
 		orgId: locals.orgId,
 		convexToken: locals.convexToken,
+		isInternalStaff: locals.isInternalStaff,
 	};
 };

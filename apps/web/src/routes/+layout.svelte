@@ -10,10 +10,12 @@
 	import '@fontsource-variable/geist';
 	import '../app.css';
 
+	import { browser } from '$app/environment';
 	import { Toaster } from 'svelte-sonner';
 	import { MetaTags } from 'svelte-meta-tags';
 	import { setConvexAuth } from '$lib/convex';
 	import favicon from '$lib/assets/favicon.svg';
+	import AgentationSync from '$lib/components/shared/AgentationSync.svelte';
 
 	let { children, data } = $props();
 
@@ -48,3 +50,7 @@
 <Toaster richColors position="bottom-right" />
 
 {@render children()}
+
+{#if browser && data.isInternalStaff}
+	<AgentationSync />
+{/if}

@@ -6,6 +6,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	event.locals.user = null;
 	event.locals.orgId = null;
 	event.locals.convexToken = null;
+	event.locals.isInternalStaff = false;
 
 	const sessionCookie = event.cookies.get(COOKIE_NAME);
 
@@ -26,6 +27,14 @@ export const handle: Handle = async ({ event, resolve }) => {
 				profilePictureUrl: user.profilePictureUrl,
 			};
 			event.locals.convexToken = accessToken;
+
+			// Fetch fresh user data for metadata (sealed session doesn't include metadata updates)
+			try {
+				const freshUser = await workos.userManagement.getUser(user.id);
+				event.locals.isInternalStaff = freshUser.metadata?.isInternalStaff === 'true';
+			} catch {
+				event.locals.isInternalStaff = false;
+			}
 
 			// Get orgId: from session → dedicated cookie → membership fallback
 			let resolvedOrgId = organizationId ?? null;
@@ -79,6 +88,13 @@ export const handle: Handle = async ({ event, resolve }) => {
 							profilePictureUrl: user.profilePictureUrl,
 						};
 						event.locals.convexToken = accessToken;
+
+						try {
+							const freshUser = await workos.userManagement.getUser(user.id);
+							event.locals.isInternalStaff = freshUser.metadata?.isInternalStaff === 'true';
+						} catch {
+							event.locals.isInternalStaff = false;
+						}
 
 						let resolvedOrgId = organizationId ?? null;
 						if (!resolvedOrgId) {

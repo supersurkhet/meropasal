@@ -53,6 +53,12 @@ export const api = {
 			setDefault: makeFunctionReference<'mutation'>('functions/billTemplates:setDefault'),
 			remove: makeFunctionReference<'mutation'>('functions/billTemplates:remove'),
 		},
+		staffFeedback: {
+			listByPage: makeFunctionReference<'query'>('functions/staffFeedback:listByPage'),
+			upsert: makeFunctionReference<'mutation'>('functions/staffFeedback:upsert'),
+			remove: makeFunctionReference<'mutation'>('functions/staffFeedback:remove'),
+			clearPage: makeFunctionReference<'mutation'>('functions/staffFeedback:clearPage'),
+		},
 		reports: {
 			dashboard: makeFunctionReference<'query'>('functions/reports:dashboard'),
 			dashboardBreakdowns: makeFunctionReference<'query'>('functions/reports:dashboardBreakdowns'),
