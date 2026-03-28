@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import Sidebar from './Sidebar.svelte';
 	import Topbar from './Topbar.svelte';
 	import Breadcrumb from '$lib/components/shared/Breadcrumb.svelte';
@@ -41,7 +42,7 @@
 
 	<!-- Mobile sidebar (sheet) -->
 	<Sheet bind:open={mobileOpen}>
-		<SheetContent side="left" class="w-64 p-0">
+		<SheetContent side="left" class="w-64 p-0" showClose={false}>
 			<Sidebar collapsed={false} {user} {workosOrgName} {userOrgs} {currentOrgId} />
 		</SheetContent>
 	</Sheet>
@@ -54,7 +55,9 @@
 			<div class="px-4 pt-4 sm:px-6">
 				<Breadcrumb />
 			</div>
-			{@render children()}
+			{#key page.url.pathname}
+				{@render children()}
+			{/key}
 		</main>
 	</div>
 </div>
