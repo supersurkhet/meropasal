@@ -4,7 +4,6 @@ import { v } from "convex/values";
 export default defineSchema({
   orgSettings: defineTable({
     orgId: v.string(),
-    businessName: v.string(),
     businessType: v.union(
       v.literal("retail"),
       v.literal("wholesale"),
@@ -17,14 +16,6 @@ export default defineSchema({
     currentFiscalYear: v.string(),
     currency: v.optional(v.string()),
     taxRate: v.optional(v.number()),
-    features: v.optional(
-      v.object({
-        invoicing: v.boolean(),
-        stockBook: v.boolean(),
-        logistics: v.boolean(),
-        ledger: v.boolean(),
-      })
-    ),
   }).index("by_orgId", ["orgId"]),
 
   parties: defineTable({
@@ -314,7 +305,6 @@ export default defineSchema({
   // Keyed by WorkOS userId. Consumed and deleted after org initialization.
   pendingOnboarding: defineTable({
     workosUserId: v.string(),
-    businessName: v.string(),
     businessType: v.union(
       v.literal("retail"),
       v.literal("wholesale"),
@@ -325,15 +315,6 @@ export default defineSchema({
     phone: v.optional(v.string()),
     panNumber: v.optional(v.string()),
   }).index("by_workosUserId", ["workosUserId"]),
-
-  // Maps user subjects (from JWT `sub` claim) to their WorkOS org IDs.
-  // Needed because non-org-scoped JWTs don't contain org_id.
-  userOrgMappings: defineTable({
-    subject: v.string(),
-    orgId: v.string(),
-  })
-    .index("by_subject", ["subject"])
-    .index("by_orgId", ["orgId"]),
 
   billTemplates: defineTable({
     orgId: v.string(),
