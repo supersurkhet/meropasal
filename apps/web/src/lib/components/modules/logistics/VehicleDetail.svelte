@@ -16,11 +16,11 @@
 
 	let {
 		vehicle,
-		onedit,
+		editHref,
 		ondelete,
 	}: {
 		vehicle: Vehicle;
-		onedit: () => void;
+		editHref?: string;
 		ondelete: () => Promise<void>;
 	} = $props();
 
@@ -48,15 +48,18 @@
 			</p>
 		</div>
 		<div class="flex items-center gap-2">
-			<Button
-				variant="outline"
-				size="sm"
-				onclick={onedit}
-				class="border-zinc-300 dark:border-zinc-700"
-			>
-				<Pencil class="mr-1.5 size-4" />
-				Edit
-			</Button>
+{#if editHref}
+				<a href={editHref}>
+					<Button
+						variant="outline"
+						size="sm"
+						class="border-zinc-300 dark:border-zinc-700"
+					>
+						<Pencil class="mr-1.5 size-4" />
+						Edit
+					</Button>
+				</a>
+			{/if}
 			<Button
 				variant="outline"
 				size="sm"
@@ -69,7 +72,7 @@
 				{:else}
 					<Trash2 class="mr-1.5 size-4" />
 				{/if}
-				Deactivate
+				Delete
 			</Button>
 		</div>
 	</div>

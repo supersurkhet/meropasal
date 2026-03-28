@@ -29,11 +29,11 @@
 
 	let {
 		customer,
-		onedit,
+		editHref,
 		ondelete,
 	}: {
 		customer: Customer;
-		onedit?: () => void;
+		editHref?: string;
 		ondelete?: () => Promise<void>;
 	} = $props();
 
@@ -90,18 +90,19 @@
 					{:else}
 						<Trash2 class="mr-1.5 size-4" />
 					{/if}
-					Deactivate
+					Delete
 				</Button>
 			{/if}
-			{#if onedit}
-				<Button
-					size="sm"
-					onclick={onedit}
-					class="bg-zinc-900 text-white shadow-sm hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-				>
-					<Pencil class="mr-1.5 size-4" />
-					Edit
-				</Button>
+			{#if editHref}
+				<a href={editHref}>
+					<Button
+						size="sm"
+						class="bg-zinc-900 text-white shadow-sm hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+					>
+						<Pencil class="mr-1.5 size-4" />
+						Edit
+					</Button>
+				</a>
 			{/if}
 		</div>
 	</div>
