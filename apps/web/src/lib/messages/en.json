@@ -229,6 +229,7 @@
 	"common_loading": "Loading...",
 	"common_error": "Something went wrong",
 	"common_total": "Total",
+	"common_optional": "optional",
 	"common_quantity": "Quantity",
 	"common_rate": "Rate",
 	"common_amount": "Amount",
@@ -474,6 +475,7 @@
 
 	"bill_no_items": "No items yet",
 	"bill_auto_add_hint": "Start typing to add items — rows auto-add as you go",
+	"bill_add_row": "Add row",
 
 	"validation_product_title_required": "Product title is required",
 	"validation_supplier_required": "Supplier is required",
@@ -590,5 +592,6 @@
 	"customer_name_required": "Customer name is required",
 	"party_name_required": "Party name is required",
 
-	"stock_import_no_products_for_supplier": "No products found for this supplier. Create a product linked to this supplier first."
+	"stock_import_no_products_for_supplier": "No products found for this supplier. Create a product linked to this supplier first.",
+	"stock_import_no_supplier_hint": "No supplier selected — showing all products. Select a supplier to filter."
 }

@@ -11,10 +11,12 @@
 		unitStr,
 		value = $bindable(''),
 		disabled = false,
+		onValueChange,
 	}: {
 		unitStr: string | null | undefined;
 		value?: string;
 		disabled?: boolean;
+		onValueChange?: (unit: string) => void;
 	} = $props();
 
 	let units = $derived(getAvailableUnits(unitStr));
@@ -32,7 +34,7 @@
 		{parsed.baseUnit}
 	</span>
 {:else}
-	<Select type="single" bind:value {disabled}>
+	<Select type="single" bind:value {disabled} onValueChange={onValueChange}>
 		<SelectTrigger class="w-24">
 			{value || parsed.baseUnit}
 		</SelectTrigger>

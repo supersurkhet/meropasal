@@ -229,6 +229,7 @@
 	"common_loading": "लोड हुँदैछ...",
 	"common_error": "केही गलत भयो",
 	"common_total": "जम्मा",
+	"common_optional": "ऐच्छिक",
 	"common_quantity": "परिमाण",
 	"common_rate": "दर",
 	"common_amount": "रकम",
@@ -474,6 +475,7 @@
 
 	"bill_no_items": "अहिलेसम्म कुनै सामान छैन",
 	"bill_auto_add_hint": "सामान थप्न टाइप गर्न सुरु गर्नुहोस् — पङ्क्तिहरू स्वत: थपिन्छन्",
+	"bill_add_row": "पङ्क्ति थप्नुहोस्",
 
 	"validation_product_title_required": "सामानको शीर्षक आवश्यक छ",
 	"validation_supplier_required": "आपूर्तिकर्ता आवश्यक छ",
@@ -590,5 +592,6 @@
 	"customer_name_required": "ग्राहकको नाम आवश्यक छ",
 	"party_name_required": "पार्टीको नाम आवश्यक छ",
 
-	"stock_import_no_products_for_supplier": "यो आपूर्तिकर्ताको लागि कुनै सामान भेटिएन। पहिले यो आपूर्तिकर्तासँग जोडिएको सामान बनाउनुहोस्।"
+	"stock_import_no_products_for_supplier": "यो आपूर्तिकर्ताको लागि कुनै सामान भेटिएन। पहिले यो आपूर्तिकर्तासँग जोडिएको सामान बनाउनुहोस्।",
+	"stock_import_no_supplier_hint": "आपूर्तिकर्ता चयन गरिएको छैन — सबै सामान देखाइँदैछ। फिल्टर गर्न आपूर्तिकर्ता चयन गर्नुहोस्।"
 }

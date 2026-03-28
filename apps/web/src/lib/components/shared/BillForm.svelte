@@ -1,12 +1,11 @@
 <script lang="ts">
 	import { Input } from '$lib/components/ui/input';
 	import { Button } from '$lib/components/ui/button';
-	import { Separator } from '$lib/components/ui/separator';
 	import CurrencyInput from './CurrencyInput.svelte';
 	import UnitSelector from './UnitSelector.svelte';
 	import { formatNPR, formatNumber } from '$lib/currency';
 	import { deriveUnitPrice } from '$lib/unit-price';
-	import { Plus, Trash2, Save, Loader2 } from '@lucide/svelte';
+	import { Trash2, Save, Loader2 } from '@lucide/svelte';
 	import type { Snippet } from 'svelte';
 	import { tick } from 'svelte';
 	import { formatDate } from '$lib/date-utils';
@@ -28,6 +27,7 @@
 		items = $bindable<LineItem[]>([]),
 		onadditem,
 		onsubmit,
+		onunitchange,
 		submitting = false,
 		submitLabel = t('action_save'),
 		readonly = false,
@@ -38,6 +38,7 @@
 		items?: LineItem[];
 		onadditem?: () => void;
 		onsubmit?: () => void;
+		onunitchange?: (index: number, unit: string) => void;
 		submitting?: boolean;
 		submitLabel?: string;
 		readonly?: boolean;
@@ -46,6 +47,7 @@
 
 	let tableEl: HTMLDivElement | undefined = $state();
 
+	let filledItems = $derived(items.filter((i) => i.productId));
 	let subtotal = $derived(
 		items.reduce((sum, item) => sum + item.quantity * item.rate, 0),
 	);
@@ -66,16 +68,21 @@
 	}
 
 	function updateItemUnit(index: number, unit: string) {
-		items[index].unit = unit;
-		const baseRate = deriveUnitPrice(items[index].rate, items[index].unitStr, unit);
-		items[index].rate = Math.round(baseRate * 100) / 100;
+		if (onunitchange) {
+			onunitchange(index, unit);
+		} else {
+			items[index].unit = unit;
+		}
 	}
 
-	/** Auto-add an empty row when the user starts editing the last row */
-	function ensureTrailingRow(index: number) {
-		if (index === items.length - 1 && onadditem) {
-			onadditem();
-		}
+	const MIN_TRAILING = 3;
+
+	/** Keep at least MIN_TRAILING empty rows after the current position */
+	function ensureTrailingRows(index: number) {
+		if (!onadditem) return;
+		const emptyAfter = items.slice(index + 1).filter((i) => !i.productId).length;
+		const needed = MIN_TRAILING - emptyAfter;
+		for (let n = 0; n < needed; n++) onadditem();
 	}
 
 	/** Focus a specific cell by row index and column name */
@@ -102,7 +109,7 @@
 			} else if (column === 'rate') {
 				// rate -> qty in next row (auto-add if last)
 				e.preventDefault();
-				ensureTrailingRow(rowIndex);
+				ensureTrailingRows(rowIndex);
 				focusCell(rowIndex + 1, 'qty');
 			}
 		} else if (e.key === 'Tab' && e.shiftKey) {
@@ -115,7 +122,7 @@
 			}
 		} else if (e.key === 'Enter') {
 			e.preventDefault();
-			ensureTrailingRow(rowIndex);
+			ensureTrailingRows(rowIndex);
 			focusCell(rowIndex + 1, 'qty');
 		} else if ((e.key === 'Backspace' || e.key === 'Delete') && !readonly) {
 			const item = items[rowIndex];
@@ -178,7 +185,7 @@
 <svelte:window onkeydown={handleKeydown} />
 
 <!-- The Bill/Receipt container — designed to feel like a physical invoice -->
-<div class="mx-auto max-w-3xl">
+<div class="mx-auto max-w-4xl">
 	<div class="rounded-lg border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
 
 		<!-- Bill Header — like the top of a receipt -->
@@ -191,7 +198,7 @@
 					</p>
 				</div>
 				<div class="text-right text-xs text-zinc-400">
-					<span class="font-mono">{items.length} item{items.length !== 1 ? 's' : ''}</span>
+					<span class="font-mono">{filledItems.length} item{filledItems.length !== 1 ? 's' : ''}</span>
 				</div>
 			</div>
 
@@ -203,47 +210,46 @@
 			{/if}
 		</div>
 
-		<!-- Line Items Table — the receipt body -->
-		<div class="min-h-[200px]" bind:this={tableEl}>
-			<!-- Table Header — printed receipt column headers -->
-			<div class="grid grid-cols-[2.5rem_1fr_5rem_5rem_6rem_6.5rem_2rem] items-center gap-2 border-b border-zinc-200 bg-zinc-50/80 px-4 py-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-zinc-400">
-				<span class="text-center">{t('common_sn')}</span>
-				<span>{t('product_title')}</span>
-				<span class="text-center">{t('common_quantity')}</span>
-				<span class="text-center">{t('product_unit')}</span>
-				<span class="text-right">{t('common_rate')}</span>
-				<span class="text-right">{t('common_amount')}</span>
+		<!-- Line Items Table — scrollable spreadsheet area -->
+		<div class="bill-grid max-h-[30vh] overflow-y-auto" bind:this={tableEl}>
+			<!-- Table Header -->
+			<div class="sticky top-0 z-10 grid grid-cols-[2.5rem_1fr_6rem_5.5rem_8rem_8rem_2rem] items-stretch border-b border-zinc-200 bg-zinc-50 text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
+				<span class="flex items-center justify-center border-r border-zinc-200 px-2 py-2 dark:border-zinc-800">{t('common_sn')}</span>
+				<span class="flex items-center border-r border-zinc-200 px-3 py-2 dark:border-zinc-800">{t('product_title')}</span>
+				<span class="flex items-center justify-center border-r border-zinc-200 px-2 py-2 dark:border-zinc-800">{t('common_quantity')}</span>
+				<span class="flex items-center justify-center border-r border-zinc-200 px-2 py-2 dark:border-zinc-800">{t('product_unit')}</span>
+				<span class="flex items-center justify-end border-r border-zinc-200 px-2 py-2 dark:border-zinc-800">{t('common_rate')}</span>
+				<span class="flex items-center justify-end px-2 py-2">{t('common_amount')}</span>
 				<span></span>
 			</div>
 
 			<!-- Line Items -->
-			{#if items.length === 0}
+			{#if items.length === 0 && readonly}
 				<div class="flex flex-col items-center justify-center py-12 text-zinc-400 dark:text-zinc-500">
 					<div class="mb-2 text-3xl opacity-30">📋</div>
 					<p class="text-sm">{t('bill_no_items')}</p>
-					{#if !readonly}
-						<p class="mt-1 text-xs">{t('bill_auto_add_hint')}</p>
-					{/if}
 				</div>
 			{/if}
 
 			{#each items as item, i (item.id)}
 				{@const lineTotal = item.quantity * item.rate}
+				{@const filled = !!item.productId}
+				{@const vb = filled ? 'border-r border-zinc-200/60 dark:border-zinc-700/50' : 'border-r border-zinc-100/30 dark:border-zinc-800/20'}
 				<div
 					data-row-index={i}
-					class="group grid grid-cols-[2.5rem_1fr_5rem_5rem_6rem_6.5rem_2rem] items-center gap-2 border-b border-zinc-100 px-4 py-2 transition-colors hover:bg-zinc-50/50 dark:border-zinc-800/50 dark:hover:bg-zinc-800/50"
+					class="group grid grid-cols-[2.5rem_1fr_6rem_5.5rem_8rem_8rem_2rem] items-stretch border-b transition-colors {filled ? 'border-zinc-200/60 dark:border-zinc-700/50 hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50' : 'border-zinc-100/30 dark:border-zinc-800/20'}"
 				>
 					<!-- SN -->
-					<span class="text-center font-mono text-xs tabular-nums text-zinc-400">
-						{i + 1}.
+					<span class="{vb} flex items-center justify-center px-2 font-mono text-xs tabular-nums {filled ? 'text-zinc-400' : 'text-zinc-300 dark:text-zinc-600'}">
+						{i + 1}
 					</span>
 
 					<!-- Product -->
-					<div class="min-w-0">
+					<div class="flex min-w-0 items-stretch {vb}">
 						{#if productSelector && !readonly}
 							{@render productSelector({ item, index: i })}
 						{:else}
-							<span class="truncate text-sm font-medium text-zinc-800 dark:text-zinc-200">
+							<span class="flex items-center truncate px-3 text-sm font-medium text-zinc-800 dark:text-zinc-200">
 								{item.productTitle || '—'}
 							</span>
 						{/if}
@@ -251,17 +257,17 @@
 
 					<!-- Quantity -->
 					{#if readonly}
-						<span class="text-center font-mono text-sm tabular-nums">{item.quantity}</span>
+						<span class="flex items-center justify-center {vb} px-2 font-mono text-sm tabular-nums">{item.quantity}</span>
 					{:else}
-						<div data-col="qty">
+						<div data-col="qty" class="flex items-stretch {vb}">
 							<Input
 								type="number"
 								min="0"
 								step="1"
-								class="h-8 text-center font-mono text-sm tabular-nums [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+								class="h-auto rounded-none border-0 bg-transparent text-center font-mono text-sm tabular-nums shadow-none ring-0 focus-visible:bg-zinc-50 focus-visible:ring-0 dark:focus-visible:bg-zinc-800/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
 								value={String(item.quantity)}
 								oninput={(e) => updateItemQuantity(i, (e.target as HTMLInputElement).value)}
-								onfocus={() => ensureTrailingRow(i)}
+								onfocus={() => ensureTrailingRows(i)}
 								onkeydown={(e) => handleCellKeydown(e, i, 'qty')}
 								onpaste={(e) => handlePaste(e, i, 'qty')}
 							/>
@@ -270,48 +276,52 @@
 
 					<!-- Unit -->
 					{#if readonly}
-						<span class="text-center text-sm text-zinc-500">{item.unit}</span>
+						<span class="flex items-center justify-center {vb} px-2 text-sm text-zinc-500">{item.unit}</span>
 					{:else}
-						<UnitSelector
-							unitStr={item.unitStr}
-							bind:value={item.unit}
-						/>
+						<div class="flex items-stretch {vb}">
+							<UnitSelector
+								unitStr={item.unitStr}
+								value={item.unit}
+								onValueChange={(unit) => updateItemUnit(i, unit)}
+							/>
+						</div>
 					{/if}
 
 					<!-- Rate -->
 					{#if readonly}
-						<span class="text-right font-mono text-sm tabular-nums">{formatNumber(item.rate)}</span>
+						<span class="flex items-center justify-end {vb} px-2 font-mono text-sm tabular-nums">{formatNumber(item.rate)}</span>
 					{:else}
-						<div data-col="rate">
+						<div data-col="rate" class="flex items-stretch {vb}">
 							<CurrencyInput
 								bind:value={item.rate}
-								class="[&_input]:h-8 [&_input]:text-sm [&_span]:text-xs"
+								class="[&_input]:text-sm [&_span]:text-xs"
 								onkeydown={(e) => handleCellKeydown(e, i, 'rate')}
 								onpaste={(e) => handlePaste(e, i, 'rate')}
-								onfocus={() => ensureTrailingRow(i)}
+								onfocus={() => ensureTrailingRows(i)}
 							/>
 						</div>
 					{/if}
 
 					<!-- Amount -->
-					<span class="text-right font-mono text-sm font-medium tabular-nums text-zinc-800 dark:text-zinc-200">
-						{formatNumber(lineTotal)}
+					<span class="flex items-center justify-end px-2 font-mono text-sm font-medium tabular-nums text-zinc-800 dark:text-zinc-200">
+						{lineTotal > 0 ? formatNumber(lineTotal) : ''}
 					</span>
 
 					<!-- Remove -->
-					{#if !readonly}
-						<button
-							type="button"
-							class="flex size-6 items-center justify-center rounded text-zinc-300 opacity-0 transition-all hover:bg-red-50 hover:text-red-500 group-hover:opacity-100 dark:hover:bg-red-950"
-							onclick={() => removeItem(i)}
-						>
-							<Trash2 class="size-3.5" />
-						</button>
-					{:else}
-						<span></span>
-					{/if}
+					<div class="flex items-center justify-center">
+						{#if !readonly && filled}
+							<button
+								type="button"
+								class="flex size-6 items-center justify-center rounded text-zinc-300 opacity-0 transition-all hover:bg-red-50 hover:text-red-500 group-hover:opacity-100 dark:hover:bg-red-950"
+								onclick={() => removeItem(i)}
+							>
+								<Trash2 class="size-3.5" />
+							</button>
+						{/if}
+					</div>
 				</div>
 			{/each}
+
 		</div>
 
 		<!-- Bill Footer — totals like the bottom of a receipt -->
@@ -356,6 +366,71 @@
 {/if}
 
 <style>
+	/* Strip borders/shadows from all inputs and selects inside the grid */
+	.bill-grid :global([data-slot="select-trigger"]) {
+		border: none !important;
+		border-radius: 0 !important;
+		box-shadow: none !important;
+		height: 100% !important;
+		width: 100% !important;
+		background: transparent !important;
+	}
+	.bill-grid :global([data-slot="select-trigger"]:hover),
+	.bill-grid :global([data-slot="select-trigger"]:focus-visible),
+	.bill-grid :global([data-slot="select-trigger"]:focus) {
+		background: oklch(0.967 0.003 264.542 / 0.5) !important;
+		outline: none !important;
+		--tw-ring-shadow: none !important;
+		--tw-ring-color: transparent !important;
+	}
+	:global(.dark) .bill-grid :global([data-slot="select-trigger"]:hover),
+	:global(.dark) .bill-grid :global([data-slot="select-trigger"]:focus-visible),
+	:global(.dark) .bill-grid :global([data-slot="select-trigger"]:focus) {
+		background: oklch(0.274 0.006 286.033 / 0.5) !important;
+	}
+	/* CurrencyInput wrapper + inner input */
+	.bill-grid :global(.relative) {
+		width: 100%;
+		height: 100%;
+		display: flex;
+		align-items: center;
+	}
+	.bill-grid :global(.relative input),
+	.bill-grid :global(input) {
+		border: none !important;
+		border-radius: 0 !important;
+		box-shadow: none !important;
+		background: transparent !important;
+		height: 100% !important;
+		outline: none !important;
+		--tw-ring-shadow: none !important;
+		--tw-ring-color: transparent !important;
+	}
+	.bill-grid :global(.relative input:focus-visible),
+	.bill-grid :global(.relative input:focus),
+	.bill-grid :global(input:focus-visible),
+	.bill-grid :global(input:focus) {
+		background: oklch(0.967 0.003 264.542 / 0.5) !important;
+		outline: none !important;
+		box-shadow: none !important;
+		--tw-ring-shadow: none !important;
+	}
+	:global(.dark) .bill-grid :global(.relative input:focus-visible),
+	:global(.dark) .bill-grid :global(.relative input:focus),
+	:global(.dark) .bill-grid :global(input:focus-visible),
+	:global(.dark) .bill-grid :global(input:focus) {
+		background: oklch(0.274 0.006 286.033 / 0.5) !important;
+	}
+	/* Single-unit static badge */
+	.bill-grid :global(span.inline-flex) {
+		border: none !important;
+		border-radius: 0 !important;
+		background: transparent !important;
+		height: 100% !important;
+		width: 100% !important;
+		justify-content: center;
+	}
+
 	.fab-group {
 		box-shadow:
 			-10px 10px 30px rgba(0, 0, 0, 0.12),
