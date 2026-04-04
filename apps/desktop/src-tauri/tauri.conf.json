@@ -48,7 +48,7 @@
       "open": true
     },
     "updater": {
-      "pubkey": "REPLACE_WITH_PUBLIC_KEY",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IERFMDdEQjE2QjQ3RDM0M0IKUldRN05IMjBGdHNIM3ZYWG5iQ2NyRUNNVlhhNW5OTi90OSt4NGVVd083SHpRbnk0RmZNaVNBbWUK",
       "endpoints": [
         "https://github.com/supersurkhet/meropasal/releases/latest/download/latest.json"
       ],
