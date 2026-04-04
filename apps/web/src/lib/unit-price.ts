@@ -23,6 +23,14 @@ export function parseUnit(unitStr: string | null | undefined): ParsedUnit {
 	return { baseUnit, piecesPerUnit }
 }
 
+export function formatUnit(unitStr: string | null | undefined): string {
+	const parsed = parseUnit(unitStr)
+	if (parsed.piecesPerUnit > 1) {
+		return `${parsed.baseUnit} of ${parsed.piecesPerUnit} pcs`
+	}
+	return parsed.baseUnit
+}
+
 export function deriveUnitPrice(
 	basePrice: number,
 	unitStr: string | null | undefined,

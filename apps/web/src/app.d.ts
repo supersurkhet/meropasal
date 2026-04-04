@@ -13,6 +13,10 @@ declare global {
 			orgId: string | null;
 			convexToken: string | null;
 			isInternalStaff: boolean;
+			impersonator: {
+				email: string;
+				reason: string | null;
+			} | null;
 		}
 		// interface PageData {}
 		// interface PageState {}

@@ -2,6 +2,9 @@
 	import { MetaTags } from 'svelte-meta-tags';
 	import TripDispatchForm from '$lib/components/modules/logistics/TripDispatchForm.svelte';
 	import { ArrowLeft } from '@lucide/svelte';
+	import AiScannerButton from '$lib/components/shared/AiScannerButton.svelte';
+
+	let formRef = $state<{ addScannedItems: (items: any[], partyName?: string) => void } | null>(null)
 </script>
 
 <MetaTags title="Dispatch Trip — MeroPasal" />
@@ -9,13 +12,19 @@
 <div class="p-6 lg:p-8">
 	<!-- Breadcrumb + Header -->
 	<div class="mb-8">
-		<a
-			href="/trips"
-			class="mb-3 inline-flex items-center gap-1.5 text-sm text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
-		>
-			<ArrowLeft class="size-3.5" />
-			Back to Trips
-		</a>
+		<div class="mb-3 flex items-center justify-between">
+			<a
+				href="/trips"
+				class="inline-flex items-center gap-1.5 text-sm text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+			>
+				<ArrowLeft class="size-3.5" />
+				Back to Trips
+			</a>
+			<AiScannerButton
+				targetTable="trips"
+				onlineitems={(items, partyName) => formRef?.addScannedItems(items, partyName)}
+			/>
+		</div>
 		<h1 class="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
 			Dispatch Trip
 		</h1>
@@ -24,5 +33,5 @@
 		</p>
 	</div>
 
-	<TripDispatchForm />
+	<TripDispatchForm bind:this={formRef} />
 </div>

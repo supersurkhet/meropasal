@@ -191,7 +191,7 @@
 				type="text"
 				placeholder="{t('search_products')}"
 				bind:value={searchQuery}
-				class="w-full rounded-md border border-zinc-200 bg-white py-1.5 pl-8 pr-3 text-sm dark:border-zinc-700 dark:bg-zinc-800"
+				class="w-full rounded-md border border-zinc-200 bg-white py-1.5 pl-8 pr-3 text-sm placeholder:text-muted-foreground dark:border-zinc-700 dark:bg-zinc-800"
 			/>
 		</div>
 		{#if categories.length > 0}

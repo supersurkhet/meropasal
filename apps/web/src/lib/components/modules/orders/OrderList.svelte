@@ -7,11 +7,13 @@
 	import { getConvexClient, api } from '$lib/convex'
 	import { t } from '$lib/t.svelte'
 	import EmptyState from '$lib/components/shared/EmptyState.svelte'
+	import { createStaggeredSkeletons } from '$lib/staggered-skeleton.svelte'
 	import { createViewPreference } from '$lib/view-preference.svelte'
 	import { breadcrumbViewToggle } from '$lib/breadcrumb-view-toggle.svelte'
 	import { formatDate } from '$lib/date-utils'
 	import { formatNPR } from '$lib/currency'
-
+	import { get } from 'svelte/store'
+	import { createVirtualizer, chunkItems, rowCount, useBreakpointLanes } from '$lib/virtual-list.svelte'
 	type Order = {
 		_id: string
 		issuedAt: string
@@ -37,6 +39,7 @@
 	let customerNames = $state<Record<string, string>>({})
 	let statusFilter = $state('all')
 	let loaded = $state(false)
+	const skeletons = createStaggeredSkeletons()
 
 	$effect(() => {
 		loadOrders()
@@ -122,6 +125,32 @@
 				return ''
 		}
 	})
+
+	// Virtualization
+	const getLanes = useBreakpointLanes(() => viewPref.mode)
+
+	const virtualizer = createVirtualizer({
+		count: 0,
+		getScrollElement: () => document.getElementById('main-content'),
+		estimateSize: () => 49,
+		overscan: 5,
+	})
+
+	$effect(() => {
+		const items = filteredOrders
+		const l = getLanes()
+		const mode = viewPref.mode
+		const isGrid = mode.startsWith('grid')
+		const est = isGrid ? 180 : mode === 'list' ? 56 : 49
+
+		get(virtualizer).setOptions({
+			count: isGrid ? rowCount(items.length, l) : items.length,
+			getScrollElement: () => document.getElementById('main-content'),
+			estimateSize: () => est,
+			overscan: 5,
+		})
+	})
+
 </script>
 
 <div class="space-y-4">
@@ -142,7 +171,7 @@
 		<a href="/orders/new">
 			<Button
 				size="sm"
-				class="bg-zinc-900 text-white shadow-sm transition-all hover:bg-zinc-800 hover:shadow-md active:scale-[0.98] dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+				class="bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
 			>
 				<Plus class="mr-1.5 size-4" />
 				{t('order_create')}
@@ -185,8 +214,8 @@
 				</Table.Header>
 				<Table.Body>
 					{#if !loaded}
-						{#each Array(6) as _, i}
-							<Table.Row class="border-zinc-100 dark:border-zinc-800">
+						{#each Array(skeletons.count) as _, i}
+							<Table.Row class="skeleton-stagger border-zinc-100 dark:border-zinc-800">
 								<Table.Cell><Skeleton class="h-4 w-20" /></Table.Cell>
 								<Table.Cell><Skeleton class="h-4 w-32" /></Table.Cell>
 								<Table.Cell><Skeleton class="h-4 w-36" /></Table.Cell>
@@ -197,7 +226,13 @@
 							</Table.Row>
 						{/each}
 					{:else}
-						{#each filteredOrders as order}
+						{@const vItems = $virtualizer.getVirtualItems()}
+						{@const totalSize = $virtualizer.getTotalSize()}
+						{#if vItems.length > 0}
+							<tr><td colspan="7" style="height:{vItems[0].start}px;padding:0;border:none;"></td></tr>
+						{/if}
+						{#each vItems as vRow (vRow.key)}
+							{@const order = filteredOrders[vRow.index]}
 							{@const status = orderStatus(order)}
 							<Table.Row class="group border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/60">
 								<Table.Cell>
@@ -229,15 +264,18 @@
 								</Table.Cell>
 							</Table.Row>
 						{/each}
+						{#if vItems.length > 0}
+							<tr><td colspan="7" style="height:{totalSize - vItems[vItems.length - 1].end}px;padding:0;border:none;"></td></tr>
+						{/if}
 					{/if}
 				</Table.Body>
 			</Table.Root>
 		</div>
-	{:else}
-		<div class={gridClass}>
-			{#if !loaded}
-				{#each Array(6) as _}
-					<div class="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+	{:else if viewPref.mode === 'list'}
+		{#if !loaded}
+			<div class="flex flex-col gap-2">
+				{#each Array(skeletons.count) as _, i}
+					<div class="skeleton-stagger rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
 						<div class="flex items-start justify-between gap-2">
 							<div class="min-w-0">
 								<Skeleton class="h-3 w-20" />
@@ -255,51 +293,122 @@
 						</div>
 					</div>
 				{/each}
-			{:else}
-				{#each filteredOrders as order}
+			</div>
+		{:else}
+			{@const vItems = $virtualizer.getVirtualItems()}
+			{@const padTop = vItems.length > 0 ? vItems[0].start : 0}
+			{@const padBottom = vItems.length > 0 ? $virtualizer.getTotalSize() - vItems[vItems.length - 1].end : 0}
+			<div style="padding-top:{padTop}px;padding-bottom:{padBottom}px;">
+				<div class="flex flex-col gap-2">
+					{#each vItems as vRow (vRow.key)}
+					{@const order = filteredOrders[vRow.index]}
 					{@const status = orderStatus(order)}
-					<a
-						href="/orders/{order._id}"
-						class="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950"
-					>
+						<a
+							href="/orders/{order._id}"
+							class="block rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950"
+						>
+							<div class="flex items-start justify-between gap-2">
+								<div class="min-w-0">
+									<p class="text-xs text-zinc-500 dark:text-zinc-400">{formatDate(order.issuedAt)}</p>
+									<p class="mt-0.5 text-sm font-medium text-zinc-900 dark:text-zinc-100">
+										{order.partyId ? (customerNames[order.partyId] ?? '—') : t('common_walk_in')}
+									</p>
+								</div>
+								<div class="flex shrink-0 gap-1.5">
+									<span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold {statusBadgeClass(status)}">
+										{statusLabel(status)}
+									</span>
+									<span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold {paymentBadgeClass(order.paymentStatus)}">
+										{paymentLabel(order.paymentStatus)}
+									</span>
+								</div>
+							</div>
+							<p class="mt-2 truncate text-xs text-zinc-500 dark:text-zinc-400">
+								{itemsSummary(order.items)}
+							</p>
+							<div class="mt-3 flex items-baseline justify-between border-t border-zinc-100 pt-3 dark:border-zinc-800">
+								<span class="font-mono text-lg font-bold text-zinc-900 dark:text-zinc-100">
+									{formatNPR(order.totalAmount, true)}
+								</span>
+								<span class="font-mono text-sm text-emerald-600 dark:text-emerald-400">
+									{t('order_paid')}: {formatNPR(order.paidAmount, true)}
+								</span>
+							</div>
+						</a>
+					{/each}
+				</div>
+			</div>
+		{/if}
+	{:else}
+		{#if !loaded}
+			<div class={gridClass}>
+				{#each Array(skeletons.count) as _, i}
+					<div class="skeleton-stagger rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
 						<div class="flex items-start justify-between gap-2">
 							<div class="min-w-0">
-								<p class="text-xs text-zinc-500 dark:text-zinc-400">{formatDate(order.issuedAt)}</p>
-								<p class="mt-0.5 text-sm font-medium text-zinc-900 dark:text-zinc-100">
-									{order.partyId ? (customerNames[order.partyId] ?? '—') : t('common_walk_in')}
-								</p>
+								<Skeleton class="h-3 w-20" />
+								<Skeleton class="mt-0.5 h-4 w-32" />
 							</div>
 							<div class="flex shrink-0 gap-1.5">
-								<span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold {statusBadgeClass(status)}">
-									{statusLabel(status)}
-								</span>
-								<span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold {paymentBadgeClass(order.paymentStatus)}">
-									{paymentLabel(order.paymentStatus)}
-								</span>
+								<Skeleton class="h-5 w-16 rounded-full" />
+								<Skeleton class="h-5 w-16 rounded-full" />
 							</div>
 						</div>
-						<p class="mt-2 truncate text-xs text-zinc-500 dark:text-zinc-400">
-							{itemsSummary(order.items)}
-						</p>
+						<Skeleton class="mt-2 h-3 w-40" />
 						<div class="mt-3 flex items-baseline justify-between border-t border-zinc-100 pt-3 dark:border-zinc-800">
-							<span class="font-mono text-lg font-bold text-zinc-900 dark:text-zinc-100">
-								{formatNPR(order.totalAmount, true)}
-							</span>
-							<span class="font-mono text-sm text-emerald-600 dark:text-emerald-400">
-								{t('order_paid')}: {formatNPR(order.paidAmount, true)}
-							</span>
+							<Skeleton class="h-6 w-24" />
+							<Skeleton class="h-4 w-20" />
 						</div>
-					</a>
+					</div>
 				{/each}
-			{/if}
-		</div>
-	{/if}
-	<p class="mt-4 text-xs text-zinc-400 dark:text-zinc-500">
-		{#if !loaded}
-			<Skeleton class="inline-block h-3 w-16" />
+			</div>
 		{:else}
-			{filteredOrders.length} {filteredOrders.length === 1 ? t('order_title') : t('order_title_plural')}
+			{@const vItems = $virtualizer.getVirtualItems()}
+			{@const chunks = chunkItems(filteredOrders, getLanes())}
+			{@const padTop = vItems.length > 0 ? vItems[0].start : 0}
+			{@const padBottom = vItems.length > 0 ? $virtualizer.getTotalSize() - vItems[vItems.length - 1].end : 0}
+			<div style="padding-top:{padTop}px;padding-bottom:{padBottom}px;">
+				<div class={gridClass}>
+					{#each vItems as vRow (vRow.key)}
+						{#each chunks[vRow.index] as order (order._id)}
+								{@const status = orderStatus(order)}
+								<a
+									href="/orders/{order._id}"
+									class="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950"
+								>
+									<div class="flex items-start justify-between gap-2">
+										<div class="min-w-0">
+											<p class="text-xs text-zinc-500 dark:text-zinc-400">{formatDate(order.issuedAt)}</p>
+											<p class="mt-0.5 text-sm font-medium text-zinc-900 dark:text-zinc-100">
+												{order.partyId ? (customerNames[order.partyId] ?? '—') : t('common_walk_in')}
+											</p>
+										</div>
+										<div class="flex shrink-0 gap-1.5">
+											<span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold {statusBadgeClass(status)}">
+												{statusLabel(status)}
+											</span>
+											<span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold {paymentBadgeClass(order.paymentStatus)}">
+												{paymentLabel(order.paymentStatus)}
+											</span>
+										</div>
+									</div>
+									<p class="mt-2 truncate text-xs text-zinc-500 dark:text-zinc-400">
+										{itemsSummary(order.items)}
+									</p>
+									<div class="mt-3 flex items-baseline justify-between border-t border-zinc-100 pt-3 dark:border-zinc-800">
+										<span class="font-mono text-lg font-bold text-zinc-900 dark:text-zinc-100">
+											{formatNPR(order.totalAmount, true)}
+										</span>
+										<span class="font-mono text-sm text-emerald-600 dark:text-emerald-400">
+											{t('order_paid')}: {formatNPR(order.paidAmount, true)}
+										</span>
+									</div>
+								</a>
+						{/each}
+					{/each}
+				</div>
+			</div>
 		{/if}
-	</p>
+	{/if}
 {/if}
 </div>

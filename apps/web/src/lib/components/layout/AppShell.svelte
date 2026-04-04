@@ -1,12 +1,10 @@
 <script lang="ts">
-	import { page } from '$app/state';
 	import Sidebar from './Sidebar.svelte';
 	import Topbar from './Topbar.svelte';
 	import Breadcrumb from '$lib/components/shared/Breadcrumb.svelte';
 	import { Sheet, SheetContent, SheetTrigger } from '$lib/components/ui/sheet';
 	import { shortcuts } from '$lib/shortcuts';
 	import { t } from '$lib/t.svelte';
-
 	let {
 		children,
 		user,
@@ -14,6 +12,7 @@
 		orgMetadata = {},
 		userOrgs = [],
 		currentOrgId = '',
+		impersonator = null,
 	}: {
 		children: import('svelte').Snippet;
 		user: { firstName: string | null; lastName: string | null; email: string } | null;
@@ -21,6 +20,7 @@
 		orgMetadata?: Record<string, unknown>;
 		userOrgs?: Array<{ id: string; name: string }>;
 		currentOrgId?: string | null;
+		impersonator?: { email: string; reason: string | null } | null;
 	} = $props();
 
 	let sidebarCollapsed = $state(false);
@@ -36,7 +36,25 @@
 
 <svelte:window use:shortcuts />
 
-<div class="flex h-screen bg-white dark:bg-zinc-950">
+{#if impersonator}
+	<div class="fixed inset-x-0 top-0 z-[200] flex items-center justify-between bg-amber-500 px-4 py-1.5 text-sm font-medium text-black">
+		<span>
+			Impersonating as <strong>{user?.email}</strong>
+			{#if impersonator.reason}
+				&mdash; {impersonator.reason}
+			{/if}
+			<span class="ml-2 opacity-70">(by {impersonator.email})</span>
+		</span>
+		<a
+			href="/api/auth/stop-impersonating"
+			class="rounded-md bg-black/10 px-3 py-0.5 font-semibold transition-colors hover:bg-black/20"
+		>
+			Stop Impersonating
+		</a>
+	</div>
+{/if}
+
+<div class="flex h-screen bg-white dark:bg-zinc-950 {impersonator ? 'pt-9' : ''}">
 	<!-- Desktop sidebar -->
 	<div class="hidden lg:block">
 		<Sidebar bind:collapsed={sidebarCollapsed} {user} {workosOrgName} {orgMetadata} {userOrgs} {currentOrgId} />
@@ -57,9 +75,7 @@
 			<div class="px-4 pt-4 sm:px-6">
 				<Breadcrumb />
 			</div>
-			{#key page.url.pathname}
-				{@render children()}
-			{/key}
+			{@render children()}
 		</main>
 	</div>
 </div>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { get } from 'svelte/store';
 	import { getConvexClient } from '$lib/convex';
 	import { useConvexQuery } from '$lib/convex-helpers.svelte';
 	import { api } from '$lib/api';
@@ -9,11 +10,14 @@
 	import { ChevronDown, ChevronRight, Package, Filter } from '@lucide/svelte';
 	import { t } from '$lib/t.svelte';
 	import EmptyState from '$lib/components/shared/EmptyState.svelte';
+	import { createStaggeredSkeletons } from '$lib/staggered-skeleton.svelte';
+	import { createVirtualizer } from '$lib/virtual-list.svelte';
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 
 	let fiscalYearFilter = $state<string | undefined>(undefined);
 	let expandedProducts = $state<Set<string>>(new Set());
+	const skeletons = createStaggeredSkeletons();
 
 	const currentFY = useConvexQuery(client, api.functions.fiscalYear.current, () => ({}));
 
@@ -65,6 +69,22 @@
 		}
 
 		return result.sort((a, b) => a.productTitle.localeCompare(b.productTitle));
+	});
+	const virtualizer = createVirtualizer({
+		count: 0,
+		getScrollElement: () => document.getElementById('main-content'),
+		estimateSize: () => 49,
+		overscan: 5,
+	});
+
+	$effect(() => {
+		const items = aggregatedProducts;
+		get(virtualizer).setOptions({
+			count: items.length,
+			getScrollElement: () => document.getElementById('main-content'),
+			estimateSize: () => 49,
+			overscan: 5,
+		});
 	});
 
 	function toggleExpand(productId: string) {
@@ -130,8 +150,8 @@
 				</Table.Header>
 				<Table.Body>
 					{#if aggregation.isLoading || products.isLoading}
-						{#each Array(6) as _, i}
-							<Table.Row class="transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
+						{#each Array(skeletons.count) as _, i}
+							<Table.Row class="skeleton-stagger transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
 								<Table.Cell class="w-8 pr-0">
 									<Skeleton class="size-4" />
 								</Table.Cell>
@@ -148,7 +168,13 @@
 							</Table.Row>
 						{/each}
 					{:else}
-						{#each aggregatedProducts as item}
+						{@const vItems = $virtualizer.getVirtualItems()}
+						{@const totalSize = $virtualizer.getTotalSize()}
+						{#if vItems.length > 0}
+							<tr><td colspan="5" style="height:{vItems[0].start}px;padding:0;border:none;"></td></tr>
+						{/if}
+						{#each vItems as vRow (vRow.key)}
+							{@const item = aggregatedProducts[vRow.index]}
 							{@const isExpanded = expandedProducts.has(item.productId)}
 							<Table.Row
 								class="cursor-pointer transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
@@ -197,6 +223,9 @@
 								{/each}
 							{/if}
 						{/each}
+						{#if vItems.length > 0}
+							<tr><td colspan="5" style="height:{totalSize - vItems[vItems.length - 1].end}px;padding:0;border:none;"></td></tr>
+						{/if}
 					{/if}
 				</Table.Body>
 			</Table.Root>

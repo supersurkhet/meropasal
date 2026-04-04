@@ -30,7 +30,7 @@
 		}
 	})
 
-	const RELEASE_BASE = 'https://github.com/supersurkhet/meropasal/releases/download/v0.1.0'
+	const RELEASE_BASE = 'https://github.com/supersurkhet/meropasal/releases/download/v0.2.0'
 
 	type Platform = 'macos' | 'windows' | 'linux' | 'android' | 'unknown'
 
@@ -336,7 +336,7 @@
 						<p class="text-[15px] font-semibold text-primary-foreground">
 							Download for {primaryPlatform.label}
 						</p>
-						<p class="text-[13px] text-primary-foreground/60">{primaryPlatform.sublabel} &middot; v0.1.0</p>
+						<p class="text-[13px] text-primary-foreground/60">{primaryPlatform.sublabel} &middot; v0.2.0</p>
 					</div>
 					<ArrowRight class="size-5 text-primary-foreground/50 transition-transform group-hover:translate-x-1" />
 				</a>

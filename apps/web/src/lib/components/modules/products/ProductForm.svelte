@@ -7,6 +7,7 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import * as Select from '$lib/components/ui/select';
 	import CurrencyInput from '$lib/components/shared/CurrencyInput.svelte';
+	import PricePerUnitInput from '$lib/components/shared/PricePerUnitInput.svelte';
 	import UnitBuilder from '$lib/components/shared/UnitBuilder.svelte';
 	import EntitySelect from '$lib/components/shared/EntitySelect.svelte';
 	import PartyForm from '$lib/components/modules/parties/PartyForm.svelte';
@@ -43,6 +44,9 @@
 		onsaved?: (id: string) => void;
 	} = $props();
 
+	// Snapshot initial prop once to avoid state_referenced_locally warnings
+	const _init = { ...(initial ?? {}) } as NonNullable<typeof initial> & { isFeatured?: boolean };
+
 	let parties = $state<Party[]>([]);
 	let loaded = $state(false);
 
@@ -56,23 +60,23 @@
 		loaded = true;
 	}
 
-	let title = $state(initial?.title ?? '');
-	let purchasePartyId = $state(initial?.purchasePartyId ?? '');
-	let unit = $state(initial?.unit ?? '');
-	let costPrice = $state(initial?.costPrice ?? 0);
-	let sellingPrice = $state(initial?.sellingPrice ?? 0);
-	let openingStock = $state(initial?.openingStock ?? 0);
-	let hsCode = $state(initial?.hsCode ?? '');
-	let barcode = $state(initial?.barcode ?? '');
-	let sku = $state(initial?.sku ?? '');
-	let category = $state(initial?.category ?? '');
-	let reorderLevel = $state(initial?.reorderLevel ?? 0);
-	let description = $state(initial?.description ?? '');
-	let isFeatured = $state((initial as any)?.isFeatured ?? false);
+	let title = $state(_init.title ?? '');
+	let purchasePartyId = $state(_init.purchasePartyId ?? '');
+	let unit = $state(_init.unit ?? '');
+	let costPrice = $state(_init.costPrice ?? 0);
+	let sellingPrice = $state(_init.sellingPrice ?? 0);
+	let openingStock = $state(_init.openingStock ?? 0);
+	let hsCode = $state(_init.hsCode ?? '');
+	let barcode = $state(_init.barcode ?? '');
+	let sku = $state(_init.sku ?? '');
+	let category = $state(_init.category ?? '');
+	let reorderLevel = $state(_init.reorderLevel ?? 0);
+	let description = $state(_init.description ?? '');
+	let isFeatured = $state(_init.isFeatured ?? false);
 	let submitting = $state(false);
 	let errors = $state<Record<string, string>>({});
 
-	let sellingPriceManual = $state(!!initial?.sellingPrice);
+	let sellingPriceManual = $state(!!_init.sellingPrice);
 
 	// Smart default: selling price = cost x 1.10
 	$effect(() => {
@@ -82,7 +86,7 @@
 	});
 
 	// Smart default: reorder level = ceil(openingStock x 0.1)
-	let reorderLevelManual = $state(!!initial?.reorderLevel);
+	let reorderLevelManual = $state(!!_init.reorderLevel);
 	$effect(() => {
 		if (!reorderLevelManual && openingStock > 0) {
 			reorderLevel = Math.ceil(openingStock * 0.1);
@@ -242,14 +246,14 @@
 	<div class="grid grid-cols-2 gap-4">
 		<div class="space-y-1.5">
 			<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('product_cost_price')} <span class="text-red-500">*</span></Label>
-			<CurrencyInput bind:value={costPrice} placeholder="0.00" />
+			<PricePerUnitInput bind:value={costPrice} unitStr={unit} placeholder="0.00" />
 			{#if errors.costPrice}
 				<p class="text-xs text-red-500 mt-1">{errors.costPrice}</p>
 			{/if}
 		</div>
 		<div class="space-y-1.5">
 			<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('product_selling_price')}</Label>
-			<CurrencyInput bind:value={sellingPrice} placeholder="Auto: cost + 10%" onuserinput={() => { sellingPriceManual = true; }} />
+			<PricePerUnitInput bind:value={sellingPrice} unitStr={unit} placeholder="Auto: cost + 10%" onuserinput={() => { sellingPriceManual = true; }} />
 			{#if !sellingPriceManual && costPrice > 0}
 				<p class="text-xs text-emerald-600 dark:text-emerald-400">Auto: {costPrice} + 10% markup</p>
 			{/if}

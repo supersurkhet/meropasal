@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { toast } from 'svelte-sonner';
+	import { formatUnit } from '$lib/unit-price';
 	import { Button } from '$lib/components/ui/button';
 	import * as Table from '$lib/components/ui/table';
 	import PaymentSection from '$lib/components/shared/PaymentSection.svelte';
@@ -332,7 +333,7 @@
 								<Table.Cell class="text-sm font-medium text-zinc-900 dark:text-zinc-100 max-w-[250px]">
 									<span class="truncate block">{item.productTitle}</span>
 									{#if item.unit}
-										<span class="text-xs text-zinc-400">({item.unit})</span>
+										<span class="text-xs text-zinc-400">({formatUnit(item.unit)})</span>
 									{/if}
 								</Table.Cell>
 								<Table.Cell class="text-right font-mono text-sm text-zinc-700 dark:text-zinc-300">

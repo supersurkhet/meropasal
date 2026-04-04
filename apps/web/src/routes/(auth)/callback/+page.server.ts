@@ -13,14 +13,26 @@ export const load: PageServerLoad = async ({ url, cookies }) => {
 		redirect(302, '/login')
 	}
 
-	const authResult = await workos.userManagement.authenticateWithCode({
-		code,
-		clientId: WORKOS_CLIENT_ID,
-		session: {
-			sealSession: true,
-			cookiePassword: WORKOS_COOKIE_PASSWORD,
-		},
-	})
+	let authResult
+	try {
+		authResult = await workos.userManagement.authenticateWithCode({
+			code,
+			clientId: WORKOS_CLIENT_ID,
+			session: {
+				sealSession: true,
+				cookiePassword: WORKOS_COOKIE_PASSWORD,
+			},
+		})
+	} catch (err: any) {
+		// OauthException has .error ('invalid_grant') and .errorDescription
+		const isExpired = err?.error === 'invalid_grant'
+		return {
+			error: isExpired ? 'expired' : 'auth_failed',
+			message: isExpired
+				? 'This sign-in link has expired. Please try again.'
+				: 'Authentication failed. Please try signing in again.',
+		}
+	}
 
 	const { user, sealedSession, accessToken, organizationId } = authResult
 

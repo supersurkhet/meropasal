@@ -100,6 +100,49 @@
 		return `item-${++nextId}-${Date.now()}`;
 	}
 
+	export function addScannedItems(scannedItems: any[], partyName?: string) {
+		// Auto-set destination if provided and empty
+		if (partyName && !destination) {
+			destination = partyName
+		}
+
+		// Match scanned items to existing products and add as line items
+		const newItems: LineItem[] = scannedItems.map((si) => {
+			const product = products.find((p) => p.title.toLowerCase() === si.productTitle.toLowerCase())
+			if (product) {
+				const units = getAvailableUnits(product.unit)
+				const defaultUnit = units[0] || 'piece'
+				return {
+					id: genId(),
+					productId: product._id,
+					productTitle: product.title,
+					quantity: si.quantity || 1,
+					unitStr: product.unit || '',
+					unit: defaultUnit,
+					rate: si.rate || Math.round(deriveUnitPrice(product.sellingPrice ?? 0, product.unit, defaultUnit) * 100) / 100,
+				}
+			}
+			// Product not found — add with title only (user can select manually)
+			return {
+				id: genId(),
+				productId: '',
+				productTitle: si.productTitle,
+				quantity: si.quantity || 1,
+				unitStr: si.unitStr || '',
+				unit: si.unit || 'piece',
+				rate: si.rate || 0,
+			}
+		})
+
+		// Replace empty rows at the start, or append
+		const filledCount = items.filter((i) => i.productId).length
+		if (filledCount === 0) {
+			items = [...newItems, ...Array.from({ length: 3 }, () => ({ id: genId(), productId: '', productTitle: '', quantity: 1, unit: '', unitStr: '', rate: 0 }))]
+		} else {
+			items = [...items.filter((i) => i.productId), ...newItems, ...Array.from({ length: 3 }, () => ({ id: genId(), productId: '', productTitle: '', quantity: 1, unit: '', unitStr: '', rate: 0 }))]
+		}
+	}
+
 	function addItem() {
 		items = [
 			...items,

@@ -68,7 +68,7 @@ export const actions: Actions = {
 					phone: phone || '',
 					panNumber: panNumber || '',
 					currency: 'NPR',
-					taxRate: 13,
+					taxRate: '13',
 				},
 			})
 

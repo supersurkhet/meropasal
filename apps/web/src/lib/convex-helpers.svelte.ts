@@ -38,7 +38,7 @@ export function useConvexQuery<Query extends FunctionReference<'query'>>(
 			query,
 			currentArgs,
 			(result: FunctionReturnType<Query>) => {
-				data = structuredClone(result);
+				data = result;
 				isLoading = false;
 				error = undefined;
 			},

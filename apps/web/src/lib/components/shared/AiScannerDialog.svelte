@@ -1,0 +1,1424 @@
+<script lang="ts">
+	import {
+		Dialog,
+		DialogContent,
+		DialogHeader,
+		DialogTitle,
+		DialogDescription,
+		DialogFooter,
+	} from '$lib/components/ui/dialog'
+	import { Button } from '$lib/components/ui/button'
+	import { Input } from '$lib/components/ui/input'
+	import { Textarea } from '$lib/components/ui/textarea'
+	import { getConvexClient } from '$lib/convex'
+	import { useConvexMutation } from '$lib/convex-helpers.svelte'
+	import { api } from '$lib/api'
+	import { toast } from 'svelte-sonner'
+	import { streamScan } from '$lib/ai-scanner-stream'
+	import { GeminiLiveSession } from '$lib/gemini-live'
+	import type { ScanResult } from '$lib/ai-schemas'
+	import {
+		Loader2,
+		Check,
+		X,
+		Trash2,
+		Mic,
+		MicOff,
+		ArrowLeft,
+		FolderOpen,
+		Camera,
+		Aperture,
+		RefreshCw,
+		FileText,
+		ImageIcon,
+	} from '@lucide/svelte'
+	import { onMount, onDestroy, tick } from 'svelte'
+	import EntitySelect from '$lib/components/shared/EntitySelect.svelte'
+	import PartyForm from '$lib/components/modules/parties/PartyForm.svelte'
+	import UnitBuilder from '$lib/components/shared/UnitBuilder.svelte'
+	import PricePerUnitInput from '$lib/components/shared/PricePerUnitInput.svelte'
+	import * as Select from '$lib/components/ui/select'
+
+	type TargetTable = 'products' | 'parties' | 'customers' | 'mixed' | 'stock-import' | 'orders' | 'sales' | 'trips'
+	type ExtractedLineItem = {
+		productTitle: string
+		productId: string
+		quantity: number
+		unit: string
+		unitStr: string
+		rate: number
+		supplierName?: string
+	}
+
+	let {
+		open = $bindable(false),
+		targetTable = 'mixed',
+		onlineitems,
+	}: {
+		open?: boolean
+		targetTable?: TargetTable
+		/** Callback for bill-based modules: receives extracted line items instead of bulk importing */
+		onlineitems?: (items: ExtractedLineItem[], partyName?: string) => void
+	} = $props()
+
+	const isBillMode = $derived(['stock-import', 'orders', 'sales', 'trips'].includes(targetTable))
+
+	type Phase = 'idle' | 'active' | 'saving' | 'done' | 'error'
+
+	let phase = $state<Phase>('idle')
+	let showCamera = $state(false)
+	let errorMessage = $state('')
+	let streaming = $state(false)
+	let streamComplete = $state(false)
+
+	const categories = ['general', 'food', 'beverage', 'dairy', 'snacks', 'household', 'personal', 'stationery', 'other']
+
+	// ── Name normalization for fuzzy matching ───────────────
+	/** Normalize a name for comparison: lowercase, collapse whitespace, & ↔ and, strip suffixes */
+	function normalizeName(name: string): string {
+		return name
+			.toLowerCase()
+			.replace(/\s+/g, ' ')
+			.trim()
+			.replace(/\b(pvt\.?|ltd\.?|llc|inc\.?|co\.?|corp\.?|private|limited)\b/gi, '')
+			.replace(/&/g, ' and ')
+			.replace(/\band\b/g, ' and ')
+			.replace(/[''`]/g, '')       // normalize apostrophes
+			.replace(/[.\-,]/g, ' ')     // dots/dashes/commas → space
+			.replace(/\s+/g, ' ')
+			.trim()
+	}
+
+	function namesMatch(a: string, b: string): boolean {
+		const na = normalizeName(a)
+		const nb = normalizeName(b)
+		if (na === nb) return true
+		// Substring: shorter is contained in longer
+		if (na.length > 2 && nb.length > 2) {
+			if (na.includes(nb) || nb.includes(na)) return true
+		}
+		return false
+	}
+
+	// ── Existing entities for lookup/dedup ──────────────────
+	type Party = { _id: string; name: string; panNumber?: string; address?: string; phone?: string; creditLimit?: number; paymentTerms?: string; notes?: string }
+	type ExistingProduct = { _id: string; title: string; barcode?: string; sku?: string }
+	type ExistingCustomer = { _id: string; name: string; panNumber?: string; phone?: string; email?: string }
+
+	let existingParties = $state<Party[]>([])
+	let existingProducts = $state<ExistingProduct[]>([])
+	let existingCustomers = $state<ExistingCustomer[]>([])
+
+	async function loadParties() {
+		existingParties = await client.query(api.functions.parties.list, {})
+	}
+
+	async function loadProducts() {
+		existingProducts = await client.query(api.functions.products.list, {})
+	}
+
+	async function loadCustomers() {
+		existingCustomers = await client.query(api.functions.customers.list, {})
+	}
+
+	// Merge DB parties + AI-extracted new parties for the supplier dropdown
+	let allParties = $derived.by(() => {
+		const merged = [...existingParties]
+		for (const ep of extractedParties) {
+			// Only add truly new parties (not matched to existing)
+			if (ep.name && !ep._existingId) {
+				const alreadyAdded = merged.some((m) => namesMatch(m.name, ep.name))
+				if (!alreadyAdded) {
+					merged.push({
+						_id: `__new__${ep.name}`,
+						name: ep.name,
+						panNumber: ep.panNumber,
+						address: ep.address,
+						phone: ep.phone,
+					} as Party)
+				}
+			}
+		}
+		return merged
+	})
+
+	// AI extraction results
+	let extractedParties = $state<any[]>([])
+	let extractedProducts = $state<any[]>([])
+	let extractedCustomers = $state<any[]>([])
+
+	// Import summary
+	let summary = $state({ parties: 0, products: 0, customers: 0 })
+
+	// Text input
+	let textInput = $state('')
+
+	// Voice (Gemini Live API)
+	let transcript = $state('')
+	let liveSession: GeminiLiveSession | null = null
+	let isListening = $state(false)
+	let isConnecting = $state(false)
+	let voiceError = $state('')
+
+	// Camera (uses browser-native getUserMedia for hardware-accelerated preview)
+	let videoEl = $state<HTMLVideoElement | null>(null)
+	let mediaStream = $state<MediaStream | null>(null)
+	let capturedImage = $state('')
+	let cameraError = $state('')
+	let isCapturing = $state(false)
+	let cameraReady = $state(false)
+	let cameraButtonEl = $state<HTMLButtonElement | null>(null)
+	let cameraContainerEl = $state<HTMLDivElement | null>(null)
+	let cameraAnimating = $state<'expanding' | 'collapsing' | null>(null)
+
+	// Attached files & pasted images
+	let attachedFiles = $state<Array<{ id: string; name: string; data: string; mimeType: string }>>([])
+
+	// Drag-and-drop (native Tauri events)
+	let isDragOver = $state(false)
+	let unlistenDrop: (() => void) | null = null
+
+	const SIZE_THRESHOLD = 10 * 1024 * 1024
+
+	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL)
+	const generateUploadUrl = useConvexMutation(client, api.functions.organizations.generateUploadUrl)
+
+	let textareaEl = $state<HTMLTextAreaElement | null>(null)
+
+	// Load all existing entities for dedup on dialog open
+	$effect(() => {
+		if (open) {
+			loadParties()
+			loadProducts()
+			loadCustomers()
+		}
+	})
+
+	// Set up native drag-and-drop listener
+	onMount(async () => {
+		try {
+			const { listenForDrop } = await import('$lib/tauri-file')
+			unlistenDrop = await listenForDrop({
+				onDragEnter: () => { if (open) isDragOver = true },
+				onDragLeave: () => { isDragOver = false },
+				onDrop: (paths) => {
+					isDragOver = false
+					if (!open || paths.length === 0) return
+					if (streaming) return
+					const path = paths[0]
+					const name = path.split('/').pop() ?? path.split('\\').pop() ?? path
+					processNativeFile(path, name)
+				},
+			})
+		} catch {
+			// Not in Tauri
+		}
+	})
+
+	onDestroy(() => {
+		unlistenDrop?.()
+	})
+
+	// ── Streaming extraction ────────────────────────────────
+
+	/** Find an existing DB party by PAN or normalized name */
+	function findExistingParty(extracted: { name?: string; panNumber?: string }): Party | null {
+		if (!extracted.name && !extracted.panNumber) return null
+
+		// 1. Exact PAN match (most reliable identifier)
+		if (extracted.panNumber) {
+			const panMatch = existingParties.find(
+				(p) => p.panNumber && p.panNumber === extracted.panNumber
+			)
+			if (panMatch) return panMatch
+		}
+
+		// 2. Normalized name match (handles &/and, suffixes, whitespace, case)
+		if (extracted.name) {
+			const match = existingParties.find((p) => namesMatch(p.name, extracted.name!))
+			if (match) return match
+		}
+
+		return null
+	}
+
+	/** Find an existing DB product by barcode, SKU, or normalized title */
+	function findExistingProduct(extracted: { title?: string; barcode?: string; sku?: string }): ExistingProduct | null {
+		if (!extracted.title && !extracted.barcode && !extracted.sku) return null
+
+		// 1. Barcode match (unique identifier)
+		if (extracted.barcode) {
+			const match = existingProducts.find((p) => p.barcode && p.barcode === extracted.barcode)
+			if (match) return match
+		}
+
+		// 2. SKU match
+		if (extracted.sku) {
+			const match = existingProducts.find((p) => p.sku && p.sku === extracted.sku)
+			if (match) return match
+		}
+
+		// 3. Normalized title match
+		if (extracted.title) {
+			const match = existingProducts.find((p) => namesMatch(p.title, extracted.title!))
+			if (match) return match
+		}
+
+		return null
+	}
+
+	/** Find an existing DB customer by PAN, phone, email, or normalized name */
+	function findExistingCustomer(extracted: { name?: string; panNumber?: string; phone?: string; email?: string }): ExistingCustomer | null {
+		if (!extracted.name && !extracted.panNumber && !extracted.phone && !extracted.email) return null
+
+		// 1. PAN match
+		if (extracted.panNumber) {
+			const match = existingCustomers.find((c) => c.panNumber && c.panNumber === extracted.panNumber)
+			if (match) return match
+		}
+
+		// 2. Phone match (strip non-digits for comparison)
+		if (extracted.phone) {
+			const digits = extracted.phone.replace(/\D/g, '')
+			if (digits.length >= 7) {
+				const match = existingCustomers.find((c) => c.phone && c.phone.replace(/\D/g, '').endsWith(digits.slice(-10)))
+				if (match) return match
+			}
+		}
+
+		// 3. Email match
+		if (extracted.email) {
+			const match = existingCustomers.find((c) => c.email && c.email.toLowerCase() === extracted.email!.toLowerCase())
+			if (match) return match
+		}
+
+		// 4. Normalized name match
+		if (extracted.name) {
+			const match = existingCustomers.find((c) => namesMatch(c.name, extracted.name!))
+			if (match) return match
+		}
+
+		return null
+	}
+
+	/** Try to match a supplier name to an existing or extracted party ID */
+	function resolvePartyId(name?: string): string {
+		if (!name) return ''
+		const match = findExistingParty({ name })
+		if (match) return match._id
+		// Check AI-extracted parties (use temp ID)
+		const extractedMatch = extractedParties.find(
+			(p) => p.name?.toLowerCase() === name.toLowerCase()
+		)
+		if (extractedMatch) return `__new__${extractedMatch.name}`
+		return ''
+	}
+
+	/**
+	 * Enrich extracted parties: if a party already exists in the DB (by name or PAN),
+	 * mark it as resolved so we don't create a duplicate.
+	 */
+	function enrichParties(parties: any[]): any[] {
+		return parties.map((p) => {
+			const existing = findExistingParty(p)
+			return {
+				...p,
+				_existingId: existing?._id ?? null,
+				_existingName: existing?.name ?? null,
+			}
+		})
+	}
+
+	/** Enrich products: resolve supplier, check for existing, auto selling price */
+	function enrichProducts(products: any[]): any[] {
+		return products.map((p) => {
+			const existing = findExistingProduct(p)
+			return {
+				...p,
+				purchasePartyId: p.purchasePartyId || resolvePartyId(p.supplierName),
+				sellingPrice: p.sellingPrice || Math.round((Number(p.costPrice) || 0) * 1.1 * 100) / 100,
+				category: p.category || '',
+				_sellingPriceManual: !!p.sellingPrice,
+				_existingId: existing?._id ?? null,
+				_existingTitle: existing?.title ?? null,
+			}
+		})
+	}
+
+	/** Enrich customers: check for existing matches */
+	function enrichCustomers(customers: any[]): any[] {
+		return customers.map((c) => {
+			const existing = findExistingCustomer(c)
+			return {
+				...c,
+				_existingId: existing?._id ?? null,
+				_existingName: existing?.name ?? null,
+			}
+		})
+	}
+
+	/** Update selling price when cost changes (if not manually set) */
+	function onProductCostChange(product: any, value: number) {
+		product.costPrice = value
+		if (!product._sellingPriceManual) {
+			product.sellingPrice = Math.round(value * 1.1 * 100) / 100
+			// Trigger reactivity
+			extractedProducts = [...extractedProducts]
+		}
+	}
+
+	function handlePartial(data: Partial<ScanResult>) {
+		if (data.parties) extractedParties = enrichParties([...data.parties])
+		if (data.products) extractedProducts = enrichProducts([...data.products])
+		if (data.customers) extractedCustomers = enrichCustomers([...data.customers])
+	}
+
+	function handleStreamDone(data: ScanResult) {
+		extractedParties = enrichParties(data.parties ?? [])
+		extractedProducts = enrichProducts(data.products ?? [])
+		extractedCustomers = enrichCustomers(data.customers ?? [])
+		streaming = false
+		streamComplete = true
+	}
+
+	function handleStreamError(err: string) {
+		streaming = false
+		phase = 'error'
+		errorMessage = err
+	}
+
+	async function startStreaming(opts: { textContent?: string; fileUrl?: string; fileData?: string; mimeType: string }) {
+		phase = 'active'
+		streaming = true
+		streamComplete = false
+		extractedParties = []
+		extractedProducts = []
+		extractedCustomers = []
+
+		await streamScan({
+			...opts,
+			onPartial: handlePartial,
+			onDone: handleStreamDone,
+			onError: handleStreamError,
+		})
+	}
+
+	// ── Native file handling ────────────────────────────────
+
+	async function openNativeFilePicker() {
+		try {
+			const { pickFile } = await import('$lib/tauri-file')
+			const file = await pickFile()
+			if (!file) return
+			await processNativeFile(file.path, file.name)
+		} catch (err) {
+			phase = 'error'
+			errorMessage = err instanceof Error ? err.message : 'Failed to open file'
+		}
+	}
+
+	async function processNativeFile(path: string, name: string) {
+		const { isSpreadsheet, isWordDoc, readFileBase64, parseSpreadsheet, parseWordDoc } = await import('$lib/tauri-file')
+
+		try {
+			if (isSpreadsheet(name)) {
+				const text = await parseSpreadsheet(path)
+				await startStreaming({ textContent: text, mimeType: 'text/csv' })
+			} else if (isWordDoc(name)) {
+				const text = await parseWordDoc(path)
+				await startStreaming({ textContent: text, mimeType: 'text/plain' })
+			} else {
+				const result = await readFileBase64(path)
+				if (result.size < SIZE_THRESHOLD) {
+					// Add as attached file chip
+					attachedFiles = [
+						...attachedFiles,
+						{ id: crypto.randomUUID(), name, data: result.data, mimeType: result.mime_type },
+					]
+				} else {
+					const binary = atob(result.data)
+					const bytes = new Uint8Array(binary.length)
+					for (let i = 0; i < binary.length; i++) {
+						bytes[i] = binary.charCodeAt(i)
+					}
+					const uploadUrl = await generateUploadUrl.mutate({})
+					const uploadRes = await fetch(uploadUrl as string, {
+						method: 'POST',
+						headers: { 'Content-Type': result.mime_type },
+						body: bytes,
+					})
+					const { storageId } = await uploadRes.json()
+					const fileUrl = await client.query(api.functions.organizations.getStorageUrl, { storageId })
+					await startStreaming({ fileUrl, mimeType: result.mime_type })
+				}
+			}
+		} catch (err) {
+			phase = 'error'
+			errorMessage = err instanceof Error ? err.message : 'Failed to process file'
+		}
+	}
+
+	// ── Camera ──────────────────────────────────────────────
+
+	/** Compute the FLIP transform: from button origin to full container */
+	function computeFlipOrigin(): { x: number; y: number; scaleX: number; scaleY: number } | null {
+		if (!cameraButtonEl || !cameraContainerEl) return null
+		const btn = cameraButtonEl.getBoundingClientRect()
+		const container = cameraContainerEl.getBoundingClientRect()
+		if (container.width === 0 || container.height === 0) return null
+		return {
+			x: btn.left + btn.width / 2 - (container.left + container.width / 2),
+			y: btn.top + btn.height / 2 - (container.top + container.height / 2),
+			scaleX: btn.width / container.width,
+			scaleY: btn.height / container.height,
+		}
+	}
+
+	async function startCameraPreview() {
+		cameraError = ''
+		capturedImage = ''
+		cameraReady = false
+		showCamera = true
+		cameraAnimating = 'expanding'
+
+		await tick()
+
+		// FLIP expand: start from button position, animate to full size
+		if (cameraContainerEl) {
+			const flip = computeFlipOrigin()
+			if (flip) {
+				const el = cameraContainerEl
+				el.style.transform = `translate(${flip.x}px, ${flip.y}px) scale(${flip.scaleX}, ${flip.scaleY})`
+				el.style.opacity = '0.3'
+				el.style.borderRadius = '1rem'
+
+				requestAnimationFrame(() => {
+					el.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease-out, border-radius 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
+					el.style.transform = 'translate(0, 0) scale(1, 1)'
+					el.style.opacity = '1'
+					el.style.borderRadius = '0.5rem'
+
+					let cleaned = false
+					const cleanup = () => {
+						if (cleaned) return
+						cleaned = true
+						el.style.transition = ''
+						el.style.transform = ''
+						el.style.borderRadius = ''
+						el.style.opacity = ''
+						cameraAnimating = null
+					}
+					el.addEventListener('transitionend', cleanup, { once: true })
+					setTimeout(cleanup, 450)
+				})
+			} else {
+				cameraAnimating = null
+			}
+		}
+
+		try {
+			const stream = await navigator.mediaDevices.getUserMedia({
+				video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+				audio: false,
+			})
+			mediaStream = stream
+
+			await tick()
+			if (videoEl) {
+				videoEl.srcObject = stream
+			}
+		} catch (err) {
+			if (err instanceof DOMException && err.name === 'NotAllowedError') {
+				cameraError = 'Camera permission denied. Please grant access in System Settings > Privacy & Security > Camera.'
+			} else if (err instanceof DOMException && err.name === 'NotFoundError') {
+				cameraError = 'No camera detected'
+			} else {
+				cameraError = err instanceof Error ? err.message : 'Failed to start camera'
+			}
+		}
+	}
+
+	function handleVideoReady() {
+		cameraReady = true
+	}
+
+	async function handleCameraCapture() {
+		if (!videoEl || !mediaStream) return
+		try {
+			isCapturing = true
+			const canvas = document.createElement('canvas')
+			canvas.width = videoEl.videoWidth
+			canvas.height = videoEl.videoHeight
+			const ctx = canvas.getContext('2d')!
+			ctx.drawImage(videoEl, 0, 0)
+
+			const base64 = canvas.toDataURL('image/jpeg', 0.92).split(',')[1]
+			attachedFiles = [
+				...attachedFiles,
+				{ id: crypto.randomUUID(), name: 'Camera capture', data: base64, mimeType: 'image/jpeg' },
+			]
+			stopMediaStream()
+			showCamera = false
+		} catch (err) {
+			cameraError = err instanceof Error ? err.message : 'Capture failed'
+		} finally {
+			isCapturing = false
+		}
+	}
+
+	function stopMediaStream() {
+		if (mediaStream) {
+			for (const track of mediaStream.getTracks()) {
+				track.stop()
+			}
+			mediaStream = null
+		}
+		cameraReady = false
+	}
+
+	function exitCamera() {
+		stopMediaStream()
+		cameraAnimating = 'collapsing'
+
+		if (cameraContainerEl) {
+			const flip = computeFlipOrigin()
+			if (flip) {
+				const el = cameraContainerEl
+				el.style.transition = 'transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.6, 1), border-radius 0.35s cubic-bezier(0.4, 0, 0.2, 1)'
+				el.style.transform = `translate(${flip.x}px, ${flip.y}px) scale(${flip.scaleX}, ${flip.scaleY})`
+				el.style.opacity = '0'
+				el.style.borderRadius = '1rem'
+
+				let cleaned = false
+				const cleanup = () => {
+					if (cleaned) return
+					cleaned = true
+					el.style.transition = ''
+					el.style.transform = ''
+					el.style.opacity = ''
+					el.style.borderRadius = ''
+					showCamera = false
+					capturedImage = ''
+					cameraError = ''
+					cameraAnimating = null
+				}
+				el.addEventListener('transitionend', cleanup, { once: true })
+				setTimeout(cleanup, 400)
+				return
+			}
+		}
+
+		// Fallback if no FLIP data
+		showCamera = false
+		capturedImage = ''
+		cameraError = ''
+		cameraAnimating = null
+	}
+
+	// ── Paste handler ───────────────────────────────────────
+
+	function handlePaste(e: ClipboardEvent) {
+		const items = e.clipboardData?.items
+		if (!items) return
+
+		for (const item of items) {
+			if (item.kind === 'file' && item.type.startsWith('image/')) {
+				e.preventDefault()
+				const file = item.getAsFile()
+				if (!file) continue
+
+				const reader = new FileReader()
+				reader.onload = (event) => {
+					const dataUrl = event.target?.result as string
+					const base64 = dataUrl.split(',')[1]
+					attachedFiles = [
+						...attachedFiles,
+						{ id: crypto.randomUUID(), name: 'Pasted image', data: base64, mimeType: file.type },
+					]
+				}
+				reader.readAsDataURL(file)
+				return
+			}
+		}
+	}
+
+	function removeAttachment(id: string) {
+		attachedFiles = attachedFiles.filter((f) => f.id !== id)
+	}
+
+	// ── Voice: Gemini Live API ──────────────────────────────
+
+	function toggleVoice() {
+		if (isListening || isConnecting) {
+			stopGeminiLive()
+		} else {
+			voiceError = ''
+			startGeminiLive()
+		}
+	}
+
+	function startGeminiLive() {
+		isConnecting = true
+		voiceError = ''
+		transcript = ''
+
+		liveSession = new GeminiLiveSession({
+			onConnected: () => {
+				isConnecting = false
+				isListening = true
+				voiceError = ''
+			},
+			onTranscript: (text) => {
+				// inputAudioTranscription ASR is unreliable for language detection,
+				// so we only track it internally — don't display it.
+				// The model processes audio directly and extracts data via tool calls.
+				transcript += text
+			},
+			onExtractedData: (data) => {
+				if (data.parties) extractedParties = enrichParties([...data.parties])
+				if (data.products) extractedProducts = enrichProducts([...data.products])
+				if (data.customers) extractedCustomers = enrichCustomers([...data.customers])
+				streaming = true
+			},
+			onError: (err) => {
+				isConnecting = false
+				isListening = false
+				voiceError = err
+				console.error('[AI Scanner] Voice error:', err)
+			},
+			onDisconnected: () => {
+				isListening = false
+				isConnecting = false
+			},
+		})
+
+		liveSession.connect()
+	}
+
+	function stopGeminiLive() {
+		if (liveSession) {
+			liveSession.disconnect()
+			liveSession = null
+		}
+		isListening = false
+		isConnecting = false
+	}
+
+	// ── Submit (Extract & Scan) ─────────────────────────────
+
+	async function handleExtract() {
+		const hasText = textInput.trim().length > 0
+		const hasFiles = attachedFiles.length > 0
+
+		if (!hasText && !hasFiles) return
+
+		if (hasFiles) {
+			const firstFile = attachedFiles[0]
+			await startStreaming({
+				fileData: firstFile.data,
+				mimeType: firstFile.mimeType,
+				textContent: hasText ? textInput.trim() : undefined,
+			})
+		} else {
+			await startStreaming({ textContent: textInput.trim(), mimeType: 'text/plain' })
+		}
+	}
+
+	// ── Preview editing ─────────────────────────────────────
+
+	function removeParty(index: number) {
+		extractedParties = extractedParties.filter((_, i) => i !== index)
+	}
+	function removeProduct(index: number) {
+		extractedProducts = extractedProducts.filter((_, i) => i !== index)
+	}
+	function removeCustomer(index: number) {
+		extractedCustomers = extractedCustomers.filter((_, i) => i !== index)
+	}
+
+	// ── Bulk import ─────────────────────────────────────────
+
+	async function confirmImport() {
+		// Bill mode: pass line items back to parent form instead of bulk importing
+		if (isBillMode && onlineitems) {
+			const lineItems: ExtractedLineItem[] = extractedProducts
+				.filter((p) => !p._existingId)
+				.map((p) => {
+					// Resolve product ID if it matches an existing product
+					const existingProduct = existingProducts.find((ep) => namesMatch(ep.title, p.title))
+					return {
+						productTitle: p.title,
+						productId: existingProduct?._id ?? '',
+						quantity: Number(p.openingStock) || 1,
+						unit: p.unit || 'piece',
+						unitStr: p.unit || 'piece',
+						rate: Number(p.costPrice) || 0,
+						supplierName: p.supplierName || undefined,
+					}
+				})
+
+			// Get the primary supplier name (from extracted parties or first product's supplier)
+			const partyName = extractedParties[0]?.name
+				|| extractedProducts.find((p) => p.supplierName)?.supplierName
+				|| undefined
+
+			onlineitems(lineItems, partyName)
+			phase = 'done'
+			summary = { parties: 0, products: lineItems.length, customers: 0 }
+			toast.success(`Added ${lineItems.length} line items`)
+			setTimeout(() => { open = false; reset() }, 500)
+			return
+		}
+
+		phase = 'saving'
+		try {
+			const resolvedProducts = extractedProducts.map((p) => {
+				let supplierName = p.supplierName || undefined
+				if (p.purchasePartyId) {
+					if (p.purchasePartyId.startsWith('__new__')) {
+						// Temp ID from extracted party — use the name directly
+						supplierName = p.purchasePartyId.replace('__new__', '')
+					} else {
+						const party = existingParties.find((e) => e._id === p.purchasePartyId)
+						if (party) supplierName = party.name
+					}
+				}
+				return {
+					title: p.title,
+					supplierName,
+					costPrice: Number(p.costPrice) || 0,
+					openingStock: Number(p.openingStock) || 0,
+					sellingPrice: Number(p.sellingPrice) || undefined,
+					unit: p.unit || undefined,
+					category: p.category || undefined,
+					barcode: p.barcode || undefined,
+					sku: p.sku || undefined,
+					hsCode: p.hsCode || undefined,
+				}
+			})
+
+			// Only send entities that don't already exist in the DB
+			const newParties = extractedParties
+				.filter((p) => !p._existingId)
+				.map((p) => ({
+					name: p.name,
+					panNumber: p.panNumber || undefined,
+					address: p.address || undefined,
+					phone: p.phone || undefined,
+					creditLimit: p.creditLimit || undefined,
+					paymentTerms: p.paymentTerms || undefined,
+				}))
+
+			const newProducts = resolvedProducts.filter((_, i) => !extractedProducts[i]?._existingId)
+
+			const newCustomers = extractedCustomers
+				.filter((c) => !c._existingId)
+				.map((c) => ({
+					name: c.name,
+					panNumber: c.panNumber || undefined,
+					address: c.address || undefined,
+					phone: c.phone || undefined,
+					email: c.email || undefined,
+					creditLimit: c.creditLimit || undefined,
+				}))
+
+			const result = await client.action(api.aiScanner.bulkImport, {
+				parties: newParties,
+				products: newProducts,
+				customers: newCustomers,
+			})
+
+			summary = result
+			phase = 'done'
+			toast.success(
+				`Created ${result.parties} parties, ${result.products} products, ${result.customers} customers`
+			)
+		} catch (err) {
+			phase = 'error'
+			errorMessage = err instanceof Error ? err.message : 'Import failed'
+		}
+	}
+
+	// ── Reset ───────────────────────────────────────────────
+
+	function reset() {
+		phase = 'idle'
+		showCamera = false
+		errorMessage = ''
+		extractedParties = []
+		extractedProducts = []
+		extractedCustomers = []
+		summary = { parties: 0, products: 0, customers: 0 }
+		textInput = ''
+		transcript = ''
+		streaming = false
+		streamComplete = false
+		isDragOver = false
+		attachedFiles = []
+		capturedImage = ''
+		cameraError = ''
+		cameraAnimating = null
+		stopGeminiLive()
+		stopMediaStream()
+	}
+
+	function handleClose() {
+		open = false
+		setTimeout(reset, 200)
+	}
+
+	let totalExtracted = $derived(
+		extractedParties.length + extractedProducts.length + extractedCustomers.length
+	)
+
+	let hasPreviewData = $derived(totalExtracted > 0)
+	let canSubmit = $derived(textInput.trim().length > 0 || attachedFiles.length > 0)
+	let inputCount = $derived(
+		(textInput.trim().length > 0 ? 1 : 0) + attachedFiles.length
+	)
+</script>
+
+<Dialog bind:open onOpenChange={(v) => { if (!v) handleClose() }}>
+	<DialogContent
+		class="sm:max-w-2xl max-h-[85vh] {showCamera ? 'overflow-hidden !p-0' : 'overflow-y-auto'} {isDragOver ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}"
+	>
+		<!-- ═══ Drag overlay (always available) ═══ -->
+		{#if isDragOver}
+			<div class="absolute inset-0 z-50 flex items-center justify-center rounded-lg bg-primary/5 backdrop-blur-sm border-2 border-dashed border-primary/40">
+				<div class="flex flex-col items-center gap-2 text-primary">
+					<FolderOpen class="size-10" />
+					<p class="text-sm font-medium">Drop to scan</p>
+				</div>
+			</div>
+		{/if}
+
+		<!-- ═══ IDLE: Unified input surface ═══ -->
+		{#if phase === 'idle'}
+			{#if !showCamera}
+				<DialogHeader class="pb-0">
+					<DialogTitle class="text-base">AI Data Scanner</DialogTitle>
+				</DialogHeader>
+			{/if}
+
+			<!-- Attached file chips (hidden when camera is active) -->
+			{#if !showCamera && attachedFiles.length > 0}
+				<div class="flex flex-wrap gap-1.5 pt-1">
+					{#each attachedFiles as file (file.id)}
+						<div class="group flex items-center gap-1.5 rounded-md border bg-muted/50 px-2 py-1 text-xs">
+							{#if file.mimeType.startsWith('image/')}
+								<ImageIcon class="size-3 text-muted-foreground" />
+							{:else}
+								<FileText class="size-3 text-muted-foreground" />
+							{/if}
+							<span class="max-w-[120px] truncate">{file.name}</span>
+							<button
+								class="ml-0.5 rounded-full p-0.5 text-muted-foreground opacity-0 transition-opacity hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100"
+								onclick={() => removeAttachment(file.id)}
+							>
+								<X class="size-3" />
+							</button>
+						</div>
+					{/each}
+				</div>
+			{/if}
+
+			<!-- Camera viewfinder (replaces textarea when active) -->
+			{#if showCamera}
+				<div bind:this={cameraContainerEl} class="will-change-transform">
+					{#if cameraError}
+						<div class="flex flex-col items-center gap-3 py-8">
+							<Camera class="size-6 text-muted-foreground" />
+							<p class="text-sm text-muted-foreground">{cameraError}</p>
+							<Button variant="outline" size="sm" onclick={exitCamera}>Go back</Button>
+						</div>
+					{:else}
+						<div class="relative overflow-hidden bg-black aspect-[4/3] flex items-center justify-center rounded-lg">
+							<!-- svelte-ignore element_invalid_self_closing_tag -->
+							<video
+								bind:this={videoEl}
+								autoplay
+								playsinline
+								muted
+								onloadeddata={handleVideoReady}
+								class="w-full h-full object-cover {cameraReady ? '' : 'hidden'}"
+							/>
+							{#if !cameraReady}
+								<div class="flex flex-col items-center gap-2">
+									<Loader2 class="size-6 animate-spin text-zinc-400" />
+									<p class="text-xs text-zinc-500">Starting camera...</p>
+								</div>
+							{/if}
+							<!-- Overlay controls on the viewfinder -->
+							{#if cameraReady}
+								<div class="absolute inset-x-0 bottom-0 flex items-end justify-between px-4 pb-4 bg-gradient-to-t from-black/60 to-transparent pt-12">
+									<button
+										class="inline-flex items-center gap-1.5 rounded-full bg-black/40 px-3 py-1.5 text-xs text-white/90 backdrop-blur-sm transition-colors hover:bg-black/60"
+										onclick={exitCamera}
+									>
+										<ArrowLeft class="size-3" />
+										Back
+									</button>
+									<button
+										class="flex size-14 items-center justify-center rounded-full border-[3px] border-white bg-white/20 backdrop-blur-sm transition-all hover:bg-white/30 hover:scale-105 active:scale-95 disabled:opacity-50"
+										onclick={handleCameraCapture}
+										disabled={isCapturing}
+									>
+										<Aperture class="size-6 text-white" />
+									</button>
+									<div class="w-16"></div>
+								</div>
+							{/if}
+						</div>
+						{#if !cameraReady}
+							<p class="text-center text-xs text-muted-foreground mt-3">Point at invoice, label, or document</p>
+						{/if}
+					{/if}
+				</div>
+
+			<!-- Unified text input -->
+			{:else}
+				<div class="relative">
+					<textarea
+						bind:this={textareaEl}
+						bind:value={textInput}
+						rows={5}
+						placeholder="Type, paste text or images, or drop files here..."
+						class="w-full max-h-40 resize-none overflow-y-auto rounded-lg border border-input bg-muted/30 px-3 pb-10 pt-3 text-sm ring-offset-background transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+						onpaste={handlePaste}
+					></textarea>
+
+					<!-- Bottom toolbar inside textarea -->
+					<div class="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+						<!-- Voice status -->
+						<div class="flex items-center gap-2">
+							{#if voiceError}
+								<span class="flex items-center gap-1.5 text-xs text-destructive">
+									<X class="size-3" />
+									{voiceError}
+								</span>
+							{:else if isListening}
+								<span class="flex items-center gap-1.5 text-xs text-red-500">
+									<span class="relative flex size-1.5">
+										<span class="absolute inline-flex size-full animate-ping rounded-full bg-red-400 opacity-75"></span>
+										<span class="relative inline-flex size-1.5 rounded-full bg-red-500"></span>
+									</span>
+									Listening...
+								</span>
+							{:else if isConnecting}
+								<span class="flex items-center gap-1.5 text-xs text-muted-foreground">
+									<Loader2 class="size-3 animate-spin" />
+									Connecting...
+								</span>
+							{/if}
+						</div>
+
+						<!-- Action buttons -->
+						<div class="flex items-center gap-1">
+							<button
+								bind:this={cameraButtonEl}
+								class="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+								onclick={startCameraPreview}
+								title="Camera"
+							>
+								<Camera class="size-4" />
+							</button>
+							<button
+								class="rounded-md p-1.5 transition-colors {isListening ? 'bg-red-500/10 text-red-500 hover:bg-red-500/20' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
+								onclick={toggleVoice}
+								title={isListening ? 'Stop dictation' : 'Voice dictation'}
+							>
+								{#if isListening}
+									<MicOff class="size-4" />
+								{:else}
+									<Mic class="size-4" />
+								{/if}
+							</button>
+						</div>
+					</div>
+				</div>
+
+				<div class="flex items-center justify-between">
+					<p class="text-[11px] text-muted-foreground">
+						Drop files anywhere
+						<span class="mx-1 text-muted-foreground/40">&middot;</span>
+						<button
+							class="text-[11px] text-muted-foreground underline underline-offset-2 decoration-muted-foreground/40 hover:text-foreground hover:decoration-foreground/40 transition-colors"
+							onclick={openNativeFilePicker}
+						>
+							browse files
+						</button>
+					</p>
+				</div>
+
+				<Button
+					class="w-full"
+					onclick={handleExtract}
+					disabled={!canSubmit}
+				>
+					{#if inputCount > 1}
+						Extract & Scan ({inputCount} inputs)
+					{:else}
+						Extract & Scan
+					{/if}
+				</Button>
+			{/if}
+
+		<!-- ═══ ACTIVE: Streaming results ═══ -->
+		{:else if phase === 'active'}
+			<DialogHeader class="pb-0">
+				<DialogTitle class="text-base">AI Data Scanner</DialogTitle>
+			</DialogHeader>
+
+			<!-- Input summary chips -->
+			{#if attachedFiles.length > 0 || textInput.trim()}
+				<div class="flex flex-wrap gap-1.5">
+					{#each attachedFiles as file (file.id)}
+						<div class="flex items-center gap-1.5 rounded-md border bg-muted/50 px-2 py-1 text-xs text-muted-foreground">
+							{#if file.mimeType.startsWith('image/')}
+								<ImageIcon class="size-3" />
+							{:else}
+								<FileText class="size-3" />
+							{/if}
+							<span class="max-w-[120px] truncate">{file.name}</span>
+						</div>
+					{/each}
+					{#if textInput.trim()}
+						<div class="flex items-center gap-1.5 rounded-md border bg-muted/50 px-2 py-1 text-xs text-muted-foreground">
+							<FileText class="size-3" />
+							<span class="max-w-[150px] truncate">"{textInput.trim().slice(0, 40)}..."</span>
+						</div>
+					{/if}
+				</div>
+			{/if}
+
+			<!-- Streaming indicator -->
+			{#if streaming}
+				<div class="flex items-center gap-2 text-sm text-muted-foreground">
+					<Loader2 class="size-4 animate-spin text-primary" />
+					<span>Extracting{totalExtracted > 0 ? ` — ${totalExtracted} found` : ''}...</span>
+				</div>
+			{/if}
+
+			<!-- ═══ LIVE PREVIEW ═══ -->
+			{#if hasPreviewData}
+				<div class="preview-panel space-y-4 border-t pt-4">
+					<!-- Parties -->
+					{#if extractedParties.length > 0}
+						<div>
+							<h4 class="text-sm font-medium mb-2">Suppliers/Parties ({extractedParties.length})</h4>
+							<div class="space-y-2">
+								{#each extractedParties as party, i (i)}
+									<div class="rounded-lg border p-3 row-enter {party._existingId ? 'border-emerald-500/30 bg-emerald-500/5' : ''}">
+										{#if party._existingId}
+											<div class="flex items-center justify-between">
+												<div>
+													<p class="text-sm font-medium">{party.name}</p>
+													<p class="text-[11px] text-emerald-600 dark:text-emerald-400">Matched existing: {party._existingName}</p>
+												</div>
+												{#if streamComplete}
+													<button class="p-1 text-muted-foreground hover:text-destructive" onclick={() => removeParty(i)}>
+														<Trash2 class="size-3.5" />
+													</button>
+												{/if}
+											</div>
+										{:else}
+											<div class="flex items-start gap-2">
+												<div class="flex-1 space-y-2">
+													<Input bind:value={party.name} class="h-8 text-sm font-medium" placeholder="Name" />
+													<div class="grid grid-cols-3 gap-2">
+														<div>
+															<label class="text-[11px] text-muted-foreground">PAN</label>
+															<Input bind:value={party.panNumber} class="h-7 text-sm" placeholder="—" />
+														</div>
+														<div>
+															<label class="text-[11px] text-muted-foreground">Phone</label>
+															<Input bind:value={party.phone} class="h-7 text-sm" placeholder="—" />
+														</div>
+														<div>
+															<label class="text-[11px] text-muted-foreground">Address</label>
+															<Input bind:value={party.address} class="h-7 text-sm" placeholder="—" />
+														</div>
+													</div>
+													<p class="text-[11px] text-amber-500">New — will be created on import</p>
+												</div>
+												{#if streamComplete}
+													<button class="mt-1 p-1 text-muted-foreground hover:text-destructive" onclick={() => removeParty(i)}>
+														<Trash2 class="size-3.5" />
+													</button>
+												{/if}
+											</div>
+										{/if}
+									</div>
+								{/each}
+							</div>
+						</div>
+					{/if}
+
+					<!-- Products -->
+					{#if extractedProducts.length > 0}
+						<div>
+							<h4 class="text-sm font-medium mb-2">Products ({extractedProducts.length})</h4>
+							<div class="space-y-3">
+								{#each extractedProducts as product, i (i)}
+									<div class="rounded-lg border p-3 row-enter {product._existingId ? 'border-emerald-500/30 bg-emerald-500/5' : ''} {product._existingId ? '' : 'space-y-3'}">
+										{#if product._existingId}
+											<div class="flex items-center justify-between">
+												<div>
+													<p class="text-sm font-medium">{product.title}</p>
+													<p class="text-[11px] text-emerald-600 dark:text-emerald-400">Already exists: "{product._existingTitle}" — will skip</p>
+												</div>
+												{#if streamComplete}
+													<button class="p-1 text-muted-foreground hover:text-destructive" onclick={() => removeProduct(i)}>
+														<Trash2 class="size-3.5" />
+													</button>
+												{/if}
+											</div>
+										{:else}
+										<div class="flex items-start gap-2">
+											<div class="flex-1 space-y-3">
+												<!-- Title -->
+												<div class="space-y-1">
+													<label class="text-[11px] font-medium text-muted-foreground">Product name</label>
+													<Input bind:value={product.title} class="h-8 text-sm" placeholder="e.g. Rice 25kg Basmati" />
+												</div>
+
+												<!-- Supplier (EntitySelect — same as ProductForm) -->
+												<div class="space-y-1">
+													<label class="text-[11px] font-medium text-muted-foreground">Supplier</label>
+													<EntitySelect
+														bind:value={product.purchasePartyId}
+														items={allParties}
+														getKey={(p) => p._id}
+														getLabel={(p) => p.name}
+														placeholder="Select supplier..."
+														entityName="Supplier"
+														small
+													>
+														{#snippet createForm({ close, onCreated })}
+															<PartyForm
+																inline
+																onsubmit={async (data) => {
+																	const id = await client.mutation(api.functions.parties.create, data)
+																	await loadParties()
+																	onCreated(id)
+																}}
+																oncancel={close}
+															/>
+														{/snippet}
+														{#snippet editForm({ item, close })}
+															<PartyForm
+																inline
+																party={item}
+																onsubmit={async (data) => {
+																	await client.mutation(api.functions.parties.update, { id: item._id, ...data })
+																	await loadParties()
+																	close()
+																}}
+																oncancel={close}
+															/>
+														{/snippet}
+													</EntitySelect>
+													{#if product.supplierName && !product.purchasePartyId}
+														<p class="text-[11px] text-amber-500">AI detected: "{product.supplierName}" — select or create a matching supplier</p>
+													{/if}
+												</div>
+
+												<!-- Unit (UnitBuilder — same as ProductForm) -->
+												<div class="space-y-1">
+													<label class="text-[11px] font-medium text-muted-foreground">Unit</label>
+													<UnitBuilder bind:value={product.unit} />
+												</div>
+
+												<!-- Prices (PricePerUnitInput — same as ProductForm) -->
+												<div class="grid grid-cols-2 gap-3">
+													<div class="space-y-1">
+														<label class="text-[11px] font-medium text-muted-foreground">Cost price</label>
+														<PricePerUnitInput
+															bind:value={product.costPrice}
+															unitStr={product.unit}
+															placeholder="0.00"
+															onuserinput={(v) => onProductCostChange(product, v)}
+														/>
+													</div>
+													<div class="space-y-1">
+														<label class="text-[11px] font-medium text-muted-foreground">Selling price</label>
+														<PricePerUnitInput
+															bind:value={product.sellingPrice}
+															unitStr={product.unit}
+															placeholder="Auto: cost + 10%"
+															onuserinput={() => { product._sellingPriceManual = true }}
+														/>
+														{#if !product._sellingPriceManual && product.costPrice > 0}
+															<p class="text-[10px] text-emerald-600 dark:text-emerald-400">Auto: {product.costPrice} + 10%</p>
+														{/if}
+													</div>
+												</div>
+
+												<!-- Stock + Category -->
+												<div class="grid grid-cols-2 gap-3">
+													<div class="space-y-1">
+														<label class="text-[11px] font-medium text-muted-foreground">Opening stock</label>
+														<Input type="number" min="0" bind:value={product.openingStock} class="h-8 text-sm" placeholder="0" />
+													</div>
+													<div class="space-y-1">
+														<label class="text-[11px] font-medium text-muted-foreground">Category</label>
+														<Select.Root type="single" bind:value={product.category}>
+															<Select.Trigger class="h-8 text-sm">
+																{product.category ? product.category : 'Select...'}
+															</Select.Trigger>
+															<Select.Content>
+																{#each categories as cat}
+																	<Select.Item value={cat} label={cat}>
+																		<span class="capitalize">{cat}</span>
+																	</Select.Item>
+																{/each}
+															</Select.Content>
+														</Select.Root>
+													</div>
+												</div>
+											</div>
+
+											{#if streamComplete}
+												<button class="mt-1 p-1 text-muted-foreground hover:text-destructive shrink-0" onclick={() => removeProduct(i)}>
+													<Trash2 class="size-3.5" />
+												</button>
+											{/if}
+										</div>
+									{/if}
+									</div>
+								{/each}
+							</div>
+						</div>
+					{/if}
+
+					<!-- Customers -->
+					{#if extractedCustomers.length > 0}
+						<div>
+							<h4 class="text-sm font-medium mb-2">Customers ({extractedCustomers.length})</h4>
+							<div class="space-y-2">
+								{#each extractedCustomers as customer, i (i)}
+									<div class="rounded-lg border p-3 row-enter {customer._existingId ? 'border-emerald-500/30 bg-emerald-500/5' : ''}">
+										{#if customer._existingId}
+											<div class="flex items-center justify-between">
+												<div>
+													<p class="text-sm font-medium">{customer.name}</p>
+													<p class="text-[11px] text-emerald-600 dark:text-emerald-400">Matched existing: {customer._existingName} — will skip</p>
+												</div>
+												{#if streamComplete}
+													<button class="p-1 text-muted-foreground hover:text-destructive" onclick={() => removeCustomer(i)}>
+														<Trash2 class="size-3.5" />
+													</button>
+												{/if}
+											</div>
+										{:else}
+											<div class="flex items-start gap-2">
+												<div class="flex-1 space-y-2">
+													<Input bind:value={customer.name} class="h-8 text-sm font-medium" placeholder="Name" />
+													<div class="grid grid-cols-2 gap-2">
+														<div>
+															<label class="text-[11px] text-muted-foreground">Phone</label>
+															<Input bind:value={customer.phone} class="h-7 text-sm" placeholder="—" />
+														</div>
+														<div>
+															<label class="text-[11px] text-muted-foreground">Email</label>
+															<Input bind:value={customer.email} class="h-7 text-sm" placeholder="—" />
+														</div>
+													</div>
+												</div>
+												{#if streamComplete}
+													<button class="mt-1 p-1 text-muted-foreground hover:text-destructive" onclick={() => removeCustomer(i)}>
+														<Trash2 class="size-3.5" />
+													</button>
+												{/if}
+											</div>
+										{/if}
+									</div>
+								{/each}
+							</div>
+						</div>
+					{/if}
+
+					<!-- Import button -->
+					{#if streamComplete}
+						<DialogFooter class="gap-2">
+							<Button variant="outline" onclick={reset}>Start Over</Button>
+							<Button onclick={confirmImport} disabled={totalExtracted === 0}>
+								Import {totalExtracted} records
+							</Button>
+						</DialogFooter>
+					{/if}
+				</div>
+			{/if}
+
+		<!-- ═══ SAVING ═══ -->
+		{:else if phase === 'saving'}
+			<div class="flex flex-col items-center gap-3 py-8">
+				<Loader2 class="size-8 animate-spin text-primary" />
+				<p class="text-sm text-muted-foreground">Creating records...</p>
+			</div>
+
+		<!-- ═══ DONE ═══ -->
+		{:else if phase === 'done'}
+			<div class="flex flex-col items-center gap-3 py-8">
+				<div class="size-12 rounded-full bg-green-500/10 flex items-center justify-center">
+					<Check class="size-6 text-green-500" />
+				</div>
+				<p class="text-sm font-medium">Import complete!</p>
+				<div class="text-sm text-muted-foreground text-center space-y-0.5">
+					{#if summary.parties > 0}<p>Created {summary.parties} suppliers/parties</p>{/if}
+					{#if summary.products > 0}<p>Created {summary.products} products</p>{/if}
+					{#if summary.customers > 0}<p>Created {summary.customers} customers</p>{/if}
+				</div>
+			</div>
+			<DialogFooter>
+				<Button onclick={handleClose}>Done</Button>
+			</DialogFooter>
+
+		<!-- ═══ ERROR ═══ -->
+		{:else if phase === 'error'}
+			<div class="flex flex-col items-center gap-3 py-8">
+				<div class="size-12 rounded-full bg-destructive/10 flex items-center justify-center">
+					<X class="size-6 text-destructive" />
+				</div>
+				<p class="text-sm font-medium text-destructive">Something went wrong</p>
+				<p class="text-sm text-muted-foreground text-center max-w-md">{errorMessage}</p>
+			</div>
+			<DialogFooter>
+				<Button variant="outline" onclick={reset}>Try again</Button>
+			</DialogFooter>
+		{/if}
+	</DialogContent>
+</Dialog>
+
+<style>
+	@keyframes rowSlideIn {
+		from {
+			opacity: 0;
+			transform: translateY(-8px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	:global(.row-enter) {
+		animation: rowSlideIn 0.2s ease-out;
+	}
+
+	.preview-panel {
+		animation: expandIn 0.3s ease-out;
+	}
+
+	@keyframes expandIn {
+		from {
+			opacity: 0;
+			max-height: 0;
+		}
+		to {
+			opacity: 1;
+			max-height: 2000px;
+		}
+	}
+
+</style>

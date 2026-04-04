@@ -25,14 +25,14 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			updatePayload.name = name.trim()
 		}
 
-		// Build metadata from provided fields
-		const metadata: Record<string, unknown> = {}
-		if (location !== undefined) metadata.location = location?.trim() || ''
-		if (phone !== undefined) metadata.phone = phone?.trim() || ''
-		if (panNumber !== undefined) metadata.panNumber = panNumber?.trim() || ''
-		if (businessType !== undefined) metadata.businessType = businessType
-		if (currency !== undefined) metadata.currency = currency
-		if (taxRate !== undefined) metadata.taxRate = taxRate
+		// Build metadata — WorkOS requires all values to be strings
+		const metadata: Record<string, string> = {}
+		if (location !== undefined) metadata.location = String(location?.trim?.() ?? '')
+		if (phone !== undefined) metadata.phone = String(phone?.trim?.() ?? '')
+		if (panNumber !== undefined) metadata.panNumber = String(panNumber?.trim?.() ?? '')
+		if (businessType !== undefined) metadata.businessType = String(businessType)
+		if (currency !== undefined) metadata.currency = String(currency)
+		if (taxRate !== undefined) metadata.taxRate = String(taxRate)
 
 		if (Object.keys(metadata).length > 0) {
 			// Merge with existing metadata to avoid overwriting unrelated keys

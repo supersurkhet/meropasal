@@ -4,7 +4,7 @@
 	import CurrencyInput from './CurrencyInput.svelte';
 	import UnitSelector from './UnitSelector.svelte';
 	import { formatNPR, formatNumber } from '$lib/currency';
-	import { deriveUnitPrice } from '$lib/unit-price';
+	import { deriveUnitPrice, formatUnit } from '$lib/unit-price';
 	import { Trash2, Save, Loader2 } from '@lucide/svelte';
 	import type { Snippet } from 'svelte';
 	import { tick } from 'svelte';
@@ -276,7 +276,7 @@
 
 					<!-- Unit -->
 					{#if readonly}
-						<span class="flex items-center justify-center {vb} px-2 text-sm text-zinc-500">{item.unit}</span>
+						<span class="flex items-center justify-center {vb} px-2 text-sm text-zinc-500">{formatUnit(item.unit)}</span>
 					{:else}
 						<div class="flex items-stretch {vb}">
 							<UnitSelector

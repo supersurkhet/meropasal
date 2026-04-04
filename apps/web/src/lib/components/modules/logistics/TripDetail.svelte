@@ -13,6 +13,7 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Separator } from '$lib/components/ui/separator';
 	import { formatNPR, formatNumber } from '$lib/currency';
+	import { formatUnit } from '$lib/unit-price';
 	import {
 		Truck,
 		MapPin,
@@ -249,7 +250,7 @@
 						<TableRow class="border-zinc-100 dark:border-zinc-800">
 							<TableCell class="font-medium text-zinc-900 dark:text-zinc-100">{product.productTitle}</TableCell>
 							<TableCell class="text-center font-mono">{product.quantity}</TableCell>
-							<TableCell class="text-zinc-500">{product.unit || t('unit_piece')}</TableCell>
+							<TableCell class="text-zinc-500">{product.unit ? formatUnit(product.unit) : t('unit_piece')}</TableCell>
 							<TableCell class="text-right font-mono">{formatNumber(product.unitPrice)}</TableCell>
 							<TableCell class="text-right font-mono font-medium">{formatNumber(product.quantity * product.unitPrice)}</TableCell>
 						</TableRow>

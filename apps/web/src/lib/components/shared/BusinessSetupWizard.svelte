@@ -224,8 +224,7 @@
 								type="text"
 								bind:value={businessName}
 								placeholder="e.g. Sharma General Store"
-								class="h-11 w-full rounded-lg border bg-white pl-10 pr-4 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500
-									{errors.businessName
+								class="h-11 w-full rounded-lg border bg-white pl-10 pr-4 text-sm text-zinc-900 placeholder:text-muted-foreground focus:outline-none focus:ring-2 dark:bg-zinc-950 dark:text-zinc-100									{errors.businessName
 										? 'border-red-400 focus:border-red-400 focus:ring-red-400/30 dark:border-red-400'
 										: 'border-zinc-200 focus:border-zinc-400 focus:ring-zinc-900/10 dark:border-zinc-800 dark:focus:border-zinc-600 dark:focus:ring-zinc-100/10'}"
 							/>
@@ -272,7 +271,7 @@
 								type="text"
 								bind:value={location}
 								placeholder="e.g. Birendranagar, Surkhet"
-								class="h-11 w-full rounded-lg border border-zinc-200 bg-white pl-10 pr-4 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-600 dark:focus:ring-zinc-100/10"
+								class="h-11 w-full rounded-lg border border-zinc-200 bg-white pl-10 pr-4 text-sm text-zinc-900 placeholder:text-muted-foreground focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 dark:focus:border-zinc-600 dark:focus:ring-zinc-100/10"
 							/>
 						</div>
 					</div>
@@ -288,8 +287,7 @@
 								type="tel"
 								bind:value={phone}
 								placeholder="e.g. 9841234567 or 083-520123"
-								class="h-11 w-full rounded-lg border bg-white pl-10 pr-4 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500
-									{errors.phone
+								class="h-11 w-full rounded-lg border bg-white pl-10 pr-4 text-sm text-zinc-900 placeholder:text-muted-foreground focus:outline-none focus:ring-2 dark:bg-zinc-950 dark:text-zinc-100									{errors.phone
 										? 'border-red-400 focus:border-red-400 focus:ring-red-400/30 dark:border-red-400'
 										: 'border-zinc-200 focus:border-zinc-400 focus:ring-zinc-900/10 dark:border-zinc-800 dark:focus:border-zinc-600 dark:focus:ring-zinc-100/10'}"
 							/>
@@ -310,8 +308,7 @@
 								type="text"
 								bind:value={panNumber}
 								placeholder="e.g. 123456789"
-								class="h-11 w-full rounded-lg border bg-white pl-10 pr-4 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500
-									{errors.panNumber
+								class="h-11 w-full rounded-lg border bg-white pl-10 pr-4 text-sm text-zinc-900 placeholder:text-muted-foreground focus:outline-none focus:ring-2 dark:bg-zinc-950 dark:text-zinc-100									{errors.panNumber
 										? 'border-red-400 focus:border-red-400 focus:ring-red-400/30 dark:border-red-400'
 										: 'border-zinc-200 focus:border-zinc-400 focus:ring-zinc-900/10 dark:border-zinc-800 dark:focus:border-zinc-600 dark:focus:ring-zinc-100/10'}"
 							/>
@@ -336,8 +333,7 @@
 								type="text"
 								bind:value={currentFiscalYear}
 								placeholder="e.g. 82/83"
-								class="h-11 w-full rounded-lg border bg-white pl-10 pr-4 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500
-									{errors.currentFiscalYear
+								class="h-11 w-full rounded-lg border bg-white pl-10 pr-4 text-sm text-zinc-900 placeholder:text-muted-foreground focus:outline-none focus:ring-2 dark:bg-zinc-950 dark:text-zinc-100									{errors.currentFiscalYear
 										? 'border-red-400 focus:border-red-400 focus:ring-red-400/30 dark:border-red-400'
 										: 'border-zinc-200 focus:border-zinc-400 focus:ring-zinc-900/10 dark:border-zinc-800 dark:focus:border-zinc-600 dark:focus:ring-zinc-100/10'}"
 							/>

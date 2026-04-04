@@ -61,5 +61,6 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 		workosOrgName,
 		orgMetadata,
 		userOrgs,
+		impersonator: locals.impersonator,
 	}
 }

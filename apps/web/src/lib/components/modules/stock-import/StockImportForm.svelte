@@ -82,6 +82,51 @@
 		partyId ? allProducts.filter((p) => p.purchasePartyId === partyId) : allProducts,
 	);
 
+	/** Receive scanned line items from AI Scanner */
+	export function addScannedItems(scannedItems: any[], partyName?: string) {
+		// Auto-select supplier if provided
+		if (partyName && !partyId) {
+			const match = parties.find((p) => p.name.toLowerCase().includes(partyName.toLowerCase()) || partyName.toLowerCase().includes(p.name.toLowerCase()))
+			if (match) partyId = match._id
+		}
+
+		// Match scanned items to existing products and add as line items
+		const newItems: LineItem[] = scannedItems.map((si) => {
+			const product = allProducts.find((p) => p.title.toLowerCase() === si.productTitle.toLowerCase())
+			if (product) {
+				const units = getAvailableUnits(product.unit)
+				const defaultUnit = units[0] || 'piece'
+				return {
+					id: genId(),
+					productId: product._id,
+					productTitle: product.title,
+					quantity: si.quantity || 1,
+					unitStr: product.unit || '',
+					unit: defaultUnit,
+					rate: si.rate || Math.round(deriveUnitPrice(product.costPrice, product.unit, defaultUnit) * 100) / 100,
+				}
+			}
+			// Product not found — add with title only (user can select manually)
+			return {
+				id: genId(),
+				productId: '',
+				productTitle: si.productTitle,
+				quantity: si.quantity || 1,
+				unitStr: si.unitStr || '',
+				unit: si.unit || 'piece',
+				rate: si.rate || 0,
+			}
+		})
+
+		// Replace empty rows at the start, or append
+		const filledCount = items.filter((i) => i.productId).length
+		if (filledCount === 0) {
+			items = [...newItems, ...Array.from({ length: 3 }, () => ({ id: genId(), productId: '', productTitle: '', quantity: 1, unit: '', unitStr: '', rate: 0 }))]
+		} else {
+			items = [...items.filter((i) => i.productId), ...newItems, ...Array.from({ length: 3 }, () => ({ id: genId(), productId: '', productTitle: '', quantity: 1, unit: '', unitStr: '', rate: 0 }))]
+		}
+	}
+
 	let nextId = 0;
 	function genId() {
 		return `item-${++nextId}-${Date.now()}`;

@@ -1,1 +1,1 @@
-{}
+{"default":{"identifier":"default","description":"Default capabilities for MeroPasal desktop","remote":{"urls":["https://*.surkhet.app","https://*.meropasal.app","http://localhost:*"]},"local":true,"windows":["main"],"permissions":["core:default","shell:allow-open","core:event:default","core:event:allow-listen","core:event:allow-emit","dialog:default","fs:default","clipboard-manager:default","updater:default","process:allow-restart"]}}

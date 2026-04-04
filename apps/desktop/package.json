@@ -1,6 +1,6 @@
 {
   "name": "@meropasal/desktop",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "dev": "tauri dev",
@@ -11,6 +11,11 @@
     "@tauri-apps/cli": "^2.5.0"
   },
   "dependencies": {
-    "@tauri-apps/api": "^2.5.0"
+    "@tauri-apps/api": "^2.5.0",
+    "@tauri-apps/plugin-dialog": "^2.6.0",
+    "@tauri-apps/plugin-fs": "^2.4.5",
+    "@tauri-apps/plugin-updater": "^2.0.0",
+    "@tauri-apps/plugin-process": "^2.0.0",
+    "mammoth": "^1.12.0"
   }
 }

@@ -52,13 +52,13 @@
 </script>
 
 <div class="relative {className}">
-	<span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+	<span class="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
 		Rs.
 	</span>
 	<Input
 		type="text"
 		inputmode="decimal"
-		class="pl-9 text-right tabular-nums"
+		class="pl-7 text-right tabular-nums"
 		{placeholder}
 		{disabled}
 		value={displayValue}

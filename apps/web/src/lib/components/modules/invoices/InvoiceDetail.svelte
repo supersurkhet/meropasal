@@ -3,6 +3,7 @@
 	import { useConvexQuery } from '$lib/convex-helpers.svelte';
 	import { api } from '$lib/api';
 	import { formatNPR } from '$lib/currency';
+	import { formatUnit } from '$lib/unit-price';
 	import * as Table from '$lib/components/ui/table';
 	import { Button } from '$lib/components/ui/button';
 	import { Separator } from '$lib/components/ui/separator';
@@ -299,7 +300,7 @@
 								<Table.Cell class="text-zinc-500">{i + 1}</Table.Cell>
 								<Table.Cell class="font-medium">{item.productTitle}</Table.Cell>
 								<Table.Cell class="text-center tabular-nums">{item.quantity}</Table.Cell>
-								<Table.Cell class="text-center text-zinc-500">{item.unit || '—'}</Table.Cell>
+								<Table.Cell class="text-center text-zinc-500">{item.unit ? formatUnit(item.unit) : '—'}</Table.Cell>
 								<Table.Cell class="text-right tabular-nums">{formatNPR(item.rate)}</Table.Cell>
 								<Table.Cell class="text-right font-medium tabular-nums">{formatNPR(item.total)}</Table.Cell>
 							</Table.Row>

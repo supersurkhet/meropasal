@@ -12,13 +12,16 @@
 	import { formatDate } from '$lib/date-utils'
 	import { createViewPreference } from '$lib/view-preference.svelte'
 	import { breadcrumbViewToggle } from '$lib/breadcrumb-view-toggle.svelte'
-
+	import { createStaggeredSkeletons } from '$lib/staggered-skeleton.svelte'
+	import { get } from 'svelte/store'
+	import { createVirtualizer, chunkItems, rowCount, useBreakpointLanes } from '$lib/virtual-list.svelte'
 	type InvoiceType = 'purchase' | 'sale'
 	type PaymentStatusFilter = 'pending' | 'paid' | 'partial' | 'overpaid'
 
 	let typeFilter = $state<InvoiceType | undefined>(undefined)
 	let fiscalYearFilter = $state<string | undefined>(undefined)
 	let paymentStatusFilter = $state<PaymentStatusFilter | undefined>(undefined)
+	const skeletons = createStaggeredSkeletons()
 
 	const viewPref = createViewPreference('invoices')
 
@@ -93,17 +96,32 @@
 		return years
 	})
 
-	const gridClass = $derived.by(() => {
-		switch (viewPref.mode) {
-			case 'grid-3':
-				return 'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'
-			case 'grid-2':
-				return 'grid grid-cols-1 gap-4 md:grid-cols-2'
-			case 'list':
-				return 'flex flex-col gap-2'
-			default:
-				return ''
-		}
+	type InvoiceDoc = NonNullable<typeof invoices.data>[number]
+	const filteredInvoices = $derived((invoices.data ?? []) as InvoiceDoc[])
+
+	// Virtualization
+	const getLanes = useBreakpointLanes(() => viewPref.mode)
+
+	const virtualizer = createVirtualizer({
+		count: 0,
+		getScrollElement: () => document.getElementById('main-content'),
+		estimateSize: () => 49,
+		overscan: 5,
+	})
+
+	$effect(() => {
+		const items = filteredInvoices
+		const l = getLanes()
+		const mode = viewPref.mode
+		const isGrid = mode.startsWith('grid')
+		const est = isGrid ? 180 : mode === 'list' ? 56 : 49
+
+		get(virtualizer).setOptions({
+			count: isGrid ? rowCount(items.length, l) : items.length,
+			getScrollElement: () => document.getElementById('main-content'),
+			estimateSize: () => est,
+			overscan: 5,
+		})
 	})
 </script>
 
@@ -160,7 +178,221 @@
 			actionHref="/stock-import/new"
 		/>
 	{:else}
-		{#if viewPref.mode === 'table'}
+		{#if viewPref.mode === 'grid-3'}
+			{#if invoices.isLoading}
+				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+					{#each Array(skeletons.count) as _, i}
+						<div class="skeleton-stagger block rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+							<div class="flex items-start justify-between gap-2">
+								<div class="min-w-0 flex-1">
+									<Skeleton class="h-4 w-24" />
+									<Skeleton class="mt-1 h-4 w-32" />
+								</div>
+								<Skeleton class="h-5 w-16 rounded-full" />
+							</div>
+							<div class="mt-3 flex items-end justify-between gap-2">
+								<div>
+									<Skeleton class="h-6 w-24" />
+									<Skeleton class="mt-0.5 h-3 w-20" />
+								</div>
+								<Skeleton class="h-5 w-16 rounded-full" />
+							</div>
+						</div>
+					{/each}
+				</div>
+			{:else}
+				{@const vItems = $virtualizer.getVirtualItems()}
+				{@const chunks = chunkItems(filteredInvoices, getLanes())}
+				{@const padTop = vItems.length > 0 ? vItems[0].start : 0}
+				{@const padBottom = vItems.length > 0 ? $virtualizer.getTotalSize() - vItems[vItems.length - 1].end : 0}
+				<div style="padding-top:{padTop}px;padding-bottom:{padBottom}px;">
+					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+						{#each vItems as vRow (vRow.key)}
+							{#each chunks[vRow.index] as invoice (invoice._id)}
+									<a
+										href="/invoices/{invoice._id}"
+										class="block rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950"
+									>
+										<div class="flex items-start justify-between gap-2">
+											<div class="min-w-0 flex-1">
+												<p class="truncate font-mono text-sm text-zinc-900 dark:text-zinc-100">
+													{invoice.invoiceNumber || '—'}
+												</p>
+												<p class="mt-1 truncate text-sm text-zinc-600 dark:text-zinc-400">
+													{resolvePartyName(invoice.partyId, invoice.partyType)}
+												</p>
+											</div>
+											<span
+												class="inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-medium {typeBadgeClass(invoice.type)}"
+											>
+												{typeLabel(invoice.type)}
+											</span>
+										</div>
+
+										<div class="mt-3 flex items-end justify-between gap-2">
+											<div>
+												<p class="text-lg font-bold tabular-nums text-zinc-900 dark:text-zinc-100">
+													{formatNPR(invoice.totalAmount)}
+												</p>
+												<p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-500">
+													{formatDate(invoice.issuedAt)}
+												</p>
+											</div>
+											<span
+												class="inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize {statusBadgeClass(invoice.paymentStatus)}"
+											>
+												{t(`status_${invoice.paymentStatus}`)}
+											</span>
+										</div>
+									</a>
+							{/each}
+						{/each}
+					</div>
+				</div>
+			{/if}
+		{:else if viewPref.mode === 'grid-2'}
+			{#if invoices.isLoading}
+				<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+					{#each Array(skeletons.count) as _, i}
+						<div class="skeleton-stagger block rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+							<div class="flex items-start justify-between gap-2">
+								<div class="min-w-0 flex-1">
+									<Skeleton class="h-4 w-24" />
+									<Skeleton class="mt-1 h-4 w-32" />
+								</div>
+								<Skeleton class="h-5 w-16 rounded-full" />
+							</div>
+							<div class="mt-3 flex items-end justify-between gap-2">
+								<div>
+									<Skeleton class="h-6 w-24" />
+									<Skeleton class="mt-0.5 h-3 w-20" />
+								</div>
+								<Skeleton class="h-5 w-16 rounded-full" />
+							</div>
+						</div>
+					{/each}
+				</div>
+			{:else}
+				{@const vItems = $virtualizer.getVirtualItems()}
+				{@const chunks = chunkItems(filteredInvoices, getLanes())}
+				{@const padTop = vItems.length > 0 ? vItems[0].start : 0}
+				{@const padBottom = vItems.length > 0 ? $virtualizer.getTotalSize() - vItems[vItems.length - 1].end : 0}
+				<div style="padding-top:{padTop}px;padding-bottom:{padBottom}px;">
+					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+						{#each vItems as vRow (vRow.key)}
+							{#each chunks[vRow.index] as invoice (invoice._id)}
+									<a
+										href="/invoices/{invoice._id}"
+										class="block rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950"
+									>
+										<div class="flex items-start justify-between gap-2">
+											<div class="min-w-0 flex-1">
+												<p class="truncate font-mono text-sm text-zinc-900 dark:text-zinc-100">
+													{invoice.invoiceNumber || '—'}
+												</p>
+												<p class="mt-1 truncate text-sm text-zinc-600 dark:text-zinc-400">
+													{resolvePartyName(invoice.partyId, invoice.partyType)}
+												</p>
+											</div>
+											<span
+												class="inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-medium {typeBadgeClass(invoice.type)}"
+											>
+												{typeLabel(invoice.type)}
+											</span>
+										</div>
+
+										<div class="mt-3 flex items-end justify-between gap-2">
+											<div>
+												<p class="text-lg font-bold tabular-nums text-zinc-900 dark:text-zinc-100">
+													{formatNPR(invoice.totalAmount)}
+												</p>
+												<p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-500">
+													{formatDate(invoice.issuedAt)}
+												</p>
+											</div>
+											<span
+												class="inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize {statusBadgeClass(invoice.paymentStatus)}"
+											>
+												{t(`status_${invoice.paymentStatus}`)}
+											</span>
+										</div>
+									</a>
+							{/each}
+						{/each}
+					</div>
+				</div>
+			{/if}
+		{:else if viewPref.mode === 'list'}
+			{#if invoices.isLoading}
+				<div class="flex flex-col gap-2">
+					{#each Array(skeletons.count) as _, i}
+						<div class="skeleton-stagger block rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+							<div class="flex items-start justify-between gap-2">
+								<div class="min-w-0 flex-1">
+									<Skeleton class="h-4 w-24" />
+									<Skeleton class="mt-1 h-4 w-32" />
+								</div>
+								<Skeleton class="h-5 w-16 rounded-full" />
+							</div>
+							<div class="mt-3 flex items-end justify-between gap-2">
+								<div>
+									<Skeleton class="h-6 w-24" />
+									<Skeleton class="mt-0.5 h-3 w-20" />
+								</div>
+								<Skeleton class="h-5 w-16 rounded-full" />
+							</div>
+						</div>
+					{/each}
+				</div>
+			{:else}
+				{@const vItems = $virtualizer.getVirtualItems()}
+				{@const padTop = vItems.length > 0 ? vItems[0].start : 0}
+				{@const padBottom = vItems.length > 0 ? $virtualizer.getTotalSize() - vItems[vItems.length - 1].end : 0}
+				<div style="padding-top:{padTop}px;padding-bottom:{padBottom}px;">
+					<div class="flex flex-col gap-2">
+						{#each vItems as vRow (vRow.key)}
+						{@const invoice = filteredInvoices[vRow.index]}
+							<a
+								href="/invoices/{invoice._id}"
+								class="block rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950"
+							>
+								<div class="flex items-start justify-between gap-2">
+									<div class="min-w-0 flex-1">
+										<p class="truncate font-mono text-sm text-zinc-900 dark:text-zinc-100">
+											{invoice.invoiceNumber || '—'}
+										</p>
+										<p class="mt-1 truncate text-sm text-zinc-600 dark:text-zinc-400">
+											{resolvePartyName(invoice.partyId, invoice.partyType)}
+										</p>
+									</div>
+									<span
+										class="inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-medium {typeBadgeClass(invoice.type)}"
+									>
+										{typeLabel(invoice.type)}
+									</span>
+								</div>
+
+								<div class="mt-3 flex items-end justify-between gap-2">
+									<div>
+										<p class="text-lg font-bold tabular-nums text-zinc-900 dark:text-zinc-100">
+											{formatNPR(invoice.totalAmount)}
+										</p>
+										<p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-500">
+											{formatDate(invoice.issuedAt)}
+										</p>
+									</div>
+									<span
+										class="inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize {statusBadgeClass(invoice.paymentStatus)}"
+									>
+										{t(`status_${invoice.paymentStatus}`)}
+									</span>
+								</div>
+							</a>
+						{/each}
+					</div>
+				</div>
+			{/if}
+		{:else}
 			<div class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
 				<Table.Root>
 					<Table.Header>
@@ -175,8 +407,8 @@
 					</Table.Header>
 					<Table.Body>
 						{#if invoices.isLoading}
-							{#each Array(6) as _, i}
-								<Table.Row class="border-zinc-100 dark:border-zinc-800">
+							{#each Array(skeletons.count) as _, i}
+								<Table.Row class="skeleton-stagger border-zinc-100 dark:border-zinc-800">
 									<Table.Cell><Skeleton class="h-4 w-24" /></Table.Cell>
 									<Table.Cell><Skeleton class="h-5 w-16 rounded-full" /></Table.Cell>
 									<Table.Cell><Skeleton class="h-4 w-32" /></Table.Cell>
@@ -186,7 +418,13 @@
 								</Table.Row>
 							{/each}
 						{:else}
-							{#each invoices.data as invoice}
+							{@const vItems = $virtualizer.getVirtualItems()}
+							{@const totalSize = $virtualizer.getTotalSize()}
+							{#if vItems.length > 0}
+								<tr><td colspan="6" style="height:{vItems[0].start}px;padding:0;border:none;"></td></tr>
+							{/if}
+							{#each vItems as vRow (vRow.key)}
+								{@const invoice = filteredInvoices[vRow.index]}
 								<Table.Row
 									class="cursor-pointer transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
 									onclick={() => {
@@ -221,71 +459,12 @@
 									</Table.Cell>
 								</Table.Row>
 							{/each}
+							{#if vItems.length > 0}
+								<tr><td colspan="6" style="height:{totalSize - vItems[vItems.length - 1].end}px;padding:0;border:none;"></td></tr>
+							{/if}
 						{/if}
 					</Table.Body>
 				</Table.Root>
-			</div>
-		{:else}
-			<div class={gridClass}>
-				{#if invoices.isLoading}
-					{#each Array(6) as _}
-						<div class="block rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-							<div class="flex items-start justify-between gap-2">
-								<div class="min-w-0 flex-1">
-									<Skeleton class="h-4 w-24" />
-									<Skeleton class="mt-1 h-4 w-32" />
-								</div>
-								<Skeleton class="h-5 w-16 rounded-full" />
-							</div>
-							<div class="mt-3 flex items-end justify-between gap-2">
-								<div>
-									<Skeleton class="h-6 w-24" />
-									<Skeleton class="mt-0.5 h-3 w-20" />
-								</div>
-								<Skeleton class="h-5 w-16 rounded-full" />
-							</div>
-						</div>
-					{/each}
-				{:else}
-					{#each invoices.data as invoice}
-						<a
-							href="/invoices/{invoice._id}"
-							class="block rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950"
-						>
-							<div class="flex items-start justify-between gap-2">
-								<div class="min-w-0 flex-1">
-									<p class="truncate font-mono text-sm text-zinc-900 dark:text-zinc-100">
-										{invoice.invoiceNumber || '—'}
-									</p>
-									<p class="mt-1 truncate text-sm text-zinc-600 dark:text-zinc-400">
-										{resolvePartyName(invoice.partyId, invoice.partyType)}
-									</p>
-								</div>
-								<span
-									class="inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-medium {typeBadgeClass(invoice.type)}"
-								>
-									{typeLabel(invoice.type)}
-								</span>
-							</div>
-
-							<div class="mt-3 flex items-end justify-between gap-2">
-								<div>
-									<p class="text-lg font-bold tabular-nums text-zinc-900 dark:text-zinc-100">
-										{formatNPR(invoice.totalAmount)}
-									</p>
-									<p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-500">
-										{formatDate(invoice.issuedAt)}
-									</p>
-								</div>
-								<span
-									class="inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize {statusBadgeClass(invoice.paymentStatus)}"
-								>
-									{t(`status_${invoice.paymentStatus}`)}
-								</span>
-							</div>
-						</a>
-					{/each}
-				{/if}
 			</div>
 		{/if}
 	{/if}

@@ -3,6 +3,7 @@
 	import { useConvexQuery } from '$lib/convex-helpers.svelte';
 	import { api } from '$lib/api';
 	import { formatNPR } from '$lib/currency';
+	import { formatUnit } from '$lib/unit-price';
 	import { Button } from '$lib/components/ui/button';
 	import { X, Printer } from '@lucide/svelte';
 	import { formatDate } from '$lib/date-utils';
@@ -196,7 +197,7 @@
 										{:else if col === 'quantity'}
 											<td class="border border-zinc-400 px-2 py-1 text-center">{item.quantity}</td>
 										{:else if col === 'unit'}
-											<td class="border border-zinc-400 px-2 py-1 text-center">{item.unit || '—'}</td>
+											<td class="border border-zinc-400 px-2 py-1 text-center">{item.unit ? formatUnit(item.unit) : '—'}</td>
 										{:else if col === 'rate'}
 											<td class="border border-zinc-400 px-2 py-1 text-right">{formatNPR(item.rate)}</td>
 										{:else if col === 'amount'}

@@ -3,6 +3,7 @@
 	import { useConvexQuery, useConvexMutation } from '$lib/convex-helpers.svelte';
 	import { api } from '$lib/api';
 	import { formatNPR } from '$lib/currency';
+	import { formatUnit } from '$lib/unit-price';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
@@ -453,7 +454,7 @@
 											{#if col === 'sn'}<td class="border border-zinc-300 px-1.5 py-0.5">{i + 1}</td>
 											{:else if col === 'product'}<td class="border border-zinc-300 px-1.5 py-0.5">{item.productTitle}</td>
 											{:else if col === 'quantity'}<td class="border border-zinc-300 px-1.5 py-0.5 text-center">{item.quantity}</td>
-											{:else if col === 'unit'}<td class="border border-zinc-300 px-1.5 py-0.5 text-center">{item.unit}</td>
+											{:else if col === 'unit'}<td class="border border-zinc-300 px-1.5 py-0.5 text-center">{formatUnit(item.unit)}</td>
 											{:else if col === 'rate'}<td class="border border-zinc-300 px-1.5 py-0.5 text-right">{formatNPR(item.rate)}</td>
 											{:else if col === 'amount'}<td class="border border-zinc-300 px-1.5 py-0.5 text-right">{formatNPR(item.total)}</td>
 											{/if}

@@ -18,7 +18,7 @@
 	--color-secondary: oklch(0.994 0 0);
 	--color-secondary-foreground: oklch(0.2046 0 0);
 	--color-muted: oklch(0.9461 0 0);
-	--color-muted-foreground: oklch(0.2435 0 0);
+	--color-muted-foreground: oklch(0.6553 0 0);
 	--color-accent: oklch(0.9461 0 0);
 	--color-accent-foreground: oklch(0.2435 0 0);
 	--color-destructive: oklch(0.5523 0.1927 32.7272);
@@ -151,6 +151,15 @@
 	&:where([data-orientation="vertical"]) {
 		@slot;
 	}
+}
+
+@keyframes skeleton-fade-in {
+	from { opacity: 0; transform: translateY(4px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+
+@utility skeleton-stagger {
+	animation: skeleton-fade-in 0.2s ease-out both;
 }
 
 @utility no-scrollbar {

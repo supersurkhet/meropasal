@@ -180,7 +180,7 @@
 		<a href="/orders/new">
 			<Button
 				size="sm"
-				class="bg-zinc-900 text-white shadow-sm transition-all hover:bg-zinc-800 hover:shadow-md active:scale-[0.98] dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+				class="bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
 			>
 				<Plus class="mr-1.5 size-4" />
 				{t('order_create')}

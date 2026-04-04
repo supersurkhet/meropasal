@@ -1,12 +1,58 @@
 import type { Handle } from '@sveltejs/kit';
 import { workos, COOKIE_NAME, WORKOS_COOKIE_PASSWORD, sessionCookieOptions } from '$lib/server/auth';
 
+function populateLocals(
+	locals: App.Locals,
+	result: { user: any; organizationId?: string; accessToken: string; impersonator?: { email: string; reason: string | null } },
+) {
+	const { user, accessToken, impersonator } = result;
+	locals.user = {
+		id: user.id,
+		email: user.email,
+		firstName: user.firstName,
+		lastName: user.lastName,
+		profilePictureUrl: user.profilePictureUrl,
+	};
+	locals.convexToken = accessToken;
+	locals.impersonator = impersonator ?? null;
+}
+
+async function populateMetadata(locals: App.Locals, userId: string) {
+	try {
+		const freshUser = await workos.userManagement.getUser(userId);
+		locals.isInternalStaff = freshUser.metadata?.isInternalStaff === 'true';
+	} catch {
+		locals.isInternalStaff = false;
+	}
+}
+
+async function resolveOrgId(locals: App.Locals, organizationId: string | undefined, event: Parameters<Handle>[0]['event']) {
+	let resolvedOrgId = organizationId ?? null;
+	if (!resolvedOrgId) {
+		resolvedOrgId = event.cookies.get('wos-org-id') ?? null;
+	}
+	if (!resolvedOrgId) {
+		try {
+			const memberships = await workos.userManagement.listOrganizationMemberships({
+				userId: locals.user!.id,
+			});
+			if (memberships.data.length > 0) {
+				resolvedOrgId = memberships.data[0].organizationId;
+			}
+		} catch {
+			// Membership lookup failed — continue without orgId
+		}
+	}
+	locals.orgId = resolvedOrgId;
+}
+
 export const handle: Handle = async ({ event, resolve }) => {
 	// Default to unauthenticated
 	event.locals.user = null;
 	event.locals.orgId = null;
 	event.locals.convexToken = null;
 	event.locals.isInternalStaff = false;
+	event.locals.impersonator = null;
 
 	const sessionCookie = event.cookies.get(COOKIE_NAME);
 
@@ -17,43 +63,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 		});
 
 		if (result.authenticated) {
-			const { user, organizationId, accessToken } = result;
-
-			event.locals.user = {
-				id: user.id,
-				email: user.email,
-				firstName: user.firstName,
-				lastName: user.lastName,
-				profilePictureUrl: user.profilePictureUrl,
-			};
-			event.locals.convexToken = accessToken;
-
-			// Fetch fresh user data for metadata (sealed session doesn't include metadata updates)
-			try {
-				const freshUser = await workos.userManagement.getUser(user.id);
-				event.locals.isInternalStaff = freshUser.metadata?.isInternalStaff === 'true';
-			} catch {
-				event.locals.isInternalStaff = false;
-			}
-
-			// Get orgId: from session → dedicated cookie → membership fallback
-			let resolvedOrgId = organizationId ?? null;
-			if (!resolvedOrgId) {
-				resolvedOrgId = event.cookies.get('wos-org-id') ?? null;
-			}
-			if (!resolvedOrgId) {
-				try {
-					const memberships = await workos.userManagement.listOrganizationMemberships({
-						userId: user.id,
-					});
-					if (memberships.data.length > 0) {
-						resolvedOrgId = memberships.data[0].organizationId;
-					}
-				} catch {
-					// Membership lookup failed — continue without orgId
-				}
-			}
-			event.locals.orgId = resolvedOrgId;
+			populateLocals(event.locals, result);
+			await populateMetadata(event.locals, result.user.id);
+			await resolveOrgId(event.locals, result.organizationId, event);
 
 			// Refresh the sealed session if WorkOS returned a new one
 			if ('sealedSession' in result && result.sealedSession) {
@@ -79,40 +91,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 					});
 
 					if (freshResult.authenticated) {
-						const { user, organizationId, accessToken } = freshResult;
-						event.locals.user = {
-							id: user.id,
-							email: user.email,
-							firstName: user.firstName,
-							lastName: user.lastName,
-							profilePictureUrl: user.profilePictureUrl,
-						};
-						event.locals.convexToken = accessToken;
-
-						try {
-							const freshUser = await workos.userManagement.getUser(user.id);
-							event.locals.isInternalStaff = freshUser.metadata?.isInternalStaff === 'true';
-						} catch {
-							event.locals.isInternalStaff = false;
-						}
-
-						let resolvedOrgId = organizationId ?? null;
-						if (!resolvedOrgId) {
-							resolvedOrgId = event.cookies.get('wos-org-id') ?? null;
-						}
-						if (!resolvedOrgId) {
-							try {
-								const memberships = await workos.userManagement.listOrganizationMemberships({
-									userId: user.id,
-								});
-								if (memberships.data.length > 0) {
-									resolvedOrgId = memberships.data[0].organizationId;
-								}
-							} catch {
-								// continue without orgId
-							}
-						}
-						event.locals.orgId = resolvedOrgId;
+						populateLocals(event.locals, freshResult);
+						await populateMetadata(event.locals, freshResult.user.id);
+						await resolveOrgId(event.locals, freshResult.organizationId, event);
 					}
 				} else {
 					// Refresh failed — clear session

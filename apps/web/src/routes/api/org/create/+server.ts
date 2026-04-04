@@ -34,7 +34,7 @@ export const POST: RequestHandler = async ({ request, locals, url }) => {
 				phone: phone?.trim() || '',
 				panNumber: panNumber?.trim() || '',
 				currency: 'NPR',
-				taxRate: 13,
+				taxRate: '13',
 			},
 		})
 

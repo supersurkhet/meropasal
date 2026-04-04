@@ -40,6 +40,14 @@ export const getSettings = query({
   },
 });
 
+export const getStorageUrl = query({
+  args: { storageId: v.id("_storage") },
+  handler: async (ctx, { storageId }) => {
+    await requireOrg(ctx);
+    return await ctx.storage.getUrl(storageId);
+  },
+});
+
 export const updateSettings = mutation({
   args: {
     logoStorageId: v.optional(v.id("_storage")),

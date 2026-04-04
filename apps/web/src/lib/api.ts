@@ -39,6 +39,7 @@ export const api = {
 			getSettings: makeFunctionReference<'query'>('functions/organizations:getSettings'),
 			updateSettings: makeFunctionReference<'mutation'>('functions/organizations:updateSettings'),
 			generateUploadUrl: makeFunctionReference<'mutation'>('functions/organizations:generateUploadUrl'),
+			getStorageUrl: makeFunctionReference<'query'>('functions/organizations:getStorageUrl'),
 			deleteOrgData: makeFunctionReference<'mutation'>('functions/organizations:deleteOrgData'),
 			initializeOrg: makeFunctionReference<'mutation'>('functions/organizations:initializeOrg'),
 			savePendingOnboarding: makeFunctionReference<'mutation'>('functions/organizations:savePendingOnboarding'),
@@ -129,5 +130,9 @@ export const api = {
 			returnTrip: makeFunctionReference<'mutation'>('functions/trips:returnTrip'),
 			cancel: makeFunctionReference<'mutation'>('functions/trips:cancel'),
 		},
+	},
+	aiScanner: {
+		scanAndExtract: makeFunctionReference<'action'>('functions/aiScanner:scanAndExtract'),
+		bulkImport: makeFunctionReference<'action'>('functions/aiScanner:bulkImport'),
 	},
 };

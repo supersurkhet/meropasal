@@ -55,19 +55,22 @@ jobs:
       - run: bun install
         working-directory: apps/desktop
 
-      - name: Build Tauri app
-        working-directory: apps/desktop
-        run: bunx tauri build --target ${{ matrix.target }}
-
-      - uses: actions/upload-artifact@v4
+      - name: Build and release Tauri app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
-          name: desktop-${{ matrix.target }}
-          path: |
-            apps/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.dmg
-            apps/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.AppImage
-            apps/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.deb
-            apps/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.msi
-            apps/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.exe
+          projectPath: apps/desktop
+          tauriScript: bunx tauri
+          args: --target ${{ matrix.target }}
+          tagName: ${{ github.ref_name }}
+          releaseName: 'MeroPasal v__VERSION__'
+          releaseBody: 'See the assets to download and install this version.'
+          releaseDraft: false
+          prerelease: false
+          includeUpdaterJson: true
 
   build-tauri-android:
     if: ${{ github.event_name == 'push' || inputs.build_mobile }}
@@ -109,28 +112,8 @@ jobs:
           name: android-apk
           path: apps/desktop/src-tauri/gen/android/app/build/outputs/apk/**/*.apk
 
-  release:
-    needs: [build-tauri-desktop, build-tauri-android]
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-
-      - name: Collect release assets
-        run: |
-          mkdir -p release
-          find artifacts/desktop-* -type f \( -name '*.dmg' -o -name '*.AppImage' -o -name '*.deb' -o -name '*.msi' -o -name '*.exe' \) -exec cp {} release/ \;
-          find artifacts/android-* -type f -name '*.apk' -exec cp {} release/ \;
-          ls -lh release/
-
-      - name: Create GitHub Release
+      - name: Upload APK to release
+        if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          generate_release_notes: true
-          draft: false
-          files: release/*
+          files: apps/desktop/src-tauri/gen/android/app/build/outputs/apk/**/*.apk

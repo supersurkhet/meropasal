@@ -32,10 +32,12 @@
 	import { toast } from 'svelte-sonner'
 	import ConfirmDialog from '$lib/components/shared/ConfirmDialog.svelte'
 	import EmptyState from '$lib/components/shared/EmptyState.svelte'
-	import { createViewPreference } from '$lib/view-preference.svelte'
+	import { createStaggeredSkeletons } from '$lib/staggered-skeleton.svelte'
+import { createViewPreference } from '$lib/view-preference.svelte'
 	import { breadcrumbViewToggle } from '$lib/breadcrumb-view-toggle.svelte'
 	import { t } from '$lib/t.svelte'
-
+	import { get } from 'svelte/store'
+	import { createVirtualizer, chunkItems, rowCount, useBreakpointLanes } from '$lib/virtual-list.svelte'
 	type Customer = {
 		_id: string
 		name: string
@@ -58,6 +60,7 @@
 		ondelete?: (id: string) => Promise<void>
 	} = $props()
 
+	const skeletons = createStaggeredSkeletons()
 	const viewPref = createViewPreference('customers')
 
 	$effect(() => {
@@ -83,6 +86,30 @@
 				c.address?.toLowerCase().includes(searchQuery.toLowerCase())
 		)
 	)
+
+	const getLanes = useBreakpointLanes(() => viewPref.mode)
+
+	const virtualizer = createVirtualizer({
+		count: 0,
+		getScrollElement: () => document.getElementById('main-content'),
+		estimateSize: () => 49,
+		overscan: 5,
+	})
+
+	$effect(() => {
+		const items = filteredCustomers
+		const l = getLanes()
+		const mode = viewPref.mode
+		const isGrid = mode.startsWith('grid')
+		const est = isGrid ? 180 : mode === 'list' ? 56 : 49
+
+		get(virtualizer).setOptions({
+			count: isGrid ? rowCount(items.length, l) : items.length,
+			getScrollElement: () => document.getElementById('main-content'),
+			estimateSize: () => est,
+			overscan: 5,
+		})
+	})
 
 	function requestDelete(id: string) {
 		confirmDeleteId = id
@@ -258,7 +285,7 @@
 		<a href="/customers/new">
 			<Button
 				size="sm"
-				class="bg-zinc-900 text-white shadow-sm transition-all hover:bg-zinc-800 hover:shadow-md active:scale-[0.98] dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+				class="bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
 			>
 				<Plus class="mr-1.5 size-4" />
 				{t('customer_create')}
@@ -299,8 +326,8 @@
 					</TableHeader>
 					<TableBody>
 						{#if isLoading}
-							{#each Array(6) as _, i}
-								<TableRow class="group border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/60">
+							{#each Array(skeletons.count) as _, i}
+								<TableRow class="skeleton-stagger group border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/60">
 									<TableCell>
 										<Skeleton class="h-4 w-32" />
 										<Skeleton class="mt-1 h-3 w-24" />
@@ -321,7 +348,13 @@
 								</TableRow>
 							{/each}
 						{:else}
-							{#each filteredCustomers as customer (customer._id)}
+							{@const vItems = $virtualizer.getVirtualItems()}
+							{@const totalSize = $virtualizer.getTotalSize()}
+							{#if vItems.length > 0}
+								<tr><td colspan="5" style="height:{vItems[0].start}px;padding:0;border:none;"></td></tr>
+							{/if}
+							{#each vItems as vRow (vRow.key)}
+								{@const customer = filteredCustomers[vRow.index]}
 								<TableRow class="group border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/60">
 									<TableCell>
 										<a href="/customers/{customer._id}" class="block">
@@ -373,15 +406,18 @@
 									</TableCell>
 								</TableRow>
 							{/each}
+							{#if vItems.length > 0}
+								<tr><td colspan="5" style="height:{totalSize - vItems[vItems.length - 1].end}px;padding:0;border:none;"></td></tr>
+							{/if}
 						{/if}
 					</TableBody>
 				</Table>
 			</div>
 		{:else if viewPref.mode === 'grid-3'}
-			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-				{#if isLoading}
-					{#each Array(6) as _}
-						<div class="group rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+			{#if isLoading}
+				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+					{#each Array(skeletons.count) as _, i}
+						<div class="skeleton-stagger group rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
 							<div class="flex items-start justify-between gap-3">
 								<div class="min-w-0 flex-1">
 									<Skeleton class="h-5 w-32" />
@@ -399,17 +435,27 @@
 							</div>
 						</div>
 					{/each}
-				{:else}
-					{#each filteredCustomers as customer (customer._id)}
-						{@render customerCard(customer)}
-					{/each}
-				{/if}
-			</div>
+				</div>
+			{:else}
+				{@const vItems = $virtualizer.getVirtualItems()}
+				{@const chunks = chunkItems(filteredCustomers, getLanes())}
+				{@const padTop = vItems.length > 0 ? vItems[0].start : 0}
+				{@const padBottom = vItems.length > 0 ? $virtualizer.getTotalSize() - vItems[vItems.length - 1].end : 0}
+				<div style="padding-top:{padTop}px;padding-bottom:{padBottom}px;">
+					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+						{#each vItems as vRow (vRow.key)}
+							{#each chunks[vRow.index] as item (item._id)}
+									{@render customerCard(item)}
+							{/each}
+						{/each}
+					</div>
+				</div>
+			{/if}
 		{:else if viewPref.mode === 'grid-2'}
-			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-				{#if isLoading}
-					{#each Array(6) as _}
-						<div class="group rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+			{#if isLoading}
+				<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+					{#each Array(skeletons.count) as _, i}
+						<div class="skeleton-stagger group rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
 							<div class="flex items-start justify-between gap-3">
 								<div class="min-w-0 flex-1">
 									<Skeleton class="h-5 w-32" />
@@ -427,17 +473,27 @@
 							</div>
 						</div>
 					{/each}
-				{:else}
-					{#each filteredCustomers as customer (customer._id)}
-						{@render customerCard(customer)}
-					{/each}
-				{/if}
-			</div>
+				</div>
+			{:else}
+				{@const vItems = $virtualizer.getVirtualItems()}
+				{@const chunks = chunkItems(filteredCustomers, getLanes())}
+				{@const padTop = vItems.length > 0 ? vItems[0].start : 0}
+				{@const padBottom = vItems.length > 0 ? $virtualizer.getTotalSize() - vItems[vItems.length - 1].end : 0}
+				<div style="padding-top:{padTop}px;padding-bottom:{padBottom}px;">
+					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+						{#each vItems as vRow (vRow.key)}
+							{#each chunks[vRow.index] as item (item._id)}
+									{@render customerCard(item)}
+							{/each}
+						{/each}
+					</div>
+				</div>
+			{/if}
 		{:else if viewPref.mode === 'list'}
-			<div class="flex flex-col gap-2">
-				{#if isLoading}
-					{#each Array(6) as _}
-						<div class="group flex items-center gap-4 rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+			{#if isLoading}
+				<div class="flex flex-col gap-2">
+					{#each Array(skeletons.count) as _, i}
+						<div class="skeleton-stagger group flex items-center gap-4 rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
 							<div class="min-w-0 flex-1">
 								<div class="flex items-center gap-3">
 									<Skeleton class="h-5 w-32" />
@@ -453,20 +509,20 @@
 							<Skeleton class="size-8 shrink-0 rounded-md" />
 						</div>
 					{/each}
-				{:else}
-					{#each filteredCustomers as customer (customer._id)}
-						{@render customerListItem(customer)}
-					{/each}
-				{/if}
-			</div>
-		{/if}
-		{#if isLoading}
-			<Skeleton class="h-4 w-32" />
-		{:else}
-			<p class="text-xs text-zinc-400 dark:text-zinc-500">
-				{filteredCustomers.length} {filteredCustomers.length === 1 ? 'customer' : 'customers'}
-				{#if searchQuery}&middot; filtered from {customers.length}{/if}
-			</p>
+				</div>
+			{:else}
+				{@const vItems = $virtualizer.getVirtualItems()}
+				{@const padTop = vItems.length > 0 ? vItems[0].start : 0}
+				{@const padBottom = vItems.length > 0 ? $virtualizer.getTotalSize() - vItems[vItems.length - 1].end : 0}
+				<div style="padding-top:{padTop}px;padding-bottom:{padBottom}px;">
+					<div class="flex flex-col gap-2">
+						{#each vItems as vRow (vRow.key)}
+						{@const customer = filteredCustomers[vRow.index]}
+							{@render customerListItem(customer)}
+						{/each}
+					</div>
+				</div>
+			{/if}
 		{/if}
 	{/if}
 </div>
