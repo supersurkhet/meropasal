@@ -313,7 +313,7 @@ export const bulkCreateProducts = internalMutation({
 		})
 
 		let createdCount = 0
-		const createdIds: string[] = []
+		const createdTitles = new Set<string>()
 
 		for (const product of validProducts) {
 			// Barcode match
@@ -323,7 +323,7 @@ export const bulkCreateProducts = internalMutation({
 			// Normalized title match
 			if (activeExisting.some((p) => namesMatch(p.title, product.title))) continue
 			// Batch dedup
-			if (createdIds.length > 0 && createdIds.some((_, idx) => namesMatch(products[idx]?.title ?? '', product.title))) continue
+			if (createdTitles.has(normalizeName(product.title))) continue
 
 			const sellingPrice =
 				product.sellingPrice ??
@@ -367,12 +367,12 @@ export const bulkCreateProducts = internalMutation({
 				})
 			}
 
-			createdIds.push(id)
+			createdTitles.add(normalizeName(product.title))
 			activeExisting.push({ ...product, _id: id, title: product.title, isActive: true } as any)
 			createdCount++
 		}
 
-		return { createdCount, createdIds }
+		return { createdCount }
 	},
 })
 

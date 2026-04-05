@@ -365,9 +365,9 @@
 			return {
 				...p,
 				purchasePartyId: p.purchasePartyId || resolvePartyId(p.supplierRef, p.supplierName),
-				sellingPrice: p.sellingPrice || Math.round((Number(p.costPrice) || 0) * 1.1 * 100) / 100,
+				sellingPrice: p.sellingPrice ?? Math.round((Number(p.costPrice) || 0) * 1.1 * 100) / 100,
 				category: p.category || '',
-				_sellingPriceManual: !!p.sellingPrice,
+				_sellingPriceManual: p.sellingPrice !== undefined && p.sellingPrice !== null,
 				_existingId: existing?._id ?? null,
 				_existingTitle: existing?.title ?? null,
 			}

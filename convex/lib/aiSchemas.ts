@@ -7,7 +7,7 @@ import { z } from 'zod'
 
 // ── Party (supplier) ────────────────────────────────────────
 export const extractedPartySchema = z.object({
-	_ref: z.string().describe('Short unique key for this party in this extraction (e.g. "ab_suppliers"). Products reference this via supplierRef.'),
+	_ref: z.string().optional().describe('Short unique key for this party in this extraction (e.g. "ab_suppliers"). Products reference this via supplierRef.'),
 	name: z.string().describe('Supplier/party/vendor name'),
 	panNumber: z.string().optional().describe('PAN or VAT number if visible'),
 	address: z.string().optional().describe('Address if visible'),
