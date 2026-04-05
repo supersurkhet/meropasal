@@ -217,6 +217,17 @@ export class GeminiLiveSession {
 						silenceDurationMs: 140,
 					},
 				},
+				tools: [
+					{
+						functionDeclarations: [
+							{
+								name: 'extract_business_data',
+								description: 'Extract structured business data (suppliers, products, customers) from the user dictation',
+								parameters: EXTRACTION_TOOL_SCHEMA,
+							},
+						],
+					},
+				],
 				systemInstruction: {
 					parts: [{ text: SYSTEM_INSTRUCTION }],
 				},
