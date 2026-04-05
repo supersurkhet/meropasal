@@ -24,8 +24,12 @@ function namesMatch(a: string, b: string): boolean {
 	const na = normalizeName(a)
 	const nb = normalizeName(b)
 	if (na === nb) return true
-	if (na.length > 2 && nb.length > 2) {
-		if (na.includes(nb) || nb.includes(na)) return true
+	if (na.length >= 4 && nb.length >= 4) {
+		const wordsA = na.split(' ')
+		const wordsB = nb.split(' ')
+		const shorter = wordsA.length <= wordsB.length ? wordsA : wordsB
+		const longer = wordsA.length <= wordsB.length ? wordsB : wordsA
+		if (shorter.length > 0 && shorter.every((w, i) => longer[i] === w)) return true
 	}
 	return false
 }
@@ -169,6 +173,7 @@ export const bulkCreateParties = internalMutation({
 				phone: v.optional(v.string()),
 				creditLimit: v.optional(v.number()),
 				paymentTerms: v.optional(v.string()),
+				_ref: v.optional(v.string()),
 			})
 		),
 	},
@@ -188,45 +193,73 @@ export const bulkCreateParties = internalMutation({
 			.collect()
 		const activeExisting = existing.filter((p) => p.isActive)
 
+		// Sanitize party data — strip invalid phone/PAN rather than rejecting
+		const sanitizedParties = parties.map((p) => ({
+			...p,
+			name: p.name.trim(),
+			phone: p.phone && /^(9[6-9]\d{8}|0\d{1,2}-?\d{6,7})$/.test(p.phone) ? p.phone : undefined,
+			panNumber: p.panNumber && /^\d{9}$/.test(p.panNumber) ? p.panNumber : undefined,
+			creditLimit: p.creditLimit !== undefined && Number.isFinite(p.creditLimit) && p.creditLimit >= 0 ? p.creditLimit : undefined,
+		}))
+
 		const nameToId: Record<string, string> = {}
+		const refToId: Record<string, string> = {}
 		let createdCount = 0
 
-		for (const party of parties) {
+		for (const party of sanitizedParties) {
+			if (!party.name) continue
 			// 1. PAN match first (most reliable)
 			const panMatch = party.panNumber
 				? activeExisting.find((p) => p.panNumber && p.panNumber === party.panNumber)
 				: null
 			if (panMatch) {
 				nameToId[party.name] = panMatch._id
+				if (party._ref) refToId[party._ref] = panMatch._id
 				continue
 			}
 
 			// 2. Normalized name match
 			const nameMatch = activeExisting.find((p) => namesMatch(p.name, party.name))
 			if (nameMatch) {
-				nameToId[party.name] = nameMatch._id
-				continue
+				// If both have addresses and they differ → different entities
+				if (party.address && nameMatch.address &&
+					normalizeName(party.address) !== normalizeName(nameMatch.address)) {
+					// Fall through to create as separate entity
+				} else {
+					nameToId[party.name] = nameMatch._id
+					if (party._ref) refToId[party._ref] = nameMatch._id
+					// Merge missing fields into existing
+					const patches: Record<string, string> = {}
+					if (party.address && !nameMatch.address) patches.address = party.address
+					if (party.phone && !nameMatch.phone) patches.phone = party.phone
+					if (party.panNumber && !nameMatch.panNumber) patches.panNumber = party.panNumber
+					if (Object.keys(patches).length > 0) await ctx.db.patch(nameMatch._id, patches)
+					continue
+				}
 			}
 
 			// 3. Also check within this batch (avoid creating "A & B" and "A and B" separately)
 			const batchDupe = Object.keys(nameToId).find((k) => namesMatch(k, party.name))
 			if (batchDupe) {
 				nameToId[party.name] = nameToId[batchDupe]
+				if (party._ref) refToId[party._ref] = nameToId[batchDupe]
 				continue
 			}
 
 			// 4. Create new
+			const { _ref, ...partyData } = party
 			const id = await ctx.db.insert('parties', {
 				orgId,
-				...party,
+				...partyData,
 				isActive: true,
 			})
 			nameToId[party.name] = id
-			activeExisting.push({ ...party, _id: id, orgId, isActive: true } as any)
+			if (party._ref) refToId[party._ref] = id
+			activeExisting.push({ ...partyData, _id: id, orgId, isActive: true } as any)
 			createdCount++
 		}
 
-		return { nameToId, createdCount }
+		return { nameToId, refToId, createdCount }
 	},
 })
 
@@ -270,10 +303,19 @@ export const bulkCreateProducts = internalMutation({
 			.collect()
 		const activeExisting = existing.filter((p) => p.isActive)
 
+		// Sanitize and validate product data
+		const validProducts = products.filter((p) => {
+			if (!p.title?.trim()) return false
+			if (!Number.isFinite(p.costPrice) || p.costPrice <= 0) return false
+			if (!Number.isFinite(p.openingStock) || p.openingStock < 0) return false
+			if (p.sellingPrice !== undefined && (!Number.isFinite(p.sellingPrice) || p.sellingPrice <= 0)) return false
+			return true
+		})
+
 		let createdCount = 0
 		const createdIds: string[] = []
 
-		for (const product of products) {
+		for (const product of validProducts) {
 			// Barcode match
 			if (product.barcode && activeExisting.some((p) => p.barcode && p.barcode === product.barcode)) continue
 			// SKU match
@@ -326,7 +368,7 @@ export const bulkCreateProducts = internalMutation({
 			}
 
 			createdIds.push(id)
-			existingTitles.add(product.title.toLowerCase())
+			activeExisting.push({ ...product, _id: id, title: product.title, isActive: true } as any)
 			createdCount++
 		}
 
@@ -362,9 +404,20 @@ export const bulkCreateCustomers = internalMutation({
 			.collect()
 		const activeExisting = existing.filter((c) => c.isActive)
 
+		// Sanitize customer data — strip invalid fields rather than rejecting
+		const sanitizedCustomers = customers.map((c) => ({
+			...c,
+			name: c.name.trim(),
+			phone: c.phone && /^(9[6-9]\d{8}|0\d{1,2}-?\d{6,7})$/.test(c.phone) ? c.phone : undefined,
+			panNumber: c.panNumber && /^\d{9}$/.test(c.panNumber) ? c.panNumber : undefined,
+			email: c.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.email) ? c.email : undefined,
+			creditLimit: c.creditLimit !== undefined && Number.isFinite(c.creditLimit) && c.creditLimit >= 0 ? c.creditLimit : undefined,
+		}))
+
 		let createdCount = 0
 
-		for (const customer of customers) {
+		for (const customer of sanitizedCustomers) {
+			if (!customer.name) continue
 			// PAN match
 			if (customer.panNumber && activeExisting.some((c) => c.panNumber && c.panNumber === customer.panNumber)) continue
 			// Phone match (last 10 digits)
@@ -406,12 +459,14 @@ export const bulkImport = action({
 				phone: v.optional(v.string()),
 				creditLimit: v.optional(v.number()),
 				paymentTerms: v.optional(v.string()),
+				_ref: v.optional(v.string()),
 			})
 		),
 		products: v.array(
 			v.object({
 				title: v.string(),
 				supplierName: v.optional(v.string()),
+				supplierRef: v.optional(v.string()),
 				costPrice: v.number(),
 				openingStock: v.number(),
 				sellingPrice: v.optional(v.number()),
@@ -453,26 +508,33 @@ export const bulkImport = action({
 
 		// 2. Create parties
 		let nameToId: Record<string, string> = {}
+		let refToId: Record<string, string> = {}
 		if (allParties.length > 0) {
 			const result = await ctx.runMutation(
 				internal.functions.aiScanner.bulkCreateParties,
 				{ parties: allParties }
 			)
 			nameToId = result.nameToId
+			refToId = result.refToId ?? {}
 			summary.parties = result.createdCount
 		}
 
 		// 3. Create products — resolve supplierName to partyId
 		if (args.products.length > 0) {
 			const resolvedProducts = args.products.map((p) => {
-				const partyId = p.supplierName
-					? nameToId[p.supplierName] ??
-						// Normalized name fallback (handles &/and, suffixes, case)
-						Object.entries(nameToId).find(
+				// 1. Try supplierRef first (exact intra-batch link)
+				let partyId = p.supplierRef ? refToId[p.supplierRef] : undefined
+
+				// 2. Fall back to supplierName resolution
+				if (!partyId && p.supplierName) {
+					partyId = nameToId[p.supplierName]
+						?? Object.entries(nameToId).find(
 							([k]) => namesMatch(k, p.supplierName!)
-						)?.[1] ??
-						args.defaultPartyId
-					: args.defaultPartyId
+						)?.[1]
+				}
+
+				// 3. Fall back to default
+				partyId = partyId ?? args.defaultPartyId
 
 				if (!partyId) {
 					throw new Error(

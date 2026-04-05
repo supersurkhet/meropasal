@@ -70,6 +70,7 @@
 	let errorMessage = $state('')
 	let streaming = $state(false)
 	let streamComplete = $state(false)
+	let extractionSessionId = $state(0)
 
 	const categories = ['general', 'food', 'beverage', 'dairy', 'snacks', 'household', 'personal', 'stationery', 'other']
 
@@ -93,9 +94,12 @@
 		const na = normalizeName(a)
 		const nb = normalizeName(b)
 		if (na === nb) return true
-		// Substring: shorter is contained in longer
-		if (na.length > 2 && nb.length > 2) {
-			if (na.includes(nb) || nb.includes(na)) return true
+		if (na.length >= 4 && nb.length >= 4) {
+			const wordsA = na.split(' ')
+			const wordsB = nb.split(' ')
+			const shorter = wordsA.length <= wordsB.length ? wordsA : wordsB
+			const longer = wordsA.length <= wordsB.length ? wordsB : wordsA
+			if (shorter.length > 0 && shorter.every((w, i) => longer[i] === w)) return true
 		}
 		return false
 	}
@@ -301,32 +305,57 @@
 		return null
 	}
 
-	/** Try to match a supplier name to an existing or extracted party ID */
-	function resolvePartyId(name?: string): string {
-		if (!name) return ''
-		const match = findExistingParty({ name })
+	/** Try to match a supplier ref or name to an existing or extracted party ID */
+	function resolvePartyId(supplierRef?: string, supplierName?: string): string {
+		// 1. Ref-based resolution (from same extraction batch)
+		if (supplierRef) {
+			const refMatch = extractedParties.find((p) => p._ref === supplierRef)
+			if (refMatch) {
+				if (refMatch._existingId) return refMatch._existingId
+				return `__new__${refMatch.name}`
+			}
+		}
+		// 2. Name-based fallback
+		if (!supplierName) return ''
+		const match = findExistingParty({ name: supplierName })
 		if (match) return match._id
-		// Check AI-extracted parties (use temp ID)
 		const extractedMatch = extractedParties.find(
-			(p) => p.name?.toLowerCase() === name.toLowerCase()
+			(p) => p.name && namesMatch(p.name, supplierName)
 		)
 		if (extractedMatch) return `__new__${extractedMatch.name}`
 		return ''
 	}
 
 	/**
-	 * Enrich extracted parties: if a party already exists in the DB (by name or PAN),
-	 * mark it as resolved so we don't create a duplicate.
+	 * Enrich extracted parties: deduplicate within batch, then check DB for existing matches.
 	 */
 	function enrichParties(parties: any[]): any[] {
-		return parties.map((p) => {
+		const seen = new Map<string, any>()
+		const deduped: any[] = []
+
+		for (const p of parties) {
+			const norm = normalizeName(p.name || '')
+
+			// Within-batch dedup: merge attributes from duplicate
+			const batchKey = [...seen.keys()].find((k) => namesMatch(k, p.name || ''))
+			if (batchKey) {
+				const prev = seen.get(batchKey)!
+				if (p.address && !prev.address) prev.address = p.address
+				if (p.phone && !prev.phone) prev.phone = p.phone
+				if (p.panNumber && !prev.panNumber) prev.panNumber = p.panNumber
+				continue
+			}
+
 			const existing = findExistingParty(p)
-			return {
+			const enriched = {
 				...p,
 				_existingId: existing?._id ?? null,
 				_existingName: existing?.name ?? null,
 			}
-		})
+			seen.set(norm, enriched)
+			deduped.push(enriched)
+		}
+		return deduped
 	}
 
 	/** Enrich products: resolve supplier, check for existing, auto selling price */
@@ -335,7 +364,7 @@
 			const existing = findExistingProduct(p)
 			return {
 				...p,
-				purchasePartyId: p.purchasePartyId || resolvePartyId(p.supplierName),
+				purchasePartyId: p.purchasePartyId || resolvePartyId(p.supplierRef, p.supplierName),
 				sellingPrice: p.sellingPrice || Math.round((Number(p.costPrice) || 0) * 1.1 * 100) / 100,
 				category: p.category || '',
 				_sellingPriceManual: !!p.sellingPrice,
@@ -367,10 +396,43 @@
 		}
 	}
 
+	/**
+	 * Merge voice extraction data — each Gemini Live tool call should contain ALL data heard so far,
+	 * but may occasionally drop fields from earlier calls. We merge to prevent data loss.
+	 */
+	function mergeVoiceData(prev: any[], incoming: any[], keyField: string): any[] {
+		if (!incoming?.length) return prev
+		const merged = new Map<string, any>()
+		for (const item of prev) {
+			const key = (item[keyField] || '').toLowerCase().trim()
+			if (key) merged.set(key, item)
+		}
+		for (const item of incoming) {
+			const key = (item[keyField] || '').toLowerCase().trim()
+			if (key) merged.set(key, item) // incoming overrides prev
+		}
+		return [...merged.values()]
+	}
+
 	function handlePartial(data: Partial<ScanResult>) {
 		if (data.parties) extractedParties = enrichParties([...data.parties])
 		if (data.products) extractedProducts = enrichProducts([...data.products])
 		if (data.customers) extractedCustomers = enrichCustomers([...data.customers])
+	}
+
+	function handleVoiceData(data: Partial<ScanResult>) {
+		if (data.parties) {
+			const merged = mergeVoiceData(extractedParties, data.parties, 'name')
+			extractedParties = enrichParties(merged)
+		}
+		if (data.products) {
+			const merged = mergeVoiceData(extractedProducts, data.products, 'title')
+			extractedProducts = enrichProducts(merged)
+		}
+		if (data.customers) {
+			const merged = mergeVoiceData(extractedCustomers, data.customers, 'name')
+			extractedCustomers = enrichCustomers(merged)
+		}
 	}
 
 	function handleStreamDone(data: ScanResult) {
@@ -391,15 +453,26 @@
 		phase = 'active'
 		streaming = true
 		streamComplete = false
+		extractionSessionId++
+		const sessionId = extractionSessionId
 		extractedParties = []
 		extractedProducts = []
 		extractedCustomers = []
 
 		await streamScan({
 			...opts,
-			onPartial: handlePartial,
-			onDone: handleStreamDone,
-			onError: handleStreamError,
+			onPartial: (data) => {
+				if (extractionSessionId !== sessionId) return
+				handlePartial(data)
+			},
+			onDone: (data) => {
+				if (extractionSessionId !== sessionId) return
+				handleStreamDone(data)
+			},
+			onError: (err) => {
+				if (extractionSessionId !== sessionId) return
+				handleStreamError(err)
+			},
 		})
 	}
 
@@ -675,9 +748,7 @@
 				transcript += text
 			},
 			onExtractedData: (data) => {
-				if (data.parties) extractedParties = enrichParties([...data.parties])
-				if (data.products) extractedProducts = enrichProducts([...data.products])
-				if (data.customers) extractedCustomers = enrichCustomers([...data.customers])
+				handleVoiceData(data)
 				streaming = true
 			},
 			onError: (err) => {

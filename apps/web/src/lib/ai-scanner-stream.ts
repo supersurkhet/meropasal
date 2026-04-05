@@ -76,7 +76,7 @@ export async function streamScan(opts: StreamScanOptions): Promise<void> {
 	}
 
 	// If we exit the loop without [DONE], call onDone with last data
-	if (lastData && (lastData.parties?.length || lastData.products?.length || lastData.customers?.length)) {
+	if (lastData && ((lastData.parties?.length ?? 0) > 0 || (lastData.products?.length ?? 0) > 0 || (lastData.customers?.length ?? 0) > 0)) {
 		opts.onDone(lastData as ScanResult)
 	} else {
 		opts.onError('Stream ended without extracting any data')

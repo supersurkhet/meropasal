@@ -25,6 +25,7 @@ const EXTRACTION_TOOL_SCHEMA = {
 			items: {
 				type: 'OBJECT',
 				properties: {
+					_ref: { type: 'STRING', description: 'Short unique key for this party (e.g. "ab_suppliers"). Products reference via supplierRef.' },
 					name: { type: 'STRING', description: 'Supplier/party name' },
 					panNumber: { type: 'STRING', description: 'PAN/VAT number' },
 					address: { type: 'STRING', description: 'Address' },
@@ -41,6 +42,7 @@ const EXTRACTION_TOOL_SCHEMA = {
 				properties: {
 					title: { type: 'STRING', description: 'Product name' },
 					supplierName: { type: 'STRING', description: 'Supplier name' },
+					supplierRef: { type: 'STRING', description: 'Matches a party _ref for exact linking' },
 					costPrice: { type: 'NUMBER', description: 'Cost price in NPR — MUST be per container for compound units (multiply per-piece price × count)' },
 					sellingPrice: { type: 'NUMBER', description: 'Selling price in NPR — MUST be per container for compound units' },
 					openingStock: { type: 'NUMBER', description: 'Stock quantity' },
@@ -83,8 +85,37 @@ RULES:
   - "sells for 20 each, box of 12" → sellingPrice = 240 (20 × 12), unit = "box:12"
 - If user gives per-container price directly, use it as-is
 - Transliterate Nepali to English (e.g. "कार्टुन" → "cartoon")
-- Call the tool with all extracted data when the user pauses or finishes speaking
-- Call the tool multiple times as more data is dictated — each call should include ALL data heard so far`
+
+YOU ARE THE PRIMARY DEDUP LAYER:
+- Your output MUST be already deduplicated. Pick ONE canonical spelling for each entity and use it consistently.
+- The backend only does basic string matching — it cannot understand "A and B" = "A&B" or "Shree" = "Sri". YOU must normalize.
+
+ENTITY RESOLUTION:
+- Each real-world supplier MUST appear EXACTLY ONCE in parties. Assign a _ref key to each.
+- Products use supplierRef (matching party _ref) to link — NOT by repeating the name.
+- "from them", "same supplier", "also from [name]" → resolve to previously mentioned party's _ref.
+- Same name + different location = DIFFERENT entities with distinct _ref keys.
+- Same name + same/no location = SAME entity. Merge attributes.
+- Same product from different suppliers = SEPARATE products.
+
+DEFAULTS:
+- sellingPrice: if not stated, set sellingPrice = round(costPrice × 1.10) to nearest integer.
+- openingStock: if not stated, set to 0.
+- costPrice MUST be positive (> 0). Skip products with no discernible price.
+- Phone: Nepali mobile 98/97/96XXXXXXXX (10 digits). Only include if clearly a phone number.
+- PAN: exactly 9 digits. Only include if clearly a PAN/VAT number.
+
+CORRECTIONS:
+- If user says "no wait", "actually", "I mean", "not X, Y" → use the CORRECTED value, not the original.
+
+VOICE-SPECIFIC:
+- Ignore filler words (um, uh, like, you know).
+- "costing X" or "at X" typically means costPrice. "selling at X" or "sold at X" means sellingPrice.
+- Numbers spoken as words → convert to digits. Nepali: एक=1, दुई=2, तीन=3, सय=100, हजार=1000.
+- If no supplier is mentioned, omit supplierRef/supplierName — the user will assign one later.
+
+Call the tool with all extracted data when the user pauses or finishes speaking.
+Call the tool multiple times as more data is dictated — each call should include ALL data heard so far, not just new data.`
 
 export type GeminiLiveCallbacks = {
 	onTranscript: (text: string) => void
