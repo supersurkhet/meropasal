@@ -20,6 +20,19 @@
 		(compoundUnits as readonly string[]).includes(baseUnit)
 	)
 
+	$effect(() => {
+		const parsed = parseUnit(value)
+		const nextBaseUnit = parsed.baseUnit || 'piece'
+		const nextPiecesPerUnit = parsed.piecesPerUnit > 1 ? parsed.piecesPerUnit : piecesPerUnit
+
+		if (baseUnit !== nextBaseUnit) {
+			baseUnit = nextBaseUnit
+		}
+		if (parsed.piecesPerUnit > 1 && piecesPerUnit !== nextPiecesPerUnit) {
+			piecesPerUnit = nextPiecesPerUnit
+		}
+	})
+
 	// Build the output string
 	function updateValue() {
 		if (isCompound && piecesPerUnit > 1) {

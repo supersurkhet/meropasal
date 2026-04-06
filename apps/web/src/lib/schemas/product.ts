@@ -13,6 +13,12 @@ export const productSchema = z.object({
 	sku: z.string().optional(),
 	category: z.string().optional(),
 	description: z.string().optional(),
-})
+}).refine(
+	(data) => data.sellingPrice === undefined || data.sellingPrice >= data.costPrice,
+	{
+		message: 'Selling price cannot be less than cost price',
+		path: ['sellingPrice'],
+	},
+)
 
 export type ProductFormData = z.infer<typeof productSchema>

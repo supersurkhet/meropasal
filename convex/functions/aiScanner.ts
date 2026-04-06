@@ -4,6 +4,7 @@ import { v } from 'convex/values'
 import { generateText, Output } from 'ai'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { scanResultSchema, SYSTEM_PROMPT } from '../lib/aiSchemas'
+import { normalizeSellingPrice } from '../lib/pricing'
 
 /** Normalize a name for dedup: lowercase, collapse whitespace, & ↔ and, strip suffixes */
 function normalizeName(name: string): string {
@@ -308,7 +309,7 @@ export const bulkCreateProducts = internalMutation({
 			if (!p.title?.trim()) return false
 			if (!Number.isFinite(p.costPrice) || p.costPrice <= 0) return false
 			if (!Number.isFinite(p.openingStock) || p.openingStock < 0) return false
-			if (p.sellingPrice !== undefined && (!Number.isFinite(p.sellingPrice) || p.sellingPrice <= 0)) return false
+			if (p.sellingPrice !== undefined && !Number.isFinite(p.sellingPrice)) return false
 			return true
 		})
 
@@ -325,9 +326,7 @@ export const bulkCreateProducts = internalMutation({
 			// Batch dedup
 			if (createdTitles.has(normalizeName(product.title))) continue
 
-			const sellingPrice =
-				product.sellingPrice ??
-				Math.round(product.costPrice * 1.1 * 100) / 100
+			const sellingPrice = normalizeSellingPrice(product.costPrice, product.sellingPrice)
 			const reorderLevel = Math.ceil(product.openingStock * 0.1)
 
 			const id = await ctx.db.insert('products', {

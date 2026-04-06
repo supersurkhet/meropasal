@@ -1,6 +1,7 @@
 import { query, mutation } from "../_generated/server";
 import { v } from "convex/values";
 import { getOrg, requirePermission } from "../lib/orgGuard";
+import { normalizeSellingPrice } from "../lib/pricing";
 
 export const list = query({
   args: {},
@@ -64,8 +65,7 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     const orgId = await requirePermission(ctx, 'products:create');
-    const sellingPrice =
-      args.sellingPrice ?? Math.round(args.costPrice * 1.1 * 100) / 100;
+    const sellingPrice = normalizeSellingPrice(args.costPrice, args.sellingPrice);
     const reorderLevel =
       args.reorderLevel ?? Math.ceil(args.openingStock * 0.1);
     const newProductId = await ctx.db.insert("products", {
@@ -132,9 +132,15 @@ export const update = mutation({
     if (!product || product.orgId !== orgId)
       throw new Error("Product not found");
     const updates: Record<string, unknown> = {};
+    const nextCostPrice = fields.costPrice ?? product.costPrice;
+    const nextSellingPrice =
+      fields.sellingPrice !== undefined || fields.costPrice !== undefined
+        ? normalizeSellingPrice(nextCostPrice, fields.sellingPrice ?? product.sellingPrice)
+        : undefined;
     for (const [key, value] of Object.entries(fields)) {
       if (value !== undefined) updates[key] = value;
     }
+    if (nextSellingPrice !== undefined) updates.sellingPrice = nextSellingPrice;
     await ctx.db.patch(id, updates);
   },
 });

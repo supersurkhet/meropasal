@@ -89,6 +89,7 @@ ENTITY RESOLUTION (CRITICAL):
 
 DEFAULTS & COMPUTED FIELDS:
 - sellingPrice: if not mentioned, set sellingPrice = round(costPrice × 1.10) to nearest integer. If explicitly stated, use that value.
+- If an explicit sellingPrice is lower than costPrice, correct it to round(costPrice × 1.10) instead.
 - openingStock: if not mentioned, set to 0.
 - costPrice: MUST be a positive number (> 0). If you cannot determine a valid price, omit the product entirely.
 - Phone numbers: Nepali mobile format is 98XXXXXXXX, 97XXXXXXXX, or 96XXXXXXXX (10 digits). Landline: 0XX-XXXXXXX. Only include if clearly a phone number.

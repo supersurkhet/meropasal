@@ -16,6 +16,8 @@
 	import { toast } from 'svelte-sonner'
 	import { streamScan } from '$lib/ai-scanner-stream'
 	import { GeminiLiveSession } from '$lib/gemini-live'
+	import { LocalSpeechRecognizer } from '$lib/local-speech'
+	import { fallbackSellingPrice, normalizeSellingPrice } from '$lib/pricing'
 	import type { ScanResult } from '$lib/ai-schemas'
 	import {
 		Loader2,
@@ -159,8 +161,11 @@
 
 	// Voice (Gemini Live API)
 	let transcript = $state('')
+	let localCommittedTranscript = $state('')
+	let localInterimTranscript = $state('')
 	let voiceTextBase = $state('')
 	let liveSession: GeminiLiveSession | null = null
+	let localSpeechRecognizer: LocalSpeechRecognizer | null = null
 	let isListening = $state(false)
 	let isConnecting = $state(false)
 	let voiceError = $state('')
@@ -363,12 +368,19 @@
 	function enrichProducts(products: any[]): any[] {
 		return products.map((p) => {
 			const existing = findExistingProduct(p)
+			const costPrice = Number(p.costPrice) || 0
+			const sellingPrice = normalizeSellingPrice(costPrice, p.sellingPrice)
+			const hasValidManualSellingPrice =
+				p.sellingPrice !== undefined
+				&& p.sellingPrice !== null
+				&& Number.isFinite(p.sellingPrice)
+				&& Number(p.sellingPrice) >= costPrice
 			return {
 				...p,
 				purchasePartyId: p.purchasePartyId || resolvePartyId(p.supplierRef, p.supplierName),
-				sellingPrice: p.sellingPrice ?? Math.round((Number(p.costPrice) || 0) * 1.1 * 100) / 100,
+				sellingPrice,
 				category: p.category || '',
-				_sellingPriceManual: p.sellingPrice !== undefined && p.sellingPrice !== null,
+				_sellingPriceManual: hasValidManualSellingPrice,
 				_existingId: existing?._id ?? null,
 				_existingTitle: existing?.title ?? null,
 			}
@@ -390,8 +402,9 @@
 	/** Update selling price when cost changes (if not manually set) */
 	function onProductCostChange(product: any, value: number) {
 		product.costPrice = value
-		if (!product._sellingPriceManual) {
-			product.sellingPrice = Math.round(value * 1.1 * 100) / 100
+		if (!product._sellingPriceManual || product.sellingPrice < value) {
+			product.sellingPrice = fallbackSellingPrice(value)
+			product._sellingPriceManual = false
 			// Trigger reactivity
 			extractedProducts = [...extractedProducts]
 		}
@@ -735,7 +748,25 @@
 		isConnecting = true
 		voiceError = ''
 		transcript = ''
+		localCommittedTranscript = ''
+		localInterimTranscript = ''
 		voiceTextBase = textInput.trim()
+
+		if (LocalSpeechRecognizer.isSupported()) {
+			localSpeechRecognizer = new LocalSpeechRecognizer({
+				onTranscript: ({ committed, interim }) => {
+					localCommittedTranscript = committed
+					localInterimTranscript = interim
+					syncVoiceText()
+				},
+				onError: (err) => {
+					console.warn('[AI Scanner] Local speech recognizer error:', err)
+				},
+			})
+			localSpeechRecognizer.start()
+		} else {
+			localSpeechRecognizer = null
+		}
 
 		liveSession = new GeminiLiveSession({
 			onConnected: () => {
@@ -744,10 +775,8 @@
 				voiceError = ''
 			},
 			onTranscript: (text) => {
-				// Mirror live ASR into the textarea so users can see speech is arriving
-				// even before structured extraction callbacks fire.
 				transcript += text
-				textInput = voiceTextBase ? `${voiceTextBase} ${transcript}`.trim() : transcript
+				syncVoiceText()
 			},
 			onExtractedData: (data) => {
 				handleVoiceData(data)
@@ -773,8 +802,44 @@
 			liveSession.disconnect()
 			liveSession = null
 		}
+		if (localSpeechRecognizer) {
+			localSpeechRecognizer.stop()
+			localSpeechRecognizer = null
+		}
 		isListening = false
 		isConnecting = false
+	}
+
+	function getProvisionalTail(authoritative: string, provisional: string): string {
+		if (!provisional) return ''
+		if (!authoritative) return provisional
+
+		const authoritativeLower = authoritative.toLowerCase()
+		const provisionalLower = provisional.toLowerCase()
+
+		if (provisionalLower.startsWith(authoritativeLower)) {
+			return provisional.slice(authoritative.length).trimStart()
+		}
+		if (authoritativeLower.startsWith(provisionalLower)) {
+			return ''
+		}
+
+		const maxOverlap = Math.min(authoritative.length, provisional.length)
+		for (let overlap = maxOverlap; overlap > 0; overlap--) {
+			if (authoritativeLower.slice(-overlap) === provisionalLower.slice(0, overlap)) {
+				return provisional.slice(overlap).trimStart()
+			}
+		}
+
+		return provisional
+	}
+
+	function syncVoiceText() {
+		const authoritative = transcript.trim()
+		const provisional = [localCommittedTranscript.trim(), localInterimTranscript.trim()].filter(Boolean).join(' ').trim()
+		const provisionalTail = getProvisionalTail(authoritative, provisional)
+		const combinedVoice = [authoritative, provisionalTail].filter(Boolean).join(' ').trim()
+		textInput = voiceTextBase ? `${voiceTextBase} ${combinedVoice}`.trim() : combinedVoice
 	}
 
 	// ── Submit (Extract & Scan) ─────────────────────────────

@@ -27,14 +27,25 @@
 	let editing = $state(false)
 	let displayValue = $state(value ? value.toFixed(2) : '')
 	let selectedUnit = $state('')
+	let lastUnitStr = $state('')
 
 	let parsed = $derived(parseUnit(unitStr))
 	let units = $derived(getAvailableUnits(unitStr))
 	let isCompound = $derived(units.length > 1)
 
-	// Default to base unit; reset when unit string changes
+	// Preserve the user's per-unit selection unless the compound-unit meaning changes
+	// or the current selection becomes invalid.
 	$effect(() => {
-		selectedUnit = units.length > 0 ? units[0] : ''
+		const normalizedUnitStr = String(unitStr ?? '')
+		if (normalizedUnitStr !== lastUnitStr) {
+			lastUnitStr = normalizedUnitStr
+			selectedUnit = units.includes(selectedUnit) ? selectedUnit : (units[0] ?? '')
+			return
+		}
+
+		if (!units.includes(selectedUnit)) {
+			selectedUnit = units[0] ?? ''
+		}
 	})
 
 	// The display value represents what the user sees (may be per-piece)

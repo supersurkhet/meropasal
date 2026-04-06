@@ -16,6 +16,7 @@
 	import { Save, Loader2 } from '@lucide/svelte';
 	import StickyActions from '$lib/components/shared/StickyActions.svelte';
 	import { productSchema } from '$lib/schemas/product';
+	import { fallbackSellingPrice, normalizeSellingPrice } from '$lib/pricing';
 	import { t } from '$lib/t.svelte';
 
 	type Party = { _id: string; name: string; panNumber?: string; address?: string; phone?: string; creditLimit?: number; paymentTerms?: string; notes?: string };
@@ -80,8 +81,9 @@
 
 	// Smart default: selling price = cost x 1.10
 	$effect(() => {
-		if (!sellingPriceManual && costPrice > 0) {
-			sellingPrice = Math.round(costPrice * 1.1 * 100) / 100;
+		if ((!sellingPriceManual || sellingPrice < costPrice) && costPrice > 0) {
+			sellingPrice = fallbackSellingPrice(costPrice);
+			sellingPriceManual = false;
 		}
 	});
 
@@ -94,6 +96,10 @@
 	});
 
 	function validate(): boolean {
+		if (costPrice > 0) {
+			sellingPrice = normalizeSellingPrice(costPrice, sellingPrice > 0 ? sellingPrice : undefined);
+		}
+
 		const result = productSchema.safeParse({
 			title: title.trim(),
 			purchasePartyId,

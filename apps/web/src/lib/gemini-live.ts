@@ -10,10 +10,13 @@
  */
 
 import type { ScanResult } from './ai-schemas'
-import { isDesktop } from './platform.svelte'
 
 const WS_URL = 'wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent'
 const MODEL = 'models/gemini-2.5-flash-native-audio-preview-12-2025'
+const TARGET_SAMPLE_RATE = 16_000
+const CHUNK_SAMPLES = 512
+const PREFIX_PADDING_MS = 0
+const SILENCE_DURATION_MS = 100
 
 // JSON Schema matching our scanResultSchema for the tool definition
 const EXTRACTION_TOOL_SCHEMA = {
@@ -104,8 +107,8 @@ export class GeminiLiveSession {
 	private mediaStream: MediaStream | null = null
 	private audioContext: AudioContext | null = null
 	private sourceNode: MediaStreamAudioSourceNode | null = null
-	private processorNode: ScriptProcessorNode | null = null
-	private unlistenAudio: (() => void) | null = null
+	private workletNode: AudioWorkletNode | null = null
+	private sinkNode: GainNode | null = null
 	private callbacks: GeminiLiveCallbacks
 	private setupComplete = false
 
@@ -187,8 +190,8 @@ export class GeminiLiveSession {
 						disabled: false,
 						startOfSpeechSensitivity: 'START_SENSITIVITY_HIGH',
 						endOfSpeechSensitivity: 'END_SENSITIVITY_LOW',
-						prefixPaddingMs: 20,
-						silenceDurationMs: 140,
+						prefixPaddingMs: PREFIX_PADDING_MS,
+						silenceDurationMs: SILENCE_DURATION_MS,
 					},
 				},
 				tools: [
@@ -248,7 +251,6 @@ export class GeminiLiveSession {
 					if (call.name === 'extract_business_data' && call.args) {
 						this.callbacks.onExtractedData(call.args as Partial<ScanResult>)
 
-						// Send tool response to acknowledge
 						this.ws?.send(
 							JSON.stringify({
 								toolResponse: {
@@ -266,7 +268,6 @@ export class GeminiLiveSession {
 				}
 			}
 
-			// Check for model turn with function calls
 			if (msg.serverContent?.modelTurn?.parts) {
 				for (const part of msg.serverContent.modelTurn.parts) {
 					if (part.functionCall) {
@@ -277,128 +278,95 @@ export class GeminiLiveSession {
 					}
 				}
 			}
+
 		} catch {
 			// Skip malformed messages
 		}
 	}
 
 	private async startAudioCapture(): Promise<void> {
-		console.log('[GeminiLive] Starting audio capture via Web Audio API')
-		// Always use Web Audio API — works in both browser and Tauri WKWebView,
-		// and properly triggers the OS permission dialog on all platforms.
-		await this.startWebCapture()
+		console.log('[GeminiLive] Starting browser audio capture via AudioWorklet')
+		try {
+			await this.startWebCapture()
+		} catch (err) {
+			console.error('[GeminiLive] Browser audio capture failed:', err)
+			const msg = err instanceof Error && err.name === 'NotAllowedError'
+				? 'Microphone permission denied — allow in browser settings'
+				: err instanceof Error ? err.message : 'Could not access microphone'
+			this.callbacks.onError(msg)
+			return
+		}
 	}
 
-	/** Native Rust audio capture via Tauri commands + events */
-	private async startNativeCapture(): Promise<void> {
-		try {
-			const { startAudioCapture, onAudioChunk } = await import('./tauri-audio')
+	sendAudioChunk(base64Data: string): void {
+		if (!this.ws || this.ws.readyState !== WebSocket.OPEN || !this.setupComplete) return
 
-			let chunkCount = 0
-			this.unlistenAudio = await onAudioChunk((base64Data) => {
-				if (!this.ws || this.ws.readyState !== WebSocket.OPEN || !this.setupComplete) return
-				chunkCount++
-				if (chunkCount <= 3) console.log(`[GeminiLive] Audio chunk #${chunkCount}, size: ${base64Data.length}`)
-
-				this.ws.send(
-					JSON.stringify({
-						realtimeInput: {
-							audio: {
-								data: base64Data,
-								mimeType: 'audio/pcm;rate=16000',
-							},
-						},
-					})
-				)
+		this.ws.send(
+			JSON.stringify({
+				realtimeInput: {
+					audio: {
+						data: base64Data,
+						mimeType: `audio/pcm;rate=${TARGET_SAMPLE_RATE}`,
+					},
+				},
 			})
-
-			console.log('[GeminiLive] Starting native audio capture...')
-			await startAudioCapture()
-			console.log('[GeminiLive] Native audio capture started')
-		} catch (err) {
-			console.error('[GeminiLive] Native audio capture failed:', err)
-			this.callbacks.onError(
-				err instanceof Error ? err.message : 'Microphone access failed — check System Settings > Privacy > Microphone'
-			)
-		}
+		)
 	}
 
 	/** Web Audio API capture (browser fallback) */
 	private async startWebCapture(): Promise<void> {
-		try {
-			this.mediaStream = await navigator.mediaDevices.getUserMedia({
-				audio: {
-					sampleRate: 16000,
-					channelCount: 1,
-					echoCancellation: true,
-					noiseSuppression: true,
-				},
-			})
+		this.mediaStream = await navigator.mediaDevices.getUserMedia({
+			audio: {
+				sampleRate: TARGET_SAMPLE_RATE,
+				channelCount: 1,
+				echoCancellation: true,
+				noiseSuppression: true,
+			},
+		})
 
-			this.audioContext = new AudioContext({ sampleRate: 16000 })
-			this.sourceNode = this.audioContext.createMediaStreamSource(this.mediaStream)
+		this.audioContext = new AudioContext({ sampleRate: TARGET_SAMPLE_RATE })
+		await this.audioContext.audioWorklet.addModule('/audio-capture-worklet.js')
+		this.sourceNode = this.audioContext.createMediaStreamSource(this.mediaStream)
+		this.workletNode = new AudioWorkletNode(this.audioContext, 'audio-capture-processor', {
+			numberOfInputs: 1,
+			numberOfOutputs: 1,
+			outputChannelCount: [1],
+			channelCount: 1,
+			processorOptions: {
+				chunkSamples: CHUNK_SAMPLES,
+			},
+		})
+		this.sinkNode = this.audioContext.createGain()
+		this.sinkNode.gain.value = 0
 
-			// Use ScriptProcessorNode (deprecated but widely supported)
-			// AudioWorklet would be better but requires a separate file served over HTTPS
-			const bufferSize = 4096
-			this.processorNode = this.audioContext.createScriptProcessor(bufferSize, 1, 1)
+		this.workletNode.port.onmessage = (event: MessageEvent<{ pcm: ArrayBuffer; rms: number }>) => {
+			if (!this.ws || this.ws.readyState !== WebSocket.OPEN || !this.setupComplete) return
 
-			this.processorNode.onaudioprocess = (event) => {
-				if (!this.ws || this.ws.readyState !== WebSocket.OPEN || !this.setupComplete) return
-
-				const inputData = event.inputBuffer.getChannelData(0)
-
-				// Convert Float32 to Int16
-				const pcm16 = new Int16Array(inputData.length)
-				for (let i = 0; i < inputData.length; i++) {
-					const s = Math.max(-1, Math.min(1, inputData[i]))
-					pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7fff
-				}
-
-				// Base64 encode
-				const bytes = new Uint8Array(pcm16.buffer)
-				let binary = ''
-				for (let i = 0; i < bytes.length; i++) {
-					binary += String.fromCharCode(bytes[i])
-				}
-				const base64 = btoa(binary)
-
-				// Send audio chunk
-				this.ws.send(
-					JSON.stringify({
-						realtimeInput: {
-							audio: {
-								data: base64,
-								mimeType: 'audio/pcm;rate=16000',
-							},
-						},
-					})
-				)
+			const { pcm } = event.data
+			const bytes = new Uint8Array(pcm)
+			let binary = ''
+			for (let i = 0; i < bytes.length; i++) {
+				binary += String.fromCharCode(bytes[i])
 			}
-
-			this.sourceNode.connect(this.processorNode)
-			this.processorNode.connect(this.audioContext.destination)
-		} catch (err) {
-			console.error('[GeminiLive] Web audio capture failed:', err)
-			const msg = err instanceof Error && err.name === 'NotAllowedError'
-				? 'Microphone permission denied — allow in browser settings'
-				: 'Could not access microphone'
-			this.callbacks.onError(msg)
+			const base64 = btoa(binary)
+			this.sendAudioChunk(base64)
 		}
+
+		this.sourceNode.connect(this.workletNode)
+		this.workletNode.connect(this.sinkNode)
+		this.sinkNode.connect(this.audioContext.destination)
 	}
 
 	disconnect(): void {
-		// Stop native audio capture (if active)
-		if (this.unlistenAudio) {
-			this.unlistenAudio()
-			this.unlistenAudio = null
-			import('./tauri-audio').then(({ stopAudioCapture }) => stopAudioCapture()).catch(() => {})
-		}
-
 		// Stop web audio capture (if active)
-		if (this.processorNode) {
-			this.processorNode.disconnect()
-			this.processorNode = null
+		if (this.workletNode) {
+			this.workletNode.port.onmessage = null
+			this.workletNode.disconnect()
+			this.workletNode = null
+		}
+		if (this.sinkNode) {
+			this.sinkNode.disconnect()
+			this.sinkNode = null
 		}
 		if (this.sourceNode) {
 			this.sourceNode.disconnect()
