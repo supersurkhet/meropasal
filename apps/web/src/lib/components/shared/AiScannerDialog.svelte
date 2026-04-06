@@ -159,6 +159,7 @@
 
 	// Voice (Gemini Live API)
 	let transcript = $state('')
+	let voiceTextBase = $state('')
 	let liveSession: GeminiLiveSession | null = null
 	let isListening = $state(false)
 	let isConnecting = $state(false)
@@ -734,6 +735,7 @@
 		isConnecting = true
 		voiceError = ''
 		transcript = ''
+		voiceTextBase = textInput.trim()
 
 		liveSession = new GeminiLiveSession({
 			onConnected: () => {
@@ -742,10 +744,10 @@
 				voiceError = ''
 			},
 			onTranscript: (text) => {
-				// inputAudioTranscription ASR is unreliable for language detection,
-				// so we only track it internally — don't display it.
-				// The model processes audio directly and extracts data via tool calls.
+				// Mirror live ASR into the textarea so users can see speech is arriving
+				// even before structured extraction callbacks fire.
 				transcript += text
+				textInput = voiceTextBase ? `${voiceTextBase} ${transcript}`.trim() : transcript
 			},
 			onExtractedData: (data) => {
 				handleVoiceData(data)
@@ -922,6 +924,7 @@
 		summary = { parties: 0, products: 0, customers: 0 }
 		textInput = ''
 		transcript = ''
+		voiceTextBase = ''
 		streaming = false
 		streamComplete = false
 		isDragOver = false
