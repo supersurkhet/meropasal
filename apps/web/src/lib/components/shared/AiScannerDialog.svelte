@@ -1029,30 +1029,30 @@
 	function getInputHint(inputKind: ScanInputKind) {
 		switch (inputKind) {
 			case 'camera':
-				return 'Try a clearer picture with better lighting, sharper framing, or a closer crop.'
+				return 'Try again with a clearer photo.'
 			case 'file':
-				return 'Try a different file or a clearer export with visible rows, headers, and values.'
+				return 'Try again with a different file or a clearer one.'
 			case 'voice':
-				return 'Try dictating more explicitly with item names, prices, units, and supplier names.'
+				return 'Try saying it a little more clearly.'
 			case 'mixed':
-				return 'Try simplifying the input or retry with a clearer file, image, or typed message.'
+				return 'Try again with a simpler message or a clearer file or photo.'
 			default:
-				return 'Try rewording the text so the item names, prices, units, and supplier details are clearer.'
+				return 'Try again with a clearer message.'
 		}
 	}
 
 	function getInputLead(inputKind: ScanInputKind, subject: string) {
 		switch (inputKind) {
 			case 'camera':
-				return `This photo does not look like ${subject}.`
+				return `This photo does not seem to show ${subject}.`
 			case 'file':
-				return `This file does not look like ${subject}.`
+				return `This file does not seem to contain ${subject}.`
 			case 'voice':
-				return `This voice dictation does not sound like ${subject}.`
+				return `I could not make out ${subject} from what you said.`
 			case 'mixed':
-				return `This combined input does not look like ${subject}.`
+				return `I could not find ${subject} in that.`
 			default:
-				return `This text does not look like ${subject}.`
+				return `I could not find ${subject} in that text.`
 		}
 	}
 
@@ -1061,43 +1061,43 @@
 		switch (target) {
 			case 'products':
 				return {
-					title: 'No products detected',
-					description: `${getInputLead(inputKind, 'a product list or product details')} ${inputHint}`,
+					title: 'No products found',
+					description: `${getInputLead(inputKind, 'any products')} ${inputHint}`,
 				}
 			case 'stock-import':
 				return {
-					title: 'No stock items detected',
-					description: `${getInputLead(inputKind, 'a stock import sheet')} ${inputHint}`,
+					title: 'No stock items found',
+					description: `${getInputLead(inputKind, 'any stock items')} ${inputHint}`,
 				}
 			case 'parties':
 				return {
-					title: 'No suppliers or parties detected',
-					description: `${getInputLead(inputKind, 'supplier or party information')} ${inputHint}`,
+					title: 'No suppliers found',
+					description: `${getInputLead(inputKind, 'any supplier details')} ${inputHint}`,
 				}
 			case 'customers':
 				return {
-					title: 'No customers detected',
-					description: `${getInputLead(inputKind, 'customer information')} ${inputHint}`,
+					title: 'No customers found',
+					description: `${getInputLead(inputKind, 'any customer details')} ${inputHint}`,
 				}
 			case 'orders':
 				return {
-					title: 'No order items detected',
-					description: `${getInputLead(inputKind, 'an order or line-item list')} ${inputHint}`,
+					title: 'No order items found',
+					description: `${getInputLead(inputKind, 'any order items')} ${inputHint}`,
 				}
 			case 'sales':
 				return {
-					title: 'No sale items detected',
-					description: `${getInputLead(inputKind, 'a sales bill or sales table')} ${inputHint}`,
+					title: 'No sale items found',
+					description: `${getInputLead(inputKind, 'any sale items')} ${inputHint}`,
 				}
 			case 'trips':
 				return {
-					title: 'No trip items detected',
-					description: `${getInputLead(inputKind, 'trip dispatch data')} ${inputHint}`,
+					title: 'No trip items found',
+					description: `${getInputLead(inputKind, 'any trip items')} ${inputHint}`,
 				}
 			default:
 				return {
-					title: 'Nothing usable was detected',
-					description: `${getInputLead(inputKind, 'products, parties, customers, or stock lines')} ${inputHint}`,
+					title: 'Nothing found',
+					description: `${getInputLead(inputKind, 'anything I can import')} ${inputHint}`,
 				}
 		}
 	}
