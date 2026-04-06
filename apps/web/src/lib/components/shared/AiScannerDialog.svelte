@@ -1041,48 +1041,63 @@
 		}
 	}
 
+	function getInputLead(inputKind: ScanInputKind, subject: string) {
+		switch (inputKind) {
+			case 'camera':
+				return `This photo does not look like ${subject}.`
+			case 'file':
+				return `This file does not look like ${subject}.`
+			case 'voice':
+				return `This voice dictation does not sound like ${subject}.`
+			case 'mixed':
+				return `This combined input does not look like ${subject}.`
+			default:
+				return `This text does not look like ${subject}.`
+		}
+	}
+
 	function getEmptyStateCopy(target: TargetTable, inputKind: ScanInputKind) {
 		const inputHint = getInputHint(inputKind)
 		switch (target) {
 			case 'products':
 				return {
 					title: 'No products detected',
-					description: `This input does not look like a product list or product details. ${inputHint}`,
+					description: `${getInputLead(inputKind, 'a product list or product details')} ${inputHint}`,
 				}
 			case 'stock-import':
 				return {
 					title: 'No stock items detected',
-					description: `This input does not look like a stock import sheet. ${inputHint}`,
+					description: `${getInputLead(inputKind, 'a stock import sheet')} ${inputHint}`,
 				}
 			case 'parties':
 				return {
 					title: 'No suppliers or parties detected',
-					description: `This input does not look like supplier or party information. ${inputHint}`,
+					description: `${getInputLead(inputKind, 'supplier or party information')} ${inputHint}`,
 				}
 			case 'customers':
 				return {
 					title: 'No customers detected',
-					description: `This input does not look like customer information. ${inputHint}`,
+					description: `${getInputLead(inputKind, 'customer information')} ${inputHint}`,
 				}
 			case 'orders':
 				return {
 					title: 'No order items detected',
-					description: `This input does not look like an order or line-item list. ${inputHint}`,
+					description: `${getInputLead(inputKind, 'an order or line-item list')} ${inputHint}`,
 				}
 			case 'sales':
 				return {
 					title: 'No sale items detected',
-					description: `This input does not look like a sales bill or sales table. ${inputHint}`,
+					description: `${getInputLead(inputKind, 'a sales bill or sales table')} ${inputHint}`,
 				}
 			case 'trips':
 				return {
 					title: 'No trip items detected',
-					description: `This input does not look like trip dispatch data. ${inputHint}`,
+					description: `${getInputLead(inputKind, 'trip dispatch data')} ${inputHint}`,
 				}
 			default:
 				return {
 					title: 'Nothing usable was detected',
-					description: `This input does not seem to contain products, parties, customers, or stock lines the scanner can import. ${inputHint}`,
+					description: `${getInputLead(inputKind, 'products, parties, customers, or stock lines')} ${inputHint}`,
 				}
 		}
 	}
