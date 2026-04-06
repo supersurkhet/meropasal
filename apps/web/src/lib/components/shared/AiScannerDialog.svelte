@@ -1010,6 +1010,52 @@
 		extractedParties.length + extractedProducts.length + extractedCustomers.length
 	)
 
+	function getEmptyStateCopy(target: TargetTable) {
+		switch (target) {
+			case 'products':
+				return {
+					title: 'No products detected',
+					description: 'This input does not look like a product list or product details. Try a clearer product table, invoice, label, or typed product text.',
+				}
+			case 'stock-import':
+				return {
+					title: 'No stock items detected',
+					description: 'This input does not look like a stock import sheet. Try a clearer stock table, invoice, or inventory document.',
+				}
+			case 'parties':
+				return {
+					title: 'No suppliers or parties detected',
+					description: 'This input does not look like supplier or party information. Try a clearer bill, supplier list, or contact details.',
+				}
+			case 'customers':
+				return {
+					title: 'No customers detected',
+					description: 'This input does not look like customer information. Try a clearer customer list, invoice, or contact details.',
+				}
+			case 'orders':
+				return {
+					title: 'No order items detected',
+					description: 'This input does not look like an order or line-item list. Try a clearer order sheet or typed order details.',
+				}
+			case 'sales':
+				return {
+					title: 'No sale items detected',
+					description: 'This input does not look like a sales bill or sales table. Try a clearer bill image or typed sale details.',
+				}
+			case 'trips':
+				return {
+					title: 'No trip items detected',
+					description: 'This input does not look like trip dispatch data. Try a clearer trip sheet, dispatch list, or typed trip details.',
+				}
+			default:
+				return {
+					title: 'Nothing usable was detected',
+					description: 'This input does not seem to contain products, parties, customers, or stock lines the scanner can import. Try a clearer table, invoice, image, or typed message.',
+				}
+		}
+	}
+
+	let emptyStateCopy = $derived(getEmptyStateCopy(targetTable))
 	let hasPreviewData = $derived(totalExtracted > 0)
 	let canSubmit = $derived(textInput.trim().length > 0 || attachedFiles.length > 0)
 	let inputCount = $derived(
@@ -1486,6 +1532,26 @@
 							</Button>
 						</DialogFooter>
 					{/if}
+				</div>
+			{:else if streamComplete}
+				<div class="preview-panel border-t pt-4">
+					<div class="flex flex-col items-center gap-3 rounded-xl border border-dashed bg-muted/20 px-6 py-10 text-center">
+						<div class="flex size-12 items-center justify-center rounded-full bg-muted">
+							<FileText class="size-5 text-muted-foreground" />
+						</div>
+						<div class="space-y-1.5">
+							<p class="text-sm font-medium">{emptyStateCopy.title}</p>
+							<p class="max-w-md text-sm text-muted-foreground">
+								{emptyStateCopy.description}
+							</p>
+						</div>
+						<div class="flex items-center gap-2 pt-1">
+							<Button variant="outline" onclick={reset}>
+								<RefreshCw class="mr-1.5 size-4" />
+								Try Again
+							</Button>
+						</div>
+					</div>
 				</div>
 			{/if}
 
