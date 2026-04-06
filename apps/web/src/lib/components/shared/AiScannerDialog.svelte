@@ -51,6 +51,7 @@
 		rate: number
 		supplierName?: string
 	}
+	type ScanInputKind = 'text' | 'voice' | 'camera' | 'file' | 'mixed'
 
 	let {
 		open = $bindable(false),
@@ -155,6 +156,7 @@
 
 	// Import summary
 	let summary = $state({ parties: 0, products: 0, customers: 0 })
+	let lastScanInputKind = $state<ScanInputKind>('text')
 
 	// Text input
 	let textInput = $state('')
@@ -467,6 +469,7 @@
 		phase = 'active'
 		streaming = true
 		streamComplete = false
+		lastScanInputKind = detectCurrentInputKind()
 		extractionSessionId++
 		const sessionId = extractionSessionId
 		extractedParties = []
@@ -1010,52 +1013,81 @@
 		extractedParties.length + extractedProducts.length + extractedCustomers.length
 	)
 
-	function getEmptyStateCopy(target: TargetTable) {
+	function detectCurrentInputKind(): ScanInputKind {
+		const hasFiles = attachedFiles.length > 0
+		const hasText = textInput.trim().length > 0
+		const hasVoice = transcript.trim().length > 0 || localCommittedTranscript.trim().length > 0 || localInterimTranscript.trim().length > 0
+		const hasCameraCapture = attachedFiles.some((file) => file.name === 'Camera capture')
+
+		if ((hasFiles && hasText) || (hasVoice && hasFiles)) return 'mixed'
+		if (hasCameraCapture) return 'camera'
+		if (hasFiles) return 'file'
+		if (hasVoice) return 'voice'
+		return 'text'
+	}
+
+	function getInputHint(inputKind: ScanInputKind) {
+		switch (inputKind) {
+			case 'camera':
+				return 'Try a clearer picture with better lighting, sharper framing, or a closer crop.'
+			case 'file':
+				return 'Try a different file or a clearer export with visible rows, headers, and values.'
+			case 'voice':
+				return 'Try dictating more explicitly with item names, prices, units, and supplier names.'
+			case 'mixed':
+				return 'Try simplifying the input or retry with a clearer file, image, or typed message.'
+			default:
+				return 'Try rewording the text so the item names, prices, units, and supplier details are clearer.'
+		}
+	}
+
+	function getEmptyStateCopy(target: TargetTable, inputKind: ScanInputKind) {
+		const inputHint = getInputHint(inputKind)
 		switch (target) {
 			case 'products':
 				return {
 					title: 'No products detected',
-					description: 'This input does not look like a product list or product details. Try a clearer product table, invoice, label, or typed product text.',
+					description: `This input does not look like a product list or product details. ${inputHint}`,
 				}
 			case 'stock-import':
 				return {
 					title: 'No stock items detected',
-					description: 'This input does not look like a stock import sheet. Try a clearer stock table, invoice, or inventory document.',
+					description: `This input does not look like a stock import sheet. ${inputHint}`,
 				}
 			case 'parties':
 				return {
 					title: 'No suppliers or parties detected',
-					description: 'This input does not look like supplier or party information. Try a clearer bill, supplier list, or contact details.',
+					description: `This input does not look like supplier or party information. ${inputHint}`,
 				}
 			case 'customers':
 				return {
 					title: 'No customers detected',
-					description: 'This input does not look like customer information. Try a clearer customer list, invoice, or contact details.',
+					description: `This input does not look like customer information. ${inputHint}`,
 				}
 			case 'orders':
 				return {
 					title: 'No order items detected',
-					description: 'This input does not look like an order or line-item list. Try a clearer order sheet or typed order details.',
+					description: `This input does not look like an order or line-item list. ${inputHint}`,
 				}
 			case 'sales':
 				return {
 					title: 'No sale items detected',
-					description: 'This input does not look like a sales bill or sales table. Try a clearer bill image or typed sale details.',
+					description: `This input does not look like a sales bill or sales table. ${inputHint}`,
 				}
 			case 'trips':
 				return {
 					title: 'No trip items detected',
-					description: 'This input does not look like trip dispatch data. Try a clearer trip sheet, dispatch list, or typed trip details.',
+					description: `This input does not look like trip dispatch data. ${inputHint}`,
 				}
 			default:
 				return {
 					title: 'Nothing usable was detected',
-					description: 'This input does not seem to contain products, parties, customers, or stock lines the scanner can import. Try a clearer table, invoice, image, or typed message.',
+					description: `This input does not seem to contain products, parties, customers, or stock lines the scanner can import. ${inputHint}`,
 				}
 		}
 	}
 
-	let emptyStateCopy = $derived(getEmptyStateCopy(targetTable))
+	let emptyStateCopy = $derived(getEmptyStateCopy(targetTable, lastScanInputKind))
 	let hasPreviewData = $derived(totalExtracted > 0)
 	let canSubmit = $derived(textInput.trim().length > 0 || attachedFiles.length > 0)
 	let inputCount = $derived(
