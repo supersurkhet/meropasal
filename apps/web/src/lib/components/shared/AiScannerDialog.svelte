@@ -1029,15 +1029,15 @@
 	function getInputHint(inputKind: ScanInputKind) {
 		switch (inputKind) {
 			case 'camera':
-				return 'Try again with a clearer photo.'
+				return 'Try again with a clearer photo, bill, label, or table.'
 			case 'file':
-				return 'Try again with a different file or a clearer one.'
+				return 'Try again with a clearer file, export, bill, or table.'
 			case 'voice':
-				return 'Try saying it a little more clearly.'
+				return 'Try saying the names, prices, units, and details a little more clearly.'
 			case 'mixed':
-				return 'Try again with a simpler message or a clearer file or photo.'
+				return 'Try again with a simpler message or a clearer file, photo, bill, or table.'
 			default:
-				return 'Try again with a clearer message.'
+				return 'Try again with a clearer message, list, bill, or table.'
 		}
 	}
 
@@ -1062,42 +1062,42 @@
 			case 'products':
 				return {
 					title: 'No products found',
-					description: `${getInputLead(inputKind, 'any products')} ${inputHint}`,
+					description: `${getInputLead(inputKind, 'a product list or product details')} ${inputHint}`,
 				}
 			case 'stock-import':
 				return {
 					title: 'No stock items found',
-					description: `${getInputLead(inputKind, 'any stock items')} ${inputHint}`,
+					description: `${getInputLead(inputKind, 'a stock list or stock import table')} ${inputHint}`,
 				}
 			case 'parties':
 				return {
 					title: 'No suppliers found',
-					description: `${getInputLead(inputKind, 'any supplier details')} ${inputHint}`,
+					description: `${getInputLead(inputKind, 'supplier details or a supplier list')} ${inputHint}`,
 				}
 			case 'customers':
 				return {
 					title: 'No customers found',
-					description: `${getInputLead(inputKind, 'any customer details')} ${inputHint}`,
+					description: `${getInputLead(inputKind, 'customer details or a customer list')} ${inputHint}`,
 				}
 			case 'orders':
 				return {
 					title: 'No order items found',
-					description: `${getInputLead(inputKind, 'any order items')} ${inputHint}`,
+					description: `${getInputLead(inputKind, 'an order bill or order table')} ${inputHint}`,
 				}
 			case 'sales':
 				return {
 					title: 'No sale items found',
-					description: `${getInputLead(inputKind, 'any sale items')} ${inputHint}`,
+					description: `${getInputLead(inputKind, 'a sales bill or sales table')} ${inputHint}`,
 				}
 			case 'trips':
 				return {
 					title: 'No trip items found',
-					description: `${getInputLead(inputKind, 'any trip items')} ${inputHint}`,
+					description: `${getInputLead(inputKind, 'a trip list or dispatch table')} ${inputHint}`,
 				}
 			default:
 				return {
 					title: 'Nothing found',
-					description: `${getInputLead(inputKind, 'anything I can import')} ${inputHint}`,
+					description: `${getInputLead(inputKind, 'products, suppliers, customers, or stock lines')} ${inputHint}`,
 				}
 		}
 	}
