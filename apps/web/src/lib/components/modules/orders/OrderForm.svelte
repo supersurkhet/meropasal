@@ -103,6 +103,28 @@
 		return `item-${++nextId}-${Date.now()}`;
 	}
 
+	export function tryCommitScanImport(scannedItems: any[], partyName?: string): boolean {
+		const snapCustomer = customerId
+		const snapDate = orderDate
+		const snapNotes = notes
+		const snapItems = structuredClone(items)
+		const snapPayments = structuredClone(payments)
+		const snapFieldErrors = { ...fieldErrors }
+		const snapError = error
+		addScannedItems(scannedItems, partyName)
+		if (!validate()) {
+			customerId = snapCustomer
+			orderDate = snapDate
+			notes = snapNotes
+			items = snapItems
+			payments = snapPayments
+			fieldErrors = snapFieldErrors
+			error = snapError
+			return false
+		}
+		return true
+	}
+
 	export function addScannedItems(scannedItems: any[], partyName?: string) {
 		// Auto-select customer if provided
 		if (partyName && !customerId) {

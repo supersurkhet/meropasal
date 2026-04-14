@@ -4,7 +4,7 @@
 	import { ArrowLeft } from '@lucide/svelte';
 	import AiScannerButton from '$lib/components/shared/AiScannerButton.svelte';
 
-	let formRef = $state<{ addScannedItems: (items: any[], partyName?: string) => void } | null>(null)
+	let formRef = $state<{ tryCommitScanImport: (items: any[], partyName?: string) => boolean } | null>(null)
 </script>
 
 <MetaTags title="Dispatch Trip — MeroPasal" />
@@ -22,7 +22,7 @@
 			</a>
 			<AiScannerButton
 				targetTable="trips"
-				onlineitems={(items, partyName) => formRef?.addScannedItems(items, partyName)}
+				onCommitBillImport={(items, partyName) => formRef?.tryCommitScanImport(items, partyName) ?? false}
 			/>
 		</div>
 		<h1 class="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">

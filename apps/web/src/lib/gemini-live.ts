@@ -9,8 +9,7 @@
  * 4. Receive inputTranscription (live transcript) + tool calls (extracted data)
  */
 
-import type { ScanResult } from './ai-schemas'
-import { getScanModeInstruction } from './ai-schemas'
+import { type ScanResult, getScanModeInstruction } from './ai-schemas'
 
 const WS_URL = 'wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent'
 const MODEL = 'models/gemini-2.5-flash-native-audio-preview-12-2025'

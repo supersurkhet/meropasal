@@ -3,7 +3,7 @@
 	import StockImportForm from '$lib/components/modules/stock-import/StockImportForm.svelte';
 	import AiScannerButton from '$lib/components/shared/AiScannerButton.svelte';
 
-	let formRef = $state<{ addScannedItems: (items: any[], partyName?: string) => void } | null>(null)
+	let formRef = $state<{ tryCommitScanImport: (items: any[], partyName?: string) => boolean } | null>(null)
 </script>
 
 <MetaTags title="New Stock Import" />
@@ -12,7 +12,7 @@
 	<div class="mb-4 flex justify-end">
 		<AiScannerButton
 			targetTable="stock-import"
-			onlineitems={(items, partyName) => formRef?.addScannedItems(items, partyName)}
+			onCommitBillImport={(items, partyName) => formRef?.tryCommitScanImport(items, partyName) ?? false}
 		/>
 	</div>
 	<StockImportForm bind:this={formRef} />

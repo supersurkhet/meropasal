@@ -5,17 +5,20 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Button } from '$lib/components/ui/button';
 	import BillForm from '$lib/components/shared/BillForm.svelte';
+	import ConfirmDialog from '$lib/components/shared/ConfirmDialog.svelte';
 	import DatePicker from '$lib/components/shared/DatePicker.svelte';
 	import EntitySelect from '$lib/components/shared/EntitySelect.svelte';
 	import PartyForm from '$lib/components/modules/parties/PartyForm.svelte';
 	import ProductForm from '$lib/components/modules/products/ProductForm.svelte';
 	import { deriveUnitPrice, getAvailableUnits } from '$lib/unit-price';
+	import { syncFromRate, isDiscountAtOrAboveMax } from '$lib/line-discount';
 	import { getConvexClient } from '$lib/convex';
 	import { api } from '$lib/api';
 	import { stockImportSchema } from '$lib/schemas/stock-import';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { formatDate } from '$lib/date-utils';
 	import { t } from '$lib/t.svelte';
+	import type { BillLineItem } from '$lib/bill-line-item';
 
 	type Party = { _id: string; name: string; panNumber?: string; address?: string; phone?: string; creditLimit?: number; paymentTerms?: string; notes?: string };
 	type Product = {
@@ -26,15 +29,7 @@
 		purchasePartyId: string;
 	};
 
-	type LineItem = {
-		id: string;
-		productId: string;
-		productTitle: string;
-		quantity: number;
-		unit: string;
-		unitStr: string;
-		rate: number;
-	};
+	type LineItem = BillLineItem;
 
 	let parties = $state<Party[]>([]);
 	let allProducts = $state<Product[]>([]);
@@ -60,27 +55,55 @@
 	let items = $state<LineItem[]>([]);
 	let submitting = $state(false);
 	let errors = $state<Record<string, string>>({});
+	let confirmMaxDiscountOpen = $state(false);
 
 	const INITIAL_ROWS = 10;
+
+	let nextId = 0;
+	function genId() {
+		return `item-${++nextId}-${Date.now()}`;
+	}
+
+	function emptyRow(): LineItem {
+		return {
+			id: genId(),
+			productId: '',
+			productTitle: '',
+			quantity: 1,
+			unit: '',
+			unitStr: '',
+			rate: 0,
+			referenceRate: 0,
+			discountPercent: 0,
+		};
+	}
 
 	// Seed empty rows when loaded
 	$effect(() => {
 		if (loaded && items.length === 0) {
-			items = Array.from({ length: INITIAL_ROWS }, () => ({
-				id: genId(),
-				productId: '',
-				productTitle: '',
-				quantity: 1,
-				unit: '',
-				unitStr: '',
-				rate: 0,
-			}));
+			items = Array.from({ length: INITIAL_ROWS }, () => emptyRow());
 		}
 	});
 
 	let filteredProducts = $derived(
 		partyId ? allProducts.filter((p) => p.purchasePartyId === partyId) : allProducts,
 	);
+
+	export function tryCommitScanImport(scannedItems: any[], partyName?: string): boolean {
+		const snapParty = partyId
+		const snapDate = importDate
+		const snapItems = structuredClone(items)
+		const snapErrors = { ...errors }
+		addScannedItems(scannedItems, partyName)
+		if (!validate()) {
+			partyId = snapParty
+			importDate = snapDate
+			items = snapItems
+			errors = snapErrors
+			return false
+		}
+		return true
+	}
 
 	/** Receive scanned line items from AI Scanner */
 	export function addScannedItems(scannedItems: any[], partyName?: string) {
@@ -96,6 +119,10 @@
 			if (product) {
 				const units = getAvailableUnits(product.unit)
 				const defaultUnit = units[0] || 'piece'
+				const ref = Math.round(deriveUnitPrice(product.costPrice, product.unit, defaultUnit) * 100) / 100
+				const rawRate =
+					si.rate != null && Number.isFinite(Number(si.rate)) ? Number(si.rate) : ref
+				const s = syncFromRate(ref, rawRate)
 				return {
 					id: genId(),
 					productId: product._id,
@@ -103,10 +130,11 @@
 					quantity: si.quantity || 1,
 					unitStr: product.unit || '',
 					unit: defaultUnit,
-					rate: si.rate || Math.round(deriveUnitPrice(product.costPrice, product.unit, defaultUnit) * 100) / 100,
+					referenceRate: ref,
+					rate: s.rate,
+					discountPercent: s.discountPercent,
 				}
 			}
-			// Product not found — add with title only (user can select manually)
 			return {
 				id: genId(),
 				productId: '',
@@ -114,37 +142,22 @@
 				quantity: si.quantity || 1,
 				unitStr: si.unitStr || '',
 				unit: si.unit || 'piece',
-				rate: si.rate || 0,
+				rate: si.rate != null && Number.isFinite(Number(si.rate)) ? Number(si.rate) : 0,
+				referenceRate: 0,
+				discountPercent: 0,
 			}
 		})
 
-		// Replace empty rows at the start, or append
 		const filledCount = items.filter((i) => i.productId).length
 		if (filledCount === 0) {
-			items = [...newItems, ...Array.from({ length: 3 }, () => ({ id: genId(), productId: '', productTitle: '', quantity: 1, unit: '', unitStr: '', rate: 0 }))]
+			items = [...newItems, ...Array.from({ length: 3 }, () => emptyRow())]
 		} else {
-			items = [...items.filter((i) => i.productId), ...newItems, ...Array.from({ length: 3 }, () => ({ id: genId(), productId: '', productTitle: '', quantity: 1, unit: '', unitStr: '', rate: 0 }))]
+			items = [...items.filter((i) => i.productId), ...newItems, ...Array.from({ length: 3 }, () => emptyRow())]
 		}
 	}
 
-	let nextId = 0;
-	function genId() {
-		return `item-${++nextId}-${Date.now()}`;
-	}
-
 	function addItem() {
-		items = [
-			...items,
-			{
-				id: genId(),
-				productId: '',
-				productTitle: '',
-				quantity: 1,
-				unit: '',
-				unitStr: '',
-				rate: 0,
-			},
-		];
+		items = [...items, emptyRow()];
 	}
 
 	function selectProduct(index: number, productId: string) {
@@ -152,14 +165,16 @@
 		if (!product) return;
 		const units = getAvailableUnits(product.unit);
 		const defaultUnit = units[0] || 'piece';
-		const rate = deriveUnitPrice(product.costPrice, product.unit, defaultUnit);
+		const rate = Math.round(deriveUnitPrice(product.costPrice, product.unit, defaultUnit) * 100) / 100;
 		items[index] = {
 			...items[index],
 			productId: product._id,
 			productTitle: product.title,
 			unitStr: product.unit || '',
 			unit: defaultUnit,
-			rate: Math.round(rate * 100) / 100,
+			referenceRate: rate,
+			rate,
+			discountPercent: 0,
 		};
 		// Grow the grid when a product is picked
 		ensureTrailingRows(index);
@@ -172,11 +187,13 @@
 			items[index].unit = unit;
 			return;
 		}
-		const rate = deriveUnitPrice(product.costPrice, product.unit, unit);
+		const rate = Math.round(deriveUnitPrice(product.costPrice, product.unit, unit) * 100) / 100;
 		items[index] = {
 			...items[index],
 			unit,
-			rate: Math.round(rate * 100) / 100,
+			referenceRate: rate,
+			rate,
+			discountPercent: 0,
 		};
 	}
 
@@ -217,10 +234,8 @@
 		return true
 	}
 
-	async function handleSubmit() {
-		if (!validate()) return;
+	async function executeSubmit() {
 		const validItems = items.filter((i) => i.productId && i.quantity > 0);
-
 		submitting = true;
 		try {
 			const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
@@ -242,6 +257,16 @@
 		} finally {
 			submitting = false;
 		}
+	}
+
+	function handleSubmit() {
+		if (!validate()) return;
+		const valid = items.filter((i) => i.productId && i.quantity > 0);
+		if (valid.some((i) => isDiscountAtOrAboveMax(i.discountPercent ?? 0))) {
+			confirmMaxDiscountOpen = true;
+			return;
+		}
+		void executeSubmit();
 	}
 </script>
 
@@ -277,22 +302,24 @@
 
 			<!-- Grid header -->
 			<div class="bill-grid max-h-[30vh] overflow-y-auto">
-				<div class="sticky top-0 z-10 grid grid-cols-[2rem_1fr_4.5rem_4rem_5rem_4.5rem_1.5rem] items-stretch border-b border-zinc-200 bg-zinc-50 text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
+				<div class="sticky top-0 z-10 grid grid-cols-[2rem_1fr_4.5rem_4rem_4.5rem_3.25rem_4.5rem_1.5rem] items-stretch border-b border-zinc-200 bg-zinc-50 text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
 					<span class="flex items-center justify-center border-r border-zinc-200 px-2 py-2 dark:border-zinc-800">{t('common_sn')}</span>
 					<span class="flex items-center border-r border-zinc-200 px-3 py-2 dark:border-zinc-800">{t('product_title')}</span>
 					<span class="flex items-center justify-center border-r border-zinc-200 px-2 py-2 dark:border-zinc-800">{t('common_quantity')}</span>
 					<span class="flex items-center justify-center border-r border-zinc-200 px-2 py-2 dark:border-zinc-800">{t('product_unit')}</span>
 					<span class="flex items-center justify-end border-r border-zinc-200 px-2 py-2 dark:border-zinc-800">{t('common_rate')}</span>
+					<span class="flex items-center justify-end border-r border-zinc-200 px-2 py-2 dark:border-zinc-800">{t('line_discount_percent')}</span>
 					<span class="flex items-center justify-end px-2 py-2">{t('common_amount')}</span>
 					<span></span>
 				</div>
 				{#each Array(5) as _, i}
-					<div class="grid grid-cols-[2rem_1fr_4.5rem_4rem_5rem_4.5rem_1.5rem] items-stretch border-b border-zinc-100/30 dark:border-zinc-800/20">
+					<div class="grid grid-cols-[2rem_1fr_4.5rem_4rem_4.5rem_3.25rem_4.5rem_1.5rem] items-stretch border-b border-zinc-100/30 dark:border-zinc-800/20">
 						<span class="flex items-center justify-center border-r border-zinc-100/30 px-2 py-2.5 font-mono text-xs text-zinc-300 dark:border-zinc-800/20 dark:text-zinc-600">{i + 1}</span>
 						<div class="flex items-center border-r border-zinc-100/30 px-3 dark:border-zinc-800/20"><Skeleton class="h-4 w-24" /></div>
 						<div class="flex items-center justify-center border-r border-zinc-100/30 dark:border-zinc-800/20"><Skeleton class="h-4 w-8" /></div>
 						<div class="flex items-center justify-center border-r border-zinc-100/30 dark:border-zinc-800/20"><Skeleton class="h-4 w-10" /></div>
 						<div class="flex items-center justify-end border-r border-zinc-100/30 px-2 dark:border-zinc-800/20"><Skeleton class="h-4 w-14" /></div>
+						<div class="flex items-center justify-end border-r border-zinc-100/30 px-2 dark:border-zinc-800/20"><Skeleton class="h-4 w-10" /></div>
 						<div class="flex items-center justify-end px-2"><Skeleton class="h-4 w-14" /></div>
 						<span></span>
 					</div>
@@ -315,10 +342,24 @@
 		</div>
 	</div>
 {:else}
+	<ConfirmDialog
+		bind:open={confirmMaxDiscountOpen}
+		title={t('line_discount_max_title')}
+		description={t('line_discount_max_desc')}
+		confirmLabel={t('line_discount_confirm_continue')}
+		cancelLabel={t('action_cancel')}
+		variant="warning"
+		onconfirm={() => {
+			confirmMaxDiscountOpen = false;
+			void executeSubmit();
+		}}
+	/>
+
 	<BillForm
 		title="Stock Import"
 		submitLabel="Import Stock"
 		bind:items
+		lineDiscountEnabled={true}
 		onadditem={addItem}
 		onsubmit={handleSubmit}
 		onunitchange={changeUnit}

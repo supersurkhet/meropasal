@@ -6,9 +6,11 @@
 	let {
 		targetTable = 'mixed',
 		onlineitems,
+		onCommitBillImport,
 	}: {
 		targetTable?: 'products' | 'parties' | 'customers' | 'mixed' | 'stock-import' | 'orders' | 'sales' | 'trips'
 		onlineitems?: (items: any[], partyName?: string) => void
+		onCommitBillImport?: (items: any[], partyName?: string) => boolean
 	} = $props()
 
 	let scannerOpen = $state(false)
@@ -26,4 +28,4 @@
 	AI Scan
 </Button>
 
-<AiScannerDialog bind:open={scannerOpen} {targetTable} {onlineitems} />
+<AiScannerDialog bind:open={scannerOpen} {targetTable} {onlineitems} {onCommitBillImport} />

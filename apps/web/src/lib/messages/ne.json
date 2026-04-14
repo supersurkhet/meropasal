@@ -281,6 +281,13 @@
 	"confirm_delete_vehicle": "यसले सवारी मेटाउनेछ। नयाँ यात्रामा उपलब्ध हुने छैन।",
 	"confirm_cancel_order": "यसले अर्डर रद्द गर्नेछ। यो कार्य पूर्ववत गर्न सकिँदैन।",
 
+	"line_discount_percent": "छुट %",
+	"line_discount_max_title": "१५% छुट (अधिकतम)",
+	"line_discount_max_desc": "कम्तीमा एक लाइनले अधिकतम छुट (१५%) प्रयोग गरेको छ। यो जानाजानी हो, वा गल्ती भएको हो?",
+	"line_discount_exceeds_title": "१५% भन्दा बढी छुट",
+	"line_discount_exceeds_desc": "कम्तीमा एक लाइनमा १५% भन्दा बढी छुट थियो। दर छुट सीमाअनुसार समायोजन गरिएको छ। जारी राख्ने हो?",
+	"line_discount_confirm_continue": "हो, जारी राख्नुहोस्",
+
 	"toast_party_created": "आपूर्तिकर्ता सफलतापूर्वक बनाइयो",
 	"toast_party_updated": "आपूर्तिकर्ता सफलतापूर्वक अपडेट गरियो",
 	"toast_party_deleted": "आपूर्तिकर्ता मेटाइयो",

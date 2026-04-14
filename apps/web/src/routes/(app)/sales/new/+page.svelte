@@ -6,7 +6,7 @@
 	import SaleForm from '$lib/components/modules/sales/SaleForm.svelte';
 	import AiScannerButton from '$lib/components/shared/AiScannerButton.svelte';
 
-	let formRef = $state<{ addScannedItems: (items: any[], partyName?: string) => void } | null>(null)
+	let formRef = $state<{ tryCommitScanImport: (items: any[], partyName?: string) => boolean } | null>(null)
 </script>
 
 <MetaTags title="New Sale" />
@@ -19,7 +19,7 @@
 		</Button>
 		<AiScannerButton
 			targetTable="sales"
-			onlineitems={(items, partyName) => formRef?.addScannedItems(items, partyName)}
+			onCommitBillImport={(items, partyName) => formRef?.tryCommitScanImport(items, partyName) ?? false}
 		/>
 	</div>
 

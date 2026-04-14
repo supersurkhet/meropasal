@@ -4,22 +4,20 @@
 	import CurrencyInput from './CurrencyInput.svelte';
 	import UnitSelector from './UnitSelector.svelte';
 	import { formatNPR, formatNumber } from '$lib/currency';
-	import { deriveUnitPrice, formatUnit } from '$lib/unit-price';
+	import { formatUnit } from '$lib/unit-price';
 	import { Trash2, Save, Loader2 } from '@lucide/svelte';
 	import type { Snippet } from 'svelte';
 	import { tick } from 'svelte';
 	import { formatDate } from '$lib/date-utils';
 	import { t } from '$lib/t.svelte';
+	import {
+		syncFromRate,
+		syncFromDiscount,
+		discountPercentFromRates,
+	} from '$lib/line-discount';
+	import type { BillLineItem } from '$lib/bill-line-item';
 
-	type LineItem = {
-		id: string;
-		productId: string;
-		productTitle: string;
-		quantity: number;
-		unit: string;
-		unitStr: string;
-		rate: number;
-	};
+	type LineItem = BillLineItem;
 
 	let {
 		title = 'Invoice',
@@ -32,6 +30,7 @@
 		submitLabel = t('action_save'),
 		readonly = false,
 		productSelector,
+		lineDiscountEnabled = false,
 	}: {
 		title?: string;
 		headerSlot?: Snippet;
@@ -43,6 +42,7 @@
 		submitLabel?: string;
 		readonly?: boolean;
 		productSelector?: Snippet<[{ item: LineItem; index: number }]>;
+		lineDiscountEnabled?: boolean;
 	} = $props();
 
 	let tableEl: HTMLDivElement | undefined = $state();
@@ -51,6 +51,22 @@
 	let subtotal = $derived(
 		items.reduce((sum, item) => sum + item.quantity * item.rate, 0),
 	);
+
+	let rowGridClass = $derived(
+		lineDiscountEnabled
+			? 'grid grid-cols-[2rem_1fr_4.5rem_4rem_4.5rem_3.25rem_4.5rem_1.5rem] items-stretch border-b transition-colors'
+			: 'grid grid-cols-[2rem_1fr_4.5rem_4rem_5rem_4.5rem_1.5rem] items-stretch border-b transition-colors',
+	);
+
+	let headerGridClass = $derived(
+		lineDiscountEnabled
+			? 'sticky top-0 z-10 grid grid-cols-[2rem_1fr_4.5rem_4rem_4.5rem_3.25rem_4.5rem_1.5rem] items-stretch border-b border-zinc-200 bg-zinc-50 text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400'
+			: 'sticky top-0 z-10 grid grid-cols-[2rem_1fr_4.5rem_4rem_5rem_4.5rem_1.5rem] items-stretch border-b border-zinc-200 bg-zinc-50 text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400',
+	);
+
+	function getRef(item: LineItem) {
+		return item.referenceRate ?? 0;
+	}
 
 	function removeItem(index: number) {
 		items = items.filter((_, i) => i !== index);
@@ -63,8 +79,29 @@
 		}
 	}
 
-	function updateItemRate(index: number, value: number) {
-		items[index].rate = value;
+	function onRateUserInput(index: number) {
+		if (!lineDiscountEnabled) return;
+		const item = items[index];
+		const s = syncFromRate(getRef(item), item.rate);
+		item.rate = s.rate;
+		item.discountPercent = s.discountPercent;
+	}
+
+	function onDiscountInput(index: number, raw: string) {
+		const v = parseFloat(raw);
+		const d = Number.isFinite(v) ? v : 0;
+		const item = items[index];
+		const s = syncFromDiscount(getRef(item), d);
+		item.rate = s.rate;
+		item.discountPercent = s.discountPercent;
+	}
+
+	function afterPasteSyncRow(index: number) {
+		if (!lineDiscountEnabled) return;
+		const item = items[index];
+		const s = syncFromRate(getRef(item), item.rate);
+		item.rate = s.rate;
+		item.discountPercent = s.discountPercent;
 	}
 
 	function updateItemUnit(index: number, unit: string) {
@@ -77,7 +114,6 @@
 
 	const MIN_TRAILING = 3;
 
-	/** Keep at least MIN_TRAILING empty rows after the current position */
 	function ensureTrailingRows(index: number) {
 		if (!onadditem) return;
 		const emptyAfter = items.slice(index + 1).filter((i) => !i.productId).length;
@@ -85,8 +121,9 @@
 		for (let n = 0; n < needed; n++) onadditem();
 	}
 
-	/** Focus a specific cell by row index and column name */
-	async function focusCell(rowIndex: number, column: 'qty' | 'rate') {
+	type ColKey = 'qty' | 'rate' | 'discount';
+
+	async function focusCell(rowIndex: number, column: ColKey) {
 		await tick();
 		if (!tableEl) return;
 		const rows = tableEl.querySelectorAll('[data-row-index]');
@@ -99,26 +136,39 @@
 		input?.select();
 	}
 
-	/** Handle Tab/Enter/Backspace navigation across cells */
-	function handleCellKeydown(e: KeyboardEvent, rowIndex: number, column: 'qty' | 'rate') {
+	function handleCellKeydown(e: KeyboardEvent, rowIndex: number, column: ColKey) {
+		const refOk = lineDiscountEnabled && getRef(items[rowIndex]) > 0;
 		if (e.key === 'Tab' && !e.shiftKey) {
 			if (column === 'qty') {
-				// qty -> rate in same row
 				e.preventDefault();
 				focusCell(rowIndex, 'rate');
 			} else if (column === 'rate') {
-				// rate -> qty in next row (auto-add if last)
+				e.preventDefault();
+				if (refOk) {
+					focusCell(rowIndex, 'discount');
+				} else {
+					ensureTrailingRows(rowIndex);
+					focusCell(rowIndex + 1, 'qty');
+				}
+			} else if (column === 'discount') {
 				e.preventDefault();
 				ensureTrailingRows(rowIndex);
 				focusCell(rowIndex + 1, 'qty');
 			}
 		} else if (e.key === 'Tab' && e.shiftKey) {
-			if (column === 'rate') {
+			if (column === 'discount') {
+				e.preventDefault();
+				focusCell(rowIndex, 'rate');
+			} else if (column === 'rate') {
 				e.preventDefault();
 				focusCell(rowIndex, 'qty');
 			} else if (column === 'qty' && rowIndex > 0) {
 				e.preventDefault();
-				focusCell(rowIndex - 1, 'rate');
+				if (lineDiscountEnabled && getRef(items[rowIndex - 1]) > 0) {
+					focusCell(rowIndex - 1, 'discount');
+				} else {
+					focusCell(rowIndex - 1, 'rate');
+				}
 			}
 		} else if (e.key === 'Enter') {
 			e.preventDefault();
@@ -127,8 +177,16 @@
 		} else if ((e.key === 'Backspace' || e.key === 'Delete') && !readonly) {
 			const item = items[rowIndex];
 			const input = e.target as HTMLInputElement;
-			// Remove row if it's empty and there's more than one row
-			if (!item.productId && item.quantity === 0 && item.rate === 0 && input.value === '' && items.length > 1) {
+			const disc = item.discountPercent ?? 0;
+			const emptyDisc = !lineDiscountEnabled || getRef(item) <= 0 || disc === 0;
+			if (
+				!item.productId &&
+				item.quantity === 0 &&
+				item.rate === 0 &&
+				emptyDisc &&
+				input.value === '' &&
+				items.length > 1
+			) {
 				e.preventDefault();
 				removeItem(rowIndex);
 				if (rowIndex > 0) {
@@ -138,21 +196,21 @@
 		}
 	}
 
-	/** Handle paste of multi-cell data from spreadsheets */
-	function handlePaste(e: ClipboardEvent, rowIndex: number, column: 'qty' | 'rate') {
+	function handlePaste(e: ClipboardEvent, rowIndex: number, column: ColKey) {
 		const text = e.clipboardData?.getData('text/plain');
 		if (!text) return;
 
 		const rows = text.split(/\r?\n/).filter(Boolean);
-		if (rows.length <= 1 && !rows[0]?.includes('\t')) return; // Single value — let default handle it
+		if (rows.length <= 1 && !rows[0]?.includes('\t')) return;
 
 		e.preventDefault();
-		const columns: ('qty' | 'rate')[] = ['qty', 'rate'];
+		const columns: ColKey[] = lineDiscountEnabled
+			? ['qty', 'rate', 'discount']
+			: ['qty', 'rate'];
 		const colStart = columns.indexOf(column);
 
 		for (let r = 0; r < rows.length; r++) {
 			const targetRow = rowIndex + r;
-			// Ensure enough rows exist
 			while (targetRow >= items.length && onadditem) {
 				onadditem();
 			}
@@ -169,6 +227,9 @@
 					items[targetRow].quantity = val;
 				} else if (columns[targetCol] === 'rate') {
 					items[targetRow].rate = val;
+					afterPasteSyncRow(targetRow);
+				} else if (columns[targetCol] === 'discount') {
+					onDiscountInput(targetRow, String(val));
 				}
 			}
 		}
@@ -180,15 +241,21 @@
 			if (!readonly && onsubmit) onsubmit();
 		}
 	}
+
+	function readonlyDiscountDisplay(item: LineItem) {
+		if (!lineDiscountEnabled) return '';
+		const ref = getRef(item);
+		if (ref <= 0) return '—';
+		if (item.discountPercent != null) return formatNumber(item.discountPercent);
+		return formatNumber(discountPercentFromRates(ref, item.rate));
+	}
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
 
-<!-- The Bill/Receipt container — designed to feel like a physical invoice -->
 <div class="mx-auto max-w-4xl">
 	<div class="rounded-lg border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
 
-		<!-- Bill Header — like the top of a receipt -->
 		<div class="border-b border-dashed border-zinc-300 px-6 py-5 dark:border-zinc-700">
 			<div class="flex items-start justify-between">
 				<div>
@@ -202,7 +269,6 @@
 				</div>
 			</div>
 
-			<!-- Header slot for party/customer selectors -->
 			{#if headerSlot}
 				<div class="mt-4">
 					{@render headerSlot()}
@@ -210,20 +276,20 @@
 			{/if}
 		</div>
 
-		<!-- Line Items Table — scrollable spreadsheet area -->
 		<div class="bill-grid max-h-[30vh] overflow-y-auto" bind:this={tableEl}>
-			<!-- Table Header -->
-			<div class="sticky top-0 z-10 grid grid-cols-[2rem_1fr_4.5rem_4rem_5rem_4.5rem_1.5rem] items-stretch border-b border-zinc-200 bg-zinc-50 text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
+			<div class={headerGridClass}>
 				<span class="flex items-center justify-center border-r border-zinc-200 px-2 py-2 dark:border-zinc-800">{t('common_sn')}</span>
 				<span class="flex items-center border-r border-zinc-200 px-3 py-2 dark:border-zinc-800">{t('product_title')}</span>
 				<span class="flex items-center justify-center border-r border-zinc-200 px-2 py-2 dark:border-zinc-800">{t('common_quantity')}</span>
 				<span class="flex items-center justify-center border-r border-zinc-200 px-2 py-2 dark:border-zinc-800">{t('product_unit')}</span>
 				<span class="flex items-center justify-end border-r border-zinc-200 px-2 py-2 dark:border-zinc-800">{t('common_rate')}</span>
+				{#if lineDiscountEnabled}
+					<span class="flex items-center justify-end border-r border-zinc-200 px-2 py-2 dark:border-zinc-800">{t('line_discount_percent')}</span>
+				{/if}
 				<span class="flex items-center justify-end px-2 py-2">{t('common_amount')}</span>
 				<span></span>
 			</div>
 
-			<!-- Line Items -->
 			{#if items.length === 0 && readonly}
 				<div class="flex flex-col items-center justify-center py-12 text-zinc-400 dark:text-zinc-500">
 					<div class="mb-2 text-3xl opacity-30">📋</div>
@@ -232,19 +298,18 @@
 			{/if}
 
 			{#each items as item, i (item.id)}
+				{@const ddRead = readonlyDiscountDisplay(item)}
 				{@const lineTotal = item.quantity * item.rate}
 				{@const filled = !!item.productId}
 				{@const vb = filled ? 'border-r border-zinc-200/60 dark:border-zinc-700/50' : 'border-r border-zinc-100/30 dark:border-zinc-800/20'}
 				<div
 					data-row-index={i}
-					class="group grid grid-cols-[2rem_1fr_4.5rem_4rem_5rem_4.5rem_1.5rem] items-stretch border-b transition-colors {filled ? 'border-zinc-200/60 dark:border-zinc-700/50 hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50' : 'border-zinc-100/30 dark:border-zinc-800/20'}"
+					class="{rowGridClass} {filled ? 'border-zinc-200/60 dark:border-zinc-700/50 hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50' : 'border-zinc-100/30 dark:border-zinc-800/20'}"
 				>
-					<!-- SN -->
 					<span class="{vb} flex items-center justify-center px-2 font-mono text-xs tabular-nums {filled ? 'text-zinc-400' : 'text-zinc-300 dark:text-zinc-600'}">
 						{i + 1}
 					</span>
 
-					<!-- Product -->
 					<div class="flex min-w-0 items-stretch overflow-hidden {vb}">
 						{#if productSelector && !readonly}
 							{@render productSelector({ item, index: i })}
@@ -255,7 +320,6 @@
 						{/if}
 					</div>
 
-					<!-- Quantity -->
 					{#if readonly}
 						<span class="flex items-center justify-center {vb} px-2 font-mono text-sm tabular-nums">{item.quantity}</span>
 					{:else}
@@ -274,7 +338,6 @@
 						</div>
 					{/if}
 
-					<!-- Unit -->
 					{#if readonly}
 						<span class="flex items-center justify-center {vb} px-2 text-sm text-zinc-500">{formatUnit(item.unit)}</span>
 					{:else}
@@ -287,7 +350,6 @@
 						</div>
 					{/if}
 
-					<!-- Rate -->
 					{#if readonly}
 						<span class="flex items-center justify-end {vb} px-2 font-mono text-sm tabular-nums">{formatNumber(item.rate)}</span>
 					{:else}
@@ -295,6 +357,7 @@
 							<CurrencyInput
 								bind:value={item.rate}
 								class="[&_input]:text-sm [&_span]:text-xs"
+								onuserinput={() => onRateUserInput(i)}
 								onkeydown={(e) => handleCellKeydown(e, i, 'rate')}
 								onpaste={(e) => handlePaste(e, i, 'rate')}
 								onfocus={() => ensureTrailingRows(i)}
@@ -302,12 +365,35 @@
 						</div>
 					{/if}
 
-					<!-- Amount -->
+					{#if lineDiscountEnabled}
+						{#if readonly}
+							<span class="flex items-center justify-end {vb} px-2 font-mono text-sm tabular-nums text-zinc-600 dark:text-zinc-400">
+								{ddRead}{#if ddRead !== '—'}%{/if}
+							</span>
+						{:else if getRef(item) <= 0}
+							<span class="flex items-center justify-center {vb} px-2 text-sm text-zinc-400">—</span>
+						{:else}
+							<div data-col="discount" class="flex items-stretch {vb}">
+								<Input
+									type="number"
+									min="0"
+									max="15"
+									step="0.01"
+									class="h-auto rounded-none border-0 bg-transparent text-right font-mono text-sm tabular-nums shadow-none ring-0 focus-visible:bg-zinc-50 focus-visible:ring-0 dark:focus-visible:bg-zinc-800/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+									value={String(item.discountPercent ?? 0)}
+									oninput={(e) => onDiscountInput(i, (e.target as HTMLInputElement).value)}
+									onkeydown={(e) => handleCellKeydown(e, i, 'discount')}
+									onpaste={(e) => handlePaste(e, i, 'discount')}
+									onfocus={() => ensureTrailingRows(i)}
+								/>
+							</div>
+						{/if}
+					{/if}
+
 					<span class="flex items-center justify-end px-2 font-mono text-sm font-medium tabular-nums text-zinc-800 dark:text-zinc-200">
 						{lineTotal > 0 ? formatNumber(lineTotal) : ''}
 					</span>
 
-					<!-- Remove -->
 					<div class="flex items-center justify-center">
 						{#if !readonly && filled}
 							<button
@@ -324,9 +410,7 @@
 
 		</div>
 
-		<!-- Bill Footer — totals like the bottom of a receipt -->
 		<div class="border-t border-dashed border-zinc-300 dark:border-zinc-700">
-			<!-- Subtotal -->
 			<div class="flex items-center justify-between px-6 py-3">
 				<span class="text-sm text-zinc-500">{t('invoice_subtotal')}</span>
 				<span class="font-mono text-sm tabular-nums text-zinc-700 dark:text-zinc-300">
@@ -334,7 +418,6 @@
 				</span>
 			</div>
 
-			<!-- Grand Total -->
 			<div class="border-t border-double border-zinc-300 px-6 py-3 dark:border-zinc-600">
 				<div class="flex items-center justify-between">
 					<span class="text-base font-bold text-zinc-900 dark:text-zinc-100">{t('common_total')}</span>
@@ -366,7 +449,6 @@
 {/if}
 
 <style>
-	/* Strip borders/shadows from all inputs and selects inside the grid */
 	.bill-grid :global([data-slot="select-trigger"]) {
 		border: none !important;
 		border-radius: 0 !important;
@@ -388,7 +470,6 @@
 	:global(.dark) .bill-grid :global([data-slot="select-trigger"]:focus) {
 		background: oklch(0.274 0.006 286.033 / 0.5) !important;
 	}
-	/* CurrencyInput wrapper + inner input */
 	.bill-grid :global(.relative) {
 		width: 100%;
 		height: 100%;
@@ -421,7 +502,6 @@
 	:global(.dark) .bill-grid :global(input:focus) {
 		background: oklch(0.274 0.006 286.033 / 0.5) !important;
 	}
-	/* Single-unit static badge */
 	.bill-grid :global(span.inline-flex) {
 		border: none !important;
 		border-radius: 0 !important;

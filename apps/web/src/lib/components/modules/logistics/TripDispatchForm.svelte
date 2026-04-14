@@ -100,6 +100,51 @@
 		return `item-${++nextId}-${Date.now()}`;
 	}
 
+	export function tryCommitScanImport(scannedItems: any[], partyName?: string): boolean {
+		const snapVehicle = vehicleId
+		const snapTime = dispatchTime
+		const snapDest = destination
+		const snapItems = structuredClone(items)
+		addScannedItems(scannedItems, partyName)
+
+		const validItems = items.filter((i) => i.productId && i.quantity > 0)
+		const result = tripDispatchSchema.safeParse({
+			vehicleId,
+			dispatchTime,
+			destination: destination.trim() || undefined,
+			products: validItems.map((item) => ({
+				productId: item.productId,
+				productTitle: item.productTitle,
+				quantity: item.quantity,
+				unitPrice: item.rate,
+				unit: item.unit || undefined,
+			})),
+		})
+		if (!result.success) {
+			vehicleId = snapVehicle
+			dispatchTime = snapTime
+			destination = snapDest
+			items = snapItems
+			errors = extractErrors(result.error.issues)
+			toast.error(t('validation_form_errors'))
+			return false
+		}
+		const overStock = items.some(
+			(item) => item.productId && item.quantity > getAvailable(item.productId),
+		)
+		if (overStock) {
+			vehicleId = snapVehicle
+			dispatchTime = snapTime
+			destination = snapDest
+			items = snapItems
+			errors = {}
+			toast.error('Some items exceed available stock')
+			return false
+		}
+		errors = {}
+		return true
+	}
+
 	export function addScannedItems(scannedItems: any[], partyName?: string) {
 		// Auto-set destination if provided and empty
 		if (partyName && !destination) {

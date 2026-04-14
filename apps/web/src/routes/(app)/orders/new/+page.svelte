@@ -7,7 +7,7 @@
 	import AiScannerButton from '$lib/components/shared/AiScannerButton.svelte';
 	import { t } from '$lib/t.svelte';
 
-	let formRef = $state<{ addScannedItems: (items: any[], partyName?: string) => void } | null>(null)
+	let formRef = $state<{ tryCommitScanImport: (items: any[], partyName?: string) => boolean } | null>(null)
 </script>
 
 <MetaTags title={t('order_create')} />
@@ -20,7 +20,7 @@
 		</Button>
 		<AiScannerButton
 			targetTable="orders"
-			onlineitems={(items, partyName) => formRef?.addScannedItems(items, partyName)}
+			onCommitBillImport={(items, partyName) => formRef?.tryCommitScanImport(items, partyName) ?? false}
 		/>
 	</div>
 

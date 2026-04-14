@@ -41,6 +41,20 @@
 	import UnitBuilder from '$lib/components/shared/UnitBuilder.svelte'
 	import PricePerUnitInput from '$lib/components/shared/PricePerUnitInput.svelte'
 	import * as Select from '$lib/components/ui/select'
+	import { partySchema } from '$lib/schemas/party'
+	import { productSchema } from '$lib/schemas/product'
+	import { customerSchema } from '$lib/schemas/customer'
+	import { z } from 'zod/v4'
+	import ConfirmDialog from '$lib/components/shared/ConfirmDialog.svelte'
+	import { t } from '$lib/t.svelte'
+	import { deriveUnitPrice, getAvailableUnits } from '$lib/unit-price'
+	import {
+		syncFromRate,
+		impliedDiscountPercentRaw,
+		MAX_LINE_DISCOUNT_PERCENT,
+		DISCOUNT_MAX_EPSILON,
+		isDiscountAtOrAboveMax,
+	} from '$lib/line-discount'
 
 	type TargetTable = 'products' | 'parties' | 'customers' | 'mixed' | 'stock-import' | 'orders' | 'sales' | 'trips'
 	type ExtractedLineItem = {
@@ -58,11 +72,14 @@
 		open = $bindable(false),
 		targetTable = 'mixed',
 		onlineitems,
+		onCommitBillImport,
 	}: {
 		open?: boolean
 		targetTable?: TargetTable
 		/** Callback for bill-based modules: receives extracted line items instead of bulk importing */
 		onlineitems?: (items: ExtractedLineItem[], partyName?: string) => void
+		/** If set, merge + validate parent form; return false to keep dialog open without applying */
+		onCommitBillImport?: (items: ExtractedLineItem[], partyName?: string) => boolean
 	} = $props()
 
 	const isBillMode = $derived(['stock-import', 'orders', 'sales', 'trips'].includes(targetTable))
@@ -85,6 +102,13 @@
 	type Phase = 'idle' | 'active' | 'saving' | 'done' | 'error'
 
 	let phase = $state<Phase>('idle')
+	let scannerExceedsDiscountOpen = $state(false)
+	let scannerMaxDiscountOpen = $state(false)
+	let pendingBillImport = $state<{
+		lineItems: ExtractedLineItem[]
+		partyName?: string
+		needMaxAfter?: boolean
+	} | null>(null)
 	let showCamera = $state(false)
 	let errorMessage = $state('')
 	let streaming = $state(false)
@@ -125,7 +149,15 @@
 
 	// ── Existing entities for lookup/dedup ──────────────────
 	type Party = { _id: string; name: string; panNumber?: string; address?: string; phone?: string; creditLimit?: number; paymentTerms?: string; notes?: string }
-	type ExistingProduct = { _id: string; title: string; barcode?: string; sku?: string }
+	type ExistingProduct = {
+		_id: string
+		title: string
+		barcode?: string
+		sku?: string
+		unit?: string
+		costPrice: number
+		sellingPrice?: number
+	}
 	type ExistingCustomer = { _id: string; name: string; panNumber?: string; phone?: string; email?: string }
 
 	let existingParties = $state<Party[]>([])
@@ -173,6 +205,195 @@
 	// Import summary
 	let summary = $state({ parties: 0, products: 0, customers: 0 })
 	let lastScanInputKind = $state<ScanInputKind>('text')
+	let scanFieldErrors = $state<Record<string, string>>({})
+	let importBannerError = $state('')
+
+	const scannerProductRowSchema = productSchema.extend({
+		costPrice: z.number().positive('Cost price must be greater than 0'),
+	})
+
+	function clearScanImportFeedback() {
+		scanFieldErrors = {}
+		importBannerError = ''
+	}
+
+	function setScanFieldError(key: string, message: string) {
+		if (!scanFieldErrors[key]) scanFieldErrors[key] = message
+	}
+
+	function buildResolvedProductRow(p: (typeof extractedProducts)[number]) {
+		let supplierName: string | undefined = p.supplierName || undefined
+		if (p.purchasePartyId) {
+			if (p.purchasePartyId.startsWith('__new__')) {
+				supplierName = p.purchasePartyId.replace('__new__', '')
+			} else {
+				const party = existingParties.find((e) => e._id === p.purchasePartyId)
+				if (party) supplierName = party.name
+			}
+		}
+		return {
+			title: p.title,
+			supplierName,
+			costPrice: Number(p.costPrice) || 0,
+			openingStock: Number(p.openingStock) || 0,
+			sellingPrice: p.sellingPrice !== undefined && p.sellingPrice !== '' ? Number(p.sellingPrice) : undefined,
+			unit: p.unit || undefined,
+			category: p.category || undefined,
+			barcode: p.barcode || undefined,
+			sku: p.sku || undefined,
+			hsCode: p.hsCode || undefined,
+		}
+	}
+
+	function mergeAllPartiesForBulkImport(
+		newPartyPayloads: Array<{ name: string }>,
+		productRows: Array<{ supplierName?: string }>,
+	) {
+		const supplierNames = new Set<string>()
+		for (const p of productRows) {
+			if (p.supplierName) supplierNames.add(p.supplierName)
+		}
+		const allParties = [...newPartyPayloads]
+		for (const name of supplierNames) {
+			if (!allParties.some((p) => p.name.toLowerCase() === name.toLowerCase())) {
+				allParties.push({ name })
+			}
+		}
+		return allParties
+	}
+
+	function resolveBulkImportPartyId(
+		supplierName: string | undefined,
+		allParties: Array<{ name: string }>,
+	): string | null {
+		if (!supplierName?.trim()) return null
+		const sn = supplierName.trim()
+		const existing = existingParties.find((e) => namesMatch(e.name, sn))
+		if (existing) return existing._id
+		const inBatch = allParties.find((p) => namesMatch(p.name, sn))
+		if (inBatch) return `virtual:${normalizeName(inBatch.name)}`
+		return null
+	}
+
+	function validateExtractedForBulkImport(): boolean {
+		clearScanImportFeedback()
+		let ok = true
+
+		const resolvedProducts = extractedProducts.map((p) => buildResolvedProductRow(p))
+
+		const newParties = extractedParties
+			.filter((p) => !p._existingId)
+			.map((p) => ({
+				name: p.name,
+				panNumber: p.panNumber || undefined,
+				address: p.address || undefined,
+				phone: p.phone || undefined,
+				creditLimit:
+					p.creditLimit !== undefined && p.creditLimit !== '' && Number.isFinite(Number(p.creditLimit))
+						? Number(p.creditLimit)
+						: undefined,
+				paymentTerms: p.paymentTerms || undefined,
+			}))
+
+		const newCustomers = extractedCustomers
+			.filter((c) => !c._existingId)
+			.map((c) => ({
+				name: c.name,
+				panNumber: c.panNumber || undefined,
+				address: c.address || undefined,
+				phone: c.phone || undefined,
+				email: c.email?.trim() ? c.email.trim() : undefined,
+				creditLimit:
+					c.creditLimit !== undefined && c.creditLimit !== '' && Number.isFinite(Number(c.creditLimit))
+						? Number(c.creditLimit)
+						: undefined,
+			}))
+
+		const newProductsPayload = resolvedProducts.filter((_, i) => !extractedProducts[i]?._existingId)
+		const allPartiesMerged = mergeAllPartiesForBulkImport(newParties, newProductsPayload)
+
+		extractedParties.forEach((party, i) => {
+			if (party._existingId) return
+			const pr = partySchema.safeParse({
+				name: party.name?.trim() ?? '',
+				panNumber: party.panNumber || undefined,
+				address: party.address || undefined,
+				phone: party.phone || undefined,
+				creditLimit:
+					party.creditLimit !== undefined && party.creditLimit !== '' && Number.isFinite(Number(party.creditLimit))
+						? Number(party.creditLimit)
+						: undefined,
+				paymentTerms: party.paymentTerms || undefined,
+			})
+			if (!pr.success) {
+				ok = false
+				for (const issue of pr.error.issues) {
+					const sub = issue.path.length ? issue.path.join('-') : 'name'
+					setScanFieldError(`party-${i}-${sub}`, issue.message)
+				}
+			}
+		})
+
+		extractedCustomers.forEach((customer, i) => {
+			if (customer._existingId) return
+			const cr = customerSchema.safeParse({
+				name: customer.name?.trim() ?? '',
+				panNumber: customer.panNumber || undefined,
+				address: customer.address || undefined,
+				phone: customer.phone || undefined,
+				email: customer.email?.trim() ? customer.email.trim() : undefined,
+				creditLimit:
+					customer.creditLimit !== undefined && customer.creditLimit !== '' && Number.isFinite(Number(customer.creditLimit))
+						? Number(customer.creditLimit)
+						: undefined,
+			})
+			if (!cr.success) {
+				ok = false
+				for (const issue of cr.error.issues) {
+					const sub = issue.path.length ? issue.path.join('-') : 'name'
+					setScanFieldError(`customer-${i}-${sub}`, issue.message)
+				}
+			}
+		})
+
+		extractedProducts.forEach((raw, i) => {
+			if (raw._existingId) return
+			const row = resolvedProducts[i]
+			const partyId = resolveBulkImportPartyId(row.supplierName, allPartiesMerged)
+			if (!partyId) {
+				ok = false
+				setScanFieldError(`product-${i}-supplier`, 'Supplier is required')
+				return
+			}
+			const selling =
+				row.sellingPrice !== undefined && Number.isFinite(row.sellingPrice)
+					? normalizeSellingPrice(row.costPrice, row.sellingPrice)
+					: fallbackSellingPrice(row.costPrice)
+			const pr = scannerProductRowSchema.safeParse({
+				title: row.title?.trim() ?? '',
+				purchasePartyId: partyId,
+				unit: row.unit || undefined,
+				costPrice: row.costPrice,
+				sellingPrice: selling,
+				openingStock: row.openingStock,
+				reorderLevel: undefined,
+				hsCode: row.hsCode || undefined,
+				barcode: row.barcode || undefined,
+				sku: row.sku || undefined,
+				category: row.category || undefined,
+				description: undefined,
+			})
+			if (!pr.success) {
+				ok = false
+				for (const issue of pr.error.issues) {
+					const sub = issue.path.length ? issue.path.join('-') : 'title'
+					setScanFieldError(`product-${i}-${sub}`, issue.message)
+				}
+			}
+		})
+
+		return ok
+	}
 
 	// Text input
 	let textInput = $state('')
@@ -965,68 +1186,164 @@
 		extractedCustomers = extractedCustomers.filter((_, i) => i !== index)
 	}
 
+	function executeBillImportCommit(lineItems: ExtractedLineItem[], partyName?: string) {
+		if (onCommitBillImport) {
+			const ok = onCommitBillImport(lineItems, partyName)
+			if (!ok) return
+		} else if (onlineitems) {
+			onlineitems(lineItems, partyName)
+		}
+		phase = 'done'
+		summary = { parties: 0, products: lineItems.length, customers: 0 }
+		toast.success(`Added ${lineItems.length} line items`)
+		setTimeout(() => {
+			open = false
+			reset()
+		}, 500)
+	}
+
+	function buildBillLineItemsFromExtracted(): {
+		lineItems: ExtractedLineItem[]
+		anyRawExceeds: boolean
+		anyAtMax: boolean
+	} {
+		const rows = extractedProducts.filter((p) => !p._existingId)
+		let anyRawExceeds = false
+		let anyAtMax = false
+		const lineItems: ExtractedLineItem[] = rows.map((p) => {
+			const existingProduct = existingProducts.find((ep) => namesMatch(ep.title, p.title))
+			const unitStr = existingProduct?.unit ?? p.unit ?? ''
+			const units = getAvailableUnits(unitStr)
+			const rawUnit = p.unit != null && String(p.unit).trim() !== '' ? String(p.unit).trim() : ''
+			const unit = rawUnit && units.includes(rawUnit) ? rawUnit : units[0] || 'piece'
+
+			let referenceRate = 0
+			let rawRate = 0
+
+			if (existingProduct) {
+				if (targetTable === 'stock-import') {
+					referenceRate =
+						Math.round(
+							deriveUnitPrice(existingProduct.costPrice, existingProduct.unit, unit) * 100,
+						) / 100
+					const explicitRated = Number(p.rate)
+					const fromCost = Number(p.costPrice)
+					if (Number.isFinite(explicitRated) && explicitRated >= 0) rawRate = explicitRated
+					else if (Number.isFinite(fromCost) && fromCost >= 0) rawRate = fromCost
+					else rawRate = referenceRate
+				} else {
+					referenceRate =
+						Math.round(
+							deriveUnitPrice(
+								existingProduct.sellingPrice ?? 0,
+								existingProduct.unit,
+								unit,
+							) * 100,
+						) / 100
+					const explicitRated = Number(p.rate)
+					const fromSell = Number(p.sellingPrice)
+					const fromCost = Number(p.costPrice)
+					if (Number.isFinite(explicitRated) && explicitRated >= 0) rawRate = explicitRated
+					else if (Number.isFinite(fromSell) && fromSell >= 0) rawRate = fromSell
+					else if (Number.isFinite(fromCost) && fromCost >= 0) rawRate = fromCost
+					else rawRate = referenceRate
+				}
+			} else {
+				const explicitRated = Number(p.rate)
+				if (Number.isFinite(explicitRated) && explicitRated >= 0) rawRate = explicitRated
+				else if (targetTable === 'stock-import') rawRate = Number(p.costPrice) || 0
+				else rawRate = Number(p.sellingPrice) || Number(p.costPrice) || 0
+			}
+
+			if (referenceRate > 0) {
+				if (
+					impliedDiscountPercentRaw(referenceRate, rawRate) >
+					MAX_LINE_DISCOUNT_PERCENT + DISCOUNT_MAX_EPSILON
+				) {
+					anyRawExceeds = true
+				}
+			}
+
+			let finalRate = rawRate
+			if (referenceRate > 0) {
+				const s = syncFromRate(referenceRate, rawRate)
+				finalRate = s.rate
+				if (isDiscountAtOrAboveMax(s.discountPercent)) anyAtMax = true
+			} else {
+				finalRate = Math.round(rawRate * 100) / 100
+			}
+
+			return {
+				productTitle: p.title,
+				productId: existingProduct?._id ?? '',
+				quantity: Number(p.openingStock) || 1,
+				unit,
+				unitStr: unitStr || unit,
+				rate: finalRate,
+				supplierName: p.supplierName || undefined,
+			}
+		})
+
+		return { lineItems, anyRawExceeds, anyAtMax }
+	}
+
+	function onScannerExceedsDiscountConfirm() {
+		scannerExceedsDiscountOpen = false
+		const p = pendingBillImport
+		pendingBillImport = null
+		if (!p) return
+		if (p.needMaxAfter) {
+			pendingBillImport = { lineItems: p.lineItems, partyName: p.partyName }
+			scannerMaxDiscountOpen = true
+		} else {
+			executeBillImportCommit(p.lineItems, p.partyName)
+		}
+	}
+
+	function onScannerMaxDiscountConfirm() {
+		scannerMaxDiscountOpen = false
+		const p = pendingBillImport
+		pendingBillImport = null
+		if (p) executeBillImportCommit(p.lineItems, p.partyName)
+	}
+
 	// ── Bulk import ─────────────────────────────────────────
 
 	async function confirmImport() {
-		// Bill mode: pass line items back to parent form instead of bulk importing
-		if (isBillMode && onlineitems) {
-			const lineItems: ExtractedLineItem[] = extractedProducts
-				.filter((p) => !p._existingId)
-				.map((p) => {
-					// Resolve product ID if it matches an existing product
-					const existingProduct = existingProducts.find((ep) => namesMatch(ep.title, p.title))
-					return {
-						productTitle: p.title,
-						productId: existingProduct?._id ?? '',
-						quantity: Number(p.openingStock) || 1,
-						unit: p.unit || 'piece',
-						unitStr: p.unit || 'piece',
-						rate: Number(p.costPrice) || 0,
-						supplierName: p.supplierName || undefined,
-					}
-				})
+		if (isBillMode && (onCommitBillImport || onlineitems)) {
+			clearScanImportFeedback()
+			const { lineItems, anyRawExceeds, anyAtMax } = buildBillLineItemsFromExtracted()
 
-			// Get the primary supplier name (from extracted parties or first product's supplier)
-			const partyName = extractedParties[0]?.name
+			const partyName =
+				extractedParties[0]?.name
 				|| extractedProducts.find((p) => p.supplierName)?.supplierName
 				|| undefined
 
-			onlineitems(lineItems, partyName)
-			phase = 'done'
-			summary = { parties: 0, products: lineItems.length, customers: 0 }
-			toast.success(`Added ${lineItems.length} line items`)
-			setTimeout(() => { open = false; reset() }, 500)
+			if (anyRawExceeds) {
+				pendingBillImport = { lineItems, partyName, needMaxAfter: anyAtMax }
+				scannerExceedsDiscountOpen = true
+				return
+			}
+			if (anyAtMax) {
+				pendingBillImport = { lineItems, partyName }
+				scannerMaxDiscountOpen = true
+				return
+			}
+			executeBillImportCommit(lineItems, partyName)
+			return
+		}
+
+		clearScanImportFeedback()
+		if (!validateExtractedForBulkImport()) {
+			toast.error('Fix the highlighted fields before importing')
 			return
 		}
 
 		phase = 'saving'
+		importBannerError = ''
 		try {
-			const resolvedProducts = extractedProducts.map((p) => {
-				let supplierName = p.supplierName || undefined
-				if (p.purchasePartyId) {
-					if (p.purchasePartyId.startsWith('__new__')) {
-						// Temp ID from extracted party — use the name directly
-						supplierName = p.purchasePartyId.replace('__new__', '')
-					} else {
-						const party = existingParties.find((e) => e._id === p.purchasePartyId)
-						if (party) supplierName = party.name
-					}
-				}
-				return {
-					title: p.title,
-					supplierName,
-					costPrice: Number(p.costPrice) || 0,
-					openingStock: Number(p.openingStock) || 0,
-					sellingPrice: Number(p.sellingPrice) || undefined,
-					unit: p.unit || undefined,
-					category: p.category || undefined,
-					barcode: p.barcode || undefined,
-					sku: p.sku || undefined,
-					hsCode: p.hsCode || undefined,
-				}
-			})
+			const resolvedProducts = extractedProducts.map((p) => buildResolvedProductRow(p))
 
-			// Only send entities that don't already exist in the DB
 			const newParties = extractedParties
 				.filter((p) => !p._existingId)
 				.map((p) => ({
@@ -1034,7 +1351,10 @@
 					panNumber: p.panNumber || undefined,
 					address: p.address || undefined,
 					phone: p.phone || undefined,
-					creditLimit: p.creditLimit || undefined,
+					creditLimit:
+						p.creditLimit !== undefined && p.creditLimit !== '' && Number.isFinite(Number(p.creditLimit))
+							? Number(p.creditLimit)
+							: undefined,
 					paymentTerms: p.paymentTerms || undefined,
 				}))
 
@@ -1047,8 +1367,11 @@
 					panNumber: c.panNumber || undefined,
 					address: c.address || undefined,
 					phone: c.phone || undefined,
-					email: c.email || undefined,
-					creditLimit: c.creditLimit || undefined,
+					email: c.email?.trim() ? c.email.trim() : undefined,
+					creditLimit:
+						c.creditLimit !== undefined && c.creditLimit !== '' && Number.isFinite(Number(c.creditLimit))
+							? Number(c.creditLimit)
+							: undefined,
 				}))
 
 			const result = await client.action(api.aiScanner.bulkImport, {
@@ -1063,8 +1386,10 @@
 				`Created ${result.parties} parties, ${result.products} products, ${result.customers} customers`
 			)
 		} catch (err) {
-			phase = 'error'
-			errorMessage = err instanceof Error ? err.message : 'Import failed'
+			phase = 'active'
+			streamComplete = true
+			importBannerError = err instanceof Error ? err.message : 'Import failed'
+			await loadParties()
 		}
 	}
 
@@ -1072,6 +1397,7 @@
 		await loadParties()
 		phase = 'active'
 		errorMessage = ''
+		importBannerError = ''
 	}
 
 	// ── Reset ───────────────────────────────────────────────
@@ -1080,6 +1406,7 @@
 		phase = 'idle'
 		showCamera = false
 		errorMessage = ''
+		clearScanImportFeedback()
 		extractedParties = []
 		extractedProducts = []
 		extractedCustomers = []
@@ -1380,7 +1707,7 @@
 						<span class="mx-1 text-muted-foreground/40">&middot;</span>
 						<button
 							class="text-[11px] text-muted-foreground underline underline-offset-2 decoration-muted-foreground/40 hover:text-foreground hover:decoration-foreground/40 transition-colors"
-							onclick={openNativeFilePicker}
+							onclick={openFilePicker}
 						>
 							browse files
 						</button>
@@ -1405,6 +1732,18 @@
 			<DialogHeader class="pb-0">
 				<DialogTitle class="text-base">AI Data Scanner</DialogTitle>
 			</DialogHeader>
+			{#if importBannerError}
+				<div class="mt-2 flex items-start justify-between gap-2 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+					<span class="leading-snug">{importBannerError}</span>
+					<button
+						type="button"
+						class="shrink-0 rounded p-0.5 hover:bg-destructive/20"
+						onclick={() => { importBannerError = '' }}
+					>
+						<X class="size-4" />
+					</button>
+				</div>
+			{/if}
 
 			<!-- Input summary chips -->
 			{#if attachedFiles.length > 0 || textInput.trim()}
@@ -1506,6 +1845,9 @@
 														</div>
 													</div>
 													<p class="text-[11px] text-amber-500">New — will be created on import</p>
+													{#each Object.keys(scanFieldErrors).filter((k) => k.startsWith(`party-${i}-`)) as errKey}
+														<p class="text-[11px] text-destructive">{scanFieldErrors[errKey]}</p>
+													{/each}
 												</div>
 												{#if streamComplete}
 													<button class="mt-1 p-1 text-muted-foreground hover:text-destructive" onclick={() => removeParty(i)}>
@@ -1648,6 +1990,9 @@
 														</Select.Root>
 													</div>
 												</div>
+												{#each Object.keys(scanFieldErrors).filter((k) => k.startsWith(`product-${i}-`)) as errKey}
+													<p class="text-[11px] text-destructive">{scanFieldErrors[errKey]}</p>
+												{/each}
 											</div>
 
 											{#if streamComplete}
@@ -1696,6 +2041,9 @@
 															<Input bind:value={customer.email} class="h-7 text-sm" placeholder="—" />
 														</div>
 													</div>
+													{#each Object.keys(scanFieldErrors).filter((k) => k.startsWith(`customer-${i}-`)) as errKey}
+														<p class="text-[11px] text-destructive">{scanFieldErrors[errKey]}</p>
+													{/each}
 												</div>
 												{#if streamComplete}
 													<button class="mt-1 p-1 text-muted-foreground hover:text-destructive" onclick={() => removeCustomer(i)}>
@@ -1786,6 +2134,32 @@
 		{/if}
 	</DialogContent>
 </Dialog>
+
+<ConfirmDialog
+	bind:open={scannerExceedsDiscountOpen}
+	title={t('line_discount_exceeds_title')}
+	description={t('line_discount_exceeds_desc')}
+	confirmLabel={t('line_discount_confirm_continue')}
+	cancelLabel={t('action_cancel')}
+	variant="warning"
+	onconfirm={onScannerExceedsDiscountConfirm}
+	oncancel={() => {
+		pendingBillImport = null
+	}}
+/>
+
+<ConfirmDialog
+	bind:open={scannerMaxDiscountOpen}
+	title={t('line_discount_max_title')}
+	description={t('line_discount_max_desc')}
+	confirmLabel={t('line_discount_confirm_continue')}
+	cancelLabel={t('action_cancel')}
+	variant="warning"
+	onconfirm={onScannerMaxDiscountConfirm}
+	oncancel={() => {
+		pendingBillImport = null
+	}}
+/>
 
 <style>
 	@keyframes rowSlideIn {
