@@ -35,6 +35,7 @@
 		ImageIcon,
 	} from '@lucide/svelte'
 	import { onMount, onDestroy, tick } from 'svelte'
+	import { isDesktop } from '$lib/platform.svelte'
 	import EntitySelect from '$lib/components/shared/EntitySelect.svelte'
 	import PartyForm from '$lib/components/modules/parties/PartyForm.svelte'
 	import UnitBuilder from '$lib/components/shared/UnitBuilder.svelte'
@@ -65,6 +66,21 @@
 	} = $props()
 
 	const isBillMode = $derived(['stock-import', 'orders', 'sales', 'trips'].includes(targetTable))
+
+	let billPrimaryHeading = $derived.by(() => {
+		switch (targetTable) {
+			case 'stock-import':
+				return 'Stock import lines'
+			case 'orders':
+				return 'Order lines'
+			case 'sales':
+				return 'Sale lines'
+			case 'trips':
+				return 'Trip lines'
+			default:
+				return 'Lines'
+		}
+	})
 
 	type Phase = 'idle' | 'active' | 'saving' | 'done' | 'error'
 
@@ -186,8 +202,8 @@
 	// Attached files & pasted images
 	let attachedFiles = $state<Array<{ id: string; name: string; data: string; mimeType: string }>>([])
 
-	// Drag-and-drop (native Tauri events)
 	let isDragOver = $state(false)
+	let webDragDepth = $state(0)
 	let unlistenDrop: (() => void) | null = null
 
 	const SIZE_THRESHOLD = 10 * 1024 * 1024
@@ -196,6 +212,7 @@
 	const generateUploadUrl = useConvexMutation(client, api.functions.organizations.generateUploadUrl)
 
 	let textareaEl = $state<HTMLTextAreaElement | null>(null)
+	let fileInputEl = $state<HTMLInputElement | null>(null)
 
 	// Load all existing entities for dedup on dialog open
 	$effect(() => {
@@ -206,13 +223,17 @@
 		}
 	})
 
-	// Set up native drag-and-drop listener
 	onMount(async () => {
+		if (!isDesktop()) return
 		try {
 			const { listenForDrop } = await import('$lib/tauri-file')
 			unlistenDrop = await listenForDrop({
-				onDragEnter: () => { if (open) isDragOver = true },
-				onDragLeave: () => { isDragOver = false },
+				onDragEnter: () => {
+					if (open) isDragOver = true
+				},
+				onDragLeave: () => {
+					isDragOver = false
+				},
 				onDrop: (paths) => {
 					isDragOver = false
 					if (!open || paths.length === 0) return
@@ -223,7 +244,6 @@
 				},
 			})
 		} catch {
-			// Not in Tauri
 		}
 	})
 
@@ -478,6 +498,7 @@
 
 		await streamScan({
 			...opts,
+			targetTable,
 			onPartial: (data) => {
 				if (extractionSessionId !== sessionId) return
 				handlePartial(data)
@@ -493,17 +514,67 @@
 		})
 	}
 
-	// ── Native file handling ────────────────────────────────
+	async function attachOrUploadBinary(name: string, data: string, mime_type: string, size: number) {
+		if (size < SIZE_THRESHOLD) {
+			attachedFiles = [
+				...attachedFiles,
+				{ id: crypto.randomUUID(), name, data, mimeType: mime_type },
+			]
+		} else {
+			const binary = atob(data)
+			const bytes = new Uint8Array(binary.length)
+			for (let i = 0; i < binary.length; i++) {
+				bytes[i] = binary.charCodeAt(i)
+			}
+			const uploadUrl = await generateUploadUrl.mutate({})
+			const uploadRes = await fetch(uploadUrl as string, {
+				method: 'POST',
+				headers: { 'Content-Type': mime_type },
+				body: bytes,
+			})
+			const { storageId } = await uploadRes.json()
+			const fileUrl = await client.query(api.functions.organizations.getStorageUrl, { storageId })
+			await startStreaming({ fileUrl, mimeType: mime_type })
+		}
+	}
 
-	async function openNativeFilePicker() {
+	async function openFilePicker() {
+		if (isDesktop()) {
+			try {
+				const { pickFile } = await import('$lib/tauri-file')
+				const file = await pickFile()
+				if (!file) return
+				await processNativeFile(file.path, file.name)
+			} catch (err) {
+				phase = 'error'
+				errorMessage = err instanceof Error ? err.message : 'Failed to open file'
+			}
+		} else {
+			fileInputEl?.click()
+		}
+	}
+
+	async function onWebFileInputChange(e: Event) {
+		const input = e.target as HTMLInputElement
+		const file = input.files?.[0]
+		input.value = ''
+		if (!file) return
+		await processBrowserFile(file)
+	}
+
+	async function processBrowserFile(file: File) {
 		try {
-			const { pickFile } = await import('$lib/tauri-file')
-			const file = await pickFile()
-			if (!file) return
-			await processNativeFile(file.path, file.name)
+			const { readFileForScan } = await import('$lib/web-file-import')
+			const result = await readFileForScan(file)
+			if (result.kind === 'text') {
+				await startStreaming({ textContent: result.text, mimeType: result.mimeType })
+			} else {
+				await attachOrUploadBinary(file.name, result.data, result.mimeType, result.size)
+			}
 		} catch (err) {
 			phase = 'error'
-			errorMessage = err instanceof Error ? err.message : 'Failed to open file'
+			errorMessage = err instanceof Error ? err.message : 'Failed to process file'
+			toast.error(errorMessage)
 		}
 	}
 
@@ -519,33 +590,47 @@
 				await startStreaming({ textContent: text, mimeType: 'text/plain' })
 			} else {
 				const result = await readFileBase64(path)
-				if (result.size < SIZE_THRESHOLD) {
-					// Add as attached file chip
-					attachedFiles = [
-						...attachedFiles,
-						{ id: crypto.randomUUID(), name, data: result.data, mimeType: result.mime_type },
-					]
-				} else {
-					const binary = atob(result.data)
-					const bytes = new Uint8Array(binary.length)
-					for (let i = 0; i < binary.length; i++) {
-						bytes[i] = binary.charCodeAt(i)
-					}
-					const uploadUrl = await generateUploadUrl.mutate({})
-					const uploadRes = await fetch(uploadUrl as string, {
-						method: 'POST',
-						headers: { 'Content-Type': result.mime_type },
-						body: bytes,
-					})
-					const { storageId } = await uploadRes.json()
-					const fileUrl = await client.query(api.functions.organizations.getStorageUrl, { storageId })
-					await startStreaming({ fileUrl, mimeType: result.mime_type })
-				}
+				await attachOrUploadBinary(name, result.data, result.mime_type, result.size)
 			}
 		} catch (err) {
 			phase = 'error'
 			errorMessage = err instanceof Error ? err.message : 'Failed to process file'
 		}
+	}
+
+	function handleWebDragEnter(e: DragEvent) {
+		if (isDesktop()) return
+		e.preventDefault()
+		e.stopPropagation()
+		if (!e.dataTransfer?.types.includes('Files')) return
+		webDragDepth++
+		if (open) isDragOver = true
+	}
+
+	function handleWebDragLeave(e: DragEvent) {
+		if (isDesktop()) return
+		e.preventDefault()
+		webDragDepth--
+		if (webDragDepth <= 0) {
+			webDragDepth = 0
+			isDragOver = false
+		}
+	}
+
+	function handleWebDragOver(e: DragEvent) {
+		if (isDesktop()) return
+		e.preventDefault()
+		e.dataTransfer!.dropEffect = 'copy'
+	}
+
+	async function handleWebDrop(e: DragEvent) {
+		if (isDesktop()) return
+		e.preventDefault()
+		webDragDepth = 0
+		isDragOver = false
+		const file = e.dataTransfer?.files?.[0]
+		if (!file || !open || streaming) return
+		await processBrowserFile(file)
 	}
 
 	// ── Camera ──────────────────────────────────────────────
@@ -771,31 +856,34 @@
 			localSpeechRecognizer = null
 		}
 
-		liveSession = new GeminiLiveSession({
-			onConnected: () => {
-				isConnecting = false
-				isListening = true
-				voiceError = ''
+		liveSession = new GeminiLiveSession(
+			{
+				onConnected: () => {
+					isConnecting = false
+					isListening = true
+					voiceError = ''
+				},
+				onTranscript: (text) => {
+					transcript += text
+					syncVoiceText()
+				},
+				onExtractedData: (data) => {
+					handleVoiceData(data)
+					streaming = true
+				},
+				onError: (err) => {
+					isConnecting = false
+					isListening = false
+					voiceError = err
+					console.error('[AI Scanner] Voice error:', err)
+				},
+				onDisconnected: () => {
+					isListening = false
+					isConnecting = false
+				},
 			},
-			onTranscript: (text) => {
-				transcript += text
-				syncVoiceText()
-			},
-			onExtractedData: (data) => {
-				handleVoiceData(data)
-				streaming = true
-			},
-			onError: (err) => {
-				isConnecting = false
-				isListening = false
-				voiceError = err
-				console.error('[AI Scanner] Voice error:', err)
-			},
-			onDisconnected: () => {
-				isListening = false
-				isConnecting = false
-			},
-		})
+			{ targetTable },
+		)
 
 		liveSession.connect()
 	}
@@ -980,6 +1068,12 @@
 		}
 	}
 
+	async function resumePreviewAfterError() {
+		await loadParties()
+		phase = 'active'
+		errorMessage = ''
+	}
+
 	// ── Reset ───────────────────────────────────────────────
 
 	function reset() {
@@ -1112,8 +1206,19 @@
 
 <Dialog bind:open onOpenChange={(v) => { if (!v) handleClose() }}>
 	<DialogContent
-		class="sm:max-w-2xl max-h-[85vh] {showCamera ? 'overflow-hidden !p-0' : 'overflow-y-auto'} {isDragOver ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}"
+		class="relative sm:max-w-2xl max-h-[85vh] {showCamera ? 'overflow-hidden !p-0' : 'overflow-y-auto'} {isDragOver ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}"
+		ondragenter={handleWebDragEnter}
+		ondragleave={handleWebDragLeave}
+		ondragover={handleWebDragOver}
+		ondrop={handleWebDrop}
 	>
+		<input
+			bind:this={fileInputEl}
+			type="file"
+			class="sr-only"
+			accept=".jpg,.jpeg,.png,.webp,.heic,.heif,.pdf,.xlsx,.xls,.csv,.doc,.docx,image/*,application/pdf"
+			onchange={onWebFileInputChange}
+		/>
 		<!-- ═══ Drag overlay (always available) ═══ -->
 		{#if isDragOver}
 			<div class="absolute inset-0 z-50 flex items-center justify-center rounded-lg bg-primary/5 backdrop-blur-sm border-2 border-dashed border-primary/40">
@@ -1334,6 +1439,35 @@
 			<!-- ═══ LIVE PREVIEW ═══ -->
 			{#if hasPreviewData}
 				<div class="preview-panel space-y-4 border-t pt-4">
+					{#if isBillMode && extractedProducts.length > 0}
+						<div>
+							<h4 class="text-sm font-medium mb-2">{billPrimaryHeading} ({extractedProducts.length})</h4>
+							<div class="rounded-lg border overflow-x-auto">
+								<table class="w-full text-sm">
+									<thead>
+										<tr class="border-b bg-muted/40 text-left text-[11px] font-medium text-muted-foreground">
+											<th class="p-2">Product</th>
+											<th class="p-2 w-14">Qty</th>
+											<th class="p-2 w-24">Unit</th>
+											<th class="p-2 w-24">Rate</th>
+											<th class="p-2">Supplier</th>
+										</tr>
+									</thead>
+									<tbody>
+										{#each extractedProducts as product, bi (bi)}
+											<tr class="border-b border-muted/50 last:border-0">
+												<td class="p-2 font-medium">{product.title}</td>
+												<td class="p-2 tabular-nums">{Number(product.openingStock) || 0}</td>
+												<td class="p-2">{product.unit ?? '—'}</td>
+												<td class="p-2 tabular-nums">{Number(product.costPrice) || 0}</td>
+												<td class="p-2 text-xs text-muted-foreground">{product.supplierName ?? '—'}</td>
+											</tr>
+										{/each}
+									</tbody>
+								</table>
+							</div>
+						</div>
+					{/if}
 					<!-- Parties -->
 					{#if extractedParties.length > 0}
 						<div>
@@ -1389,7 +1523,13 @@
 					<!-- Products -->
 					{#if extractedProducts.length > 0}
 						<div>
-							<h4 class="text-sm font-medium mb-2">Products ({extractedProducts.length})</h4>
+							<h4 class="text-sm font-medium mb-2">
+								{#if isBillMode}
+									Product records ({extractedProducts.length})
+								{:else}
+									Products ({extractedProducts.length})
+								{/if}
+							</h4>
 							<div class="space-y-3">
 								{#each extractedProducts as product, i (i)}
 									<div class="rounded-lg border p-3 row-enter {product._existingId ? 'border-emerald-500/30 bg-emerald-500/5' : ''} {product._existingId ? '' : 'space-y-3'}">
@@ -1635,8 +1775,13 @@
 				<p class="text-sm font-medium text-destructive">Something went wrong</p>
 				<p class="text-sm text-muted-foreground text-center max-w-md">{errorMessage}</p>
 			</div>
-			<DialogFooter>
-				<Button variant="outline" onclick={reset}>Try again</Button>
+			<DialogFooter class="gap-2">
+				{#if streamComplete && hasPreviewData}
+					<Button variant="outline" onclick={reset}>Start over</Button>
+					<Button onclick={resumePreviewAfterError}>Back to review</Button>
+				{:else}
+					<Button variant="outline" onclick={reset}>Try again</Button>
+				{/if}
 			</DialogFooter>
 		{/if}
 	</DialogContent>

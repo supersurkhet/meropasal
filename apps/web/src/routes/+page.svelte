@@ -32,7 +32,16 @@
 
 	const RELEASE_BASE = 'https://github.com/supersurkhet/meropasal/releases/download/v0.2.0'
 
-	type Platform = 'macos' | 'windows' | 'linux' | 'android' | 'unknown'
+	type Platform = 'macos' | 'windows' | 'linux' | 'android' | 'ios' | 'unknown'
+
+	type PlatformEntry = {
+		id: Platform
+		label: string
+		sublabel: string
+		file: string | null
+		webHref?: string
+		alt: { label: string; file: string } | null
+	}
 
 	let detectedPlatform = $state<Platform>('unknown')
 	let showAllPlatforms = $state(false)
@@ -40,44 +49,53 @@
 	onMount(() => {
 		const ua = navigator.userAgent.toLowerCase()
 		if (ua.includes('android')) detectedPlatform = 'android'
-		else if (ua.includes('mac')) detectedPlatform = 'macos'
+		else if (/iphone|ipad|ipod/.test(ua)) detectedPlatform = 'ios'
 		else if (ua.includes('win')) detectedPlatform = 'windows'
 		else if (ua.includes('linux')) detectedPlatform = 'linux'
+		else if (ua.includes('macintosh') || ua.includes('mac os x')) detectedPlatform = 'macos'
 	})
 
-	const platforms = [
+	const platforms: PlatformEntry[] = [
 		{
-			id: 'macos' as Platform,
+			id: 'macos',
 			label: 'macOS',
 			sublabel: 'Apple Silicon',
 			file: 'MeroPasal_0.1.0_aarch64.dmg',
 			alt: { label: 'Intel Mac', file: 'MeroPasal_0.1.0_x64.dmg' },
 		},
 		{
-			id: 'windows' as Platform,
+			id: 'windows',
 			label: 'Windows',
 			sublabel: 'x64 Installer',
 			file: 'MeroPasal_0.1.0_x64-setup.exe',
 			alt: { label: 'MSI Package', file: 'MeroPasal_0.1.0_x64_en-US.msi' },
 		},
 		{
-			id: 'linux' as Platform,
+			id: 'linux',
 			label: 'Linux',
 			sublabel: 'AppImage',
 			file: 'MeroPasal_0.1.0_amd64.AppImage',
 			alt: { label: 'Debian (.deb)', file: 'MeroPasal_0.1.0_amd64.deb' },
 		},
 		{
-			id: 'android' as Platform,
+			id: 'android',
 			label: 'Android',
 			sublabel: 'APK',
 			file: 'app-universal-release-unsigned.apk',
 			alt: null,
 		},
+		{
+			id: 'ios',
+			label: 'iOS',
+			sublabel: 'Web app — Add to Home Screen',
+			file: null,
+			webHref: '/login',
+			alt: null,
+		},
 	]
 
 	const primaryPlatform = $derived(platforms.find(p => p.id === detectedPlatform) ?? platforms[0])
-	const otherPlatforms = $derived(platforms.filter(p => p.id !== detectedPlatform))
+	const otherPlatforms = $derived(platforms.filter(p => p.id !== primaryPlatform.id))
 
 	const features = [
 		{
@@ -324,19 +342,28 @@
 			</div>
 
 			<div class="mx-auto mt-12 max-w-lg">
-				<!-- Primary download for detected platform -->
 				<a
-					href="{RELEASE_BASE}/{primaryPlatform.file}"
+					href={primaryPlatform.file ? `${RELEASE_BASE}/${primaryPlatform.file}` : (primaryPlatform.webHref ?? '/login')}
 					class="group flex items-center gap-4 rounded-2xl border border-primary/20 bg-primary p-5 transition-all hover:bg-primary/90"
 				>
 					<div class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary-foreground/15">
-						<Download class="size-6 text-primary-foreground" />
+						{#if primaryPlatform.file}
+							<Download class="size-6 text-primary-foreground" />
+						{:else}
+							<Smartphone class="size-6 text-primary-foreground" />
+						{/if}
 					</div>
 					<div class="flex-1">
 						<p class="text-[15px] font-semibold text-primary-foreground">
-							Download for {primaryPlatform.label}
+							{primaryPlatform.file ? `Download for ${primaryPlatform.label}` : `Use ${primaryPlatform.label}`}
 						</p>
-						<p class="text-[13px] text-primary-foreground/60">{primaryPlatform.sublabel} &middot; v0.2.0</p>
+						<p class="text-[13px] text-primary-foreground/60">
+							{#if primaryPlatform.file}
+								{primaryPlatform.sublabel} &middot; v0.2.0
+							{:else}
+								{primaryPlatform.sublabel}
+							{/if}
+						</p>
 					</div>
 					<ArrowRight class="size-5 text-primary-foreground/50 transition-transform group-hover:translate-x-1" />
 				</a>
@@ -374,15 +401,23 @@
 						<div class="mt-4 grid gap-2 sm:grid-cols-2" style="animation: fadeUp 0.2s ease-out;">
 							{#each otherPlatforms as platform}
 								<a
-									href="{RELEASE_BASE}/{platform.file}"
+									href={platform.file ? `${RELEASE_BASE}/${platform.file}` : (platform.webHref ?? '/login')}
 									class="flex items-center gap-3 rounded-xl border border-border bg-card p-3.5 transition-all hover:bg-accent"
 								>
-									<Monitor class="size-4 text-muted-foreground" />
+									{#if platform.id === 'android' || platform.id === 'ios'}
+										<Smartphone class="size-4 text-muted-foreground" />
+									{:else}
+										<Monitor class="size-4 text-muted-foreground" />
+									{/if}
 									<div class="flex-1">
 										<p class="text-[13px] font-medium text-foreground">{platform.label}</p>
 										<p class="text-[11px] text-muted-foreground">{platform.sublabel}</p>
 									</div>
-									<Download class="size-3.5 text-muted-foreground/50" />
+									{#if platform.file}
+										<Download class="size-3.5 text-muted-foreground/50" />
+									{:else}
+										<ExternalLink class="size-3.5 text-muted-foreground/50" />
+									{/if}
 								</a>
 							{/each}
 						</div>

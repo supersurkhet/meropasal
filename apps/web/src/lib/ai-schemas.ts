@@ -122,3 +122,42 @@ EXTRACTION RULES:
 - Nepali text should be transliterated to English (e.g. "वाइ वाइ" → "Wai Wai")
 
 Return data in ALL three arrays (parties, products, customers) — leave arrays empty if no entities of that type are found.`
+
+export type ScanTargetTable =
+	| 'products'
+	| 'parties'
+	| 'customers'
+	| 'mixed'
+	| 'stock-import'
+	| 'orders'
+	| 'sales'
+	| 'trips'
+
+export function getScanModeInstruction(targetTable: string | undefined): string {
+	if (!targetTable || targetTable === 'mixed') return ''
+	switch (targetTable) {
+		case 'stock-import':
+			return `CURRENT SCAN MODE: Stock import / purchase bill.
+Treat each row as a purchase line: put the line quantity in openingStock, the line purchase rate in costPrice (per container per compound-unit rules), product name in title. Populate parties when a supplier is shown. Purchase documents usually have no customers — leave customers empty unless clearly present.`
+		case 'orders':
+			return `CURRENT SCAN MODE: Sales order.
+Each product row is an order line: openingStock = quantity ordered; use costPrice/sellingPrice per visible bill columns and compound-unit rules.`
+		case 'sales':
+			return `CURRENT SCAN MODE: Sales bill / invoice.
+Each product row is a sale line: openingStock = quantity sold; map prices per document and compound-unit rules.`
+		case 'trips':
+			return `CURRENT SCAN MODE: Trip / dispatch.
+Each product row reflects dispatch or trip quantities; use openingStock for quantities when shown.`
+		case 'products':
+			return `CURRENT SCAN MODE: Product catalog.
+Prioritize product rows; include parties/customers only when clearly present.`
+		case 'parties':
+			return `CURRENT SCAN MODE: Suppliers / parties.
+Prioritize party records; products/customers only when clearly present.`
+		case 'customers':
+			return `CURRENT SCAN MODE: Customers.
+Prioritize customer records; parties/products only when clearly present.`
+		default:
+			return ''
+	}
+}

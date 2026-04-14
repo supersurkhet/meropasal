@@ -1,4 +1,4 @@
-name: Build Desktop & Mobile Apps
+name: Tauri — desktop and Android builds
 
 on:
   workflow_dispatch:

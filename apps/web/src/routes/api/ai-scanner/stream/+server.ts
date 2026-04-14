@@ -3,7 +3,7 @@ import type { RequestHandler } from './$types'
 import { streamText, Output } from 'ai'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { env } from '$env/dynamic/private'
-import { scanResultSchema, SYSTEM_PROMPT } from '$lib/ai-schemas'
+import { scanResultSchema, SYSTEM_PROMPT, getScanModeInstruction } from '$lib/ai-schemas'
 
 export const POST: RequestHandler = async ({ request, locals }) => {
 	if (!locals.user) {
@@ -16,12 +16,15 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	}
 
 	const body = await request.json()
-	const { textContent, fileUrl, fileData, mimeType } = body as {
+	const { textContent, fileUrl, fileData, mimeType, targetTable } = body as {
 		textContent?: string
 		fileUrl?: string
 		fileData?: string
 		mimeType: string
+		targetTable?: string
 	}
+
+	const modeInstruction = getScanModeInstruction(targetTable)
 
 	const google = createGoogleGenerativeAI({ apiKey })
 
@@ -84,6 +87,10 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		})
 	} else {
 		error(400, 'Either textContent, fileUrl, or fileData must be provided')
+	}
+
+	if (modeInstruction) {
+		contentParts.push({ type: 'text', text: modeInstruction })
 	}
 
 	const result = streamText({

@@ -5,6 +5,7 @@ export type StreamScanOptions = {
 	fileUrl?: string
 	fileData?: string
 	mimeType: string
+	targetTable?: string
 	onPartial: (data: Partial<ScanResult>) => void
 	onDone: (data: ScanResult) => void
 	onError: (error: string) => void
@@ -23,6 +24,7 @@ export async function streamScan(opts: StreamScanOptions): Promise<void> {
 			fileUrl: opts.fileUrl,
 			fileData: opts.fileData,
 			mimeType: opts.mimeType,
+			targetTable: opts.targetTable,
 		}),
 	})
 

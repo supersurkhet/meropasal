@@ -42,7 +42,7 @@
 ## Apps
 - [x] Web app (SvelteKit on Cloudflare Workers)
 - [x] Desktop app (Tauri v2 scaffold)
-- [x] Mobile app (Capacitor scaffold)
+- [x] Mobile app (Tauri v2 Android, same crate as `apps/desktop`)
 
 ## DevOps
 - [x] GitHub Actions CI/CD (deploy.yml)

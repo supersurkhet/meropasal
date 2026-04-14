@@ -10,6 +10,7 @@
  */
 
 import type { ScanResult } from './ai-schemas'
+import { getScanModeInstruction } from './ai-schemas'
 
 const WS_URL = 'wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent'
 const MODEL = 'models/gemini-2.5-flash-native-audio-preview-12-2025'
@@ -111,9 +112,15 @@ export class GeminiLiveSession {
 	private sinkNode: GainNode | null = null
 	private callbacks: GeminiLiveCallbacks
 	private setupComplete = false
+	private systemText: string
 
-	constructor(callbacks: GeminiLiveCallbacks) {
+	constructor(
+		callbacks: GeminiLiveCallbacks,
+		options?: { targetTable?: string },
+	) {
 		this.callbacks = callbacks
+		const mode = getScanModeInstruction(options?.targetTable)
+		this.systemText = mode ? `${SYSTEM_INSTRUCTION}\n\n${mode}` : SYSTEM_INSTRUCTION
 	}
 
 	async connect(): Promise<void> {
@@ -206,7 +213,7 @@ export class GeminiLiveSession {
 					},
 				],
 				systemInstruction: {
-					parts: [{ text: SYSTEM_INSTRUCTION }],
+					parts: [{ text: this.systemText }],
 				},
 				inputAudioTranscription: {},
 				outputAudioTranscription: {},

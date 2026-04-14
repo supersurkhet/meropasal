@@ -38,6 +38,6 @@ In Settings, customize your organization details and your bill template. The Bil
 
 Now watch this — click the language switcher. Everything switches to Nepali. ड्यासबोर्ड, आपूर्तिकर्ता, ग्राहक, सामान — every label, every button, every description. And toggle dark mode for comfortable nighttime use.
 
-MeroPasal also supports desktop and mobile apps. Download the Windows app built with Tauri, or the Android app built with Capacitor. Your staff can log in and manage the business from anywhere.
+MeroPasal also supports desktop and mobile apps. Download the Windows app or the Android app — both use Tauri v2. Your staff can log in and manage the business from anywhere.
 
 That's MeroPasal — inventory, invoicing, stock book, logistics, and accounting — all in one place, built with care for Nepali businesses. Get started free at meropasal.com.

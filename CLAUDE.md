@@ -6,8 +6,7 @@ Multi-tenant SaaS retail management platform for Nepal.
 
 Turborepo monorepo:
 - `apps/web` — SvelteKit frontend (Cloudflare Workers)
-- `apps/desktop` — Tauri v2 desktop wrapper
-- `apps/mobile` — Capacitor mobile wrapper
+- `apps/desktop` — Tauri v2 (Windows/macOS/Linux desktop and Android; shared `src-tauri` crate)
 - `convex/` — Convex backend (schema, functions, auth)
 
 ## Stack
@@ -24,6 +23,8 @@ bun run check            # Type-check (svelte-check)
 bun run lint             # Lint (biome)
 npx convex dev           # Start Convex dev server
 npx convex deploy        # Deploy Convex functions to production
+cd apps/desktop && bun run android:dev    # Tauri Android (dev; needs Android SDK/NDK)
+cd apps/desktop && bun run android:build  # Tauri Android release APK
 ```
 
 ## Conventions
