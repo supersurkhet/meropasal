@@ -1,0 +1,28 @@
+24h change verification — automated run 2026-04-16
+
+Gate B (typecheck)
+- See verification-24h-typecheck.log — svelte-check 0 errors.
+
+Gate A (SSR)
+- productSchema.safeExtend in AiScannerDialog.svelte confirmed in source (Zod v4 + refine).
+- Unauthenticated curl: /stock-import/new, /sales/new, /orders/new, /trips/new → 302 (not 500).
+
+Session-bound browser checks (completed while WorkOS profile was still valid)
+- Logged-in dashboard and app shell OK.
+- stock-import/new, sales/new, orders/new, trips/new: no "500" / "Internal Error" in page text when session active.
+- Nepali locale: stock-import and sales-new showed छुट % (line discount); orders-new and trips-new did not (matches lineDiscountEnabled only on StockImportForm + SaleForm).
+- Parties: multiple rows (Abcd, Hhhh, …). Products: at least Abc.
+- AI Scan dialog opened from stock-import; CSV upload to Choose File succeeded (/tmp/meropasal-scan-test.csv).
+
+Not completed in this run (requires fresh login + time)
+- Full chaptered WebM screen recording: WorkOS cookies in ~/.agent-browser/meropasal-profile expired mid-run; agent-browser then showed AuthKit or wrong origin. Re-run after signing in once with:
+  agent-browser --headed --profile ~/.agent-browser/meropasal-profile open http://127.0.0.1:5173/login
+  then close so profile saves, then headless verification + ffmpeg from PNGs per plan section 5.
+
+Transitive / Convex (not automated)
+- New party/product from scanner commit; stock submit → invoice/stock book — needs live Gemini extraction + submit (see plan 4.3).
+
+Artifacts in repo root
+- verification-24h-typecheck.log
+- verification-24h-trace.zip (may capture last mixed session; open with Playwright trace viewer if useful)
+- verification-24h-notes.txt (this file)

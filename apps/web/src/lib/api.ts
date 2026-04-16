@@ -20,6 +20,7 @@ export const api = {
 			list: makeFunctionReference<'query'>('functions/invoices:list'),
 			getById: makeFunctionReference<'query'>('functions/invoices:getById'),
 			getByParty: makeFunctionReference<'query'>('functions/invoices:getByParty'),
+			addPayment: makeFunctionReference<'mutation'>('functions/invoices:addPayment'),
 		},
 		stockBook: {
 			listEntries: makeFunctionReference<'query'>('functions/stockBook:listEntries'),

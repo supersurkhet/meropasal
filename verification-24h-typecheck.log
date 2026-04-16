@@ -1,0 +1,673 @@
+$ svelte-kit sync && svelte-check --tsconfig ./tsconfig.json
+Loading svelte-check in workspace: /Users/abhi/proj/personal/meropasal/apps/web
+Getting Svelte diagnostics...
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/customers/CustomerForm.svelte:46:20
+Warn: This reference only captures the initial value of `customer`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+
+	let name = $state(customer?.name ?? '');
+	let panNumber = $state(customer?.panNumber ?? '');
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/customers/CustomerForm.svelte:47:25
+Warn: This reference only captures the initial value of `customer`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+	let name = $state(customer?.name ?? '');
+	let panNumber = $state(customer?.panNumber ?? '');
+	let address = $state(customer?.address ?? '');
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/customers/CustomerForm.svelte:48:23
+Warn: This reference only captures the initial value of `customer`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+	let panNumber = $state(customer?.panNumber ?? '');
+	let address = $state(customer?.address ?? '');
+	let phone = $state(customer?.phone ?? '');
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/customers/CustomerForm.svelte:49:21
+Warn: This reference only captures the initial value of `customer`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+	let address = $state(customer?.address ?? '');
+	let phone = $state(customer?.phone ?? '');
+	let email = $state(customer?.email ?? '');
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/customers/CustomerForm.svelte:50:21
+Warn: This reference only captures the initial value of `customer`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+	let phone = $state(customer?.phone ?? '');
+	let email = $state(customer?.email ?? '');
+	let creditLimit = $state(customer?.creditLimit?.toString() ?? '');
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/customers/CustomerForm.svelte:51:27
+Warn: This reference only captures the initial value of `customer`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+	let email = $state(customer?.email ?? '');
+	let creditLimit = $state(customer?.creditLimit?.toString() ?? '');
+	let notes = $state(customer?.notes ?? '');
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/customers/CustomerForm.svelte:52:21
+Warn: This reference only captures the initial value of `customer`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+	let creditLimit = $state(customer?.creditLimit?.toString() ?? '');
+	let notes = $state(customer?.notes ?? '');
+	let submitting = $state(false);
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/customers/CustomerForm.svelte:108:1
+Warn: Non-interactive element `<form>` should not be assigned mouse or keyboard event listeners
+https://svelte.dev/e/a11y_no_noninteractive_element_interactions (svelte)
+
+<form
+	onsubmit={handleSubmit}
+	onkeydown={handleKeydown}
+	class="space-y-5 {inline ? '' : 'max-w-2xl'}"
+>
+	<!-- Name -->
+	<div class="space-y-1.5">
+		<Label for="name" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+			Name <span class="text-red-500">*</span>
+		</Label>
+		<Input
+			id="name"
+			bind:value={name}
+			placeholder="e.g. Ram Grocery"
+			class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900 {errors.name ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
+		/>
+		{#if errors.name}
+			<p class="mt-1 text-xs text-red-500">{errors.name}</p>
+		{/if}
+	</div>
+
+	<!-- PAN & Phone row -->
+	<div class="grid gap-4 sm:grid-cols-2">
+		<div class="space-y-1.5">
+			<Label for="panNumber" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+				PAN Number
+			</Label>
+			<Input
+				id="panNumber"
+				bind:value={panNumber}
+				placeholder="e.g. 123456789"
+				class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900 {errors.panNumber ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
+			/>
+			{#if errors.panNumber}
+				<p class="mt-1 text-xs text-red-500">{errors.panNumber}</p>
+			{/if}
+		</div>
+
+		<div class="space-y-1.5">
+			<Label for="phone" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+				Phone
+			</Label>
+			<Input
+				id="phone"
+				bind:value={phone}
+				type="tel"
+				placeholder="e.g. 9841234567"
+				class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900 {errors.phone ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
+			/>
+			{#if errors.phone}
+				<p class="mt-1 text-xs text-red-500">{errors.phone}</p>
+			{/if}
+		</div>
+	</div>
+
+	<!-- Email & Address row -->
+	<div class="grid gap-4 sm:grid-cols-2">
+		<div class="space-y-1.5">
+			<Label for="email" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+				Email
+			</Label>
+			<Input
+				id="email"
+				bind:value={email}
+				type="email"
+				placeholder="e.g. ram@example.com"
+				class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900 {errors.email ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
+			/>
+			{#if errors.email}
+				<p class="mt-1 text-xs text-red-500">{errors.email}</p>
+			{/if}
+		</div>
+
+		<div class="space-y-1.5">
+			<Label for="address" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+				Address
+			</Label>
+			<Input
+				id="address"
+				bind:value={address}
+				placeholder="e.g. Surkhet, Birendranagar"
+				class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900"
+			/>
+		</div>
+	</div>
+
+	<!-- Credit Limit -->
+	<div class="max-w-xs space-y-1.5">
+		<Label for="creditLimit" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+			Credit Limit (NPR)
+		</Label>
+		<Input
+			id="creditLimit"
+			bind:value={creditLimit}
+			type="number"
+			min="0"
+			step="100"
+			placeholder="e.g. 50000"
+			class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900 {errors.creditLimit ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
+		/>
+		{#if errors.creditLimit}
+			<p class="mt-1 text-xs text-red-500">{errors.creditLimit}</p>
+		{/if}
+	</div>
+
+	<!-- Notes -->
+	{#if !inline}
+		<div class="space-y-1.5">
+			<Label for="notes" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+				Notes
+			</Label>
+			<Textarea
+				id="notes"
+				bind:value={notes}
+				placeholder="Additional notes about this customer..."
+				rows={3}
+				class="border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900"
+			/>
+		</div>
+	{/if}
+
+	<!-- Actions -->
+	<StickyActions {inline}>
+		{#if oncancel}
+			<Button type="button" onclick={oncancel}>
+				Cancel
+			</Button>
+		{/if}
+		<Button type="submit" disabled={submitting || loading}>
+			{#if submitting || loading}
+				<Loader2 class="mr-1.5 size-4 animate-spin" />
+				{t('action_saving')}
+			{:else}
+				<Save class="mr-1.5 size-4" />
+				{customer ? t('customer_update') : t('customer_create_new')}
+			{/if}
+		</Button>
+	</StickyActions>
+</form>
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/logistics/TripDetail.svelte:76:22
+Warn: This reference only captures the initial value of `trip`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+	let returnQuantities = $state<Record<string, number>>(
+		Object.fromEntries(trip.products.map((p) => [p.productId, p.quantity]))
+	);
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/logistics/TripDetail.svelte:155:27
+Warn: This reference only captures the initial value of `trip`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+
+	const cfg = statusConfig[trip.status];
+</script>
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/shared/PricePerUnitInput.svelte:112:3
+Warn: Quoted attributes on components and custom elements will be stringified in a future version of Svelte. If this isn't what you want, remove the quotes
+https://svelte.dev/e/attribute_quoted (svelte)
+		inputmode="decimal"
+		class="{isCompound ? 'pl-7 pr-[5.5rem] tabular-nums' : 'pl-7 tabular-nums'}"
+		{placeholder}
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/parties/PartyForm.svelte:46:20
+Warn: This reference only captures the initial value of `party`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+
+	let name = $state(party?.name ?? '');
+	let panNumber = $state(party?.panNumber ?? '');
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/parties/PartyForm.svelte:47:25
+Warn: This reference only captures the initial value of `party`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+	let name = $state(party?.name ?? '');
+	let panNumber = $state(party?.panNumber ?? '');
+	let address = $state(party?.address ?? '');
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/parties/PartyForm.svelte:48:23
+Warn: This reference only captures the initial value of `party`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+	let panNumber = $state(party?.panNumber ?? '');
+	let address = $state(party?.address ?? '');
+	let phone = $state(party?.phone ?? '');
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/parties/PartyForm.svelte:49:21
+Warn: This reference only captures the initial value of `party`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+	let address = $state(party?.address ?? '');
+	let phone = $state(party?.phone ?? '');
+	let creditLimit = $state(party?.creditLimit?.toString() ?? '');
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/parties/PartyForm.svelte:50:27
+Warn: This reference only captures the initial value of `party`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+	let phone = $state(party?.phone ?? '');
+	let creditLimit = $state(party?.creditLimit?.toString() ?? '');
+	let paymentTerms = $state(party?.paymentTerms ?? '');
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/parties/PartyForm.svelte:51:28
+Warn: This reference only captures the initial value of `party`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+	let creditLimit = $state(party?.creditLimit?.toString() ?? '');
+	let paymentTerms = $state(party?.paymentTerms ?? '');
+	let notes = $state(party?.notes ?? '');
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/parties/PartyForm.svelte:52:21
+Warn: This reference only captures the initial value of `party`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+	let paymentTerms = $state(party?.paymentTerms ?? '');
+	let notes = $state(party?.notes ?? '');
+	let submitting = $state(false);
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/parties/PartyForm.svelte:108:1
+Warn: Non-interactive element `<form>` should not be assigned mouse or keyboard event listeners
+https://svelte.dev/e/a11y_no_noninteractive_element_interactions (svelte)
+
+<form
+	onsubmit={handleSubmit}
+	onkeydown={handleKeydown}
+	class="space-y-5 {inline ? '' : 'max-w-2xl'}"
+>
+	<!-- Name -->
+	<div class="space-y-1.5">
+		<Label for="name" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+			Name <span class="text-red-500">*</span>
+		</Label>
+		<Input
+			id="name"
+			bind:value={name}
+			placeholder="e.g. ABC Distributors"
+			class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900 {errors.name ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
+		/>
+		{#if errors.name}
+			<p class="mt-1 text-xs text-red-500">{errors.name}</p>
+		{/if}
+	</div>
+
+	<!-- PAN & Phone row -->
+	<div class="grid gap-4 sm:grid-cols-2">
+		<div class="space-y-1.5">
+			<Label for="panNumber" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+				PAN Number
+			</Label>
+			<Input
+				id="panNumber"
+				bind:value={panNumber}
+				placeholder="e.g. 123456789"
+				class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900 {errors.panNumber ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
+			/>
+			{#if errors.panNumber}
+				<p class="mt-1 text-xs text-red-500">{errors.panNumber}</p>
+			{/if}
+		</div>
+
+		<div class="space-y-1.5">
+			<Label for="phone" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+				Phone
+			</Label>
+			<Input
+				id="phone"
+				bind:value={phone}
+				type="tel"
+				placeholder="e.g. 9841234567"
+				class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900 {errors.phone ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
+			/>
+			{#if errors.phone}
+				<p class="mt-1 text-xs text-red-500">{errors.phone}</p>
+			{/if}
+		</div>
+	</div>
+
+	<!-- Address -->
+	<div class="space-y-1.5">
+		<Label for="address" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+			Address
+		</Label>
+		<Input
+			id="address"
+			bind:value={address}
+			placeholder="e.g. Surkhet, Birendranagar"
+			class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900"
+		/>
+	</div>
+
+	<!-- Credit Limit & Payment Terms row -->
+	<div class="grid gap-4 sm:grid-cols-2">
+		<div class="space-y-1.5">
+			<Label for="creditLimit" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+				Credit Limit (NPR)
+			</Label>
+			<Input
+				id="creditLimit"
+				bind:value={creditLimit}
+				type="number"
+				min="0"
+				step="100"
+				placeholder="e.g. 50000"
+				class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900 {errors.creditLimit ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
+			/>
+			{#if errors.creditLimit}
+				<p class="mt-1 text-xs text-red-500">{errors.creditLimit}</p>
+			{/if}
+		</div>
+
+		<div class="space-y-1.5">
+			<Label for="paymentTerms" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+				Payment Terms
+			</Label>
+			<Input
+				id="paymentTerms"
+				bind:value={paymentTerms}
+				placeholder="e.g. Net 30"
+				class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900"
+			/>
+		</div>
+	</div>
+
+	<!-- Notes -->
+	{#if !inline}
+		<div class="space-y-1.5">
+			<Label for="notes" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+				Notes
+			</Label>
+			<Textarea
+				id="notes"
+				bind:value={notes}
+				placeholder="Additional notes about this supplier..."
+				rows={3}
+				class="border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900"
+			/>
+		</div>
+	{/if}
+
+	<!-- Actions -->
+	<StickyActions {inline}>
+		{#if oncancel}
+			<Button type="button" onclick={oncancel}>
+				Cancel
+			</Button>
+		{/if}
+		<Button type="submit" disabled={submitting || loading}>
+			{#if submitting || loading}
+				<Loader2 class="mr-1.5 size-4 animate-spin" />
+				{t('action_saving')}
+			{:else}
+				<Save class="mr-1.5 size-4" />
+				{party ? t('party_update') : t('party_create_new')}
+			{/if}
+		</Button>
+	</StickyActions>
+</form>
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/products/ProductForm.svelte:49:22
+Warn: This reference only captures the initial value of `initial`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+	// Snapshot initial prop once to avoid state_referenced_locally warnings
+	const _init = { ...(initial ?? {}) } as NonNullable<typeof initial> & { isFeatured?: boolean };
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/products/ProductForm.svelte:339:4
+Warn: Buttons and links should either contain text or have an `aria-label`, `aria-labelledby` or `title` attribute
+https://svelte.dev/e/a11y_consider_explicit_label (svelte)
+		<div class="flex items-center gap-3">
+			<button
+				type="button"
+				role="switch"
+				aria-checked={isFeatured}
+				class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors {isFeatured ? 'bg-emerald-600' : 'bg-zinc-300 dark:bg-zinc-600'}"
+				onclick={() => { isFeatured = !isFeatured }}
+			>
+				<span class="pointer-events-none inline-block size-4 transform rounded-full bg-white shadow-sm ring-0 transition-transform {isFeatured ? 'translate-x-4' : 'translate-x-0'}"></span>
+			</button>
+			<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300 cursor-pointer" onclick={() => { isFeatured = !isFeatured }}>{t('product_featured')}</Label>
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/logistics/VehicleForm.svelte:37:20
+Warn: This reference only captures the initial value of `vehicle`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+
+	let name = $state(vehicle?.name ?? '');
+	let licensePlate = $state(vehicle?.licensePlate ?? '');
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/logistics/VehicleForm.svelte:38:28
+Warn: This reference only captures the initial value of `vehicle`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+	let name = $state(vehicle?.name ?? '');
+	let licensePlate = $state(vehicle?.licensePlate ?? '');
+	let description = $state(vehicle?.description ?? '');
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/logistics/VehicleForm.svelte:39:27
+Warn: This reference only captures the initial value of `vehicle`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+	let licensePlate = $state(vehicle?.licensePlate ?? '');
+	let description = $state(vehicle?.description ?? '');
+	let submitting = $state(false);
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/logistics/VehicleForm.svelte:91:1
+Warn: Non-interactive element `<form>` should not be assigned mouse or keyboard event listeners
+https://svelte.dev/e/a11y_no_noninteractive_element_interactions (svelte)
+
+<form
+	onsubmit={handleSubmit}
+	onkeydown={handleKeydown}
+	class="space-y-5 {inline ? '' : 'max-w-2xl'}"
+>
+	<!-- Name -->
+	<div class="space-y-1.5">
+		<Label for="vehicle-name" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+			Name <span class="text-red-500">*</span>
+		</Label>
+		<Input
+			id="vehicle-name"
+			bind:value={name}
+			placeholder="e.g. Delivery Truck"
+			class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900 {errors.name ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
+		/>
+		{#if errors.name}
+			<p class="mt-1 text-xs text-red-500">{errors.name}</p>
+		{/if}
+	</div>
+
+	<!-- License Plate -->
+	<div class="space-y-1.5">
+		<Label for="license-plate" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+			License Plate <span class="text-red-500">*</span>
+		</Label>
+		<Input
+			id="license-plate"
+			bind:value={licensePlate}
+			placeholder="e.g. Ba 1 Kha 1234"
+			class="h-10 border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900 {errors.licensePlate ? 'border-red-400 ring-1 ring-red-400/30' : ''}"
+		/>
+		{#if errors.licensePlate}
+			<p class="mt-1 text-xs text-red-500">{errors.licensePlate}</p>
+		{/if}
+	</div>
+
+	<!-- Description -->
+	{#if !inline}
+		<div class="space-y-1.5">
+			<Label for="vehicle-desc" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+				Description
+			</Label>
+			<Textarea
+				id="vehicle-desc"
+				bind:value={description}
+				placeholder="Additional details about this vehicle..."
+				rows={3}
+				class="border-zinc-200 bg-white shadow-sm transition-shadow focus:shadow-md dark:border-zinc-700 dark:bg-zinc-900"
+			/>
+		</div>
+	{/if}
+
+	<!-- Actions -->
+	<StickyActions {inline}>
+		{#if oncancel}
+			<Button type="button" onclick={oncancel}>
+				Cancel
+			</Button>
+		{/if}
+		<Button type="submit" disabled={submitting || loading}>
+			{#if submitting || loading}
+				<Loader2 class="mr-1.5 size-4 animate-spin" />
+				Saving...
+			{:else}
+				<Save class="mr-1.5 size-4" />
+				{vehicle ? 'Update Vehicle' : 'Create Vehicle'}
+			{/if}
+		</Button>
+	</StickyActions>
+</form>
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/settings/OrgSettings.svelte:29:28
+Warn: This reference only captures the initial value of `workosOrgName`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+	// WorkOS fields (from layout data)
+	let businessName = $state(workosOrgName);
+	let location = $state((orgMetadata.location as string) ?? '');
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/settings/OrgSettings.svelte:30:25
+Warn: This reference only captures the initial value of `orgMetadata`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+	let businessName = $state(workosOrgName);
+	let location = $state((orgMetadata.location as string) ?? '');
+	let phone = $state((orgMetadata.phone as string) ?? '');
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/settings/OrgSettings.svelte:31:22
+Warn: This reference only captures the initial value of `orgMetadata`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+	let location = $state((orgMetadata.location as string) ?? '');
+	let phone = $state((orgMetadata.phone as string) ?? '');
+	let panNumber = $state((orgMetadata.panNumber as string) ?? '');
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/settings/OrgSettings.svelte:32:26
+Warn: This reference only captures the initial value of `orgMetadata`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+	let phone = $state((orgMetadata.phone as string) ?? '');
+	let panNumber = $state((orgMetadata.panNumber as string) ?? '');
+	let taxRate = $state(Number(orgMetadata.taxRate) || 13);
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/settings/OrgSettings.svelte:33:30
+Warn: This reference only captures the initial value of `orgMetadata`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+	let panNumber = $state((orgMetadata.panNumber as string) ?? '');
+	let taxRate = $state(Number(orgMetadata.taxRate) || 13);
+	let currency = $state((orgMetadata.currency as string) || 'NPR');
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/settings/OrgSettings.svelte:34:25
+Warn: This reference only captures the initial value of `orgMetadata`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+	let taxRate = $state(Number(orgMetadata.taxRate) || 13);
+	let currency = $state((orgMetadata.currency as string) || 'NPR');
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/settings/OrgSettings.svelte:46:33
+Warn: This reference only captures the initial value of `workosOrgName`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+	// Sync WorkOS fields when props change (e.g. after invalidateAll)
+	let lastSyncedOrgName = $state(workosOrgName);
+	let lastSyncedMetadata = $state(JSON.stringify(orgMetadata));
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/modules/settings/OrgSettings.svelte:47:49
+Warn: This reference only captures the initial value of `orgMetadata`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+	let lastSyncedOrgName = $state(workosOrgName);
+	let lastSyncedMetadata = $state(JSON.stringify(orgMetadata));
+	$effect(() => {
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/shared/AiScannerDialog.svelte:1835:16
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+														<div>
+															<label class="text-[11px] text-muted-foreground">PAN</label>
+															<Input bind:value={party.panNumber} class="h-7 text-sm" placeholder="—" />
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/shared/AiScannerDialog.svelte:1839:16
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+														<div>
+															<label class="text-[11px] text-muted-foreground">Phone</label>
+															<Input bind:value={party.phone} class="h-7 text-sm" placeholder="—" />
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/shared/AiScannerDialog.svelte:1843:16
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+														<div>
+															<label class="text-[11px] text-muted-foreground">Address</label>
+															<Input bind:value={party.address} class="h-7 text-sm" placeholder="—" />
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/shared/AiScannerDialog.svelte:1895:14
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+												<div class="space-y-1">
+													<label class="text-[11px] font-medium text-muted-foreground">Product name</label>
+													<Input bind:value={product.title} class="h-8 text-sm" placeholder="e.g. Rice 25kg Basmati" />
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/shared/AiScannerDialog.svelte:1901:14
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+												<div class="space-y-1">
+													<label class="text-[11px] font-medium text-muted-foreground">Supplier</label>
+													<EntitySelect
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/shared/AiScannerDialog.svelte:1942:14
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+												<div class="space-y-1">
+													<label class="text-[11px] font-medium text-muted-foreground">Unit</label>
+													<UnitBuilder bind:value={product.unit} />
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/shared/AiScannerDialog.svelte:1949:15
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+													<div class="space-y-1">
+														<label class="text-[11px] font-medium text-muted-foreground">Cost price</label>
+														<PricePerUnitInput
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/shared/AiScannerDialog.svelte:1958:15
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+													<div class="space-y-1">
+														<label class="text-[11px] font-medium text-muted-foreground">Selling price</label>
+														<PricePerUnitInput
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/shared/AiScannerDialog.svelte:1974:15
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+													<div class="space-y-1">
+														<label class="text-[11px] font-medium text-muted-foreground">Opening stock</label>
+														<Input type="number" min="0" bind:value={product.openingStock} class="h-8 text-sm" placeholder="0" />
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/shared/AiScannerDialog.svelte:1978:15
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+													<div class="space-y-1">
+														<label class="text-[11px] font-medium text-muted-foreground">Category</label>
+														<Select.Root type="single" bind:value={product.category}>
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/shared/AiScannerDialog.svelte:2036:16
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+														<div>
+															<label class="text-[11px] text-muted-foreground">Phone</label>
+															<Input bind:value={customer.phone} class="h-7 text-sm" placeholder="—" />
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/lib/components/shared/AiScannerDialog.svelte:2040:16
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+														<div>
+															<label class="text-[11px] text-muted-foreground">Email</label>
+															<Input bind:value={customer.email} class="h-7 text-sm" placeholder="—" />
+
+/Users/abhi/proj/personal/meropasal/apps/web/src/routes/(app)/settings/members/+page.svelte:245:9
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+							<div class="flex items-center justify-between">
+								<label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Permissions</label>
+								<div class="flex gap-2">
+
+====================================
+svelte-check found 0 errors and 46 warnings in 9 files
