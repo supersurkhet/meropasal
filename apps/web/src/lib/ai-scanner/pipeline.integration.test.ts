@@ -36,7 +36,8 @@ describe('scan fixture to stock-import lines', () => {
 		}> = []
 		const { lineItems } = buildBillLineItemsFromExtracted('stock-import', extracted, existing)
 		expect(lineItems).toHaveLength(1)
-		expect(lineItems[0]?.quantity).toBe(10)
+		expect(lineItems[0]?.unit).toBe('piece')
+		expect(lineItems[0]?.quantity).toBe(120)
 		expect(lineItems[0]?.productTitle).toBe('Sample Biscuit')
 		expect(lineItems[0]?.unitStr).toContain('box')
 		const unmatched = lineFromUnmatchedStockSale(
@@ -89,6 +90,7 @@ describe('preview line to catalog merge', () => {
 		expect(prod?._id).toBe('pid99')
 		const row = lineFromMatchedStockImport(si, prod!, () => 'g1')
 		expect(row.productId).toBe('pid99')
-		expect(row.quantity).toBe(3)
+		expect(row.unit).toBe('piece')
+		expect(row.quantity).toBe(30)
 	})
 })

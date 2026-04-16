@@ -45,6 +45,7 @@
 	"action_mark_done": "सम्पन्न चिन्ह लगाउनुहोस्",
 	"action_add_payment": "भुक्तानी थप्नुहोस्",
 	"action_view_details": "विवरण हेर्नुहोस्",
+	"action_pay": "भुक्तानी",
 
 	"status_active": "सक्रिय",
 	"status_inactive": "निष्क्रिय",
@@ -142,6 +143,13 @@
 	"invoice_tax": "कर",
 	"invoice_total": "कुल",
 	"invoice_fiscal_year": "आर्थिक वर्ष",
+	"invoice_actions": "कार्यहरू",
+	"invoice_pay_title": "भुक्तानी दर्ता गर्नुहोस्",
+	"invoice_pay_no_party": "पार्टी छैन",
+	"invoice_pay_no_permission": "भुक्तानी दर्ता गर्ने अनुमति छैन।",
+	"invoice_pay_full_balance": "पूरा बाँकी तिर्नुहोस्",
+	"invoice_pay_nothing_due": "यस इनभ्वाइसमा बाँकी छैन।",
+	"invoice_pay_voucher_required": "बैंक ट्रान्सफर र चेकका लागि भौचर नम्बर आवश्यक छ।",
 
 	"stock_book_title": "स्टक बुक",
 	"stock_book_entries": "प्रविष्टिहरू",

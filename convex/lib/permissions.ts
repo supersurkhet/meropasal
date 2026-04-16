@@ -13,6 +13,7 @@ export const PERMISSIONS: Record<string, readonly Role[]> = {
 	'orders:fulfill': ['owner', 'manager', 'sales', 'warehouse'],
 	'orders:cancel': ['owner', 'manager'],
 	'invoices:view': ['owner', 'manager', 'accountant'],
+	'invoices:recordPayment': ['owner', 'manager', 'accountant', 'sales', 'warehouse'],
 	'settings:edit': ['owner'],
 	'members:manage': ['owner'],
 	'reports:view': ['owner', 'manager', 'accountant'],

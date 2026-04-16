@@ -141,14 +141,17 @@ import { createViewPreference } from '$lib/view-preference.svelte'
 {#snippet actionDropdown(customer: Customer)}
 	<DropdownMenu>
 		<DropdownMenuTrigger>
-			<Button
-				variant="ghost"
-				size="sm"
-				class="size-8 p-0 opacity-0 transition-opacity group-hover:opacity-100"
-				aria-label="More options"
-			>
-				<MoreHorizontal class="size-4 text-zinc-500" />
-			</Button>
+			{#snippet child({ props })}
+				<Button
+					{...props}
+					variant="ghost"
+					size="sm"
+					class="size-8 p-0 opacity-0 transition-opacity group-hover:opacity-100"
+					aria-label="More options"
+				>
+					<MoreHorizontal class="size-4 text-zinc-500" />
+				</Button>
+			{/snippet}
 		</DropdownMenuTrigger>
 		<DropdownMenuContent align="end" class="w-40">
 			<a href="/customers/{customer._id}/edit">

@@ -124,6 +124,20 @@ export const addPayment = mutation({
     const order = await ctx.db.get(orderId);
     if (!order || order.orgId !== orgId) throw new Error("Order not found");
 
+    const currentPaid = computePaidAmount(order.payments);
+    const remaining = order.totalAmount - currentPaid;
+    const EPS = 0.005;
+    if (remaining <= EPS) {
+      throw new Error("Order is already fully paid");
+    }
+    if (payment.paidAmount <= 0) {
+      throw new Error("Payment amount must be positive");
+    }
+    if (payment.paidAmount > remaining + EPS) {
+      throw new Error("Payment exceeds balance due");
+    }
+    validatePayments([payment]);
+
     const payments = [...order.payments, payment];
     const paidAmount = computePaidAmount(payments);
     const paymentStatus = computePaymentStatus(paidAmount, order.totalAmount);

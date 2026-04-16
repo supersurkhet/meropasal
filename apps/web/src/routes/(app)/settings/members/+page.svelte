@@ -55,6 +55,7 @@
 			label: 'Finance',
 			permissions: [
 				{ key: 'invoices:view', label: 'View invoices' },
+				{ key: 'invoices:recordPayment', label: 'Record invoice payments' },
 				{ key: 'ledger:view', label: 'View ledger' },
 				{ key: 'ledger:edit', label: 'Edit ledger' },
 				{ key: 'reports:view', label: 'View reports' },

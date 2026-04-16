@@ -1,6 +1,11 @@
-import { query } from "../_generated/server";
+import { query, mutation } from "../_generated/server";
 import { v } from "convex/values";
-import { getOrg } from "../lib/orgGuard";
+import { getOrg, requirePermission } from "../lib/orgGuard";
+import { paymentValidator } from "../lib/validators";
+import { computePaidAmount, computePaymentStatus } from "../lib/paymentStatus";
+import { validatePayments } from "../lib/validation";
+
+const AMOUNT_EPS = 0.005;
 
 export const list = query({
   args: {
@@ -74,5 +79,43 @@ export const getByParty = query({
         q.eq("orgId", orgId).eq("partyId", partyId)
       )
       .collect();
+  },
+});
+
+export const addPayment = mutation({
+  args: {
+    invoiceId: v.id("invoices"),
+    payment: paymentValidator,
+  },
+  handler: async (ctx, { invoiceId, payment }) => {
+    const orgId = await requirePermission(ctx, "invoices:recordPayment");
+    const invoice = await ctx.db.get(invoiceId);
+    if (!invoice || invoice.orgId !== orgId) {
+      throw new Error("Invoice not found");
+    }
+    const currentPaid = computePaidAmount(invoice.payments);
+    const remaining = invoice.totalAmount - currentPaid;
+    if (remaining <= AMOUNT_EPS) {
+      throw new Error("Invoice is already fully paid");
+    }
+    if (payment.paidAmount <= 0) {
+      throw new Error("Payment amount must be positive");
+    }
+    if (payment.paidAmount > remaining + AMOUNT_EPS) {
+      throw new Error("Payment exceeds balance due");
+    }
+    validatePayments([payment]);
+    const payments = [...invoice.payments, payment];
+    const paidAmount = computePaidAmount(payments);
+    const paymentStatus = computePaymentStatus(paidAmount, invoice.totalAmount);
+    await ctx.db.patch(invoiceId, {
+      payments,
+      paidAmount,
+      paymentStatus: paymentStatus as
+        | "pending"
+        | "paid"
+        | "partial"
+        | "overpaid",
+    });
   },
 });

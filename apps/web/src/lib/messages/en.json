@@ -45,6 +45,7 @@
 	"action_mark_done": "Mark as Done",
 	"action_add_payment": "Add Payment",
 	"action_view_details": "View Details",
+	"action_pay": "Pay",
 
 	"status_active": "Active",
 	"status_inactive": "Inactive",
@@ -142,6 +143,13 @@
 	"invoice_tax": "Tax",
 	"invoice_total": "Total",
 	"invoice_fiscal_year": "Fiscal Year",
+	"invoice_actions": "Actions",
+	"invoice_pay_title": "Record payment",
+	"invoice_pay_no_party": "No party",
+	"invoice_pay_no_permission": "You do not have permission to record payments.",
+	"invoice_pay_full_balance": "Pay full balance",
+	"invoice_pay_nothing_due": "Nothing due on this invoice.",
+	"invoice_pay_voucher_required": "Voucher number is required for bank transfer and check payments.",
 
 	"stock_book_title": "Stock Book",
 	"stock_book_entries": "Entries",

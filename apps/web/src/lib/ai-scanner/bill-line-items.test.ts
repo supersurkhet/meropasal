@@ -3,6 +3,32 @@ import { buildBillLineItemsFromExtracted } from './bill-line-items'
 import { minRateAtMaxDiscount } from '$lib/line-discount'
 
 describe('buildBillLineItemsFromExtracted', () => {
+	it('returns empty line items when no products extracted', () => {
+		const { lineItems, anyRawExceeds, anyAtMax } = buildBillLineItemsFromExtracted(
+			'stock-import',
+			[],
+			[],
+		)
+		expect(lineItems).toEqual([])
+		expect(anyRawExceeds).toBe(false)
+		expect(anyAtMax).toBe(false)
+	})
+
+	it('handles multiple rows mixed existing and new', () => {
+		const existing = [
+			{ _id: 'e1', title: 'A', unit: 'piece', costPrice: 10, sellingPrice: 12 },
+		]
+		const extracted = [
+			{ title: 'A', openingStock: 2, costPrice: 10, _existingId: 'e1' },
+			{ title: 'New B', openingStock: 1, costPrice: 99, unit: 'piece' },
+		]
+		const { lineItems } = buildBillLineItemsFromExtracted('stock-import', extracted, existing)
+		expect(lineItems).toHaveLength(2)
+		expect(lineItems[0]?.productId).toBe('e1')
+		expect(lineItems[1]?.productId).toBe('')
+		expect(lineItems[1]?.rate).toBe(99)
+	})
+
 	const existing = [
 		{
 			_id: 'p1',
@@ -26,7 +52,8 @@ describe('buildBillLineItemsFromExtracted', () => {
 		const { lineItems } = buildBillLineItemsFromExtracted('stock-import', extracted, existing)
 		expect(lineItems).toHaveLength(1)
 		expect(lineItems[0]?.productId).toBe('p1')
-		expect(lineItems[0]?.quantity).toBe(5)
+		expect(lineItems[0]?.unit).toBe('piece')
+		expect(lineItems[0]?.quantity).toBe(60)
 	})
 
 	it('maps new product with empty productId', () => {
@@ -55,6 +82,8 @@ describe('buildBillLineItemsFromExtracted', () => {
 		]
 		const { lineItems } = buildBillLineItemsFromExtracted('sales', extracted, existing)
 		expect(lineItems[0]?.rate).toBeGreaterThan(0)
+		expect(lineItems[0]?.unit).toBe('piece')
+		expect(lineItems[0]?.quantity).toBe(12)
 	})
 
 	it('sets anyRawExceeds when implied discount over max', () => {
@@ -75,6 +104,8 @@ describe('buildBillLineItemsFromExtracted', () => {
 		)
 		expect(anyRawExceeds).toBe(true)
 		expect(lineItems[0]?.rate).toBeGreaterThan(0)
+		expect(lineItems[0]?.unit).toBe('piece')
+		expect(lineItems[0]?.quantity).toBe(12)
 	})
 
 	it('uses per-piece rate when unit is piece on box product', () => {
@@ -90,6 +121,7 @@ describe('buildBillLineItemsFromExtracted', () => {
 		const { lineItems } = buildBillLineItemsFromExtracted('stock-import', extracted, existing)
 		expect(lineItems[0]?.unit).toBe('piece')
 		expect(lineItems[0]?.rate).toBeCloseTo(100, 1)
+		expect(lineItems[0]?.quantity).toBe(12)
 	})
 
 	it('resolves product by _existingId when title drifted', () => {
@@ -103,7 +135,8 @@ describe('buildBillLineItemsFromExtracted', () => {
 		]
 		const { lineItems } = buildBillLineItemsFromExtracted('stock-import', extracted, existing)
 		expect(lineItems[0]?.productId).toBe('p1')
-		expect(lineItems[0]?.quantity).toBe(1)
+		expect(lineItems[0]?.unit).toBe('piece')
+		expect(lineItems[0]?.quantity).toBe(12)
 	})
 
 	it('orders target uses selling reference for matched line', () => {
@@ -117,6 +150,8 @@ describe('buildBillLineItemsFromExtracted', () => {
 		]
 		const { lineItems } = buildBillLineItemsFromExtracted('orders', extracted, existing)
 		expect(lineItems[0]?.rate).toBeGreaterThan(0)
+		expect(lineItems[0]?.unit).toBe('piece')
+		expect(lineItems[0]?.quantity).toBe(24)
 	})
 
 	it('trips target mirrors orders selling branch', () => {
@@ -130,16 +165,19 @@ describe('buildBillLineItemsFromExtracted', () => {
 		]
 		const { lineItems } = buildBillLineItemsFromExtracted('trips', extracted, existing)
 		expect(lineItems[0]?.rate).toBeGreaterThan(0)
+		expect(lineItems[0]?.unit).toBe('piece')
+		expect(lineItems[0]?.quantity).toBe(12)
 	})
 
 	it('flags anyAtMax when clamp hits max discount', () => {
 		const ref = 1000
-		const minAllowed = minRateAtMaxDiscount(ref)
+		const refPerPiece = ref / 12
+		const minAllowed = minRateAtMaxDiscount(refPerPiece)
 		const extracted = [
 			{
 				title: 'Matched Product',
 				openingStock: 1,
-				costPrice: minAllowed,
+				costPrice: minAllowed * 12,
 				_existingId: 'p1',
 			},
 		]

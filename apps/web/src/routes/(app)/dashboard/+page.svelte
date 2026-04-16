@@ -231,9 +231,16 @@
 				<!-- Export Dropdown -->
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger>
-						<Button variant="outline" size="sm" class="h-9 border-zinc-200 shadow-sm dark:border-zinc-700">
-							<Download class="size-4" />
-						</Button>
+						{#snippet child({ props })}
+							<Button
+								{...props}
+								variant="outline"
+								size="sm"
+								class="h-9 border-zinc-200 shadow-sm dark:border-zinc-700"
+							>
+								<Download class="size-4" />
+							</Button>
+						{/snippet}
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content align="end">
 						<DropdownMenu.Item onclick={exportCSV}>

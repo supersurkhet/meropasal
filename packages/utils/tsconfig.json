@@ -1,8 +1,8 @@
 {
-  "extends": "@meropasal/config/tsconfig",
-  "compilerOptions": {
-    "outDir": "./dist",
-    "rootDir": "./src"
-  },
-  "include": ["src"]
+	"extends": "@meropasal/config/tsconfig",
+	"compilerOptions": {
+		"outDir": "./dist",
+		"rootDir": "./src"
+	},
+	"include": ["src"]
 }

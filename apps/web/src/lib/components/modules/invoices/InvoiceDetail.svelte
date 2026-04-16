@@ -7,13 +7,12 @@
 	import * as Table from '$lib/components/ui/table';
 	import { Button } from '$lib/components/ui/button';
 	import { Separator } from '$lib/components/ui/separator';
-	import { ArrowLeft, Printer } from '@lucide/svelte';
+	import { ArrowLeft, Printer, Wallet } from '@lucide/svelte';
+	import InvoicePayDialog from './InvoicePayDialog.svelte';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { formatDate } from '$lib/date-utils';
 	import { t } from '$lib/t.svelte';
 	import { breadcrumbLabel } from '$lib/breadcrumb-label.svelte';
-
-	import { page } from '$app/stores';
 
 	type Props = {
 		invoiceId: string;
@@ -28,6 +27,30 @@
 	const invoice = useConvexQuery(client, api.functions.invoices.getById, () => ({
 		id: invoiceId as any,
 	}));
+
+	const parties = useConvexQuery(client, api.functions.parties.list, () => ({}));
+	const customers = useConvexQuery(client, api.functions.customers.list, () => ({}));
+	const myPerms = useConvexQuery(client, api.functions.organizations.getMyPermissions, () => ({}));
+
+	let payInvoiceFor = $state<string | null>(null);
+
+	const balanceDue = $derived.by(() => {
+		const inv = invoice.data;
+		if (!inv) return 0;
+		return Math.max(0, inv.totalAmount - inv.paidAmount);
+	});
+
+	const canRecordPay = $derived(
+		(myPerms.data?.permissions?.includes('invoices:recordPayment') ?? false) && balanceDue > 0.005,
+	);
+
+	function resolvePartyName(pid: string | undefined, ptype: string | undefined): string {
+		if (!pid) return t('invoice_pay_no_party');
+		if (ptype === 'customer') {
+			return customers.data?.find((c: { _id: string }) => c._id === pid)?.name ?? '—';
+		}
+		return parties.data?.find((p: { _id: string }) => p._id === pid)?.name ?? '—';
+	}
 
 	$effect(() => {
 		breadcrumbLabel.set(invoice.data?.invoiceNumber ?? null);
@@ -194,7 +217,6 @@
 	</div>
 {:else}
 	{@const inv = invoice.data}
-	{@const org = orgSettings.data}
 
 	<div class="space-y-6">
 		<!-- Header Actions -->
@@ -203,10 +225,18 @@
 				<ArrowLeft class="size-4" />
 				{t('detail_back_to_invoices')}
 			</a>
-			<Button variant="outline" size="sm" onclick={() => { showPrint = true; }}>
-				<Printer class="mr-1.5 size-4" />
-				{t('action_print')}
-			</Button>
+			<div class="flex items-center gap-2">
+				{#if canRecordPay}
+					<Button variant="default" size="sm" onclick={() => (payInvoiceFor = invoiceId)}>
+						<Wallet class="mr-1.5 size-4" />
+						{t('action_pay')}
+					</Button>
+				{/if}
+				<Button variant="outline" size="sm" onclick={() => { showPrint = true; }}>
+					<Printer class="mr-1.5 size-4" />
+					{t('action_print')}
+				</Button>
+			</div>
 		</div>
 
 		<!-- Invoice Card -->
@@ -272,14 +302,14 @@
 			</div>
 
 			<!-- Party Info -->
-			{#if inv.partyId}
-				<div class="mb-6 rounded-lg bg-zinc-50 p-4 dark:bg-zinc-900/50">
-					<p class="text-xs font-medium uppercase text-zinc-500">
-						{inv.partyType === 'customer' ? t('customer_title') : t('party_title')}
-					</p>
-					<p class="text-sm font-medium text-zinc-900 dark:text-zinc-100">{inv.partyId}</p>
-				</div>
-			{/if}
+			<div class="mb-6 rounded-lg bg-zinc-50 p-4 dark:bg-zinc-900/50">
+				<p class="text-xs font-medium uppercase text-zinc-500">
+					{inv.partyType === 'customer' ? t('customer_title') : t('party_title')}
+				</p>
+				<p class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+					{resolvePartyName(inv.partyId, inv.partyType)}
+				</p>
+			</div>
 
 			<!-- Line Items -->
 			<div class="mb-6 overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
@@ -373,6 +403,8 @@
 			{/if}
 		</div>
 	</div>
+
+	<InvoicePayDialog bind:invoiceId={payInvoiceFor} />
 
 	<!-- Print Dialog -->
 	{#if showPrint}

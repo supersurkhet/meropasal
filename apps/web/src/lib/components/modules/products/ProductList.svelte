@@ -136,14 +136,17 @@
 {#snippet actionMenu(product: Product)}
 	<DropdownMenu.Root>
 		<DropdownMenu.Trigger>
-			<Button
-				variant="ghost"
-				size="sm"
-				class="size-8 p-0 text-zinc-400 transition-colors hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300"
-				aria-label="More options"
-			>
-				<MoreHorizontal class="size-4" />
-			</Button>
+			{#snippet child({ props })}
+				<Button
+					{...props}
+					variant="ghost"
+					size="sm"
+					class="size-8 p-0 text-zinc-400 transition-colors hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300"
+					aria-label="More options"
+				>
+					<MoreHorizontal class="size-4" />
+				</Button>
+			{/snippet}
 		</DropdownMenu.Trigger>
 		<DropdownMenu.Content align="end" class="w-40">
 			<a href="/products/{product._id}/edit">

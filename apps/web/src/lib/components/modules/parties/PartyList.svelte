@@ -142,14 +142,17 @@ import { breadcrumbViewToggle } from '$lib/breadcrumb-view-toggle.svelte'
 {#snippet actionDropdown(party: Party)}
 	<DropdownMenu>
 		<DropdownMenuTrigger>
-			<Button
-				variant="ghost"
-				size="sm"
-				class="size-8 p-0 opacity-0 transition-opacity group-hover:opacity-100"
-				aria-label="More options"
-			>
-				<MoreHorizontal class="size-4 text-zinc-500" />
-			</Button>
+			{#snippet child({ props })}
+				<Button
+					{...props}
+					variant="ghost"
+					size="sm"
+					class="size-8 p-0 opacity-0 transition-opacity group-hover:opacity-100"
+					aria-label="More options"
+				>
+					<MoreHorizontal class="size-4 text-zinc-500" />
+				</Button>
+			{/snippet}
 		</DropdownMenuTrigger>
 		<DropdownMenuContent align="end" class="w-40">
 			<a href="/parties/{party._id}/edit">

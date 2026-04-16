@@ -6,7 +6,9 @@
 	import * as Table from '$lib/components/ui/table'
 	import * as Select from '$lib/components/ui/select'
 	import { Skeleton } from '$lib/components/ui/skeleton'
-	import { FileText, Filter } from '@lucide/svelte'
+	import { FileText, Filter, Wallet } from '@lucide/svelte'
+	import { Button } from '$lib/components/ui/button'
+	import InvoicePayDialog from '$lib/components/modules/invoices/InvoicePayDialog.svelte'
 	import { t } from '$lib/t.svelte'
 	import EmptyState from '$lib/components/shared/EmptyState.svelte'
 	import { formatDate } from '$lib/date-utils'
@@ -53,6 +55,10 @@
 		paymentStatus: paymentStatusFilter,
 	}))
 
+	const myPerms = useConvexQuery(client, api.functions.organizations.getMyPermissions, () => ({}))
+
+	let payInvoiceFor = $state<string | null>(null)
+
 	function typeBadgeVariant(type: string) {
 		return type === 'purchase' ? 'secondary' : 'default'
 	}
@@ -98,6 +104,11 @@
 
 	type InvoiceDoc = NonNullable<typeof invoices.data>[number]
 	const filteredInvoices = $derived((invoices.data ?? []) as InvoiceDoc[])
+
+	function canPayFor(inv: InvoiceDoc): boolean {
+		if (!myPerms.data?.permissions?.includes('invoices:recordPayment')) return false
+		return inv.totalAmount - inv.paidAmount > 0.005
+	}
 
 	// Virtualization
 	const getLanes = useBreakpointLanes(() => viewPref.mode)
@@ -209,9 +220,12 @@
 					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 						{#each vItems as vRow (vRow.key)}
 							{#each chunks[vRow.index] as invoice (invoice._id)}
+								<div
+									class="flex flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950"
+								>
 									<a
 										href="/invoices/{invoice._id}"
-										class="block rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950"
+										class="block min-h-0 flex-1 p-4 transition-all hover:bg-zinc-50/80 dark:hover:bg-zinc-900/40"
 									>
 										<div class="flex items-start justify-between gap-2">
 											<div class="min-w-0 flex-1">
@@ -245,6 +259,22 @@
 											</span>
 										</div>
 									</a>
+									{#if canPayFor(invoice)}
+										<div
+											class="flex shrink-0 justify-end border-t border-zinc-100 px-3 py-2 dark:border-zinc-800"
+										>
+											<Button
+												type="button"
+												variant="secondary"
+												size="sm"
+												onclick={() => (payInvoiceFor = invoice._id)}
+											>
+												<Wallet class="mr-1.5 size-3.5" />
+												{t('action_pay')}
+											</Button>
+										</div>
+									{/if}
+								</div>
 							{/each}
 						{/each}
 					</div>
@@ -281,9 +311,12 @@
 					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 						{#each vItems as vRow (vRow.key)}
 							{#each chunks[vRow.index] as invoice (invoice._id)}
+								<div
+									class="flex flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950"
+								>
 									<a
 										href="/invoices/{invoice._id}"
-										class="block rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950"
+										class="block min-h-0 flex-1 p-4 transition-all hover:bg-zinc-50/80 dark:hover:bg-zinc-900/40"
 									>
 										<div class="flex items-start justify-between gap-2">
 											<div class="min-w-0 flex-1">
@@ -317,6 +350,22 @@
 											</span>
 										</div>
 									</a>
+									{#if canPayFor(invoice)}
+										<div
+											class="flex shrink-0 justify-end border-t border-zinc-100 px-3 py-2 dark:border-zinc-800"
+										>
+											<Button
+												type="button"
+												variant="secondary"
+												size="sm"
+												onclick={() => (payInvoiceFor = invoice._id)}
+											>
+												<Wallet class="mr-1.5 size-3.5" />
+												{t('action_pay')}
+											</Button>
+										</div>
+									{/if}
+								</div>
 							{/each}
 						{/each}
 					</div>
@@ -352,42 +401,61 @@
 					<div class="flex flex-col gap-2">
 						{#each vItems as vRow (vRow.key)}
 						{@const invoice = filteredInvoices[vRow.index]}
-							<a
-								href="/invoices/{invoice._id}"
-								class="block rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950"
+							<div
+								class="flex flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950"
 							>
-								<div class="flex items-start justify-between gap-2">
-									<div class="min-w-0 flex-1">
-										<p class="truncate font-mono text-sm text-zinc-900 dark:text-zinc-100">
-											{invoice.invoiceNumber || '—'}
-										</p>
-										<p class="mt-1 truncate text-sm text-zinc-600 dark:text-zinc-400">
-											{resolvePartyName(invoice.partyId, invoice.partyType)}
-										</p>
+								<a
+									href="/invoices/{invoice._id}"
+									class="block min-h-0 flex-1 p-4 transition-all hover:bg-zinc-50/80 dark:hover:bg-zinc-900/40"
+								>
+									<div class="flex items-start justify-between gap-2">
+										<div class="min-w-0 flex-1">
+											<p class="truncate font-mono text-sm text-zinc-900 dark:text-zinc-100">
+												{invoice.invoiceNumber || '—'}
+											</p>
+											<p class="mt-1 truncate text-sm text-zinc-600 dark:text-zinc-400">
+												{resolvePartyName(invoice.partyId, invoice.partyType)}
+											</p>
+										</div>
+										<span
+											class="inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-medium {typeBadgeClass(invoice.type)}"
+										>
+											{typeLabel(invoice.type)}
+										</span>
 									</div>
-									<span
-										class="inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-medium {typeBadgeClass(invoice.type)}"
-									>
-										{typeLabel(invoice.type)}
-									</span>
-								</div>
 
-								<div class="mt-3 flex items-end justify-between gap-2">
-									<div>
-										<p class="text-lg font-bold tabular-nums text-zinc-900 dark:text-zinc-100">
-											{formatNPR(invoice.totalAmount)}
-										</p>
-										<p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-500">
-											{formatDate(invoice.issuedAt)}
-										</p>
+									<div class="mt-3 flex items-end justify-between gap-2">
+										<div>
+											<p class="text-lg font-bold tabular-nums text-zinc-900 dark:text-zinc-100">
+												{formatNPR(invoice.totalAmount)}
+											</p>
+											<p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-500">
+												{formatDate(invoice.issuedAt)}
+											</p>
+										</div>
+										<span
+											class="inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize {statusBadgeClass(invoice.paymentStatus)}"
+										>
+											{t(`status_${invoice.paymentStatus}`)}
+										</span>
 									</div>
-									<span
-										class="inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize {statusBadgeClass(invoice.paymentStatus)}"
+								</a>
+								{#if canPayFor(invoice)}
+									<div
+										class="flex shrink-0 justify-end border-t border-zinc-100 px-3 py-2 dark:border-zinc-800"
 									>
-										{t(`status_${invoice.paymentStatus}`)}
-									</span>
-								</div>
-							</a>
+										<Button
+											type="button"
+											variant="secondary"
+											size="sm"
+											onclick={() => (payInvoiceFor = invoice._id)}
+										>
+											<Wallet class="mr-1.5 size-3.5" />
+											{t('action_pay')}
+										</Button>
+									</div>
+								{/if}
+							</div>
 						{/each}
 					</div>
 				</div>
@@ -403,6 +471,7 @@
 							<Table.Head class="font-semibold">{t('common_date')}</Table.Head>
 							<Table.Head class="text-right font-semibold">{t('common_total')}</Table.Head>
 							<Table.Head class="font-semibold">{t('order_status')}</Table.Head>
+							<Table.Head class="w-28 text-right font-semibold">{t('invoice_actions')}</Table.Head>
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
@@ -415,13 +484,14 @@
 									<Table.Cell><Skeleton class="h-4 w-20" /></Table.Cell>
 									<Table.Cell class="text-right"><Skeleton class="ml-auto h-4 w-20" /></Table.Cell>
 									<Table.Cell><Skeleton class="h-5 w-16 rounded-full" /></Table.Cell>
+									<Table.Cell class="text-right"><Skeleton class="ml-auto h-8 w-16" /></Table.Cell>
 								</Table.Row>
 							{/each}
 						{:else}
 							{@const vItems = $virtualizer.getVirtualItems()}
 							{@const totalSize = $virtualizer.getTotalSize()}
 							{#if vItems.length > 0}
-								<tr><td colspan="6" style="height:{vItems[0].start}px;padding:0;border:none;"></td></tr>
+								<tr><td colspan="7" style="height:{vItems[0].start}px;padding:0;border:none;"></td></tr>
 							{/if}
 							{#each vItems as vRow (vRow.key)}
 								{@const invoice = filteredInvoices[vRow.index]}
@@ -457,15 +527,38 @@
 											{t(`status_${invoice.paymentStatus}`)}
 										</span>
 									</Table.Cell>
+									<Table.Cell
+										class="w-28 text-right"
+										onclick={(e) => e.stopPropagation()}
+									>
+										{#if canPayFor(invoice)}
+											<Button
+												type="button"
+												variant="secondary"
+												size="sm"
+												class="h-8"
+												onclick={() => (payInvoiceFor = invoice._id)}
+											>
+												<Wallet class="mr-1 size-3.5" />
+												{t('action_pay')}
+											</Button>
+										{:else}
+											<span class="text-zinc-400">—</span>
+										{/if}
+									</Table.Cell>
 								</Table.Row>
 							{/each}
 							{#if vItems.length > 0}
-								<tr><td colspan="6" style="height:{totalSize - vItems[vItems.length - 1].end}px;padding:0;border:none;"></td></tr>
+								<tr><td colspan="7" style="height:{totalSize - vItems[vItems.length - 1].end}px;padding:0;border:none;"></td></tr>
 							{/if}
 						{/if}
 					</Table.Body>
 				</Table.Root>
 			</div>
 		{/if}
+	{/if}
+
+	{#if payInvoiceFor}
+		<InvoicePayDialog bind:invoiceId={payInvoiceFor} />
 	{/if}
 </div>
