@@ -26,7 +26,7 @@ jobs:
       matrix:
         include:
           - platform: ubuntu-22.04
-            target: blacksmith-4vcpu-ubuntu-2404
+            target: x86_64-unknown-linux-gnu
           - platform: macos-latest
             target: aarch64-apple-darwin
           - platform: macos-latest
@@ -74,7 +74,7 @@ jobs:
 
   build-tauri-android:
     if: ${{ github.event_name == 'push' || inputs.build_mobile }}
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
