@@ -6,12 +6,15 @@
     "dev": "turbo dev",
     "build": "turbo build",
     "lint": "turbo lint",
-    "test": "turbo test",
+    "test": "turbo test && vitest run --config vitest.convex.config.ts",
     "check": "turbo check"
   },
   "devDependencies": {
+    "@edge-runtime/vm": "^5.0.0",
     "@types/node": "^25.5.0",
-    "turbo": "^2.8.18"
+    "convex-test": "^0.0.48",
+    "turbo": "^2.8.18",
+    "vitest": "^4.1.4"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.53",

@@ -1,0 +1,20 @@
+{
+	"parties": [
+		{
+			"_ref": "s1",
+			"name": "AB Suppliers Pvt. Ltd.",
+			"phone": "9812345678"
+		}
+	],
+	"products": [
+		{
+			"title": "Sample Biscuit",
+			"supplierRef": "s1",
+			"costPrice": 240,
+			"sellingPrice": 300,
+			"openingStock": 10,
+			"unit": "box:12"
+		}
+	],
+	"customers": []
+}

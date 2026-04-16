@@ -47,25 +47,13 @@
 	import { z } from 'zod/v4'
 	import ConfirmDialog from '$lib/components/shared/ConfirmDialog.svelte'
 	import { t } from '$lib/t.svelte'
-	import { deriveUnitPrice, getAvailableUnits } from '$lib/unit-price'
+	import { normalizeName, namesMatch } from '$lib/name-match'
 	import {
-		syncFromRate,
-		impliedDiscountPercentRaw,
-		MAX_LINE_DISCOUNT_PERCENT,
-		DISCOUNT_MAX_EPSILON,
-		isDiscountAtOrAboveMax,
-	} from '$lib/line-discount'
+		buildBillLineItemsFromExtracted as computeBillLineItems,
+		type ExtractedLineItem,
+	} from '$lib/ai-scanner/bill-line-items'
 
 	type TargetTable = 'products' | 'parties' | 'customers' | 'mixed' | 'stock-import' | 'orders' | 'sales' | 'trips'
-	type ExtractedLineItem = {
-		productTitle: string
-		productId: string
-		quantity: number
-		unit: string
-		unitStr: string
-		rate: number
-		supplierName?: string
-	}
 	type ScanInputKind = 'text' | 'voice' | 'camera' | 'file' | 'mixed'
 
 	let {
@@ -116,36 +104,6 @@
 	let extractionSessionId = $state(0)
 
 	const categories = ['general', 'food', 'beverage', 'dairy', 'snacks', 'household', 'personal', 'stationery', 'other']
-
-	// ── Name normalization for fuzzy matching ───────────────
-	/** Normalize a name for comparison: lowercase, collapse whitespace, & ↔ and, strip suffixes */
-	function normalizeName(name: string): string {
-		return name
-			.toLowerCase()
-			.replace(/\s+/g, ' ')
-			.trim()
-			.replace(/\b(pvt\.?|ltd\.?|llc|inc\.?|co\.?|corp\.?|private|limited)\b/gi, '')
-			.replace(/&/g, ' and ')
-			.replace(/\band\b/g, ' and ')
-			.replace(/[''`]/g, '')       // normalize apostrophes
-			.replace(/[.\-,]/g, ' ')     // dots/dashes/commas → space
-			.replace(/\s+/g, ' ')
-			.trim()
-	}
-
-	function namesMatch(a: string, b: string): boolean {
-		const na = normalizeName(a)
-		const nb = normalizeName(b)
-		if (na === nb) return true
-		if (na.length >= 4 && nb.length >= 4) {
-			const wordsA = na.split(' ')
-			const wordsB = nb.split(' ')
-			const shorter = wordsA.length <= wordsB.length ? wordsA : wordsB
-			const longer = wordsA.length <= wordsB.length ? wordsB : wordsA
-			if (shorter.length > 0 && shorter.every((w, i) => longer[i] === w)) return true
-		}
-		return false
-	}
 
 	// ── Existing entities for lookup/dedup ──────────────────
 	type Party = { _id: string; name: string; panNumber?: string; address?: string; phone?: string; creditLimit?: number; paymentTerms?: string; notes?: string }
@@ -208,7 +166,7 @@
 	let scanFieldErrors = $state<Record<string, string>>({})
 	let importBannerError = $state('')
 
-	const scannerProductRowSchema = productSchema.extend({
+	const scannerProductRowSchema = productSchema.safeExtend({
 		costPrice: z.number().positive('Cost price must be greater than 0'),
 	})
 
@@ -1207,84 +1165,11 @@
 		anyRawExceeds: boolean
 		anyAtMax: boolean
 	} {
-		const rows = extractedProducts.filter((p) => !p._existingId)
-		let anyRawExceeds = false
-		let anyAtMax = false
-		const lineItems: ExtractedLineItem[] = rows.map((p) => {
-			const existingProduct = existingProducts.find((ep) => namesMatch(ep.title, p.title))
-			const unitStr = existingProduct?.unit ?? p.unit ?? ''
-			const units = getAvailableUnits(unitStr)
-			const rawUnit = p.unit != null && String(p.unit).trim() !== '' ? String(p.unit).trim() : ''
-			const unit = rawUnit && units.includes(rawUnit) ? rawUnit : units[0] || 'piece'
-
-			let referenceRate = 0
-			let rawRate = 0
-
-			if (existingProduct) {
-				if (targetTable === 'stock-import') {
-					referenceRate =
-						Math.round(
-							deriveUnitPrice(existingProduct.costPrice, existingProduct.unit, unit) * 100,
-						) / 100
-					const explicitRated = Number(p.rate)
-					const fromCost = Number(p.costPrice)
-					if (Number.isFinite(explicitRated) && explicitRated >= 0) rawRate = explicitRated
-					else if (Number.isFinite(fromCost) && fromCost >= 0) rawRate = fromCost
-					else rawRate = referenceRate
-				} else {
-					referenceRate =
-						Math.round(
-							deriveUnitPrice(
-								existingProduct.sellingPrice ?? 0,
-								existingProduct.unit,
-								unit,
-							) * 100,
-						) / 100
-					const explicitRated = Number(p.rate)
-					const fromSell = Number(p.sellingPrice)
-					const fromCost = Number(p.costPrice)
-					if (Number.isFinite(explicitRated) && explicitRated >= 0) rawRate = explicitRated
-					else if (Number.isFinite(fromSell) && fromSell >= 0) rawRate = fromSell
-					else if (Number.isFinite(fromCost) && fromCost >= 0) rawRate = fromCost
-					else rawRate = referenceRate
-				}
-			} else {
-				const explicitRated = Number(p.rate)
-				if (Number.isFinite(explicitRated) && explicitRated >= 0) rawRate = explicitRated
-				else if (targetTable === 'stock-import') rawRate = Number(p.costPrice) || 0
-				else rawRate = Number(p.sellingPrice) || Number(p.costPrice) || 0
-			}
-
-			if (referenceRate > 0) {
-				if (
-					impliedDiscountPercentRaw(referenceRate, rawRate) >
-					MAX_LINE_DISCOUNT_PERCENT + DISCOUNT_MAX_EPSILON
-				) {
-					anyRawExceeds = true
-				}
-			}
-
-			let finalRate = rawRate
-			if (referenceRate > 0) {
-				const s = syncFromRate(referenceRate, rawRate)
-				finalRate = s.rate
-				if (isDiscountAtOrAboveMax(s.discountPercent)) anyAtMax = true
-			} else {
-				finalRate = Math.round(rawRate * 100) / 100
-			}
-
-			return {
-				productTitle: p.title,
-				productId: existingProduct?._id ?? '',
-				quantity: Number(p.openingStock) || 1,
-				unit,
-				unitStr: unitStr || unit,
-				rate: finalRate,
-				supplierName: p.supplierName || undefined,
-			}
-		})
-
-		return { lineItems, anyRawExceeds, anyAtMax }
+		return computeBillLineItems(
+			targetTable as 'stock-import' | 'orders' | 'sales' | 'trips',
+			extractedProducts,
+			existingProducts,
+		)
 	}
 
 	function onScannerExceedsDiscountConfirm() {

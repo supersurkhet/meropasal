@@ -11,6 +11,11 @@
 	import DatePicker from '$lib/components/shared/DatePicker.svelte';
 	import { deriveUnitPrice, getAvailableUnits } from '$lib/unit-price';
 	import { syncFromRate, isDiscountAtOrAboveMax } from '$lib/line-discount';
+	import {
+		findCatalogProduct,
+		lineFromMatchedSaleBill,
+		lineFromUnmatchedStockSale,
+	} from '$lib/ai-scanner/merge-scanned-lines';
 	import { getConvexClient, api } from '$lib/convex';
 	import {
 		aggregateStockBookEntries,
@@ -118,37 +123,9 @@
 
 		// Match scanned items to existing products and add as line items
 		const newItems: LineItem[] = scannedItems.map((si) => {
-			const product = products.find((p) => p.title.toLowerCase() === si.productTitle.toLowerCase())
-			if (product) {
-				const units = getAvailableUnits(product.unit)
-				const defaultUnit = units[0] || 'piece'
-				const ref = Math.round(deriveUnitPrice(product.sellingPrice ?? 0, product.unit, defaultUnit) * 100) / 100
-				const rawRate =
-					si.rate != null && Number.isFinite(Number(si.rate)) ? Number(si.rate) : ref
-				const s = syncFromRate(ref, rawRate)
-				return {
-					id: genId(),
-					productId: product._id,
-					productTitle: product.title,
-					quantity: si.quantity || 1,
-					unitStr: product.unit || '',
-					unit: defaultUnit,
-					referenceRate: ref,
-					rate: s.rate,
-					discountPercent: s.discountPercent,
-				}
-			}
-			return {
-				id: genId(),
-				productId: '',
-				productTitle: si.productTitle,
-				quantity: si.quantity || 1,
-				unitStr: si.unitStr || '',
-				unit: si.unit || 'piece',
-				rate: si.rate != null && Number.isFinite(Number(si.rate)) ? Number(si.rate) : 0,
-				referenceRate: 0,
-				discountPercent: 0,
-			}
+			const product = findCatalogProduct(si, products)
+			if (product) return lineFromMatchedSaleBill(si, product, genId)
+			return lineFromUnmatchedStockSale(si, genId)
 		})
 
 		const filledCount = items.filter((i) => i.productId).length
