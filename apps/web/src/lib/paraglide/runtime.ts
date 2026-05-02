@@ -1,23 +1,32 @@
 /**
  * Paraglide runtime stub.
- * This will be replaced by the actual generated runtime when Paraglide is configured.
- * For now, provides the minimum exports needed by @inlang/paraglide-sveltekit.
+ * Delegates to the custom t.svelte.ts i18n system until Paraglide is fully wired.
  */
+
+import { currentLanguage } from '$lib/t.svelte';
 
 export const sourceLanguageTag = 'en';
 export const availableLanguageTags = ['en', 'ne'] as const;
 export type AvailableLanguageTag = (typeof availableLanguageTags)[number];
 
+let _tag: AvailableLanguageTag = sourceLanguageTag;
+const listeners = new Set<(tag: AvailableLanguageTag) => void>();
+
 export function languageTag(): AvailableLanguageTag {
-	return sourceLanguageTag;
+	return currentLanguage.value ?? sourceLanguageTag;
 }
 
-export function setLanguageTag(_tag: AvailableLanguageTag | (() => AvailableLanguageTag)): void {
-	// Stub — will be implemented by Paraglide generation
+export function setLanguageTag(tag: AvailableLanguageTag | (() => AvailableLanguageTag)): void {
+	const next = typeof tag === 'function' ? tag() : tag;
+	if (isAvailableLanguageTag(next)) {
+		_tag = next;
+		currentLanguage.value = next;
+		listeners.forEach((fn) => fn(next));
+	}
 }
 
-export function onSetLanguageTag(_fn: (tag: AvailableLanguageTag) => void): void {
-	// Stub
+export function onSetLanguageTag(fn: (tag: AvailableLanguageTag) => void): void {
+	listeners.add(fn);
 }
 
 export function isAvailableLanguageTag(tag: unknown): tag is AvailableLanguageTag {

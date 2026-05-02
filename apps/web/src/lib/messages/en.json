@@ -412,6 +412,10 @@
 	"report_sales_desc": "Sales by period, top selling products, and revenue trends",
 	"report_inventory_desc": "Stock levels, low stock alerts, and stock value summary",
 	"report_financial_desc": "Revenue vs expenses, profit/loss, receivables and payables",
+	"report_balance_sheet": "Balance Sheet",
+	"report_balance_sheet_desc": "Assets, liabilities, and equity snapshot",
+	"report_cash_flow": "Cash Flow",
+	"report_cash_flow_desc": "Cash and bank account movements",
 
 	"ledger_chart_of_accounts": "Chart of Accounts",
 

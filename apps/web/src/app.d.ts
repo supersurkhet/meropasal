@@ -1,5 +1,13 @@
 // See https://svelte.dev/docs/kit/types#app.d.ts
 declare global {
+	interface BarcodeDetector {
+		detect(source: HTMLVideoElement | HTMLImageElement | ImageBitmap | Blob): Promise<Array<{ rawValue: string; format: string }>>;
+	}
+	interface BarcodeDetectorConstructor {
+		new (options?: { formats?: string[] }): BarcodeDetector;
+	}
+	var BarcodeDetector: BarcodeDetectorConstructor | undefined;
+
 	namespace App {
 		// interface Error {}
 		interface Locals {

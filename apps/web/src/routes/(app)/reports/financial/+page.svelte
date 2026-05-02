@@ -14,8 +14,11 @@
 		ArrowLeft,
 		Receipt,
 		Wallet,
+		Download,
 	} from '@lucide/svelte';
 	import { Skeleton } from '$lib/components/ui/skeleton';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
+	import { exportCSV, exportJSON } from '$lib/export';
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 	const currentFY = useConvexQuery(client, api.functions.fiscalYear.current, () => ({}));
@@ -75,6 +78,46 @@
 	}
 
 	const d = $derived(dashboard.data);
+
+	function exportFinancialCSV() {
+		const rows: (string | number)[][] = [
+			['Financial Report', activeFY ? `FY ${activeFY}` : ''],
+			[''],
+			['Total Revenue', d?.totalRevenue ?? 0],
+			['Total Expenses', d?.totalExpenses ?? 0],
+			['Net Income', d?.netIncome ?? 0],
+			['Outstanding Receivables', d?.outstandingReceivables ?? 0],
+			['Outstanding Payables', d?.outstandingPayables ?? 0],
+			[''],
+			['Outstanding Receivables'],
+			['Invoice', 'Date', 'Due', 'Status'],
+			...outstandingSales.map((inv) => [
+				inv.invoiceNumber || '—',
+				inv.issuedAt,
+				inv.totalAmount - inv.paidAmount,
+				inv.paymentStatus,
+			]),
+			[''],
+			['Outstanding Payables'],
+			['Invoice', 'Date', 'Due', 'Status'],
+			...outstandingPurchases.map((inv) => [
+				inv.invoiceNumber || '—',
+				inv.issuedAt,
+				inv.totalAmount - inv.paidAmount,
+				inv.paymentStatus,
+			]),
+		];
+		exportCSV('financial-report.csv', rows);
+	}
+
+	function exportFinancialJSON() {
+		exportJSON('financial-report.json', {
+			fiscalYear: activeFY,
+			summary: d,
+			outstandingSales,
+			outstandingPurchases,
+		});
+	}
 </script>
 
 <MetaTags title="Financial Report — MeroPasal" />
@@ -105,21 +148,46 @@
 					</p>
 				</div>
 			</div>
-			<!-- Fiscal Year Selector -->
-			{#if fiscalYears.length > 0}
-				<Select.Root type="single" value={activeFY ?? ''} onValueChange={(v) => {
-					selectedFY = v || undefined;
-				}}>
-					<Select.Trigger size="sm">
-						{activeFY ? `FY ${activeFY}` : 'Select FY'}
-					</Select.Trigger>
-					<Select.Content>
-						{#each fiscalYears as fy}
-							<Select.Item value={fy}>FY {fy}</Select.Item>
-						{/each}
-					</Select.Content>
-				</Select.Root>
-			{/if}
+			<div class="flex items-center gap-2">
+				<!-- Fiscal Year Selector -->
+				{#if fiscalYears.length > 0}
+					<Select.Root type="single" value={activeFY ?? ''} onValueChange={(v) => {
+						selectedFY = v || undefined;
+					}}>
+						<Select.Trigger size="sm">
+							{activeFY ? `FY ${activeFY}` : 'Select FY'}
+						</Select.Trigger>
+						<Select.Content>
+							{#each fiscalYears as fy}
+								<Select.Item value={fy}>FY {fy}</Select.Item>
+							{/each}
+						</Select.Content>
+					</Select.Root>
+				{/if}
+				<DropdownMenu.Root>
+					<DropdownMenu.Trigger>
+						{#snippet child({ props })}
+							<button
+								class="inline-flex items-center gap-1.5 rounded-md border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+								{...props}
+							>
+								<Download class="size-3.5" />
+								Export
+							</button>
+						{/snippet}
+					</DropdownMenu.Trigger>
+					<DropdownMenu.Content align="end">
+						<DropdownMenu.Item onclick={exportFinancialCSV}>
+							<Download class="mr-2 size-4" />
+							Export CSV
+						</DropdownMenu.Item>
+						<DropdownMenu.Item onclick={exportFinancialJSON}>
+							<Download class="mr-2 size-4" />
+							Export JSON
+						</DropdownMenu.Item>
+					</DropdownMenu.Content>
+				</DropdownMenu.Root>
+			</div>
 		</div>
 	</div>
 

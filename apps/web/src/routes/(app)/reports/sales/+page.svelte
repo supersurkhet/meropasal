@@ -12,7 +12,9 @@
 		ArrowLeft,
 	} from '@lucide/svelte';
 	import { Skeleton } from '$lib/components/ui/skeleton';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import DatePicker from '$lib/components/shared/DatePicker.svelte';
+	import { exportCSV, exportJSON } from '$lib/export';
 	import { formatDate } from '$lib/date-utils';
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
@@ -58,6 +60,36 @@
 	function setRange(days: number) {
 		endDate = new Date().toISOString().split('T')[0];
 		startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+	}
+
+	function exportSalesCSV() {
+		const rows: (string | number)[][] = [
+			['Sales Report', `${startDate} to ${endDate}`],
+			[''],
+			['Metric', 'Value'],
+			['Total Sales', salesData.data?.totalAmount ?? 0],
+			['Collected', salesData.data?.totalPaid ?? 0],
+			['Outstanding', salesData.data?.totalOutstanding ?? 0],
+			['Invoices', salesData.data?.count ?? 0],
+			[''],
+			['Daily Breakdown'],
+			['Date', 'Invoices', 'Amount'],
+			...dailyBreakdown.map((d) => [d.date, d.count, d.amount]),
+			[''],
+			['Top Products'],
+			['#', 'Product', 'Qty Sold', 'Revenue'],
+			...(topProducts.data ?? []).map((p: { productTitle: string; totalQty: number; totalAmount: number }, i: number) => [i + 1, p.productTitle, p.totalQty, p.totalAmount]),
+		];
+		exportCSV('sales-report.csv', rows);
+	}
+
+	function exportSalesJSON() {
+		exportJSON('sales-report.json', {
+			period: { startDate, endDate },
+			summary: salesData.data,
+			dailyBreakdown,
+			topProducts: topProducts.data ?? [],
+		});
 	}
 </script>
 
@@ -127,14 +159,29 @@
 			</button>
 		</div>
 		<div class="ml-auto">
-			<button
-				class="inline-flex items-center gap-1.5 rounded-md border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
-				disabled
-				title="Export coming soon"
-			>
-				<Download class="size-3.5" />
-				Export
-			</button>
+			<DropdownMenu.Root>
+				<DropdownMenu.Trigger>
+					{#snippet child({ props })}
+						<button
+							class="inline-flex items-center gap-1.5 rounded-md border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+							{...props}
+						>
+							<Download class="size-3.5" />
+							Export
+						</button>
+					{/snippet}
+				</DropdownMenu.Trigger>
+				<DropdownMenu.Content align="end">
+					<DropdownMenu.Item onclick={exportSalesCSV}>
+						<Download class="mr-2 size-4" />
+						Export CSV
+					</DropdownMenu.Item>
+					<DropdownMenu.Item onclick={exportSalesJSON}>
+						<Download class="mr-2 size-4" />
+						Export JSON
+					</DropdownMenu.Item>
+				</DropdownMenu.Content>
+			</DropdownMenu.Root>
 		</div>
 	</div>
 

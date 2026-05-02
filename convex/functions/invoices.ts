@@ -119,3 +119,94 @@ export const addPayment = mutation({
     });
   },
 });
+
+
+import { calculateFiscalYear } from "../lib/nepaliCalendar";
+import { validateInvoiceItems } from "../lib/validation";
+
+export const create = mutation({
+  args: {
+    type: v.union(v.literal("purchase"), v.literal("sale")),
+    partyId: v.optional(v.id("parties")),
+    partyType: v.optional(v.union(v.literal("supplier"), v.literal("customer"))),
+    issuedAt: v.string(),
+    dueDate: v.optional(v.string()),
+    items: v.array(
+      v.object({
+        productId: v.id("products"),
+        productTitle: v.string(),
+        quantity: v.number(),
+        rate: v.number(),
+        total: v.number(),
+        unit: v.optional(v.string()),
+      })
+    ),
+    tax: v.optional(v.number()),
+    description: v.optional(v.string()),
+    payments: v.optional(v.array(paymentValidator)),
+  },
+  handler: async (ctx, args) => {
+    const orgId = await requirePermission(ctx, "invoices:create");
+    validateInvoiceItems(args.items);
+
+    const fiscalYear = calculateFiscalYear(args.issuedAt);
+
+    // Get counter for invoice number
+    const counterType = args.type;
+    let counter = await ctx.db
+      .query("invoiceCounters")
+      .withIndex("by_orgId_fiscal_type", (q) =>
+        q.eq("orgId", orgId).eq("fiscalYear", fiscalYear).eq("type", counterType)
+      )
+      .first();
+
+    if (!counter) {
+      const counterId = await ctx.db.insert("invoiceCounters", {
+        orgId,
+        fiscalYear,
+        type: counterType,
+        count: 0,
+      });
+      counter = (await ctx.db.get(counterId))!;
+    }
+
+    const nextCount = counter.count + 1;
+    await ctx.db.patch(counter._id, { count: nextCount });
+    const prefix = args.type === "purchase" ? "PUR" : "SAL";
+    const invoiceNumber = `${prefix}-${fiscalYear}-${String(nextCount).padStart(5, "0")}`;
+
+    const subTotal = args.items.reduce((sum, i) => sum + i.total, 0);
+    const tax = args.tax ?? 0;
+    const totalAmount = subTotal + tax;
+    const payments = args.payments ?? [];
+    const paidAmount = payments.reduce((sum, p) => sum + p.paidAmount, 0);
+
+    let paymentStatus: "pending" | "paid" | "partial" | "overpaid" = "pending";
+    if (paidAmount >= totalAmount - 0.005) {
+      paymentStatus = "paid";
+    } else if (paidAmount > 0.005) {
+      paymentStatus = "partial";
+    }
+
+    const invoiceId = await ctx.db.insert("invoices", {
+      orgId,
+      type: args.type,
+      invoiceNumber,
+      partyId: args.partyId,
+      partyType: args.partyType,
+      issuedAt: args.issuedAt,
+      dueDate: args.dueDate,
+      items: args.items,
+      subTotal,
+      tax,
+      totalAmount,
+      payments,
+      paidAmount,
+      paymentStatus,
+      fiscalYear,
+      description: args.description,
+    });
+
+    return invoiceId;
+  },
+});

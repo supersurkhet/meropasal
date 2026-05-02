@@ -419,6 +419,10 @@
 	"report_sales_desc": "अवधि अनुसार बिक्री, सबैभन्दा बढी बिकेका सामान, र आम्दानी प्रवृत्ति",
 	"report_inventory_desc": "स्टक स्तर, न्यून स्टक चेतावनी, र स्टक मूल्य सारांश",
 	"report_financial_desc": "आम्दानी बनाम खर्च, नाफा/घाटा, असुली र भुक्तानी",
+	"report_balance_sheet": "ब्यालेन्स सीट",
+	"report_balance_sheet_desc": "सम्पत्ति, दायित्व, र इक्विटीको अवस्था",
+	"report_cash_flow": "नगद प्रवाह",
+	"report_cash_flow_desc": "नगद र बैंक खाता आवागमन",
 
 	"ledger_chart_of_accounts": "खाता तालिका",
 

@@ -25,6 +25,7 @@
 	import { formatDate } from '$lib/date-utils';
 	import { t } from '$lib/t.svelte';
 	import type { BillLineItem } from '$lib/bill-line-item';
+	import BarcodeScanner from '$lib/components/shared/BarcodeScanner.svelte';
 
 	let {
 		onSuccess,
@@ -35,7 +36,7 @@
 	} = $props();
 
 	type Customer = { _id: string; name: string; panNumber?: string; address?: string; phone?: string; email?: string; creditLimit?: number; notes?: string };
-	type Product = { _id: string; title: string; sellingPrice?: number; unit?: string; purchasePartyId?: string; costPrice?: number };
+	type Product = { _id: string; title: string; sellingPrice?: number; unit?: string; purchasePartyId?: string; costPrice?: number; barcode?: string };
 
 	type LineItem = BillLineItem;
 
@@ -184,6 +185,22 @@
 
 	function getAvailable(productId: string): number {
 		return stockAggregate ? getProductTotalAvailable(stockAggregate, productId) : 0;
+	}
+
+	function handleBarcodeScan(code: string) {
+		const product = products.find((p) => p.barcode && p.barcode.trim() === code);
+		if (!product) {
+			toast.error(`No product found with barcode: ${code}`);
+			return;
+		}
+		// Find first empty row or add new one
+		let index = items.findIndex((i) => !i.productId);
+		if (index === -1) {
+			addItem();
+			index = items.length - 1;
+		}
+		selectProduct(index, product._id);
+		toast.success(`Added: ${product.title}`);
 	}
 
 	let hasStockError = $derived(
@@ -384,6 +401,10 @@
 			void executeSubmit();
 		}}
 	/>
+
+	<div class="mx-auto mb-4 max-w-4xl">
+		<BarcodeScanner onScan={handleBarcodeScan} placeholder="Scan or type barcode to add product..." />
+	</div>
 
 	<BillForm
 		title="Sale"

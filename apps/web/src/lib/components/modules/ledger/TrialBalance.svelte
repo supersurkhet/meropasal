@@ -5,10 +5,12 @@
 	import { formatNPR } from '$lib/currency';
 	import * as Table from '$lib/components/ui/table';
 	import * as Select from '$lib/components/ui/select';
-	import { Filter, Scale } from '@lucide/svelte';
+	import { Filter, Scale, Download } from '@lucide/svelte';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { t } from '$lib/t.svelte';
 	import EmptyState from '$lib/components/shared/EmptyState.svelte';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
+	import { exportCSV, exportJSON } from '$lib/export';
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 
@@ -49,6 +51,27 @@
 	});
 
 	const isBalanced = $derived(Math.abs(totals.debit - totals.credit) < 0.01);
+
+	function exportTrialBalanceCSV() {
+		const data = trialBalance.data ?? [];
+		const rows: (string | number)[][] = [
+			['Trial Balance', effectiveFY ? `FY ${effectiveFY}` : ''],
+			[''],
+			['Account Code', 'Account Name', 'Debit', 'Credit'],
+			...data.map((r: any) => [r.accountCode, r.accountName, r.debit, r.credit]),
+			['', 'Grand Total', totals.debit, totals.credit],
+		];
+		exportCSV('trial-balance.csv', rows);
+	}
+
+	function exportTrialBalanceJSON() {
+		exportJSON('trial-balance.json', {
+			fiscalYear: effectiveFY,
+			isBalanced,
+			totals,
+			rows: trialBalance.data ?? [],
+		});
+	}
 </script>
 
 <div class="space-y-4">
@@ -74,6 +97,29 @@
 					<Scale class="size-3" />
 					{isBalanced ? 'Balanced' : 'Unbalanced'}
 				</span>
+				<DropdownMenu.Root>
+					<DropdownMenu.Trigger>
+						{#snippet child({ props })}
+							<button
+								class="inline-flex items-center gap-1.5 rounded-md border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+								{...props}
+							>
+								<Download class="size-3.5" />
+								Export
+							</button>
+						{/snippet}
+					</DropdownMenu.Trigger>
+					<DropdownMenu.Content align="end">
+						<DropdownMenu.Item onclick={exportTrialBalanceCSV}>
+							<Download class="mr-2 size-4" />
+							Export CSV
+						</DropdownMenu.Item>
+						<DropdownMenu.Item onclick={exportTrialBalanceJSON}>
+							<Download class="mr-2 size-4" />
+							Export JSON
+						</DropdownMenu.Item>
+					</DropdownMenu.Content>
+				</DropdownMenu.Root>
 			</div>
 		{/if}
 	</div>

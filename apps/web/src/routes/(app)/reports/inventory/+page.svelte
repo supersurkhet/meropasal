@@ -12,9 +12,12 @@
 		AlertTriangle,
 		ArrowLeft,
 		Search,
+		Download,
 	} from '@lucide/svelte';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { Checkbox } from '$lib/components/ui/checkbox';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
+	import { exportCSV, exportJSON } from '$lib/export';
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 
@@ -98,6 +101,35 @@
 	let categoryFilter = $state<string>('');
 
 	const isLoading = $derived(products.isLoading || stockAgg.isLoading);
+
+	function exportInventoryCSV() {
+		const rows: (string | number)[][] = [
+			['Inventory Report'],
+			[''],
+			['Total Stock Value', totalStockValue],
+			['Total Products', totalItems],
+			['Low Stock Alerts', lowStockCount],
+			[''],
+			['Product', 'Category', 'Stock', 'Reorder', 'Cost Price', 'Stock Value', 'Status'],
+			...inventoryItems.map((item) => [
+				item.title,
+				item.category ?? '',
+				item.available,
+				item.reorderLevel ?? '',
+				item.costPrice,
+				item.stockValue,
+				item.available === 0 ? 'Out of stock' : item.isLowStock ? 'Low stock' : 'In stock',
+			]),
+		];
+		exportCSV('inventory-report.csv', rows);
+	}
+
+	function exportInventoryJSON() {
+		exportJSON('inventory-report.json', {
+			summary: { totalStockValue, totalItems, lowStockCount },
+			items: inventoryItems,
+		});
+	}
 </script>
 
 <MetaTags title="Inventory Report — MeroPasal" />
@@ -216,6 +248,31 @@
 			<Checkbox bind:checked={showLowStockOnly} />
 			Low stock only
 		</label>
+		<div class="ml-auto">
+			<DropdownMenu.Root>
+				<DropdownMenu.Trigger>
+					{#snippet child({ props })}
+						<button
+							class="inline-flex items-center gap-1.5 rounded-md border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+							{...props}
+						>
+							<Download class="size-3.5" />
+							Export
+						</button>
+					{/snippet}
+				</DropdownMenu.Trigger>
+				<DropdownMenu.Content align="end">
+					<DropdownMenu.Item onclick={exportInventoryCSV}>
+						<Download class="mr-2 size-4" />
+						Export CSV
+					</DropdownMenu.Item>
+					<DropdownMenu.Item onclick={exportInventoryJSON}>
+						<Download class="mr-2 size-4" />
+						Export JSON
+					</DropdownMenu.Item>
+				</DropdownMenu.Content>
+			</DropdownMenu.Root>
+		</div>
 	</div>
 
 	<!-- Inventory Table -->

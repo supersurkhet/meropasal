@@ -5,10 +5,12 @@
 	import { formatNPR } from '$lib/currency';
 	import * as Table from '$lib/components/ui/table';
 	import * as Select from '$lib/components/ui/select';
-	import { Filter, BookText } from '@lucide/svelte';
+	import { Filter, BookText, Download } from '@lucide/svelte';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { t } from '$lib/t.svelte';
 	import EmptyState from '$lib/components/shared/EmptyState.svelte';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
+	import { exportCSV, exportJSON } from '$lib/export';
 	import DatePicker from '$lib/components/shared/DatePicker.svelte';
 	import { formatDate } from '$lib/date-utils';
 
@@ -71,6 +73,31 @@
 		}
 	}
 
+	function exportLedgerCSV() {
+		const rows: (string | number)[][] = [
+			['Ledger Entries'],
+			[''],
+			['Date', 'Account', 'Account Code', 'Debit', 'Credit', 'Narration', 'Voucher Type'],
+			...filteredEntries.map((e) => [
+				e.date,
+				e.accountName,
+				e.accountCode,
+				e.debit,
+				e.credit,
+				e.narration,
+				e.voucherType,
+			]),
+		];
+		exportCSV('ledger-entries.csv', rows);
+	}
+
+	function exportLedgerJSON() {
+		exportJSON('ledger-entries.json', {
+			filters: { fiscalYear: fiscalYearFilter, account: accountFilter, dateFrom, dateTo },
+			entries: filteredEntries,
+		});
+	}
+
 </script>
 
 <div class="space-y-4">
@@ -115,6 +142,31 @@
 				placeholder={t('report_to')}
 				class="rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
 			/>
+		</div>
+		<div class="ml-auto">
+			<DropdownMenu.Root>
+				<DropdownMenu.Trigger>
+					{#snippet child({ props })}
+						<button
+							class="inline-flex items-center gap-1.5 rounded-md border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+							{...props}
+						>
+							<Download class="size-3.5" />
+							Export
+						</button>
+					{/snippet}
+				</DropdownMenu.Trigger>
+				<DropdownMenu.Content align="end">
+					<DropdownMenu.Item onclick={exportLedgerCSV}>
+						<Download class="mr-2 size-4" />
+						Export CSV
+					</DropdownMenu.Item>
+					<DropdownMenu.Item onclick={exportLedgerJSON}>
+						<Download class="mr-2 size-4" />
+						Export JSON
+					</DropdownMenu.Item>
+				</DropdownMenu.Content>
+			</DropdownMenu.Root>
 		</div>
 	</div>
 

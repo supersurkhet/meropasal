@@ -4,6 +4,8 @@
 		TrendingUp,
 		Package,
 		DollarSign,
+		Scale,
+		Banknote,
 		ArrowRight,
 	} from '@lucide/svelte';
 	import { t } from '$lib/t.svelte';
@@ -32,6 +34,22 @@
 			icon: DollarSign,
 			iconBg: 'bg-blue-100 dark:bg-blue-900/30',
 			iconColor: 'text-blue-600 dark:text-blue-400',
+		},
+		{
+			titleKey: 'report_balance_sheet',
+			descKey: 'report_balance_sheet_desc',
+			href: '/reports/balance-sheet',
+			icon: Scale,
+			iconBg: 'bg-violet-100 dark:bg-violet-900/30',
+			iconColor: 'text-violet-600 dark:text-violet-400',
+		},
+		{
+			titleKey: 'report_cash_flow',
+			descKey: 'report_cash_flow_desc',
+			href: '/reports/cash-flow',
+			icon: Banknote,
+			iconBg: 'bg-emerald-100 dark:bg-emerald-900/30',
+			iconColor: 'text-emerald-600 dark:text-emerald-400',
 		},
 	] as const;
 </script>

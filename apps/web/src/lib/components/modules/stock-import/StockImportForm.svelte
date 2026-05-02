@@ -24,6 +24,7 @@
 	import { formatDate } from '$lib/date-utils';
 	import { t } from '$lib/t.svelte';
 	import type { BillLineItem } from '$lib/bill-line-item';
+	import BarcodeScanner from '$lib/components/shared/BarcodeScanner.svelte';
 
 	type Party = { _id: string; name: string; panNumber?: string; address?: string; phone?: string; creditLimit?: number; paymentTerms?: string; notes?: string };
 	type Product = {
@@ -32,6 +33,7 @@
 		unit?: string;
 		costPrice: number;
 		purchasePartyId: string;
+		barcode?: string;
 	};
 
 	type LineItem = BillLineItem;
@@ -172,6 +174,21 @@
 			rate,
 			discountPercent: 0,
 		};
+	}
+
+	function handleBarcodeScan(code: string) {
+		const product = allProducts.find((p) => p.barcode && p.barcode.trim() === code);
+		if (!product) {
+			toast.error(`No product found with barcode: ${code}`);
+			return;
+		}
+		let index = items.findIndex((i) => !i.productId);
+		if (index === -1) {
+			addItem();
+			index = items.length - 1;
+		}
+		selectProduct(index, product._id);
+		toast.success(`Added: ${product.title}`);
 	}
 
 	function ensureTrailingRows(index: number) {
@@ -331,6 +348,10 @@
 			void executeSubmit();
 		}}
 	/>
+
+	<div class="mx-auto mb-4 max-w-4xl">
+		<BarcodeScanner onScan={handleBarcodeScan} placeholder="Scan or type barcode to add product..." />
+	</div>
 
 	<BillForm
 		title="Stock Import"

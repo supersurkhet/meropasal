@@ -6,7 +6,7 @@
 	import * as Table from '$lib/components/ui/table'
 	import * as Select from '$lib/components/ui/select'
 	import { Skeleton } from '$lib/components/ui/skeleton'
-	import { FileText, Filter, Wallet } from '@lucide/svelte'
+	import { FileText, Filter, Wallet, Plus } from '@lucide/svelte'
 	import { Button } from '$lib/components/ui/button'
 	import InvoicePayDialog from '$lib/components/modules/invoices/InvoicePayDialog.svelte'
 	import { t } from '$lib/t.svelte'
@@ -178,6 +178,12 @@
 				<Select.Item value="overpaid">{t('status_overpaid')}</Select.Item>
 			</Select.Content>
 		</Select.Root>
+		<div class="ml-auto flex items-center gap-2">
+			<Button href="/invoices/purchase/new" size="sm" variant="outline">
+				<Plus class="mr-1.5 size-3.5" />
+				Purchase
+			</Button>
+		</div>
 	</div>
 
 	{#if !invoices.isLoading && !invoices.data?.length}
