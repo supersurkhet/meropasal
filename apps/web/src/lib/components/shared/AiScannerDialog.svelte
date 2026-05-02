@@ -1418,7 +1418,7 @@
 
 <Dialog bind:open onOpenChange={(v) => { if (!v) handleClose() }}>
 	<DialogContent
-		class="relative sm:max-w-2xl max-h-[85vh] {showCamera ? 'overflow-hidden !p-0' : 'overflow-y-auto'} {isDragOver ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}"
+		class="sm:max-w-2xl max-h-[85vh] {showCamera ? 'overflow-hidden !p-0' : 'overflow-y-auto'} {isDragOver ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}"
 		ondragenter={handleWebDragEnter}
 		ondragleave={handleWebDragLeave}
 		ondragover={handleWebDragOver}
