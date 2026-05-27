@@ -1,11 +1,10 @@
-import type { LayoutServerLoad } from './$types';
+import type { LayoutServerLoad } from './$types'
+import { buildClerkProps } from 'svelte-clerk/server'
 
 export const load: LayoutServerLoad = async ({ locals }) => {
 	return {
-		user: locals.user,
-		orgId: locals.orgId,
+		...buildClerkProps(locals.auth()),
 		convexToken: locals.convexToken,
 		isInternalStaff: locals.isInternalStaff,
-		impersonator: locals.impersonator,
-	};
-};
+	}
+}

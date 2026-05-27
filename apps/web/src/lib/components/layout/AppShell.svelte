@@ -7,20 +7,8 @@
 	import { t } from '$lib/t.svelte';
 	let {
 		children,
-		user,
-		workosOrgName = '',
-		orgMetadata = {},
-		userOrgs = [],
-		currentOrgId = '',
-		impersonator = null,
 	}: {
 		children: import('svelte').Snippet;
-		user: { firstName: string | null; lastName: string | null; email: string } | null;
-		workosOrgName?: string;
-		orgMetadata?: Record<string, unknown>;
-		userOrgs?: Array<{ id: string; name: string }>;
-		currentOrgId?: string | null;
-		impersonator?: { email: string; reason: string | null } | null;
 	} = $props();
 
 	let sidebarCollapsed = $state(false);
@@ -36,34 +24,16 @@
 
 <svelte:window use:shortcuts />
 
-{#if impersonator}
-	<div class="fixed inset-x-0 top-0 z-[200] flex items-center justify-between bg-amber-500 px-4 py-1.5 text-sm font-medium text-black">
-		<span>
-			Impersonating as <strong>{user?.email}</strong>
-			{#if impersonator.reason}
-				&mdash; {impersonator.reason}
-			{/if}
-			<span class="ml-2 opacity-70">(by {impersonator.email})</span>
-		</span>
-		<a
-			href="/api/auth/stop-impersonating"
-			class="rounded-md bg-black/10 px-3 py-0.5 font-semibold transition-colors hover:bg-black/20"
-		>
-			Stop Impersonating
-		</a>
-	</div>
-{/if}
-
-<div class="flex h-screen bg-white dark:bg-zinc-950 {impersonator ? 'pt-9' : ''}">
+<div class="flex h-screen bg-white dark:bg-zinc-950">
 	<!-- Desktop sidebar -->
 	<div class="hidden lg:block">
-		<Sidebar bind:collapsed={sidebarCollapsed} {user} {workosOrgName} {orgMetadata} {userOrgs} {currentOrgId} />
+		<Sidebar bind:collapsed={sidebarCollapsed} />
 	</div>
 
 	<!-- Mobile sidebar (sheet) -->
 	<Sheet bind:open={mobileOpen}>
 		<SheetContent side="left" class="w-64 p-0" showClose={false}>
-			<Sidebar collapsed={false} {user} {workosOrgName} {orgMetadata} {userOrgs} {currentOrgId} />
+			<Sidebar collapsed={false} />
 		</SheetContent>
 	</Sheet>
 

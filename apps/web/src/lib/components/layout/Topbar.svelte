@@ -5,6 +5,7 @@
 	import LanguageSwitcher from './LanguageSwitcher.svelte';
 	import CommandPalette from '$lib/components/shared/CommandPalette.svelte';
 	import NotificationPopover from '$lib/components/shared/NotificationPopover.svelte';
+	import { UserButton } from 'svelte-clerk';
 	import { t } from '$lib/t.svelte';
 
 	let { onToggleSidebar }: { onToggleSidebar: () => void } = $props();
@@ -53,6 +54,9 @@
 		<LanguageSwitcher />
 		<ThemeToggle />
 		<NotificationPopover />
+		<div class="ml-1 flex items-center">
+			<UserButton afterSignOutUrl="/sign-in" />
+		</div>
 	</div>
 </header>
 

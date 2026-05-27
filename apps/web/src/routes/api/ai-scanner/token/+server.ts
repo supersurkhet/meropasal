@@ -8,7 +8,7 @@ import { env } from '$env/dynamic/private'
  * The API key stays server-side — only the ephemeral token goes to the client.
  */
 export const POST: RequestHandler = async ({ locals }) => {
-	if (!locals.user) {
+	if (!locals.userId) {
 		error(401, 'Authentication required')
 	}
 

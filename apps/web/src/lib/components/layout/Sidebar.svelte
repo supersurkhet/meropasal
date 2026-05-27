@@ -14,15 +14,11 @@
 		Truck,
 		Car,
 		BarChart3,
-		Settings,
 		ChevronLeft,
-		Store,
-		MapPin,
-		LogOut,
-		ChevronsUpDown,
-		Check,
-		Loader2,
-		Plus,
+		ChevronDown,
+		Settings2,
+		Building2,
+		FileSliders,
 	} from '@lucide/svelte';
 	import { Separator } from '$lib/components/ui/separator';
 	import {
@@ -31,19 +27,14 @@
 		TooltipTrigger,
 		TooltipProvider,
 	} from '$lib/components/ui/tooltip';
-	import { Button } from '$lib/components/ui/button';
-	import * as Popover from '$lib/components/ui/popover';
-	import * as Dialog from '$lib/components/ui/dialog';
+	import { OrganizationSwitcher } from 'svelte-clerk';
 	import { t } from '$lib/t.svelte';
-	import { getConvexClient } from '$lib/convex';
-	import { useConvexQuery } from '$lib/convex-helpers.svelte';
-	import { api } from '$lib/api';
-	import AddOrgDialog from './AddOrgDialog.svelte';
 
 	type NavItem = {
 		labelKey: string;
 		href: string;
 		icon: typeof LayoutDashboard;
+		children?: NavItem[];
 	};
 
 	type NavGroup = {
@@ -95,63 +86,48 @@
 				{ labelKey: 'nav_vehicles', href: '/vehicles', icon: Car },
 			],
 		},
+		{
+			titleKey: 'nav_settings',
+			items: [
+				{
+					labelKey: 'nav_settings',
+					href: '/settings',
+					icon: Settings2,
+					children: [
+						{ labelKey: 'nav_settings_organization', href: '/settings/organization', icon: Building2 },
+						{ labelKey: 'nav_settings_bill_template', href: '/settings/bill-template', icon: FileSliders },
+						{ labelKey: 'nav_settings_members', href: '/settings/members', icon: Users },
+						{ labelKey: 'nav_settings_profile', href: '/settings/profile', icon: UserRound },
+					],
+				},
+			],
+		},
 	];
 
 	let {
 		collapsed = $bindable(false),
-		user,
-		workosOrgName = '',
-		orgMetadata = {},
-		userOrgs = [],
-		currentOrgId = '',
 	} = $props<{
 		collapsed?: boolean;
-		user: { firstName: string | null; lastName: string | null; email: string } | null;
-		workosOrgName?: string;
-		orgMetadata?: Record<string, unknown>;
-		userOrgs?: Array<{ id: string; name: string }>;
-		currentOrgId?: string | null;
 	}>();
-
-	let orgSwitcherOpen = $state(false);
-	let userMenuOpen = $state(false);
-	let logoutDialogOpen = $state(false);
-	let addOrgDialogOpen = $state(false);
-	let switchingTo = $state<string | null>(null);
-
-	async function switchOrg(orgId: string) {
-		if (orgId === currentOrgId || switchingTo) return;
-		switchingTo = orgId;
-		try {
-			const res = await fetch('/api/org/switch', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ organizationId: orgId }),
-			});
-			const { redirectUrl } = await res.json();
-			if (redirectUrl) {
-				window.location.href = redirectUrl;
-			} else {
-				switchingTo = null;
-			}
-		} catch {
-			switchingTo = null;
-		}
-	}
-
-	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
-	const orgSettings = useConvexQuery(client, api.functions.organizations.getSettings, () => ({}));
-	const displayName = $derived(workosOrgName || t('app_name'));
 
 	function isActive(href: string): boolean {
 		return page.url.pathname === href || page.url.pathname.startsWith(href + '/');
 	}
 
-	function getInitials(user: { firstName: string | null; lastName: string | null; email: string }): string {
-		if (user.firstName && user.lastName) {
-			return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
-		}
-		return user.email[0].toUpperCase();
+	function isChildActive(item: NavItem): boolean {
+		if (!item.children) return false;
+		return item.children.some((c) => isActive(c.href));
+	}
+
+	// Expanded groups (by href). Auto-expand when a child route is active.
+	let expanded = $state<Record<string, boolean>>({});
+
+	function toggle(href: string) {
+		expanded[href] = !expanded[href];
+	}
+
+	function isExpanded(item: NavItem): boolean {
+		return expanded[item.href] ?? isChildActive(item);
 	}
 </script>
 
@@ -161,99 +137,10 @@
 		class:w-64={!collapsed}
 		class:w-16={collapsed}
 	>
-		<!-- Logo / Brand / Org Switcher -->
-		<Popover.Root bind:open={orgSwitcherOpen}>
-			<Popover.Trigger
-				class="flex h-14 w-full items-center gap-3 border-b border-zinc-200 px-4 text-left transition-colors cursor-pointer hover:bg-zinc-100 dark:border-zinc-800 dark:hover:bg-zinc-900"
-			>
-				{#if orgSettings.data?.logoUrl}
-					<img
-						src={orgSettings.data.logoUrl}
-						alt={displayName}
-						class="size-8 shrink-0 rounded-lg object-cover"
-					/>
-				{:else}
-					<div class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-zinc-900 dark:bg-zinc-100">
-						<Store class="size-4 text-zinc-100 dark:text-zinc-900" />
-					</div>
-				{/if}
-				{#if !collapsed}
-					<div class="flex min-w-0 flex-1 flex-col overflow-hidden transition-opacity duration-200">
-						<span class="truncate text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-							{displayName}
-						</span>
-						{#if orgMetadata.location}
-							<span class="flex items-center gap-1 text-[10px] text-zinc-400 dark:text-zinc-500">
-								<MapPin class="size-2.5 shrink-0 text-zinc-400 dark:text-zinc-500" />
-								<span class="truncate">{orgMetadata.location}</span>
-							</span>
-						{/if}
-					</div>
-					<ChevronsUpDown class="size-4 shrink-0 text-zinc-400" />
-				{/if}
-			</Popover.Trigger>
-				<Popover.Content
-				side={collapsed ? 'right' : 'bottom'}
-				align="center"
-				sideOffset={collapsed ? 8 : 4}
-				class="z-50 w-60 rounded-lg border border-zinc-200 bg-white p-1 shadow-lg dark:border-zinc-800 dark:bg-zinc-950"
-			>
-				<a
-					href="/settings"
-					onclick={() => { orgSwitcherOpen = false }}
-					class="flex w-full items-center gap-3 rounded-md px-2 py-2 text-sm text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-100"
-				>
-					<div class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800">
-						<Settings class="size-4 text-zinc-600 dark:text-zinc-400" />
-					</div>
-					<span class="font-medium">Organisation Settings</span>
-				</a>
-				<div class="my-1 h-px bg-zinc-200 dark:bg-zinc-800"></div>
-				{#if userOrgs.length > 1}
-					<div class="px-2 py-1.5">
-						<p class="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-							{t('nav_switch_org')}
-						</p>
-					</div>
-				{/if}
-				{#each userOrgs as org}
-					{@const isCurrent = org.id === currentOrgId}
-					<button
-						onclick={() => { orgSwitcherOpen = false; switchOrg(org.id); }}
-						disabled={isCurrent || !!switchingTo}
-						class="flex w-full items-center gap-3 rounded-md px-2 py-2 text-left transition-colors
-							{isCurrent
-								? 'bg-zinc-100 dark:bg-zinc-800'
-								: 'hover:bg-zinc-50 dark:hover:bg-zinc-900'}
-							{switchingTo ? 'opacity-50' : ''}"
-					>
-						<div class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-zinc-900 dark:bg-zinc-100">
-							<Store class="size-4 text-zinc-100 dark:text-zinc-900" />
-						</div>
-						<div class="flex min-w-0 flex-1 flex-col">
-							<span class="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
-								{org.name}
-							</span>
-						</div>
-						{#if switchingTo === org.id}
-							<Loader2 class="size-4 shrink-0 animate-spin text-zinc-400" />
-						{:else if isCurrent}
-							<Check class="size-4 shrink-0 text-zinc-500" />
-						{/if}
-					</button>
-				{/each}
-				<div class="my-1 h-px bg-zinc-200 dark:bg-zinc-800"></div>
-				<button
-					onclick={() => { orgSwitcherOpen = false; addOrgDialogOpen = true; }}
-					class="flex w-full items-center gap-3 rounded-md px-2 py-2 text-left text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-100"
-				>
-					<div class="flex size-8 shrink-0 items-center justify-center rounded-lg border-2 border-dashed border-zinc-300 dark:border-zinc-700">
-						<Plus class="size-4 text-zinc-400 dark:text-zinc-500" />
-					</div>
-					{t('nav_add_org')}
-				</button>
-			</Popover.Content>
-		</Popover.Root>
+		<!-- Org Switcher (Clerk) -->
+		<div class="flex h-14 items-center border-b border-zinc-200 px-3 dark:border-zinc-800 {collapsed ? 'justify-center' : ''}">
+			<OrganizationSwitcher hidePersonal />
+		</div>
 
 		<!-- Navigation -->
 		<nav class="flex-1 overflow-y-auto overflow-x-hidden px-2 py-3" aria-label="Main navigation">
@@ -272,6 +159,8 @@
 
 				{#each group.items as item}
 					{@const active = isActive(item.href)}
+					{@const hasChildren = !!item.children?.length}
+					{@const open = hasChildren && isExpanded(item)}
 
 					{#if collapsed}
 						<Tooltip>
@@ -279,7 +168,7 @@
 								<a
 									href={item.href}
 									class="mb-0.5 flex size-10 items-center justify-center rounded-lg transition-colors mx-auto
-										{active
+										{active || isChildActive(item)
 											? 'bg-zinc-900 text-white shadow-sm dark:bg-zinc-100 dark:text-zinc-900'
 											: 'text-zinc-500 hover:bg-zinc-200/70 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100'}"
 								>
@@ -290,6 +179,37 @@
 								{t(item.labelKey)}
 							</TooltipContent>
 						</Tooltip>
+					{:else if hasChildren}
+						<button
+							type="button"
+							onclick={() => toggle(item.href)}
+							aria-expanded={open}
+							class="mb-0.5 flex h-9 w-full items-center gap-3 rounded-lg px-2.5 text-sm font-medium transition-colors
+								{isChildActive(item)
+									? 'text-zinc-900 dark:text-zinc-100'
+									: 'text-zinc-600 hover:bg-zinc-200/70 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100'}"
+						>
+							<item.icon class="size-[18px] shrink-0" />
+							<span class="flex-1 truncate text-left">{t(item.labelKey)}</span>
+							<ChevronDown class="size-3.5 shrink-0 transition-transform duration-150 {open ? '' : '-rotate-90'}" />
+						</button>
+						{#if open}
+							<div class="mb-1 ml-3 flex flex-col border-l border-zinc-200 pl-2 dark:border-zinc-800">
+								{#each item.children ?? [] as child}
+									{@const childActive = isActive(child.href)}
+									<a
+										href={child.href}
+										class="mb-0.5 flex h-8 items-center gap-2.5 rounded-md px-2 text-sm transition-colors
+											{childActive
+												? 'bg-zinc-900 text-white shadow-sm dark:bg-zinc-100 dark:text-zinc-900'
+												: 'text-zinc-600 hover:bg-zinc-200/70 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100'}"
+									>
+										<child.icon class="size-4 shrink-0" />
+										<span class="truncate">{t(child.labelKey)}</span>
+									</a>
+								{/each}
+							</div>
+						{/if}
 					{:else}
 						<a
 							href={item.href}
@@ -320,102 +240,5 @@
 			</span>
 		</button>
 
-		<!-- Bottom: User Menu -->
-		<div class="border-t border-zinc-200 p-2 dark:border-zinc-800">
-			{#if user}
-				<Popover.Root bind:open={userMenuOpen}>
-					<Popover.Trigger
-						class="flex w-full items-center gap-2.5 rounded-lg p-2 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-900 {collapsed ? 'justify-center' : ''}"
-					>
-						<div class="flex size-8 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-xs font-semibold text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-							{getInitials(user)}
-						</div>
-						{#if !collapsed}
-							<div class="flex min-w-0 flex-1 flex-col text-left">
-								<span class="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
-									{user.firstName ?? user.email.split('@')[0]}
-								</span>
-								<span class="truncate text-xs text-zinc-400">
-									{user.email}
-								</span>
-							</div>
-							<ChevronsUpDown class="size-4 shrink-0 text-zinc-400" />
-						{/if}
-					</Popover.Trigger>
-					<Popover.Content
-						side={collapsed ? 'right' : 'top'}
-						align="center"
-						sideOffset={8}
-						class="z-50 w-60 rounded-lg border border-zinc-200 bg-white p-1 shadow-lg dark:border-zinc-800 dark:bg-zinc-950"
-					>
-						<!-- User info header -->
-						<div class="px-2 py-2">
-							<p class="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
-								{user.firstName ?? user.email.split('@')[0]}
-							</p>
-							<p class="truncate text-xs text-zinc-500 dark:text-zinc-400">
-								{user.email}
-							</p>
-						</div>
-						<Separator class="my-1 bg-zinc-200 dark:bg-zinc-800" />
-						<!-- Settings -->
-						<a
-							href="/settings"
-							onclick={() => { userMenuOpen = false; }}
-							class="flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-sm text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-100"
-						>
-							<Settings class="size-4 shrink-0" />
-							<span>{t('nav_settings')}</span>
-						</a>
-						<Separator class="my-1 bg-zinc-200 dark:bg-zinc-800" />
-						<!-- Logout -->
-						<button
-							onclick={() => { userMenuOpen = false; logoutDialogOpen = true; }}
-							class="flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-sm text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"
-						>
-							<LogOut class="size-4 shrink-0" />
-							<span>{t('auth_logout')}</span>
-						</button>
-					</Popover.Content>
-				</Popover.Root>
-			{/if}
-		</div>
-
-		<!-- Add Organization Dialog -->
-		<AddOrgDialog bind:open={addOrgDialogOpen} />
-
-		<!-- Logout Confirmation Dialog -->
-		<Dialog.Root bind:open={logoutDialogOpen}>
-			<Dialog.Portal>
-				<Dialog.Overlay class="fixed inset-0 z-50 bg-black/50" />
-				<Dialog.Content class="fixed top-1/2 left-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-xl border border-zinc-200 bg-white p-6 shadow-xl dark:border-zinc-800 dark:bg-zinc-950">
-					<Dialog.Header>
-						<Dialog.Title class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-							{t('auth_logout_confirm_title')}
-						</Dialog.Title>
-						<Dialog.Description class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-							{t('auth_logout_confirm_desc')}
-						</Dialog.Description>
-					</Dialog.Header>
-					<Dialog.Footer class="mt-6 flex justify-end gap-3">
-						<Button
-							variant="outline"
-							size="sm"
-							onclick={() => { logoutDialogOpen = false; }}
-						>
-							{t('action_cancel')}
-						</Button>
-						<Button
-							variant="destructive"
-							size="sm"
-							onclick={() => { window.location.href = '/logout'; }}
-						>
-							<LogOut class="mr-1.5 size-4" />
-							{t('auth_logout')}
-						</Button>
-					</Dialog.Footer>
-				</Dialog.Content>
-			</Dialog.Portal>
-		</Dialog.Root>
 	</aside>
 </TooltipProvider>

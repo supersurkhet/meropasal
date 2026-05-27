@@ -1,10 +1,10 @@
 import { redirect } from '@sveltejs/kit'
 import type { LayoutServerLoad } from './$types'
-import { workos } from '$lib/server/auth'
+import { clerk } from '$lib/server/auth'
 
 export const load: LayoutServerLoad = async ({ locals, url }) => {
-	if (!locals.user) {
-		redirect(302, '/login')
+	if (!locals.userId) {
+		redirect(302, '/sign-in')
 	}
 
 	// Users without an org must complete onboarding first
@@ -12,55 +12,22 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 		redirect(302, '/onboarding')
 	}
 
-	// Fetch the current WorkOS org and all user's org memberships
-	let workosOrgName = ''
+	let currentOrgName = ''
 	let orgMetadata: Record<string, unknown> = {}
-	let userOrgs: Array<{ id: string; name: string }> = []
 
-	if (locals.user) {
+	if (locals.orgId) {
 		try {
-			const memberships = await workos.userManagement.listOrganizationMemberships({
-				userId: locals.user.id,
-			})
-			// Fetch org details for each membership
-			const orgDetails = await Promise.all(
-				memberships.data.map(async (m) => {
-					try {
-						const org = await workos.organizations.getOrganization(m.organizationId)
-						return { id: org.id, name: org.name, metadata: org.metadata ?? {} }
-					} catch {
-						return { id: m.organizationId, name: m.organizationId, metadata: {} }
-					}
-				})
-			)
-			userOrgs = orgDetails.map((o) => ({ id: o.id, name: o.name }))
-
-			// Set current org name and metadata
-			const currentOrg = orgDetails.find((o) => o.id === locals.orgId)
-			workosOrgName = currentOrg?.name ?? ''
-			orgMetadata = (currentOrg?.metadata ?? {}) as Record<string, unknown>
+			const org = await clerk.organizations.getOrganization({ organizationId: locals.orgId })
+			currentOrgName = org.name
+			orgMetadata = (org.publicMetadata ?? {}) as Record<string, unknown>
 		} catch {
-			// Fallback: try just the current org
-			if (locals.orgId) {
-				try {
-					const org = await workos.organizations.getOrganization(locals.orgId)
-					workosOrgName = org.name
-					orgMetadata = (org.metadata ?? {}) as Record<string, unknown>
-					userOrgs = [{ id: org.id, name: org.name }]
-				} catch {
-					// Non-critical
-				}
-			}
+			// Non-critical: server-rendered bill/invoice templates will show fallbacks
 		}
 	}
 
 	return {
-		user: locals.user,
-		orgId: locals.orgId,
 		convexToken: locals.convexToken,
-		workosOrgName,
+		currentOrgName,
 		orgMetadata,
-		userOrgs,
-		impersonator: locals.impersonator,
 	}
 }

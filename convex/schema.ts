@@ -292,11 +292,11 @@ export default defineSchema({
     .index("by_orgId_unread", ["orgId", "isRead"]),
 
   // Temporary storage for onboarding data that survives the OAuth redirect.
-  // Keyed by WorkOS userId. Consumed and deleted after org initialization.
+  // Keyed by Clerk userId. Consumed and deleted after org initialization.
   pendingOnboarding: defineTable({
-    workosUserId: v.string(),
+    clerkUserId: v.string(),
     currentFiscalYear: v.string(),
-  }).index("by_workosUserId", ["workosUserId"]),
+  }).index("by_clerkUserId", ["clerkUserId"]),
 
   staffFeedback: defineTable({
     orgId: v.string(),

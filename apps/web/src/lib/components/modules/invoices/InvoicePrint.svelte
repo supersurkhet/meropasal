@@ -47,11 +47,11 @@
 	type Props = {
 		invoice: InvoiceData;
 		orgSettings?: OrgSettings;
-		workosOrgName?: string;
+		currentOrgName?: string;
 		onclose: () => void;
 	};
 
-	let { invoice, orgSettings, workosOrgName = '', onclose }: Props = $props();
+	let { invoice, orgSettings, currentOrgName = '', onclose }: Props = $props();
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 	const template = useConvexQuery(client, api.functions.billTemplates.getDefault, () => ({}));
@@ -129,7 +129,7 @@
 					<!-- Business Header -->
 					<div class="mb-6 text-center">
 						{#if layout.headerFields?.includes('businessName')}
-							<h1 class="text-lg font-bold">{workosOrgName || 'Business Name'}</h1>
+							<h1 class="text-lg font-bold">{currentOrgName || 'Business Name'}</h1>
 						{/if}
 						{#if layout.headerFields?.includes('address') && orgSettings?.location}
 							<p class="text-zinc-600">{orgSettings.location}</p>

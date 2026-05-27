@@ -2,25 +2,8 @@
 	import { onDestroy } from 'svelte';
 	import { invalidateAll } from '$app/navigation';
 	import AppShell from '$lib/components/layout/AppShell.svelte';
-	import { getConvexClient, setConvexAuth } from '$lib/convex';
 
-	let { children, data } = $props();
-
-	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
-
-	async function fetchToken(): Promise<string | null> {
-		try {
-			const res = await fetch('/api/auth/token');
-			const { token } = await res.json();
-			return token ?? null;
-		} catch {
-			return null;
-		}
-	}
-
-	$effect(() => {
-		setConvexAuth(fetchToken);
-	});
+	let { children } = $props();
 
 	// Refresh layout data every 45 minutes to keep session alive
 	const refreshInterval = setInterval(() => {
@@ -32,6 +15,6 @@
 	});
 </script>
 
-<AppShell user={data.user} workosOrgName={data.workosOrgName} orgMetadata={data.orgMetadata} userOrgs={data.userOrgs} currentOrgId={data.orgId} impersonator={data.impersonator}>
+<AppShell>
 	{@render children()}
 </AppShell>

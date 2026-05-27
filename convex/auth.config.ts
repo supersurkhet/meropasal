@@ -1,22 +1,15 @@
 /**
- * Convex auth configuration for WorkOS JWT verification.
+ * Convex auth configuration for Clerk JWT verification.
  *
- * WorkOS AuthKit JWTs:
- *   iss: https://api.workos.com/user_management/{clientId}
- *   sub: user_{userId}
- *   No 'aud' claim
- *   JWKS at non-standard path: /sso/jwks/{clientId}
- *
- * Using customJwt type to specify the exact JWKS URL since WorkOS
- * doesn't serve JWKS at the standard /.well-known/jwks.json path.
+ * Uses Clerk's `convex` JWT template. The template's `aud` claim must equal
+ * `applicationID` below. Custom claims (`org_id`, `org_role`, `org_slug`)
+ * surface as top-level properties on the Convex identity object.
  */
 export default {
 	providers: [
 		{
-			type: 'customJwt' as const,
-			issuer: 'https://api.workos.com/user_management/client_01KKYG4JJK79BPD8C3QHRPKVS9',
-			jwks: 'https://api.workos.com/sso/jwks/client_01KKYG4JJK79BPD8C3QHRPKVS9',
-			algorithm: 'RS256' as const,
+			domain: 'https://teaching-adder-25.clerk.accounts.dev',
+			applicationID: 'convex',
 		},
 	],
 };

@@ -16,7 +16,7 @@
 	import { invalidateAll } from '$app/navigation';
 	import { page } from '$app/stores';
 
-	let { workosOrgName = '', orgMetadata = {} }: { workosOrgName?: string; orgMetadata?: Record<string, unknown> } = $props();
+	let { currentOrgName = '', orgMetadata = {} }: { currentOrgName?: string; orgMetadata?: Record<string, unknown> } = $props();
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 
@@ -26,7 +26,7 @@
 	const generateUploadUrlMutation = useConvexMutation(client, api.functions.organizations.generateUploadUrl);
 
 	// WorkOS fields (from layout data)
-	let businessName = $state(workosOrgName);
+	let businessName = $state(currentOrgName);
 	let location = $state((orgMetadata.location as string) ?? '');
 	let phone = $state((orgMetadata.phone as string) ?? '');
 	let panNumber = $state((orgMetadata.panNumber as string) ?? '');
@@ -43,18 +43,18 @@
 	let fileInput: HTMLInputElement | undefined = $state();
 
 	// Sync WorkOS fields when props change (e.g. after invalidateAll)
-	let lastSyncedOrgName = $state(workosOrgName);
+	let lastSyncedOrgName = $state(currentOrgName);
 	let lastSyncedMetadata = $state(JSON.stringify(orgMetadata));
 	$effect(() => {
 		const metaStr = JSON.stringify(orgMetadata);
-		if (workosOrgName !== lastSyncedOrgName || metaStr !== lastSyncedMetadata) {
-			businessName = workosOrgName;
+		if (currentOrgName !== lastSyncedOrgName || metaStr !== lastSyncedMetadata) {
+			businessName = currentOrgName;
 			location = (orgMetadata.location as string) ?? '';
 			phone = (orgMetadata.phone as string) ?? '';
 			panNumber = (orgMetadata.panNumber as string) ?? '';
 			taxRate = Number(orgMetadata.taxRate) || 13;
 			currency = (orgMetadata.currency as string) || 'NPR';
-			lastSyncedOrgName = workosOrgName;
+			lastSyncedOrgName = currentOrgName;
 			lastSyncedMetadata = metaStr;
 		}
 	});
@@ -90,7 +90,7 @@
 	}
 
 	let isDirty = $derived((() => {
-		const nameChanged = businessName !== workosOrgName;
+		const nameChanged = businessName !== currentOrgName;
 		const metaChanged =
 			location !== ((orgMetadata.location as string) ?? '') ||
 			phone !== ((orgMetadata.phone as string) ?? '') ||
@@ -102,7 +102,7 @@
 	})());
 
 	function resetForm() {
-		businessName = workosOrgName;
+		businessName = currentOrgName;
 		location = (orgMetadata.location as string) ?? '';
 		phone = (orgMetadata.phone as string) ?? '';
 		panNumber = (orgMetadata.panNumber as string) ?? '';
@@ -189,7 +189,7 @@
 	let deleteDialogOpen = $state(false);
 	let deleteConfirmText = $state('');
 	let deleting = $state(false);
-	const deleteConfirmMatch = $derived(deleteConfirmText === workosOrgName);
+	const deleteConfirmMatch = $derived(deleteConfirmText === currentOrgName);
 
 	async function handleDeleteOrg() {
 		if (!deleteConfirmMatch || deleting) return;
@@ -313,7 +313,7 @@
 				{#if settings.data?.logoUrl}
 					<img
 						src={settings.data.logoUrl}
-						alt={workosOrgName}
+						alt={currentOrgName}
 						class="size-16 rounded-xl object-cover border border-zinc-200 dark:border-zinc-800"
 					/>
 				{:else}
@@ -456,7 +456,7 @@
 			<div>
 				<h3 class="text-base font-semibold text-red-900 dark:text-red-200">Delete Organization</h3>
 				<p class="mt-1 text-sm text-red-700 dark:text-red-400">
-					Permanently delete <span class="font-medium">{workosOrgName}</span> and all its data including products, invoices, ledger entries, and settings. This action cannot be undone.
+					Permanently delete <span class="font-medium">{currentOrgName}</span> and all its data including products, invoices, ledger entries, and settings. This action cannot be undone.
 				</p>
 				<Button
 					type="button"
@@ -482,17 +482,17 @@
 						Delete Organization
 					</Dialog.Title>
 					<Dialog.Description class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-						This will permanently delete <span class="font-medium text-zinc-900 dark:text-zinc-100">{workosOrgName}</span> and all associated data. This cannot be undone.
+						This will permanently delete <span class="font-medium text-zinc-900 dark:text-zinc-100">{currentOrgName}</span> and all associated data. This cannot be undone.
 					</Dialog.Description>
 				</Dialog.Header>
 				<div class="mt-4 space-y-3">
 					<Label for="deleteConfirm" class="text-sm text-zinc-700 dark:text-zinc-300">
-						Type <span class="font-mono font-medium text-zinc-900 dark:text-zinc-100">{workosOrgName}</span> to confirm
+						Type <span class="font-mono font-medium text-zinc-900 dark:text-zinc-100">{currentOrgName}</span> to confirm
 					</Label>
 					<Input
 						id="deleteConfirm"
 						bind:value={deleteConfirmText}
-						placeholder={workosOrgName}
+						placeholder={currentOrgName}
 						class="font-mono"
 						autocomplete="off"
 					/>

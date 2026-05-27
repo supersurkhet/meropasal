@@ -13,44 +13,49 @@
 	import { browser } from '$app/environment';
 	import { Toaster } from 'svelte-sonner';
 	import { MetaTags } from 'svelte-meta-tags';
+	import { ClerkProvider, useClerkContext } from 'svelte-clerk';
 	import { setConvexAuth } from '$lib/convex';
 	import favicon from '$lib/assets/favicon.svg';
 	import AgentationSync from '$lib/components/shared/AgentationSync.svelte';
 
 	let { children, data } = $props();
 
+	const ctx = useClerkContext();
+
 	async function fetchToken(): Promise<string | null> {
+		const session = ctx.session;
+		if (!session) return null;
 		try {
-			const res = await fetch('/api/auth/token');
-			const { token } = await res.json();
-			return token ?? null;
+			return await session.getToken({ template: 'convex' });
 		} catch {
 			return null;
 		}
 	}
 
-	// Sync Convex auth token from server session
+	// Sync Convex auth token whenever the Clerk session changes
 	$effect(() => {
-		if (data.convexToken) {
-			setConvexAuth(fetchToken);
-		}
+		// Track session identity so the effect re-runs on sign-in/out
+		void ctx.session?.id;
+		setConvexAuth(fetchToken);
 	});
 </script>
-
-<MetaTags
-	title="MeroPasal"
-	titleTemplate="%s — MeroPasal"
-	description="Modern retail management for Nepal"
-/>
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-<Toaster richColors position="bottom-right" />
+<ClerkProvider {...data}>
+	<MetaTags
+		title="MeroPasal"
+		titleTemplate="%s — MeroPasal"
+		description="Modern retail management for Nepal"
+	/>
 
-{@render children()}
+	<Toaster richColors position="bottom-right" />
 
-{#if browser && data.isInternalStaff}
-	<AgentationSync />
-{/if}
+	{@render children()}
+
+	{#if browser && data.isInternalStaff}
+		<AgentationSync />
+	{/if}
+</ClerkProvider>

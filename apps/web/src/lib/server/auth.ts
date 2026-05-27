@@ -1,30 +1,10 @@
-import { WorkOS } from '@workos-inc/node';
-import { WORKOS_API_KEY, WORKOS_CLIENT_ID, WORKOS_COOKIE_PASSWORD } from '$env/static/private';
+import { clerkClient } from 'svelte-clerk/server'
 
-export const workos = new WorkOS(WORKOS_API_KEY, {
-	clientId: WORKOS_CLIENT_ID,
-});
+// Re-export the pre-instantiated Clerk backend client.
+// svelte-clerk constructs it from CLERK_SECRET_KEY / PUBLIC_CLERK_PUBLISHABLE_KEY env vars.
+export const clerk = clerkClient
 
-export const COOKIE_NAME = 'wos-session';
-
-export function sessionCookieOptions(url: URL) {
-	return {
-		path: '/',
-		httpOnly: true,
-		secure: url.protocol === 'https:',
-		sameSite: 'lax' as const,
-		maxAge: 60 * 60 * 24 * 30, // 30 days
-	}
-}
-
-export function shortCookieOptions(url: URL, maxAge: number) {
-	return {
-		path: '/',
-		httpOnly: true,
-		secure: url.protocol === 'https:',
-		sameSite: 'lax' as const,
-		maxAge,
-	}
-}
-
-export { WORKOS_CLIENT_ID, WORKOS_COOKIE_PASSWORD };
+// TODO: WorkOS impersonation flow is dropped — Clerk's impersonation differs.
+//       Revisit if downstream features need a parallel pathway.
+// TODO: derive isInternalStaff from clerk user publicMetadata.isInternalStaff === true
+//       (fetch lazily via clerk.users.getUser(userId) and cache).

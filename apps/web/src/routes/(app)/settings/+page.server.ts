@@ -1,4 +1,5 @@
-export const load = async ({ parent }: { parent: () => Promise<{ workosOrgName: string; orgMetadata: Record<string, unknown> }> }) => {
-	const { workosOrgName, orgMetadata } = await parent()
-	return { workosOrgName, orgMetadata }
+import { redirect } from '@sveltejs/kit'
+
+export const load = async () => {
+	redirect(302, '/settings/organization')
 }

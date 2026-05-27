@@ -2,9 +2,10 @@
 	import { enhance } from '$app/forms'
 	import { MetaTags } from 'svelte-meta-tags'
 	import { toast } from 'svelte-sonner'
+	import { CreateOrganization } from 'svelte-clerk'
 	import BusinessSetupWizard, { type BusinessFormData } from '$lib/components/shared/BusinessSetupWizard.svelte'
 
-	let { form } = $props()
+	let { data, form } = $props()
 
 	// Show server-side errors
 	$effect(() => {
@@ -40,25 +41,30 @@
 
 <MetaTags title="Set Up Your Business — MeroPasal" />
 
-<form
-	bind:this={formEl}
-	method="POST"
-	action="?/createBusiness"
-	use:enhance={() => {
-		saving = true
-		return async ({ update }) => {
-			saving = false
-			await update()
-		}
-	}}
->
-	<!-- Hidden fields to carry all form data -->
-	<input type="hidden" name="businessName" value={hiddenBusinessName} />
-	<input type="hidden" name="businessType" value={hiddenBusinessType} />
-	<input type="hidden" name="currentFiscalYear" value={hiddenCurrentFiscalYear} />
-	<input type="hidden" name="location" value={hiddenLocation} />
-	<input type="hidden" name="phone" value={hiddenPhone} />
-	<input type="hidden" name="panNumber" value={hiddenPanNumber} />
-</form>
+{#if !data.hasOrg}
+	<div class="flex min-h-screen items-center justify-center p-4">
+		<CreateOrganization afterCreateOrganizationUrl="/onboarding" skipInvitationScreen />
+	</div>
+{:else}
+	<form
+		bind:this={formEl}
+		method="POST"
+		action="?/createBusiness"
+		use:enhance={() => {
+			saving = true
+			return async ({ update }) => {
+				saving = false
+				await update()
+			}
+		}}
+	>
+		<input type="hidden" name="businessName" value={hiddenBusinessName} />
+		<input type="hidden" name="businessType" value={hiddenBusinessType} />
+		<input type="hidden" name="currentFiscalYear" value={hiddenCurrentFiscalYear} />
+		<input type="hidden" name="location" value={hiddenLocation} />
+		<input type="hidden" name="phone" value={hiddenPhone} />
+		<input type="hidden" name="panNumber" value={hiddenPanNumber} />
+	</form>
 
-<BusinessSetupWizard compact={false} {saving} onsubmit={handleSubmit} />
+	<BusinessSetupWizard compact={false} {saving} onsubmit={handleSubmit} />
+{/if}

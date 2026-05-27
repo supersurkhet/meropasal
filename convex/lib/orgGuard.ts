@@ -1,12 +1,13 @@
 import { QueryCtx, MutationCtx } from "../_generated/server";
-import { PERMISSIONS, ROLES, type Role, type Permission } from "./permissions";
+import { PERMISSIONS, type Role, type Permission } from "./permissions";
 
 /**
  * Try to get orgId. Returns null if not authenticated.
  * Use for queries that should gracefully return empty data when unauthenticated.
  *
- * Resolution: org_id / orgId from JWT claims (org-scoped session).
- * WorkOS is the single source of truth for org membership.
+ * Resolution: `org_id` claim from Clerk JWT (requires active org selected
+ * client-side and `"org_id": "{{org.id}}"` in the `convex` JWT template).
+ * Clerk is the single source of truth for org membership.
  */
 export async function getOrg(
   ctx: QueryCtx | MutationCtx
@@ -14,9 +15,21 @@ export async function getOrg(
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) return null;
 
-  const orgId = (identity as Record<string, unknown>).org_id as string | undefined
-    || (identity as Record<string, unknown>).orgId as string | undefined;
+  const claims = identity as Record<string, unknown>;
+  const orgId = (claims.org_id as string | undefined)
+    || (claims.orgId as string | undefined);
   return orgId ?? null;
+}
+
+/**
+ * Map Clerk's `org_role` claim (e.g. `org:admin`, `org:member`) to an
+ * application role. Defaults to `admin` when no role claim is present
+ * (single-user fallback when no org context is attached to the token).
+ */
+function mapClerkRole(clerkRole: string | undefined): Role {
+  if (!clerkRole) return 'admin';
+  const r = clerkRole.replace(/^org:/, '');
+  return r === 'admin' ? 'admin' : 'member';
 }
 
 /**
@@ -42,12 +55,10 @@ export async function requirePermission(
   const orgId = await requireOrg(ctx);
   const identity = await ctx.auth.getUserIdentity();
 
-  // Get role from JWT claims, falling back to 'owner' if absent or not
-  // a recognized app role (e.g. WorkOS defaults to "member"/"admin")
-  const jwtRole = (identity as Record<string, unknown>).role as string | undefined;
-  const role: Role = (jwtRole && (ROLES as readonly string[]).includes(jwtRole))
-    ? jwtRole as Role
-    : 'owner';
+  const claims = (identity ?? {}) as Record<string, unknown>;
+  const clerkRole = (claims.org_role as string | undefined)
+    ?? (claims.role as string | undefined);
+  const role: Role = mapClerkRole(clerkRole);
 
   const allowed = PERMISSIONS[permission];
   if (!allowed?.includes(role)) {
@@ -65,13 +76,13 @@ export async function requirePermission(
  */
 export async function getEffectiveRole(
   ctx: QueryCtx | MutationCtx
-): Promise<Role | null> {
+): Promise<'admin' | 'member' | null> {
   const orgId = await getOrg(ctx);
   if (!orgId) return null;
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) return null;
-  const jwtRole = (identity as Record<string, unknown>).role as string | undefined;
-  return (jwtRole && (ROLES as readonly string[]).includes(jwtRole))
-    ? jwtRole as Role
-    : 'owner';
+  const claims = identity as Record<string, unknown>;
+  const clerkRole = (claims.org_role as string | undefined)
+    ?? (claims.role as string | undefined);
+  return mapClerkRole(clerkRole);
 }

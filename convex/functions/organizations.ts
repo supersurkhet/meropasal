@@ -93,7 +93,7 @@ export const generateUploadUrl = mutation({
 
 /**
  * Delete all Convex data for an organization.
- * Called after the org is deleted from WorkOS.
+ * Called after the org is deleted from Clerk.
  */
 export const deleteOrgData = mutation({
   args: { orgId: v.string() },
@@ -141,18 +141,18 @@ export const deleteOrgData = mutation({
 
 /**
  * Store onboarding fiscal year before the OAuth redirect.
- * Business metadata (name, type, location, etc.) is stored in WorkOS org metadata.
+ * Business metadata (name, type, location, etc.) is stored in Clerk org metadata.
  */
 export const savePendingOnboarding = mutation({
   args: {
-    workosUserId: v.string(),
+    clerkUserId: v.string(),
     currentFiscalYear: v.string(),
   },
   handler: async (ctx, args) => {
     validateFiscalYear(args.currentFiscalYear);
     const existing = await ctx.db
       .query("pendingOnboarding")
-      .withIndex("by_workosUserId", (q) => q.eq("workosUserId", args.workosUserId))
+      .withIndex("by_clerkUserId", (q) => q.eq("clerkUserId", args.clerkUserId))
       .first();
     if (existing) await ctx.db.delete(existing._id);
 
@@ -165,12 +165,12 @@ export const savePendingOnboarding = mutation({
  */
 export const consumePendingOnboarding = mutation({
   args: {
-    workosUserId: v.string(),
+    clerkUserId: v.string(),
   },
   handler: async (ctx, args) => {
     const pending = await ctx.db
       .query("pendingOnboarding")
-      .withIndex("by_workosUserId", (q) => q.eq("workosUserId", args.workosUserId))
+      .withIndex("by_clerkUserId", (q) => q.eq("clerkUserId", args.clerkUserId))
       .first();
     if (!pending) return null;
     await ctx.db.delete(pending._id);

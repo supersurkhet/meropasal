@@ -1,13 +1,13 @@
 import { json } from '@sveltejs/kit'
 import type { RequestHandler } from './$types'
-import { workos, WORKOS_CLIENT_ID, shortCookieOptions, COOKIE_NAME } from '$lib/server/auth'
+import { clerk } from '$lib/server/auth'
 import { ConvexHttpClient } from 'convex/browser'
 import { api } from '$lib/api'
 
 const CONVEX_URL = import.meta.env.VITE_CONVEX_URL || process.env.VITE_CONVEX_URL || 'https://dapper-pig-289.convex.cloud'
 
-export const POST: RequestHandler = async ({ request, locals, url, cookies }) => {
-	if (!locals.user) {
+export const POST: RequestHandler = async ({ request, locals }) => {
+	if (!locals.userId) {
 		return json({ error: 'Unauthorized' }, { status: 401 })
 	}
 
@@ -28,41 +28,16 @@ export const POST: RequestHandler = async ({ request, locals, url, cookies }) =>
 		}
 		await convex.mutation(api.functions.organizations.deleteOrgData, { orgId: organizationId })
 
-		// 2. Remove user's membership from WorkOS org
-		const memberships = await workos.userManagement.listOrganizationMemberships({
-			organizationId,
-		})
-		for (const m of memberships.data) {
-			await workos.userManagement.deleteOrganizationMembership(m.id)
+		// 2. Delete the Clerk organization (cascades memberships server-side)
+		await clerk.organizations.deleteOrganization(organizationId)
+
+		// 3. Determine next destination based on remaining memberships
+		const remaining = await clerk.users.getOrganizationMembershipList({ userId: locals.userId })
+		if (remaining.data.length > 0) {
+			// Client will call setActive to switch into another org; just send to dashboard.
+			return json({ redirectUrl: '/dashboard', nextOrgId: remaining.data[0].organization.id })
 		}
 
-		// 3. Delete the org from WorkOS
-		await workos.organizations.deleteOrganization(organizationId)
-
-		// 4. Clear org cookie
-		cookies.delete('wos-org-id', { path: '/' })
-
-		// 5. Check if user has other orgs
-		const remainingMemberships = await workos.userManagement.listOrganizationMemberships({
-			userId: locals.user.id,
-		})
-
-		if (remainingMemberships.data.length > 0) {
-			// Switch to first remaining org
-			const nextOrgId = remainingMemberships.data[0].organizationId
-			cookies.set('wos-org-id', nextOrgId, shortCookieOptions(url, 60 * 60 * 24 * 30))
-
-			const authorizationUrl = workos.userManagement.getAuthorizationUrl({
-				provider: 'authkit',
-				clientId: WORKOS_CLIENT_ID,
-				redirectUri: `${url.origin}/callback`,
-				organizationId: nextOrgId,
-			})
-
-			return json({ redirectUrl: authorizationUrl })
-		}
-
-		// No orgs left — send to onboarding
 		return json({ redirectUrl: '/onboarding' })
 	} catch (err) {
 		const message = err instanceof Error ? err.message : 'Failed to delete organization'

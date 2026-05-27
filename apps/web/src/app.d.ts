@@ -1,4 +1,6 @@
 // See https://svelte.dev/docs/kit/types#app.d.ts
+/// <reference types="svelte-clerk/env" />
+
 declare global {
 	interface BarcodeDetector {
 		detect(source: HTMLVideoElement | HTMLImageElement | ImageBitmap | Blob): Promise<Array<{ rawValue: string; format: string }>>;
@@ -10,21 +12,14 @@ declare global {
 
 	namespace App {
 		// interface Error {}
+		// `auth: (options?) => SessionAuthObject` is provided ambiently by
+		// svelte-clerk/env — do not redeclare here; this interface is merged
+		// with the one in node_modules/svelte-clerk/dist/env.d.ts.
 		interface Locals {
-			user: {
-				id: string;
-				email: string;
-				firstName: string | null;
-				lastName: string | null;
-				profilePictureUrl: string | null;
-			} | null;
+			userId: string | null;
 			orgId: string | null;
 			convexToken: string | null;
 			isInternalStaff: boolean;
-			impersonator: {
-				email: string;
-				reason: string | null;
-			} | null;
 		}
 		// interface PageData {}
 		// interface PageState {}

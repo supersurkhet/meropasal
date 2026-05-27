@@ -6,7 +6,7 @@ import { env } from '$env/dynamic/private'
 import { scanResultSchema, SYSTEM_PROMPT, getScanModeInstruction } from '$lib/ai-schemas'
 
 export const POST: RequestHandler = async ({ request, locals }) => {
-	if (!locals.user) {
+	if (!locals.userId) {
 		error(401, 'Authentication required')
 	}
 
