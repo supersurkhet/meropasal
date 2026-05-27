@@ -198,6 +198,17 @@
 				sideOffset={collapsed ? 8 : 4}
 				class="z-50 w-60 rounded-lg border border-zinc-200 bg-white p-1 shadow-lg dark:border-zinc-800 dark:bg-zinc-950"
 			>
+				<a
+					href="/settings"
+					onclick={() => { orgSwitcherOpen = false }}
+					class="flex w-full items-center gap-3 rounded-md px-2 py-2 text-sm text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-100"
+				>
+					<div class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800">
+						<Settings class="size-4 text-zinc-600 dark:text-zinc-400" />
+					</div>
+					<span class="font-medium">Organisation Settings</span>
+				</a>
+				<div class="my-1 h-px bg-zinc-200 dark:bg-zinc-800"></div>
 				{#if userOrgs.length > 1}
 					<div class="px-2 py-1.5">
 						<p class="text-xs font-medium text-zinc-500 dark:text-zinc-400">
