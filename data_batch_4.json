@@ -1,0 +1,1710 @@
+{
+  "batch": 4,
+  "entries": [
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152145.jpg",
+      "productName": "LOTTE CHOCO PIE CHOCO BURST",
+      "productCode": "1905",
+      "unit": "ctn",
+      "rows": [
+        {
+          "date": "082-04-15",
+          "particulars": "purchase bill 150112",
+          "receiptQty": 10,
+          "receiptRate": 319.1667,
+          "receiptAmount": 3191.66,
+          "issuedQty": null,
+          "balanceQty": 10,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-05-04",
+          "particulars": "Sales bill 096",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 1,
+          "balanceQty": 9,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-05-15",
+          "particulars": "Sales bill 133",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 1,
+          "balanceQty": 8,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-06-28",
+          "particulars": "Sales bill 220",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 8,
+          "balanceQty": null,
+          "unit": "ctn",
+          "unclear": true
+        },
+        {
+          "date": "082-07-20",
+          "particulars": "Purchase bill no. 1460",
+          "receiptQty": 10,
+          "receiptRate": 325.0,
+          "receiptAmount": 3250.0,
+          "issuedQty": null,
+          "balanceQty": 10,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-08-03",
+          "particulars": "Sales bill no. 317",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 1,
+          "balanceQty": 9,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-08-06",
+          "particulars": "Sales bill 325",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 1,
+          "balanceQty": 8,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-08-16",
+          "particulars": "Sales bill 326",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 2,
+          "balanceQty": 6,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-08-19",
+          "particulars": "Sales bill 355",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 1,
+          "balanceQty": 5,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-08-20",
+          "particulars": "Sales bill 398",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 1,
+          "balanceQty": 4,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-09-11",
+          "particulars": "Sales bill 430",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 1,
+          "balanceQty": 3,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-11-25",
+          "particulars": "Sales bill 582",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 3,
+          "balanceQty": null,
+          "unit": "ctn",
+          "unclear": true
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152145.jpg",
+      "productName": "9CU GANDAKI JHURUM CHIURA 400 gm",
+      "productCode": null,
+      "unit": "bag",
+      "rows": [
+        {
+          "date": "082-04-23",
+          "particulars": "purchase bill 199",
+          "receiptQty": 141,
+          "receiptRate": 8.135,
+          "receiptAmount": 1147.0,
+          "issuedQty": null,
+          "balanceQty": 141,
+          "unit": "bag",
+          "unclear": false
+        },
+        {
+          "date": "082-05-15",
+          "particulars": "Sales bill 117",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 50,
+          "balanceQty": 91,
+          "unit": "bag",
+          "unclear": false
+        },
+        {
+          "date": "082-05-16",
+          "particulars": "Sales bill 441",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 81,
+          "unit": "bag",
+          "unclear": false
+        },
+        {
+          "date": "082-07-15",
+          "particulars": "Sales bill 442",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 25,
+          "balanceQty": 56,
+          "unit": "bag",
+          "unclear": false
+        },
+        {
+          "date": "082-08-24",
+          "particulars": "Sales bill 581",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 15,
+          "balanceQty": 41,
+          "unit": "bag",
+          "unclear": false
+        },
+        {
+          "date": "082-12-07",
+          "particulars": "Sales bill 606",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 20,
+          "balanceQty": 21,
+          "unit": "bag",
+          "unclear": false
+        },
+        {
+          "date": "082-01-02",
+          "particulars": "Sales bill 651",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 15,
+          "balanceQty": 6,
+          "unit": "bag",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152147.jpg",
+      "productName": "9CU PACKET JHURUM CHIURA (700gm)",
+      "productCode": null,
+      "unit": "bag",
+      "rows": [
+        {
+          "date": "082-04-23",
+          "particulars": "purchase bill 199",
+          "receiptQty": 30,
+          "receiptRate": 86.0,
+          "receiptAmount": 2580.0,
+          "issuedQty": null,
+          "balanceQty": 30,
+          "unit": "bag",
+          "unclear": false
+        },
+        {
+          "date": "082-05-15",
+          "particulars": "Sales bill 118",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 30,
+          "unit": "bag",
+          "unclear": true
+        },
+        {
+          "date": "082-07-14",
+          "particulars": "Sales bill 441",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": null,
+          "unit": "bag",
+          "unclear": true
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152147.jpg",
+      "productName": "M42 ZOHO PREMIUM PANTS",
+      "productCode": "9619.00.11",
+      "unit": "p",
+      "rows": [
+        {
+          "date": "082-05-13",
+          "particulars": "purchase bill 00240",
+          "receiptQty": 50,
+          "receiptRate": 853.98,
+          "receiptAmount": 42699.0,
+          "issuedQty": null,
+          "balanceQty": 50,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-05-18",
+          "particulars": "Sales bill 131",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 3,
+          "balanceQty": 47,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-06-12",
+          "particulars": "Sales bill no. 194",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 20,
+          "balanceQty": 27,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-06-29",
+          "particulars": "Purchase bill no. 767",
+          "receiptQty": 100,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 127,
+          "unit": "p",
+          "unclear": true
+        },
+        {
+          "date": "082-06-30",
+          "particulars": "Sales bill no. 230",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 20,
+          "balanceQty": 107,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-07-09",
+          "particulars": "Sales bill 241",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 15,
+          "balanceQty": 92,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-07-10",
+          "particulars": "Sales bill 246",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 87,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-07-12",
+          "particulars": "Sales bill 249",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 82,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-07-13",
+          "particulars": "Sales bill 251",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 77,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-07-14",
+          "particulars": "Sales bill 253",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 72,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-07-15",
+          "particulars": "Sales bill 254",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 67,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-07-16",
+          "particulars": "Sales bill 259",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 62,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-08-03",
+          "particulars": "Sales bill 319",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 57,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-08-17",
+          "particulars": "Sales bill 359",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 47,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-08-21",
+          "particulars": "Sales bill 372",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 37,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-08-28",
+          "particulars": "Sales bill 406",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 15,
+          "balanceQty": 22,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-09-08",
+          "particulars": "Purchase bill no. 1814",
+          "receiptQty": 25,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 47,
+          "unit": "p",
+          "unclear": true
+        },
+        {
+          "date": "082-09-20",
+          "particulars": "Sales bill no. 455",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 42,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-11-04",
+          "particulars": "Sales bill 538",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 32,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-11-22",
+          "particulars": "Sales bill 571",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 15,
+          "balanceQty": 17,
+          "unit": "p",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152149.jpg",
+      "productName": "L40 ZOHO PREMIUM PANTS",
+      "productCode": "9619.00.11",
+      "unit": "p",
+      "rows": [
+        {
+          "date": "082-05-13",
+          "particulars": "purchase bill 00240",
+          "receiptQty": 50,
+          "receiptRate": 853.98,
+          "receiptAmount": 42699.0,
+          "issuedQty": null,
+          "balanceQty": 50,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-05-18",
+          "particulars": "Sales bill 131",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 3,
+          "balanceQty": 47,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-06-12",
+          "particulars": "Sales bill no. 194",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 20,
+          "balanceQty": 27,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-06-29",
+          "particulars": "Purchase bill no. 767",
+          "receiptQty": 100,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 127,
+          "unit": "p",
+          "unclear": true
+        },
+        {
+          "date": "082-06-30",
+          "particulars": "Sales bill no. 230",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 117,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-07-09",
+          "particulars": "Sales bill 241",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 15,
+          "balanceQty": 102,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-07-10",
+          "particulars": "Sales bill 246",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 97,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-07-12",
+          "particulars": "Sales bill 249",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 92,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-07-13",
+          "particulars": "Sales bill 251",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 87,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-07-14",
+          "particulars": "Sales bill 253",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 82,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-07-15",
+          "particulars": "Sales bill 254",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 77,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-07-16",
+          "particulars": "Sales bill 259",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 72,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-08-03",
+          "particulars": "Sales bill 319",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 67,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-08-17",
+          "particulars": "Sales bill 359",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 62,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-08-21",
+          "particulars": "Sales bill 372",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 52,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-08-28",
+          "particulars": "Sales bill 406",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 42,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-09-08",
+          "particulars": "Purchase bill no. 1814",
+          "receiptQty": 25,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 67,
+          "unit": "p",
+          "unclear": true
+        },
+        {
+          "date": "082-09-20",
+          "particulars": "Sales bill no. 455",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 62,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-11-04",
+          "particulars": "Sales bill 538",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 52,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-11-22",
+          "particulars": "Sales bill 571",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 42,
+          "unit": "p",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152149.jpg",
+      "productName": "XL36 ZOHO PREMIUM PANTS",
+      "productCode": "9619.00.11",
+      "unit": "p",
+      "rows": [
+        {
+          "date": "082-05-13",
+          "particulars": "purchase bill 00240",
+          "receiptQty": 25,
+          "receiptRate": 853.98,
+          "receiptAmount": 21349.5,
+          "issuedQty": null,
+          "balanceQty": 25,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-05-18",
+          "particulars": "Sales bill 131",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 3,
+          "balanceQty": 22,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-06-12",
+          "particulars": "Sales bill no. 194",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 22,
+          "unit": "p",
+          "unclear": true
+        },
+        {
+          "date": "082-06-29",
+          "particulars": "Purchase bill no. 767",
+          "receiptQty": 75,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 97,
+          "unit": "p",
+          "unclear": true
+        },
+        {
+          "date": "082-06-30",
+          "particulars": "Sales bill no. 230",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 87,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-07-09",
+          "particulars": "Sales bill 241",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 15,
+          "balanceQty": 72,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-07-10",
+          "particulars": "Sales bill 246",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 67,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-07-12",
+          "particulars": "Sales bill 249",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 62,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-07-13",
+          "particulars": "Sales bill 251",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 57,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-07-14",
+          "particulars": "Sales bill 253",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 52,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-07-15",
+          "particulars": "Sales bill 254",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 47,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-07-16",
+          "particulars": "Sales bill 259",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 42,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-08-03",
+          "particulars": "Sales bill 319",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 37,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-08-17",
+          "particulars": "Sales bill 359",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 32,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-08-21",
+          "particulars": "Sales bill 372",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 22,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-09-08",
+          "particulars": "Purchase bill no. 1814",
+          "receiptQty": 25,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 47,
+          "unit": "p",
+          "unclear": true
+        },
+        {
+          "date": "082-09-20",
+          "particulars": "Sales bill no. 455",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 42,
+          "unit": "p",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152151.jpg",
+      "productName": "XXL36 ZOHO PREMIUM PANTS",
+      "productCode": "9619.00.11",
+      "unit": "p",
+      "rows": [
+        {
+          "date": "082-05-13",
+          "particulars": "purchase bill 00240",
+          "receiptQty": 25,
+          "receiptRate": 853.98,
+          "receiptAmount": 21349.5,
+          "issuedQty": null,
+          "balanceQty": 25,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-05-18",
+          "particulars": "Sales bill 131",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 3,
+          "balanceQty": 22,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-06-12",
+          "particulars": "Sales bill no. 194",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 22,
+          "unit": "p",
+          "unclear": true
+        },
+        {
+          "date": "082-06-29",
+          "particulars": "Purchase bill no. 767",
+          "receiptQty": 75,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 97,
+          "unit": "p",
+          "unclear": true
+        },
+        {
+          "date": "082-06-30",
+          "particulars": "Sales bill no. 230",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 87,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-07-09",
+          "particulars": "Sales bill 241",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 77,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-07-10",
+          "particulars": "Sales bill 246",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 72,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-07-12",
+          "particulars": "Sales bill 249",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 67,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-07-13",
+          "particulars": "Sales bill 251",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 62,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-07-14",
+          "particulars": "Sales bill 253",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 57,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-07-15",
+          "particulars": "Sales bill 254",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 52,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-07-16",
+          "particulars": "Sales bill 259",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 47,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-08-03",
+          "particulars": "Sales bill 319",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 42,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-08-17",
+          "particulars": "Sales bill 359",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 37,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-08-21",
+          "particulars": "Sales bill 372",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 27,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-09-08",
+          "particulars": "Purchase bill no. 1814",
+          "receiptQty": 25,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 52,
+          "unit": "p",
+          "unclear": true
+        },
+        {
+          "date": "082-09-20",
+          "particulars": "Sales bill no. 455",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 47,
+          "unit": "p",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152151.jpg",
+      "productName": "MCV DIGESTIVE 959.14m",
+      "productCode": "1305",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-05-15",
+          "particulars": "purchase bill 0498",
+          "receiptQty": 20,
+          "receiptRate": 338.341,
+          "receiptAmount": 6766.82,
+          "issuedQty": null,
+          "balanceQty": 20,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-06-10",
+          "particulars": "Sales bill no. 184",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 10,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152152.jpg",
+      "productName": "S.F. COOKIES CHOCO CHIPS 150gm",
+      "productCode": "1905",
+      "unit": "p",
+      "rows": [
+        {
+          "date": "082-05-15",
+          "particulars": "purchase bill 01498",
+          "receiptQty": 24,
+          "receiptRate": 158.331,
+          "receiptAmount": 3799.94,
+          "issuedQty": null,
+          "balanceQty": 24,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-05-19",
+          "particulars": "Sales bill 134",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 6,
+          "balanceQty": 18,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-05-20",
+          "particulars": "Sales bill 136",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 6,
+          "balanceQty": 12,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-10-16",
+          "particulars": "Purchase bill no. 6173",
+          "receiptQty": 120,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 132,
+          "unit": "p",
+          "unclear": true
+        },
+        {
+          "date": "082-11-19",
+          "particulars": "Sales bill no. 563",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 24,
+          "balanceQty": 108,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-11-24",
+          "particulars": "Sales bill 578",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 96,
+          "unit": "p",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152152.jpg",
+      "productName": "S.F. COOKIES YUMMY BERRY 150gm",
+      "productCode": "1905",
+      "unit": "p",
+      "rows": [
+        {
+          "date": "082-05-15",
+          "particulars": "purchase bill 01498",
+          "receiptQty": 24,
+          "receiptRate": 158.331,
+          "receiptAmount": 3799.94,
+          "issuedQty": null,
+          "balanceQty": 24,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-05-19",
+          "particulars": "Sales bill 134",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 6,
+          "balanceQty": 18,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-05-20",
+          "particulars": "Sales bill 136",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 6,
+          "balanceQty": 12,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-10-16",
+          "particulars": "Purchase bill no. 6173",
+          "receiptQty": 120,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 132,
+          "unit": "p",
+          "unclear": true
+        },
+        {
+          "date": "082-11-19",
+          "particulars": "Sales bill no. 563",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 24,
+          "balanceQty": 108,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-11-24",
+          "particulars": "Sales bill 578",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 96,
+          "unit": "p",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152152.jpg",
+      "productName": "SANTOOR ORANGE SOAP 100gm",
+      "productCode": "3401",
+      "unit": "ps",
+      "rows": [
+        {
+          "date": "082-05-15",
+          "particulars": "purchase bill 1076",
+          "receiptQty": 960,
+          "receiptRate": 35.98,
+          "receiptAmount": 34540.8,
+          "issuedQty": null,
+          "balanceQty": 960,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-05-30",
+          "particulars": "Purchase bill no. 1201",
+          "receiptQty": 1440,
+          "receiptRate": 37.24,
+          "receiptAmount": 53625.6,
+          "issuedQty": null,
+          "balanceQty": 2400,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-06-12",
+          "particulars": "Sales bill no. 200",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 360,
+          "balanceQty": 2040,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-06-13",
+          "particulars": "Sales bill no. 201",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 960,
+          "balanceQty": 1080,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-06-24",
+          "particulars": "Sales bill no. 211",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 96,
+          "balanceQty": 984,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-06-26",
+          "particulars": "Purchase bill no. 1674",
+          "receiptQty": 3360,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 4344,
+          "unit": "ps",
+          "unclear": true
+        },
+        {
+          "date": "082-06-30",
+          "particulars": "Sales bill no. 227",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 192,
+          "balanceQty": 4152,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-06-30",
+          "particulars": "Sales bill no. 232",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 960,
+          "balanceQty": 3192,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-07-09",
+          "particulars": "Sales bill no. 239",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 960,
+          "balanceQty": 2232,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-07-09",
+          "particulars": "Sales bill 241",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 192,
+          "balanceQty": 2040,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-07-14",
+          "particulars": "Purchase bill 2078",
+          "receiptQty": 2400,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 4440,
+          "unit": "ps",
+          "unclear": true
+        },
+        {
+          "date": "082-07-15",
+          "particulars": "Sales bill no. 256",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 48,
+          "balanceQty": 4392,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-07-25",
+          "particulars": "Sales bill 277",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 960,
+          "balanceQty": 3432,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-07-25",
+          "particulars": "Sales bill 283",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 96,
+          "balanceQty": 3336,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-07-28",
+          "particulars": "Sales bill 287",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 96,
+          "balanceQty": 3240,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-07-30",
+          "particulars": "Sales bill 302",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 960,
+          "balanceQty": 2280,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-07-30",
+          "particulars": "Sales bill 305",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 288,
+          "balanceQty": 1992,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-08-01",
+          "particulars": "Sales bill 313",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 192,
+          "balanceQty": 1800,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-08-20",
+          "particulars": "Sales bill 370",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 384,
+          "balanceQty": 1416,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-08-24",
+          "particulars": "Sales bill 383",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 480,
+          "balanceQty": 936,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-08-28",
+          "particulars": "Sales bill 399",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 96,
+          "balanceQty": 840,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-09-08",
+          "particulars": "Purchase bill no. 3754",
+          "receiptQty": 1632,
+          "receiptRate": 35.75,
+          "receiptAmount": 58344.0,
+          "issuedQty": null,
+          "balanceQty": 2472,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-09-23",
+          "particulars": "Sales bill no. 465",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 192,
+          "balanceQty": 2280,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-10-24",
+          "particulars": "Sales bill 572",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 480,
+          "balanceQty": 1800,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-10-29",
+          "particulars": "Sales bill 526",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 384,
+          "balanceQty": 1416,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-11-03",
+          "particulars": "Sales bill 532",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 192,
+          "balanceQty": 1224,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-11-07",
+          "particulars": "Sales bill 538",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 288,
+          "balanceQty": 936,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-11-08",
+          "particulars": "Purchase bill 5301",
+          "receiptQty": 1920,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 2856,
+          "unit": "ps",
+          "unclear": true
+        },
+        {
+          "date": "082-11-10",
+          "particulars": "Sales bill no. 544",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 960,
+          "balanceQty": 1896,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-11-12",
+          "particulars": "Sales bill 548",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 480,
+          "balanceQty": 1416,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-11-16",
+          "particulars": "Sales bill 555",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 192,
+          "balanceQty": 1224,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-11-19",
+          "particulars": "Sales bill 563",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 96,
+          "balanceQty": 1128,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-11-20",
+          "particulars": "Sales bill 567",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 384,
+          "balanceQty": 744,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-11-24",
+          "particulars": "Sales bill 576",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 96,
+          "balanceQty": 648,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-11-25",
+          "particulars": "Purchase bill 572",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 648,
+          "unit": "ps",
+          "unclear": true
+        },
+        {
+          "date": "082-12-01",
+          "particulars": "Sales bill",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 480,
+          "balanceQty": 168,
+          "unit": "ps",
+          "unclear": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,3913 @@
+{
+  "batch": 3,
+  "entries": [
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152100.jpg",
+      "productName": "SOFTLOVE PANTS DIAPER XXL18",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 425.6,
+          "issuedQty": null,
+          "balanceQty": 10,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152100.jpg",
+      "productName": "SOFTLOVE PANTS DIAPER L22",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 425.6,
+          "issuedQty": null,
+          "balanceQty": 10,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152100.jpg",
+      "productName": "SOFTLOVE PANTS DIAPER (XL20)",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 425.6,
+          "issuedQty": null,
+          "balanceQty": 10,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152100.jpg",
+      "productName": "SOFTLOVE PANTS DIAPER (M24)",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 425.6,
+          "issuedQty": null,
+          "balanceQty": 10,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152102.jpg",
+      "productName": "HOKEE CANNED SWEET CORN 400gm",
+      "productCode": "2005",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 201.37,
+          "issuedQty": null,
+          "balanceQty": 18,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-05",
+          "particulars": "Sales bill no. 069",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 6,
+          "balanceQty": 12,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-06-24",
+          "particulars": "Sales bill no. 212",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 2,
+          "balanceQty": null,
+          "unit": "p",
+          "unclear": true
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152102.jpg",
+      "productName": "ROZA TUNA CHUNK IN BRINE 185gm",
+      "productCode": "1604",
+      "unit": "can",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 146.49,
+          "issuedQty": null,
+          "balanceQty": 3,
+          "unit": "pcs",
+          "unclear": false
+        },
+        {
+          "date": "082-04-08",
+          "particulars": "purchase bill T-0010",
+          "receiptQty": 96,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 99,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 178",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 87,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 184",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 75,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 188",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 6,
+          "balanceQty": 69,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 212",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 57,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "082-07-15",
+          "particulars": "Sales bill no. 257",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": null,
+          "unit": "pcs",
+          "unclear": false
+        },
+        {
+          "date": "9/14",
+          "particulars": "S.B 440",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 4,
+          "balanceQty": null,
+          "unit": "pcs",
+          "unclear": false
+        },
+        {
+          "date": "9/20",
+          "particulars": "Sales return",
+          "receiptQty": 24,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": null,
+          "unit": "pcs",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152102.jpg",
+      "productName": "SUPER DEIUX PANTY LINER",
+      "productCode": "1806",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 62.4,
+          "issuedQty": null,
+          "balanceQty": 48,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152102.jpg",
+      "productName": "ROZA TUNA CHUNK IN VEGETABLE OIL 185gm",
+      "productCode": "1604",
+      "unit": "pcs",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 153.74,
+          "issuedQty": null,
+          "balanceQty": 6,
+          "unit": "pcs",
+          "unclear": false
+        },
+        {
+          "date": "082-04-08",
+          "particulars": "purchase bill T-0010",
+          "receiptQty": 96,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 102,
+          "unit": "pcs",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 178",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 24,
+          "balanceQty": 78,
+          "unit": "pcs",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 184",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 66,
+          "unit": "pcs",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 189",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 6,
+          "balanceQty": 60,
+          "unit": "pcs",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 212",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 48,
+          "unit": "pcs",
+          "unclear": false
+        },
+        {
+          "date": "082-07-15",
+          "particulars": "Sales bill no. 257",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 36,
+          "unit": "pcs",
+          "unclear": false
+        },
+        {
+          "date": "10/15",
+          "particulars": "S.B 492",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 24,
+          "balanceQty": 12,
+          "unit": "pcs",
+          "unclear": false
+        },
+        {
+          "date": "9/20",
+          "particulars": "Sales return",
+          "receiptQty": 24,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": null,
+          "unit": "pcs",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152104.jpg",
+      "productName": "SIAM ELEPHANT CANNED COCONUT MILK 400ml",
+      "productCode": "2106",
+      "unit": "ctn",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 6,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "12/23",
+          "particulars": "641",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 6,
+          "balanceQty": 0,
+          "unit": "ctn",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152104.jpg",
+      "productName": "SHOON FATT VEGGIE CRACKERS BISCUIT 360gms",
+      "productCode": "1905",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 253.42,
+          "issuedQty": null,
+          "balanceQty": 6,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-05",
+          "particulars": "purchase bill 010",
+          "receiptQty": 60,
+          "receiptRate": null,
+          "receiptAmount": 217.23,
+          "issuedQty": null,
+          "balanceQty": 66,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill 58",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 24,
+          "balanceQty": 42,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-20",
+          "particulars": "Sales bill 069",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 30,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-20",
+          "particulars": "11 - 096",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 18,
+          "unit": "p",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152104.jpg",
+      "productName": "SIAM ELEPHANT CANNED COCONUT CREAM 400ml",
+      "productCode": "2106",
+      "unit": "ctn",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 188.0,
+          "issuedQty": null,
+          "balanceQty": 6,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "12/23",
+          "particulars": "641",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 6,
+          "balanceQty": 0,
+          "unit": "ctn",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152104.jpg",
+      "productName": "SHOON FATT GOLD CRACKERS BISCUIT 350gms",
+      "productCode": "1905",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 262.82,
+          "issuedQty": null,
+          "balanceQty": 6,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-05",
+          "particulars": "purchase bill 010",
+          "receiptQty": 60,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 66,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-14",
+          "particulars": "Sales bill 041",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 54,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-20",
+          "particulars": "11 - 058",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 24,
+          "balanceQty": 30,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-20",
+          "particulars": "11 - 069",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 18,
+          "unit": "p",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152106.jpg",
+      "productName": "ADFIT ADULT PANT DIAPER (L10)",
+      "productCode": "9619",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 592.11,
+          "issuedQty": null,
+          "balanceQty": 60,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152106.jpg",
+      "productName": "SIAM ELEPHANT INSTANT SOUR SOUP PASTE TOMYAM 454gm",
+      "productCode": "2103",
+      "unit": "pcs",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 512.43,
+          "issuedQty": null,
+          "balanceQty": 12,
+          "unit": "pcs",
+          "unclear": false
+        },
+        {
+          "date": "12/23",
+          "particulars": "641",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 12,
+          "unit": "pcs",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152106.jpg",
+      "productName": "ADFIT ADULT PANT DIAPER (M10)",
+      "productCode": "9619",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 569.71,
+          "issuedQty": null,
+          "balanceQty": 60,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "12/23",
+          "particulars": "641",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 50,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152106.jpg",
+      "productName": "JAGUN DELUX BATHROOM TISSUE PAPER 3 PLY",
+      "productCode": "",
+      "unit": "pcs",
+      "rows": [
+        {
+          "date": "082-11-24",
+          "particulars": "Purchase bill no. 296 -2000/- 41.81",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 2000,
+          "unit": "pcs",
+          "unclear": true
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152108.jpg",
+      "productName": "FENA 400GM DETERGENT",
+      "productCode": "3402",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 42.16,
+          "issuedQty": null,
+          "balanceQty": 960,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-05",
+          "particulars": "Sales bill 012",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 60,
+          "balanceQty": 900,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-05",
+          "particulars": "11 - 013",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 120,
+          "balanceQty": 780,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-09",
+          "particulars": "11 - 030",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 60,
+          "balanceQty": 720,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-05-27",
+          "particulars": "Sales bill no. 154",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 300,
+          "balanceQty": 420,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-11-14",
+          "particulars": "11 - 552",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 120,
+          "balanceQty": 300,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-12-02",
+          "particulars": "11 - 594",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 72,
+          "balanceQty": 228,
+          "unit": "p",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152108.jpg",
+      "productName": "FENA 4KG DETERGENT",
+      "productCode": "3402",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 577.44,
+          "issuedQty": null,
+          "balanceQty": 30,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-05",
+          "particulars": "Sales bill 012",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 25,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-05",
+          "particulars": "11 - 013",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 15,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-09",
+          "particulars": "11 - 030",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 10,
+          "unit": "p",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152108.jpg",
+      "productName": "FENA 900GM DETERGENT",
+      "productCode": "3402",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 87.84,
+          "issuedQty": null,
+          "balanceQty": 240,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-05",
+          "particulars": "Sales bill 012",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 30,
+          "balanceQty": 210,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-05",
+          "particulars": "11 - 033",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 60,
+          "balanceQty": 150,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-05-27",
+          "particulars": "Sales bill no. 154",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 60,
+          "balanceQty": 90,
+          "unit": "p",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152108.jpg",
+      "productName": "IMPACT 500GM DETERGENT",
+      "productCode": "3402",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 293.21,
+          "issuedQty": null,
+          "balanceQty": 432,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-05",
+          "particulars": "Sales bill 012",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 24,
+          "balanceQty": 408,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-05",
+          "particulars": "11 - 013",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 48,
+          "balanceQty": 360,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-09",
+          "particulars": "11 - 030",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 24,
+          "balanceQty": 336,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-05-27",
+          "particulars": "Sales bill no. 154",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 96,
+          "balanceQty": 240,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 184",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 24,
+          "balanceQty": 216,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 189",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 48,
+          "balanceQty": 168,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 212",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 60,
+          "balanceQty": 108,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-11-14",
+          "particulars": "11 - 552",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 24,
+          "balanceQty": 84,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-12-02",
+          "particulars": "11 - 594",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 24,
+          "balanceQty": 60,
+          "unit": "p",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152110.jpg",
+      "productName": "IMPACT 1 KG DETERGENT",
+      "productCode": "3402",
+      "unit": "p",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 187.67,
+          "issuedQty": null,
+          "balanceQty": 336,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-05",
+          "particulars": "Sales bill 012",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 324,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-05",
+          "particulars": "11 - 013",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 24,
+          "balanceQty": 300,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-05-27",
+          "particulars": "Sales bill no. 154",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 48,
+          "balanceQty": 252,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 224",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 240,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 231",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 100,
+          "balanceQty": 140,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "083-01-14",
+          "particulars": "11 - 683",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 48,
+          "balanceQty": 92,
+          "unit": "p",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152110.jpg",
+      "productName": "MDH KASHMIRI MIRCHI 100gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 166.57,
+          "issuedQty": null,
+          "balanceQty": 20,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-05-27",
+          "particulars": "Sales bill no. 154",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 10,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152110.jpg",
+      "productName": "IMPACT 3 KG DETERGENT",
+      "productCode": "3402",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 684.0,
+          "issuedQty": null,
+          "balanceQty": 80,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-05",
+          "particulars": "Sales bill 012",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 75,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-05",
+          "particulars": "11 - 013",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 65,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-09",
+          "particulars": "11 - 030",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 60,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-05-27",
+          "particulars": "Sales bill no. 154",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 50,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 231",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 40,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "083-01-14",
+          "particulars": "11 - 683",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 28,
+          "unit": "p",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152110.jpg",
+      "productName": "MDH CHICKEN CURRY MASALA 100gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 218.21,
+          "issuedQty": null,
+          "balanceQty": 67,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-05-27",
+          "particulars": "Sales bill no. 154",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 20,
+          "balanceQty": 47,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 184",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 20,
+          "balanceQty": 27,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152111.jpg",
+      "productName": "MDH CHICKEN CURRY MASALA 100gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 124.55,
+          "issuedQty": null,
+          "balanceQty": 30,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-05-27",
+          "particulars": "Sales bill no. 154",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 20,
+          "balanceQty": 10,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152111.jpg",
+      "productName": "MDH HYD BIRYANI MASALA 50gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 120.63,
+          "issuedQty": null,
+          "balanceQty": 30,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-05-27",
+          "particulars": "Sales bill no. 154",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 20,
+          "balanceQty": 10,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152111.jpg",
+      "productName": "MDH KITCHEN KING 100gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 125.87,
+          "issuedQty": null,
+          "balanceQty": 1,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152111.jpg",
+      "productName": "MDH SABZI MASALA 100gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 104.89,
+          "issuedQty": null,
+          "balanceQty": 8,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152114.jpg",
+      "productName": "MDH GARAM MASALA 100gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 136.37,
+          "issuedQty": null,
+          "balanceQty": 93,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-05-27",
+          "particulars": "Sales bill no. 154",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 15,
+          "balanceQty": 78,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152114.jpg",
+      "productName": "BIKAGI BHUJIA 350gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 253.24,
+          "issuedQty": null,
+          "balanceQty": 42,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 192",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 42,
+          "balanceQty": 0,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152114.jpg",
+      "productName": "BIKAGI BHUJIA 900gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 384.84,
+          "issuedQty": null,
+          "balanceQty": 21,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 197",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 21,
+          "balanceQty": 0,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152114.jpg",
+      "productName": "BIKAGI BHUJIA 175gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 82.46,
+          "issuedQty": null,
+          "balanceQty": 50,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 197",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 50,
+          "balanceQty": 0,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152116.jpg",
+      "productName": "BIKAGI PAPAD 300gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 164.93,
+          "issuedQty": null,
+          "balanceQty": 32,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 197",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 32,
+          "balanceQty": 0,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152116.jpg",
+      "productName": "BIKAGI TANABANA 350gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 153.94,
+          "issuedQty": null,
+          "balanceQty": 22,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 197",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 22,
+          "balanceQty": 0,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152116.jpg",
+      "productName": "BIKAGI KUCH-KUCH 350gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 153.94,
+          "issuedQty": null,
+          "balanceQty": 22,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 197",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 22,
+          "balanceQty": 0,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152116.jpg",
+      "productName": "BIKAGI SOAN PAPADI 200gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 120.95,
+          "issuedQty": null,
+          "balanceQty": 30,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 197",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 30,
+          "balanceQty": 0,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152119.jpg",
+      "productName": "BG PANIPURI PAPAD 800gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 240.82,
+          "issuedQty": null,
+          "balanceQty": 1664,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 192",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 100,
+          "balanceQty": 1564,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 231",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 100,
+          "balanceQty": 1464,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-11-14",
+          "particulars": "11 - 552",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 130,
+          "balanceQty": 1334,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-11-16",
+          "particulars": "11 - 555",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 200,
+          "balanceQty": 1134,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152119.jpg",
+      "productName": "FENA CAKE 150gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 14.29,
+          "issuedQty": null,
+          "balanceQty": 832,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 231",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 200,
+          "balanceQty": 632,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152119.jpg",
+      "productName": "FENA CAKE 300gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 28.57,
+          "issuedQty": null,
+          "balanceQty": 280,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 231",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 100,
+          "balanceQty": 180,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152119.jpg",
+      "productName": "BIKAGI MONGDAL 350gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 153.94,
+          "issuedQty": null,
+          "balanceQty": 40,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 197",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 40,
+          "balanceQty": 0,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152121.jpg",
+      "productName": "BIKAGI PEANUT 175gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 82.46,
+          "issuedQty": null,
+          "balanceQty": 60,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 197",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 60,
+          "balanceQty": 0,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152121.jpg",
+      "productName": "NIP BAR TUB 500gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 78.55,
+          "issuedQty": null,
+          "balanceQty": 312,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-05",
+          "particulars": "Sales bill 012",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 24,
+          "balanceQty": 288,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-05",
+          "particulars": "11 - 013",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 24,
+          "balanceQty": 264,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "11 - 124",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 24,
+          "balanceQty": 240,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-20",
+          "particulars": "11 - 222",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 24,
+          "balanceQty": 216,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-30",
+          "particulars": "11 - 231",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 96,
+          "balanceQty": 120,
+          "unit": "p",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152121.jpg",
+      "productName": "NIP BAR 300gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 94.83,
+          "issuedQty": null,
+          "balanceQty": 300,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-05",
+          "particulars": "Sales bill 012",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 20,
+          "balanceQty": 280,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-05",
+          "particulars": "11 - 013",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 100,
+          "balanceQty": 180,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-09",
+          "particulars": "11 - 029",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 20,
+          "balanceQty": 160,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-30",
+          "particulars": "11 - 231",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 100,
+          "balanceQty": 60,
+          "unit": "p",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152123.jpg",
+      "productName": "MDH CHICKEN CURRY MASALA 100gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 124.55,
+          "issuedQty": null,
+          "balanceQty": 30,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-05-27",
+          "particulars": "Sales bill no. 154",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 20,
+          "balanceQty": 10,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152123.jpg",
+      "productName": "MDH HYD BIRYANI MASALA 50gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 120.63,
+          "issuedQty": null,
+          "balanceQty": 30,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-05-27",
+          "particulars": "Sales bill no. 154",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 20,
+          "balanceQty": 10,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152123.jpg",
+      "productName": "MDH KITCHEN KING 100gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 125.87,
+          "issuedQty": null,
+          "balanceQty": 1,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152123.jpg",
+      "productName": "MDH SABZI MASALA 100gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 104.89,
+          "issuedQty": null,
+          "balanceQty": 8,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152125.jpg",
+      "productName": "MDH GARAM MASALA 100gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 136.37,
+          "issuedQty": null,
+          "balanceQty": 93,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-05-27",
+          "particulars": "Sales bill no. 154",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 15,
+          "balanceQty": 78,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152125.jpg",
+      "productName": "BIKAGI BHUJIA 350gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 253.24,
+          "issuedQty": null,
+          "balanceQty": 42,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 192",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 42,
+          "balanceQty": 0,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152125.jpg",
+      "productName": "BIKAGI BHUJIA 900gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 384.84,
+          "issuedQty": null,
+          "balanceQty": 21,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 197",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 21,
+          "balanceQty": 0,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152125.jpg",
+      "productName": "BIKAGI BHUJIA 175gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 82.46,
+          "issuedQty": null,
+          "balanceQty": 50,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 197",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 50,
+          "balanceQty": 0,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152127.jpg",
+      "productName": "BIKAGI PAPAD 300gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 164.93,
+          "issuedQty": null,
+          "balanceQty": 32,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 197",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 32,
+          "balanceQty": 0,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152127.jpg",
+      "productName": "BIKAGI TANABANA 350gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 153.94,
+          "issuedQty": null,
+          "balanceQty": 22,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 197",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 22,
+          "balanceQty": 0,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152127.jpg",
+      "productName": "BIKAGI KUCH-KUCH 350gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 153.94,
+          "issuedQty": null,
+          "balanceQty": 22,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 197",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 22,
+          "balanceQty": 0,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152127.jpg",
+      "productName": "BIKAGI SOAN PAPADI 200gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 120.95,
+          "issuedQty": null,
+          "balanceQty": 30,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 197",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 30,
+          "balanceQty": 0,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152129.jpg",
+      "productName": "BG PANIPURI PAPAD 800gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 240.82,
+          "issuedQty": null,
+          "balanceQty": 1664,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 192",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 100,
+          "balanceQty": 1564,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 231",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 100,
+          "balanceQty": 1464,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-11-14",
+          "particulars": "11 - 552",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 130,
+          "balanceQty": 1334,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-11-16",
+          "particulars": "11 - 555",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 200,
+          "balanceQty": 1134,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152129.jpg",
+      "productName": "FENA CAKE 150gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 14.29,
+          "issuedQty": null,
+          "balanceQty": 832,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 231",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 200,
+          "balanceQty": 632,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152129.jpg",
+      "productName": "FENA CAKE 300gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 28.57,
+          "issuedQty": null,
+          "balanceQty": 280,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 231",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 100,
+          "balanceQty": 180,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152129.jpg",
+      "productName": "BIKAGI MONGDAL 350gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 153.94,
+          "issuedQty": null,
+          "balanceQty": 40,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 197",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 40,
+          "balanceQty": 0,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152131.jpg",
+      "productName": "BIKAGI PEANUT 175gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 82.46,
+          "issuedQty": null,
+          "balanceQty": 60,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 197",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 60,
+          "balanceQty": 0,
+          "unit": "pkt",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152131.jpg",
+      "productName": "NIP BAR TUB 500gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 78.55,
+          "issuedQty": null,
+          "balanceQty": 312,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-05",
+          "particulars": "Sales bill 012",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 24,
+          "balanceQty": 288,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-05",
+          "particulars": "11 - 013",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 24,
+          "balanceQty": 264,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "11 - 124",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 24,
+          "balanceQty": 240,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-20",
+          "particulars": "11 - 222",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 24,
+          "balanceQty": 216,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-30",
+          "particulars": "11 - 231",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 96,
+          "balanceQty": 120,
+          "unit": "p",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152131.jpg",
+      "productName": "NIP BAR 300gm",
+      "productCode": "",
+      "unit": "pkt",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 94.83,
+          "issuedQty": null,
+          "balanceQty": 300,
+          "unit": "pkt",
+          "unclear": false
+        },
+        {
+          "date": "082-04-05",
+          "particulars": "Sales bill 012",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 20,
+          "balanceQty": 280,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-05",
+          "particulars": "11 - 013",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 100,
+          "balanceQty": 180,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-09",
+          "particulars": "11 - 029",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 20,
+          "balanceQty": 160,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-30",
+          "particulars": "11 - 231",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 100,
+          "balanceQty": 60,
+          "unit": "p",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152133.jpg",
+      "productName": "AABHAS MASALA TEA 25gm",
+      "productCode": "",
+      "unit": "kg",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 377.45,
+          "issuedQty": null,
+          "balanceQty": 966,
+          "unit": "kg",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152133.jpg",
+      "productName": "AABHAS MASALA TEA 100gm",
+      "productCode": "",
+      "unit": "kg",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 363.72,
+          "issuedQty": null,
+          "balanceQty": 60,
+          "unit": "kg",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152133.jpg",
+      "productName": "AABHASH MASALA TEA 50gm",
+      "productCode": "",
+      "unit": "kg",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 363.72,
+          "issuedQty": null,
+          "balanceQty": 24,
+          "unit": "kg",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152133.jpg",
+      "productName": "AABHASH MASALA TEA 200gm",
+      "productCode": "",
+      "unit": "kg",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 363.72,
+          "issuedQty": null,
+          "balanceQty": 288,
+          "unit": "kg",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 170",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 40,
+          "balanceQty": 248,
+          "unit": "kg",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152135.jpg",
+      "productName": "AABHAS MASALA TEA 500gm",
+      "productCode": "",
+      "unit": "kg",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 363.72,
+          "issuedQty": null,
+          "balanceQty": 414,
+          "unit": "kg",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 170",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 40,
+          "balanceQty": 374,
+          "unit": "kg",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152135.jpg",
+      "productName": "GCU PACKET JHURUM CHIURA 400gm (30pkt)",
+      "productCode": "",
+      "unit": "ctn",
+      "rows": [
+        {
+          "date": "082-04-04",
+          "particulars": "purchase bill 96058-28",
+          "receiptQty": 32,
+          "receiptRate": null,
+          "receiptAmount": 1490,
+          "issuedQty": null,
+          "balanceQty": 37,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-04-06",
+          "particulars": "Sales bill 014",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 32,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-04-07",
+          "particulars": "11 - 031",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 1,
+          "balanceQty": 31,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-04-09",
+          "particulars": "11 - 070",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 1,
+          "balanceQty": 30,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "purchase bill 268",
+          "receiptQty": 93,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 123,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 186",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 2,
+          "balanceQty": 121,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 187",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 1,
+          "balanceQty": 120,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-04-21",
+          "particulars": "11 - 205",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 2,
+          "balanceQty": 118,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-04-30",
+          "particulars": "11 - 306",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 113,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-08-21",
+          "particulars": "11 - 371",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 4,
+          "balanceQty": 109,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-08-23",
+          "particulars": "11 - 378",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 99,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-08-23",
+          "particulars": "11 - 379",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 89,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-08-25",
+          "particulars": "11 - 387",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 6,
+          "balanceQty": 83,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-09-14",
+          "particulars": "11 - 441",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 73,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-09-15",
+          "particulars": "11 - 443",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 63,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-11-24",
+          "particulars": "11 - 581",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 15,
+          "balanceQty": 48,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-12-07",
+          "particulars": "11 - 606",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 38,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "083-01-02",
+          "particulars": "11 - 651",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 20,
+          "balanceQty": 18,
+          "unit": "ctn",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152135.jpg",
+      "productName": "AABHAS MASALA TEA 1 KG",
+      "productCode": "",
+      "unit": "kg",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": 363.72,
+          "issuedQty": null,
+          "balanceQty": 180,
+          "unit": "kg",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152137.jpg",
+      "productName": "GCU PACKET JHURUM CHIURA 700gm 20pkt",
+      "productCode": "",
+      "unit": "ctn",
+      "rows": [
+        {
+          "date": "082-04-04",
+          "particulars": "purchase bill 96058-28",
+          "receiptQty": 20,
+          "receiptRate": null,
+          "receiptAmount": 1665,
+          "issuedQty": null,
+          "balanceQty": 30,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-04-06",
+          "particulars": "Sales bill 014",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 25,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-04-07",
+          "particulars": "11 - 031",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 1,
+          "balanceQty": 24,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-04-09",
+          "particulars": "11 - 070",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 1,
+          "balanceQty": 23,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "purchase bill 301",
+          "receiptQty": 50,
+          "receiptRate": null,
+          "receiptAmount": 1665,
+          "issuedQty": null,
+          "balanceQty": 73,
+          "unit": "bag",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 186",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 2,
+          "balanceQty": 71,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 187",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 1,
+          "balanceQty": 70,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-04-21",
+          "particulars": "11 - 205",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 2,
+          "balanceQty": 68,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-04-30",
+          "particulars": "11 - 304",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 63,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-04-30",
+          "particulars": "11 - 306",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 58,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-08-21",
+          "particulars": "11 - 371",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 4,
+          "balanceQty": 54,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-08-23",
+          "particulars": "11 - 378",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 44,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-08-23",
+          "particulars": "11 - 379",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 34,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-08-25",
+          "particulars": "11 - 387",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 6,
+          "balanceQty": 28,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-09-14",
+          "particulars": "11 - 441",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 18,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-09-15",
+          "particulars": "11 - 443",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 8,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-11-24",
+          "particulars": "11 - 581",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 0,
+          "unit": "ctn",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152137.jpg",
+      "productName": "GCU POKHARALI JAICHIN CHIURA 700gm 20pkt",
+      "productCode": "",
+      "unit": "bag",
+      "rows": [
+        {
+          "date": "082-04-04",
+          "particulars": "purchase bill 96058-28",
+          "receiptQty": 25,
+          "receiptRate": null,
+          "receiptAmount": 1450,
+          "issuedQty": null,
+          "balanceQty": 25,
+          "unit": "bag",
+          "unclear": false
+        },
+        {
+          "date": "082-04-23",
+          "particulars": "Sales bill no. 378",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 15,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-09-14",
+          "particulars": "11 - 441",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 5,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-09-15",
+          "particulars": "11 - 443",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 0,
+          "unit": "ctn",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152139.jpg",
+      "productName": "OSSUM MOBILE SPRAY 25ml (MIX)",
+      "productCode": "",
+      "unit": "ps",
+      "rows": [
+        {
+          "date": "082-04-04",
+          "particulars": "purchase bill 086",
+          "receiptQty": 60,
+          "receiptRate": null,
+          "receiptAmount": 9531,
+          "issuedQty": null,
+          "balanceQty": 60,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-04-05",
+          "particulars": "Sales bill 013",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 60,
+          "balanceQty": 0,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-05-14",
+          "particulars": "Purchase bill 093",
+          "receiptQty": 96,
+          "receiptRate": null,
+          "receiptAmount": 9530,
+          "issuedQty": null,
+          "balanceQty": 96,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-05-16",
+          "particulars": "Sales bill no. 117",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 96,
+          "balanceQty": 0,
+          "unit": "ps",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152139.jpg",
+      "productName": "OSSUM ROLL ON 50ml (MIX)",
+      "productCode": "",
+      "unit": "ps",
+      "rows": [
+        {
+          "date": "082-04-09",
+          "particulars": "purchase bill 086",
+          "receiptQty": 52,
+          "receiptRate": null,
+          "receiptAmount": 242.69,
+          "issuedQty": null,
+          "balanceQty": 52,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-04-16",
+          "particulars": "Sales bill 025",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 18,
+          "balanceQty": 34,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-05-14",
+          "particulars": "Purchase bill 093",
+          "receiptQty": 12,
+          "receiptRate": null,
+          "receiptAmount": 242.69,
+          "issuedQty": null,
+          "balanceQty": 12,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-05-16",
+          "particulars": "Sales bill no. 112",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 0,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-05-16",
+          "particulars": "Purchase bill no. 022",
+          "receiptQty": 60,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 60,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-07-08",
+          "particulars": "Sales bill no. 350",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 60,
+          "balanceQty": 0,
+          "unit": "ps",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152139.jpg",
+      "productName": "STREAX HAIR SERUM 45ml",
+      "productCode": "",
+      "unit": "ps",
+      "rows": [
+        {
+          "date": "082-04-04",
+          "particulars": "purchase bill 086",
+          "receiptQty": 72,
+          "receiptRate": null,
+          "receiptAmount": 125.94,
+          "issuedQty": null,
+          "balanceQty": 72,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-04-13",
+          "particulars": "Sales bill 047",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 72,
+          "balanceQty": 0,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-04-21",
+          "particulars": "Purchase bill 211",
+          "receiptQty": 48,
+          "receiptRate": null,
+          "receiptAmount": 125.32,
+          "issuedQty": null,
+          "balanceQty": 48,
+          "unit": "ps",
+          "unclear": false
+        },
+        {
+          "date": "082-04-21",
+          "particulars": "Sales bill no. 350",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 24,
+          "balanceQty": 24,
+          "unit": "ps",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152141.jpg",
+      "productName": "915 AA BLUE BATTERY",
+      "productCode": "",
+      "unit": "p",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "श्रीकृष्ण",
+          "receiptQty": 2400,
+          "receiptRate": 11.07,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 2400,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-08",
+          "particulars": "Sales bill 052",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 1200,
+          "balanceQty": 1200,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-04-24",
+          "particulars": "Purchase bill 053",
+          "receiptQty": 6600,
+          "receiptRate": 10.05,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 7200,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-05-14",
+          "particulars": "Purchase bill 093",
+          "receiptQty": 1200,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 8400,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-05-16",
+          "particulars": "Sales bill no. 125",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 2400,
+          "balanceQty": 6000,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "082-08-08",
+          "particulars": "Sales bill no. 329",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 1200,
+          "balanceQty": 4800,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "09/12",
+          "particulars": "11 - 478",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 2400,
+          "balanceQty": 2400,
+          "unit": "p",
+          "unclear": false
+        },
+        {
+          "date": "10/12",
+          "particulars": "11 - 495",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 2400,
+          "balanceQty": 0,
+          "unit": "p",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152141.jpg",
+      "productName": "HOKEE CANNED WHOLE MUSHROOM 425gm",
+      "productCode": "2003",
+      "unit": "can",
+      "rows": [
+        {
+          "date": "082-04-08",
+          "particulars": "purchase bill T-0010",
+          "receiptQty": 240,
+          "receiptRate": null,
+          "receiptAmount": 120.62,
+          "issuedQty": null,
+          "balanceQty": 240,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "082-04-18",
+          "particulars": "Sales bill 53",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 120,
+          "balanceQty": 120,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "082-04-20",
+          "particulars": "11 - 058",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 48,
+          "balanceQty": 72,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "082-05-04",
+          "particulars": "11 - 096",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 6,
+          "balanceQty": 66,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "082-04-24",
+          "particulars": "11 - 241",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 54,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "082-04-30",
+          "particulars": "11 - 235",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 40,
+          "balanceQty": 14,
+          "unit": "can",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152141.jpg",
+      "productName": "ROZA FRIED MACKEREL W/CHILLI SAUCE 140gm",
+      "productCode": "1604",
+      "unit": "can",
+      "rows": [
+        {
+          "date": "082-04-08",
+          "particulars": "purchase bill T-0010",
+          "receiptQty": 96,
+          "receiptRate": null,
+          "receiptAmount": 139.1,
+          "issuedQty": null,
+          "balanceQty": 96,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "082-04-14",
+          "particulars": "Sales bill 041",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 48,
+          "balanceQty": 48,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "082-04-24",
+          "particulars": "Sales bill no. 212",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 36,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "082-04-30",
+          "particulars": "Sales bill no. 235",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 30,
+          "balanceQty": 6,
+          "unit": "can",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152143.jpg",
+      "productName": "ROZA FRIED MACKEREL W/CHILLI SAUCE AND CUMIN 140gm",
+      "productCode": "1604",
+      "unit": "can",
+      "rows": [
+        {
+          "date": "082-04-08",
+          "particulars": "purchase bill T-0010",
+          "receiptQty": 96,
+          "receiptRate": null,
+          "receiptAmount": 139.1,
+          "issuedQty": null,
+          "balanceQty": 96,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 178",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 24,
+          "balanceQty": 72,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 189",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 6,
+          "balanceQty": 66,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "082-04-24",
+          "particulars": "Sales bill no. 212",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 54,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "082-04-30",
+          "particulars": "Sales bill no. 235",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 40,
+          "balanceQty": 14,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "082-07-15",
+          "particulars": "Sales bill no. 257",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 2,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "09/14",
+          "particulars": "S.B 440",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 20,
+          "balanceQty": 0,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "09/20",
+          "particulars": "Sales return",
+          "receiptQty": 24,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 24,
+          "unit": "can",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152143.jpg",
+      "productName": "ROZA MACKEREL IN TAMATO SAUCE 155gm",
+      "productCode": "1604",
+      "unit": "can",
+      "rows": [
+        {
+          "date": "082-04-08",
+          "particulars": "purchase bill T-0010",
+          "receiptQty": 48,
+          "receiptRate": null,
+          "receiptAmount": 113.41,
+          "issuedQty": null,
+          "balanceQty": 48,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 178",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 24,
+          "balanceQty": 24,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 189",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 6,
+          "balanceQty": 18,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "082-04-24",
+          "particulars": "Sales bill no. 212",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 6,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "082-04-30",
+          "particulars": "Sales bill no. 235",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 0,
+          "balanceQty": 6,
+          "unit": "can",
+          "unclear": true
+        },
+        {
+          "date": "082-07-15",
+          "particulars": "Sales bill no. 257",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 0,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "09/20",
+          "particulars": "Sales return",
+          "receiptQty": 24,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 24,
+          "unit": "can",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152143.jpg",
+      "productName": "ROZA SARDINE IN TAMATO SAUCE WITH CUMINS 185gm",
+      "productCode": "1604",
+      "unit": "can",
+      "rows": [
+        {
+          "date": "082-04-08",
+          "particulars": "purchase bill T-0010",
+          "receiptQty": 96,
+          "receiptRate": null,
+          "receiptAmount": 139.1,
+          "issuedQty": null,
+          "balanceQty": 96,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "082-04-24",
+          "particulars": "Sales bill no. 212",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 84,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "082-04-30",
+          "particulars": "Sales bill no. 235",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 40,
+          "balanceQty": 44,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "082-07-15",
+          "particulars": "Sales bill no. 257",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 32,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "09/14",
+          "particulars": "S.B 440",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 20,
+          "balanceQty": 12,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "09/20",
+          "particulars": "Sales return",
+          "receiptQty": 12,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 24,
+          "unit": "can",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64JBVZFTKQYGTHE1PX7R8",
+      "imageFile": "IMG_20260526_152143.jpg",
+      "productName": "ROZA SARDINE IN TOMATO SAUCE WITH MASALA 185gm",
+      "productCode": "1604",
+      "unit": "can",
+      "rows": [
+        {
+          "date": "082-04-08",
+          "particulars": "purchase bill T-0010",
+          "receiptQty": 96,
+          "receiptRate": null,
+          "receiptAmount": 139.1,
+          "issuedQty": null,
+          "balanceQty": 96,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 178",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 24,
+          "balanceQty": 72,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "082-04-10",
+          "particulars": "Sales bill no. 189",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 6,
+          "balanceQty": 66,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "082-04-24",
+          "particulars": "Sales bill no. 212",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 54,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "082-04-30",
+          "particulars": "Sales bill no. 235",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 40,
+          "balanceQty": 14,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "09/14",
+          "particulars": "S.B 440",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 16,
+          "balanceQty": 0,
+          "unit": "can",
+          "unclear": false
+        },
+        {
+          "date": "09/20",
+          "particulars": "Sales return",
+          "receiptQty": 12,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 12,
+          "unit": "can",
+          "unclear": false
+        }
+      ]
+    }
+  ]
+}

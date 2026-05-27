@@ -27,6 +27,19 @@ cd apps/desktop && bun run android:dev    # Tauri Android (dev; needs Android SD
 cd apps/desktop && bun run android:build  # Tauri Android release APK
 ```
 
+## Parallel Agent Coordination (Grit)
+
+Grit is installed and initialized in this repo for parallel agent work with zero merge conflicts.
+
+```bash
+export PATH="$HOME/.cargo/bin:$PATH"
+grit claim -a <agent-name> -i "intent" src/file.ts::functionName   # Lock symbol
+# ... edit files in .grit/worktrees/<agent-name>/ ...
+grit done -a <agent-name>                                           # Merge + release
+```
+
+See `AGENTS.md` for full grit workflow rules.
+
 ## Conventions
 
 - Use `bun` as package manager (not npm/pnpm)

@@ -1,0 +1,1241 @@
+{
+  "batch": 2,
+  "entries": [
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_151955.jpg",
+      "productName": "DR BONNE FEEDING NIPPLES",
+      "productCode": null,
+      "unit": "pc",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "Brought",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 1200,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-04-22",
+          "particulars": "Sales bill 067",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 180,
+          "balanceQty": 1020,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-04-25",
+          "particulars": "Purchase bill no. 00075",
+          "receiptQty": 1200,
+          "receiptRate": 5.75,
+          "receiptAmount": 6900.0,
+          "issuedQty": 15,
+          "balanceQty": 2205,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-06-25",
+          "particulars": "Sales bill no. 213",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 180,
+          "balanceQty": 2025,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-07-24",
+          "particulars": "\" \" \u2014 \" 276",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 180,
+          "balanceQty": 1845,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-08-01",
+          "particulars": "\" \" \u2014 \" 311",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 180,
+          "balanceQty": 1665,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-08-02",
+          "particulars": "\" \" \u2014 \" 314",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 180,
+          "balanceQty": 1485,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-08-08",
+          "particulars": "Purchase bill no. 696",
+          "receiptQty": 2400,
+          "receiptRate": 8.85,
+          "receiptAmount": 21240.0,
+          "issuedQty": 1200,
+          "balanceQty": 645,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-08-19",
+          "particulars": "Sales bill no. 364",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 240,
+          "balanceQty": 405,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-10-12",
+          "particulars": "\" \" \u2014 \" 487",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 450,
+          "balanceQty": 295,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-11-16",
+          "particulars": "\" \" \u2014 \" 555",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 180,
+          "balanceQty": 115,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-12-04",
+          "particulars": "\" \" \u2014 \" 602",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 450,
+          "balanceQty": 665,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-12-18",
+          "particulars": "\" \" \u2014 \" 630",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 600,
+          "balanceQty": 65,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "083-01-18",
+          "particulars": "\" \" \u2014 \" 689",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 450,
+          "balanceQty": 615,
+          "unit": "pc",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_151955.jpg",
+      "productName": "DR BONNE 125ML FEEDER",
+      "productCode": null,
+      "unit": "pc",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "Brought",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 624,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-04-22",
+          "particulars": "Sales bill 067",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 144,
+          "balanceQty": 480,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-04-25",
+          "particulars": "\" \" \u2014 \" 276",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 60,
+          "balanceQty": 420,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-07-24",
+          "particulars": "\" \" \u2014 \" 311",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 36,
+          "balanceQty": 384,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-08-01",
+          "particulars": "Purchase bill no. 696",
+          "receiptQty": 720,
+          "receiptRate": 10.0,
+          "receiptAmount": 7200.0,
+          "issuedQty": 72,
+          "balanceQty": 1104,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-08-08",
+          "particulars": "Sales bill no. 364",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 288,
+          "balanceQty": 816,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-08-15",
+          "particulars": "\" \" \u2014 \" 364",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 144,
+          "balanceQty": 672,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-08-19",
+          "particulars": "\" \" \u2014 \" 381",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 288,
+          "balanceQty": 384,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-08-26",
+          "particulars": "Purchase bill no. 813",
+          "receiptQty": 1440,
+          "receiptRate": 11.0,
+          "receiptAmount": 15840.0,
+          "issuedQty": 72,
+          "balanceQty": 1824,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-08-28",
+          "particulars": "Sales bill no. 395",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 720,
+          "balanceQty": 1104,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-09-06",
+          "particulars": "Purchase bill no. 901",
+          "receiptQty": 2160,
+          "receiptRate": 11.0,
+          "receiptAmount": 23760.0,
+          "issuedQty": 72,
+          "balanceQty": 3264,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-09-26",
+          "particulars": "Sales bill no. 471",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 144,
+          "balanceQty": 3120,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-10-12",
+          "particulars": "\" \" \u2014 \" 487",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 144,
+          "balanceQty": 2976,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-11-16",
+          "particulars": "\" \" \u2014 \" 555",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 288,
+          "balanceQty": 2688,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-11-23",
+          "particulars": "\" \" \u2014 \" 574",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 288,
+          "balanceQty": 2400,
+          "unit": "pc",
+          "unclear": true
+        },
+        {
+          "date": "082-12-02",
+          "particulars": "\" \" \u2014 \" 591",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 360,
+          "balanceQty": 2040,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-12-09",
+          "particulars": "\" \" \u2014 \" 613",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 144,
+          "balanceQty": 1896,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-12-19",
+          "particulars": "\" \" \u2014 \" 633",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 288,
+          "balanceQty": 1608,
+          "unit": "pc",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_151955.jpg",
+      "productName": "DR BONNE MAXI 250ML FEEDER",
+      "productCode": null,
+      "unit": "pc",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "Brought",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 839,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-04-22",
+          "particulars": "Sales bill 067",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 144,
+          "balanceQty": 695,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-07-24",
+          "particulars": "\" \" \u2014 \" 276",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 60,
+          "balanceQty": 635,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-08-01",
+          "particulars": "\" \" \u2014 \" 311",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 72,
+          "balanceQty": 563,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-08-08",
+          "particulars": "Purchase bill no. 696",
+          "receiptQty": 720,
+          "receiptRate": 10.0,
+          "receiptAmount": 7200.0,
+          "issuedQty": 0,
+          "balanceQty": 1283,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-08-15",
+          "particulars": "Sales bill no. 357",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 288,
+          "balanceQty": 995,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-08-26",
+          "particulars": "Purchase bill no. 813",
+          "receiptQty": 1440,
+          "receiptRate": 11.0,
+          "receiptAmount": 15840.0,
+          "issuedQty": 0,
+          "balanceQty": 2435,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-09-26",
+          "particulars": "Sales bill no. 471",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 144,
+          "balanceQty": 2291,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-10-12",
+          "particulars": "\" \" \u2014 \" 487",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 144,
+          "balanceQty": 2147,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-11-16",
+          "particulars": "\" \" \u2014 \" 555",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 288,
+          "balanceQty": 1859,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-11-23",
+          "particulars": "\" \" \u2014 \" 574",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 288,
+          "balanceQty": 1571,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-12-02",
+          "particulars": "\" \" \u2014 \" 591",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 360,
+          "balanceQty": 1211,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-12-09",
+          "particulars": "\" \" \u2014 \" 613",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 144,
+          "balanceQty": 1067,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-12-19",
+          "particulars": "\" \" \u2014 \" 633",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 288,
+          "balanceQty": 779,
+          "unit": "pc",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_151955.jpg",
+      "productName": "TIF BABY TEETHER",
+      "productCode": "9503",
+      "unit": "pc",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "Brought",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 18,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-05-19",
+          "particulars": "Sales bill 133",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 6,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-09-08",
+          "particulars": "Purchase bill no. 696",
+          "receiptQty": 36,
+          "receiptRate": 11.0,
+          "receiptAmount": 396.0,
+          "issuedQty": 0,
+          "balanceQty": 42,
+          "unit": "pc",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_151958.jpg",
+      "productName": "BONNE ACER STEEL FEEDER 250ML",
+      "productCode": "7323",
+      "unit": "pc",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "Brought",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 72,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-04-05",
+          "particulars": "Sales bill 008",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 6,
+          "balanceQty": 66,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-04-25",
+          "particulars": "\" \" \u2014 \" 009",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 6,
+          "balanceQty": 60,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-06-10",
+          "particulars": "\" \" \u2014 \" 184",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 48,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-07-13",
+          "particulars": "\" \" \u2014 \" 351",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 18,
+          "balanceQty": 30,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-08-08",
+          "particulars": "Purchase bill no. 696",
+          "receiptQty": 144,
+          "receiptRate": 11.0,
+          "receiptAmount": 1584.0,
+          "issuedQty": 0,
+          "balanceQty": 174,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-09-20",
+          "particulars": "Sales bill no. 486",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 162,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-10-27",
+          "particulars": "\" \" \u2014 \" 578",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 6,
+          "balanceQty": 156,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-12-08",
+          "particulars": "\" \" \u2014 \" 612",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 18,
+          "balanceQty": 138,
+          "unit": "pc",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_151958.jpg",
+      "productName": "TIF GL FEEDER HANDLE 250ML SILICONE SLEEVE",
+      "productCode": "7013",
+      "unit": "pc",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "Brought",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 6,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-04-05",
+          "particulars": "Sales bill 009",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 6,
+          "balanceQty": 0,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-04-18",
+          "particulars": "Purchase bill 00075",
+          "receiptQty": 48,
+          "receiptRate": 11.0,
+          "receiptAmount": 528.0,
+          "issuedQty": 0,
+          "balanceQty": 48,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-08-28",
+          "particulars": "Sales bill no. 337",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 36,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-08-29",
+          "particulars": "\" \" \u2014 \" 441",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 14,
+          "balanceQty": 22,
+          "unit": "pc",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_151958.jpg",
+      "productName": "TIF SPIRAL FROSTED LSR NIPPLES",
+      "productCode": "4014",
+      "unit": "pc",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "Brought",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 60,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-06-25",
+          "particulars": "Sales bill no. 213",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 50,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-07-03",
+          "particulars": "\" \" \u2014 \" 207",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 20,
+          "balanceQty": 30,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-10-09",
+          "particulars": "Purchase bill no. 1107",
+          "receiptQty": 100,
+          "receiptRate": 18.18,
+          "receiptAmount": 1818.0,
+          "issuedQty": 0,
+          "balanceQty": 130,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-12-02",
+          "particulars": "Sales bill no. 591",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 24,
+          "balanceQty": 106,
+          "unit": "pc",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_151958.jpg",
+      "productName": "TIF GL FEEDER HANDLE 125ML SILICONES",
+      "productCode": null,
+      "unit": "pc",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "Brought",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 6,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-04-18",
+          "particulars": "Purchase bill 00075",
+          "receiptQty": 48,
+          "receiptRate": 11.0,
+          "receiptAmount": 528.0,
+          "issuedQty": 0,
+          "balanceQty": 54,
+          "unit": "pc",
+          "unclear": false
+        },
+        {
+          "date": "082-08-28",
+          "particulars": "Sales bill no. 421",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 42,
+          "unit": "pc",
+          "unclear": false
+        }
+      ]
+    },
+    {
+      "orgId": "org_01KMQ64R6WHY61G0ZNY43SWN91",
+      "imageFile": "IMG_20260526_152001.jpg",
+      "productName": "LOTTE CHOCOPAI 12 PACK",
+      "productCode": "1905",
+      "unit": "ctn",
+      "rows": [
+        {
+          "date": "082-04-01",
+          "particulars": "Brought",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": null,
+          "balanceQty": 110,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-04-02",
+          "particulars": "Sales bill 001",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 2,
+          "balanceQty": 108,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-04-05",
+          "particulars": "\" \" \u2014 \" 008",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 1,
+          "balanceQty": 107,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-04-07",
+          "particulars": "\" \" \u2014 \" 820",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 102,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-04-08",
+          "particulars": "\" \" \u2014 \" 025",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 6,
+          "balanceQty": 96,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-04-09",
+          "particulars": "\" \" \u2014 \" 030",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 2,
+          "balanceQty": 94,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-04-20",
+          "particulars": "\" \" \u2014 \" 57",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 89,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-04-21",
+          "particulars": "\" \" \u2014 \" 072",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 1,
+          "balanceQty": 88,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-04-24",
+          "particulars": "\" \" \u2014 \" 073",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 3,
+          "balanceQty": 85,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-04-28",
+          "particulars": "\" \" \u2014 \" 086",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 2,
+          "balanceQty": 83,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-04-29",
+          "particulars": "\" \" \u2014 \" 081",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 20,
+          "balanceQty": 63,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-04-15",
+          "particulars": "Purchase bill sb-00127",
+          "receiptQty": 300,
+          "receiptRate": 23.0,
+          "receiptAmount": 6900.0,
+          "issuedQty": 0,
+          "balanceQty": 363,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-05-02",
+          "particulars": "Sales bill 090",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 353,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-05-04",
+          "particulars": "\" \" \u2014 \" 096",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 2,
+          "balanceQty": 351,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-05-11",
+          "particulars": "\" \" \u2014 \" 107",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 25,
+          "balanceQty": 326,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-05-12",
+          "particulars": "\" \" \u2014 \" 108",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 35,
+          "balanceQty": 291,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-05-16",
+          "particulars": "\" \" \u2014 \" 122",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 20,
+          "balanceQty": 271,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-05-19",
+          "particulars": "\" \" \u2014 \" 133",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 266,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-05-28",
+          "particulars": "\" \" \u2014 \" 156",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 20,
+          "balanceQty": 246,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-05-30",
+          "particulars": "\" \" \u2014 \" 158",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 30,
+          "balanceQty": 216,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-06-09",
+          "particulars": "\" \" \u2014 \" 171",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 25,
+          "balanceQty": 191,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-06-10",
+          "particulars": "\" \" \u2014 \" 174",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 10,
+          "balanceQty": 181,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-06-10",
+          "particulars": "\" \" \u2014 \" 183",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 2,
+          "balanceQty": 179,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-06-10",
+          "particulars": "\" \" \u2014 \" 188",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 1,
+          "balanceQty": 178,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-06-12",
+          "particulars": "\" \" \u2014 \" 195",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 15,
+          "balanceQty": 163,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-06-25",
+          "particulars": "Sales bill no. 214",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 1,
+          "balanceQty": 162,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-06-25",
+          "particulars": "Sales bill no. 216",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 20,
+          "balanceQty": 142,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-06-27",
+          "particulars": "\" \" \u2014 \" 218",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 21,
+          "balanceQty": 121,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-06-30",
+          "particulars": "\" \" \u2014 \" 225",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 12,
+          "balanceQty": 109,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-07-09",
+          "particulars": "\" \" \u2014 \" 240",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 104,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-07-10",
+          "particulars": "\" \" \u2014 \" 244",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 20,
+          "balanceQty": 84,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-07-22",
+          "particulars": "\" \" \u2014 \" 273",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 2,
+          "balanceQty": 82,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-07-24",
+          "particulars": "\" \" \u2014 \" 278",
+          "receiptQty": null,
+          "receiptRate": null,
+          "receiptAmount": null,
+          "issuedQty": 5,
+          "balanceQty": 77,
+          "unit": "ctn",
+          "unclear": false
+        },
+        {
+          "date": "082-07-26",
+          "particulars": "Purchase bill no. 1460",
+          "receiptQty": 345,
+          "receiptRate": 21.0,
+          "receiptAmount": 7245.0,
+          "issuedQty": 0,
+          "balanceQty": 422,
+          "unit": "ctn",
+          "unclear": false
+        }
+      ]
+    }
+  ]
+}

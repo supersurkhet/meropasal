@@ -164,7 +164,8 @@ export class GeminiLiveSession {
 			this.ws.onclose = (event) => {
 				console.log('[GeminiLive] WebSocket closed:', event.code, event.reason)
 				if (!this.setupComplete && event.code !== 1000) {
-					this.callbacks.onError(`Voice connection closed (${event.code})`)
+					const reason = event.reason?.trim()
+					this.callbacks.onError(reason || `Voice connection closed (${event.code})`)
 				}
 				this.callbacks.onDisconnected()
 			}

@@ -30,3 +30,9 @@ Thumbs.db
 # Demo artifacts
 demo-final.*
 screenshots/
+
+.grit
+/.memory-agent
+/data
+/qa-screenshots
+/stock_crops
