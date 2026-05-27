@@ -12,7 +12,7 @@
 	}
 
 	function handleLogin() {
-		goto('/login')
+		goto('/sign-in')
 	}
 </script>
 

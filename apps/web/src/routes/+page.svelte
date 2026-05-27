@@ -89,7 +89,7 @@
 			label: 'iOS',
 			sublabel: 'Web app — Add to Home Screen',
 			file: null,
-			webHref: '/login',
+			webHref: '/sign-in',
 			alt: null,
 		},
 	]
@@ -158,8 +158,8 @@
 				<a href="#features" class="hidden rounded-md px-3 py-1.5 text-[13px] font-medium text-zinc-500 transition-colors hover:text-zinc-900 sm:block dark:text-zinc-400 dark:hover:text-zinc-100">Features</a>
 				<a href="#download" class="hidden rounded-md px-3 py-1.5 text-[13px] font-medium text-zinc-500 transition-colors hover:text-zinc-900 sm:block dark:text-zinc-400 dark:hover:text-zinc-100">Download</a>
 				<div class="ml-2 h-4 w-px bg-zinc-200 dark:bg-zinc-800"></div>
-				<a href="/login" class="ml-2 rounded-md px-3 py-1.5 text-[13px] font-medium text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">Sign in</a>
-				<Button href="/login" size="sm" class="ml-1 h-8 rounded-lg px-3.5 text-[13px]">
+				<a href="/sign-in" class="ml-2 rounded-md px-3 py-1.5 text-[13px] font-medium text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">Sign in</a>
+				<Button href="/sign-in" size="sm" class="ml-1 h-8 rounded-lg px-3.5 text-[13px]">
 					Get Started
 				</Button>
 			</div>
@@ -186,7 +186,7 @@
 				</p>
 
 				<div class="mt-8 flex items-center justify-center gap-3">
-					<Button href="/login" size="lg" class="h-11 rounded-xl px-6 text-sm shadow-lg shadow-zinc-900/10 dark:shadow-zinc-100/5">
+					<Button href="/sign-in" size="lg" class="h-11 rounded-xl px-6 text-sm shadow-lg shadow-zinc-900/10 dark:shadow-zinc-100/5">
 						Start Free
 						<ArrowRight class="ml-1 size-4" />
 					</Button>
@@ -343,7 +343,7 @@
 
 			<div class="mx-auto mt-12 max-w-lg">
 				<a
-					href={primaryPlatform.file ? `${RELEASE_BASE}/${primaryPlatform.file}` : (primaryPlatform.webHref ?? '/login')}
+					href={primaryPlatform.file ? `${RELEASE_BASE}/${primaryPlatform.file}` : (primaryPlatform.webHref ?? '/sign-in')}
 					class="group flex items-center gap-4 rounded-2xl border border-primary/20 bg-primary p-5 transition-all hover:bg-primary/90"
 				>
 					<div class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary-foreground/15">
@@ -379,7 +379,7 @@
 
 				<!-- Web app option -->
 				<a
-					href="/login"
+					href="/sign-in"
 					class="mt-4 flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-5 py-3.5 text-[14px] font-medium text-foreground transition-all hover:bg-accent"
 				>
 					<Globe class="size-4 text-zinc-400" />
@@ -401,7 +401,7 @@
 						<div class="mt-4 grid gap-2 sm:grid-cols-2" style="animation: fadeUp 0.2s ease-out;">
 							{#each otherPlatforms as platform}
 								<a
-									href={platform.file ? `${RELEASE_BASE}/${platform.file}` : (platform.webHref ?? '/login')}
+									href={platform.file ? `${RELEASE_BASE}/${platform.file}` : (platform.webHref ?? '/sign-in')}
 									class="flex items-center gap-3 rounded-xl border border-border bg-card p-3.5 transition-all hover:bg-accent"
 								>
 									{#if platform.id === 'android' || platform.id === 'ios'}
@@ -439,7 +439,7 @@
 				</p>
 				<div class="mt-7">
 					<Button
-						href="/login"
+						href="/sign-in"
 						size="lg"
 						class="h-11 rounded-xl px-7 text-sm"
 					>
@@ -466,7 +466,7 @@
 				<nav class="flex flex-wrap items-center gap-5 text-[13px]">
 					<a href="#features" class="text-zinc-400 transition-colors hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300">Features</a>
 					<a href="#download" class="text-zinc-400 transition-colors hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300">Download</a>
-					<a href="/login" class="text-zinc-400 transition-colors hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300">Sign in</a>
+					<a href="/sign-in" class="text-zinc-400 transition-colors hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300">Sign in</a>
 				</nav>
 			</div>
 			<div class="mt-6 border-t border-zinc-100 pt-6 text-center text-[12px] text-zinc-400 dark:border-zinc-900 dark:text-zinc-600">
