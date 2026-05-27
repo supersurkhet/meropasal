@@ -40,6 +40,8 @@ jobs:
           secrets: |
             CLERK_SECRET_KEY
             GOOGLE_GENERATIVE_AI_API_KEY
+            PUBLIC_CLERK_PUBLISHABLE_KEY
         env:
           CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
           GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
+          PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
