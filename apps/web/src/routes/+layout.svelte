@@ -17,15 +17,28 @@
 	import favicon from '$lib/assets/favicon.svg'
 	import AgentationSync from '$lib/components/shared/AgentationSync.svelte'
 	import ClerkConvexBridge from '$lib/components/shared/ClerkConvexBridge.svelte'
+	import { dark } from '@clerk/ui/themes'
 
 	let { children, data } = $props()
+
+	let isDark = $state(false)
+
+	$effect(() => {
+		if (!browser) return
+		isDark = document.documentElement.classList.contains('dark')
+		const observer = new MutationObserver(() => {
+			isDark = document.documentElement.classList.contains('dark')
+		})
+		observer.observe(document.documentElement, { attributeFilter: ['class'] })
+		return () => observer.disconnect()
+	})
 </script>
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-<ClerkProvider {...data}>
+<ClerkProvider {...data} appearance={{ theme: isDark ? dark : undefined }}>
 	<ClerkConvexBridge />
 
 	<MetaTags

@@ -141,11 +141,6 @@
 		<div class="flex h-14 items-center border-b border-zinc-200 px-3 dark:border-zinc-800 {collapsed ? 'justify-center' : ''}">
 			<OrganizationSwitcher
 			hidePersonal
-			appearance={{
-				elements: {
-					organizationPreviewMainIdentifier: 'text-foreground',
-				},
-			}}
 		/>
 		</div>
 
