@@ -154,7 +154,7 @@
 				<div class="ml-2 h-4 w-px bg-zinc-200 dark:bg-zinc-800"></div>
 				{#if ctx.user}
 					{#if ctx.organization}
-						<span class="ml-2 hidden max-w-[160px] truncate rounded-md bg-zinc-900 px-2.5 py-1 text-[12px] font-medium text-zinc-50 sm:block dark:bg-zinc-100 dark:text-zinc-900">
+						<span class="ml-2 hidden max-w-[160px] truncate rounded-md bg-foreground px-2.5 py-1 text-[12px] font-medium text-background sm:block">
 							{ctx.organization.name}
 						</span>
 					{/if}
