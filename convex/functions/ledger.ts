@@ -332,6 +332,8 @@ export const createJournalEntry = mutation({
         accountName: v.string(),
         debit: v.number(),
         credit: v.number(),
+        partyId: v.optional(v.string()),
+        partyName: v.optional(v.string()),
       })
     ),
   },
@@ -377,6 +379,7 @@ export const createJournalEntry = mutation({
         fiscalYear,
         voucherType: "journal" as const,
         voucherNumber,
+        ...(line.partyId ? { partyId: line.partyId } : {}),
       });
     }
 

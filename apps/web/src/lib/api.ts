@@ -33,6 +33,7 @@ export const api = {
 			listEntries: makeFunctionReference<'query'>('functions/ledger:listEntries'),
 			createEntry: makeFunctionReference<'mutation'>('functions/ledger:createEntry'),
 			createDoubleEntry: makeFunctionReference<'mutation'>('functions/ledger:createDoubleEntry'),
+			createJournalEntry: makeFunctionReference<'mutation'>('functions/ledger:createJournalEntry'),
 			trialBalance: makeFunctionReference<'query'>('functions/ledger:trialBalance'),
 		},
 		organizations: {

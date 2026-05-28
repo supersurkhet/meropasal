@@ -17,6 +17,14 @@
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 	const accounts = useConvexQuery(client, api.functions.ledger.listAccounts, () => ({}));
+	const parties = useConvexQuery(client, api.functions.parties.list, () => ({}));
+	const customers = useConvexQuery(client, api.functions.customers.list, () => ({}));
+
+	// Combined party list: suppliers + customers
+	const allParties = $derived([
+		...(parties.data ?? []).map((p: any) => ({ _id: p._id, name: p.name, type: 'supplier' as const })),
+		...(customers.data ?? []).map((c: any) => ({ _id: c._id, name: c.name, type: 'customer' as const })),
+	].sort((a, b) => a.name.localeCompare(b.name)));
 
 	let date = $state(new Date().toISOString().split('T')[0]);
 	let narration = $state('');
@@ -28,7 +36,7 @@
 	let newAccType = $state<'asset' | 'liability' | 'equity' | 'revenue' | 'expense'>('asset');
 	let creatingAcc = $state(false);
 
-	type Line = { accountCode: string; accountName: string; debit: number; credit: number };
+	type Line = { accountCode: string; accountName: string; debit: number; credit: number; partyId?: string; partyName?: string };
 	let lines = $state<Line[]>([
 		{ accountCode: '', accountName: '', debit: 0, credit: 0 },
 		{ accountCode: '', accountName: '', debit: 0, credit: 0 },
@@ -108,10 +116,18 @@
 		}
 		submitting = true;
 		try {
-			const voucherNumber = await client.mutation((api as any).functions.ledger.createJournalEntry, {
+			const voucherNumber = await client.mutation(api.functions.ledger.createJournalEntry, {
 				date,
 				narration,
-				lines: lines.filter((l) => l.accountCode && (l.debit > 0 || l.credit > 0)),
+				lines: lines
+					.filter((l) => l.accountCode && (l.debit > 0 || l.credit > 0))
+					.map((l) => ({
+						accountCode: l.accountCode,
+						accountName: l.accountName,
+						debit: l.debit,
+						credit: l.credit,
+						...(l.partyId ? { partyId: l.partyId, partyName: l.partyName } : {}),
+					})),
 			});
 			toast.success(`Journal entry created: ${voucherNumber}`);
 			goto('/ledger');
@@ -159,7 +175,7 @@
 				<table class="w-full text-sm">
 					<thead>
 						<tr class="border-b border-zinc-200 bg-zinc-50 text-left text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900">
-							<th class="px-4 py-3">Account</th>
+							<th class="px-4 py-3 w-2/5">Account / Party</th>
 							<th class="px-4 py-3 text-right">Debit</th>
 							<th class="px-4 py-3 text-right">Credit</th>
 							<th class="px-4 py-3"></th>
@@ -219,6 +235,20 @@
 									{:else}
 										<span class="text-zinc-400">Loading...</span>
 									{/if}
+									<!-- Optional party link -->
+									<EntitySelect
+										value={line.partyId ?? ''}
+										onValueChange={(val) => {
+											const p = allParties.find((x) => x._id === val)
+											lines[i] = { ...lines[i], partyId: val || undefined, partyName: p?.name }
+										}}
+										items={allParties}
+										getKey={(p) => p._id}
+										getLabel={(p) => p.name}
+										placeholder="Party (optional)"
+										entityName="Party"
+										small
+									/>
 								</td>
 								<td class="px-4 py-2">
 									<Input
