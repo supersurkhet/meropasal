@@ -139,7 +139,25 @@
 	>
 		<!-- Org Switcher (Clerk) -->
 		<div class="flex h-14 items-center border-b border-zinc-200 px-3 dark:border-zinc-800 {collapsed ? 'justify-center' : ''}">
-			<OrganizationSwitcher hidePersonal />
+			<OrganizationSwitcher
+			hidePersonal
+			appearance={{
+				variables: {
+					colorBackground: 'transparent',
+					colorText: 'var(--color-foreground)',
+					colorTextSecondary: 'var(--color-muted-foreground)',
+					colorInputBackground: 'var(--color-card)',
+					colorInputText: 'var(--color-card-foreground)',
+				},
+				elements: {
+					organizationSwitcherTrigger: 'w-full justify-between rounded-md px-2 py-1.5 text-sm font-medium text-foreground hover:bg-accent',
+					organizationPreviewTextContainer: 'text-foreground',
+					organizationPreviewMainIdentifier: 'text-foreground font-medium',
+					organizationPreviewSecondaryIdentifier: 'text-muted-foreground',
+					avatarBox: 'size-5',
+				},
+			}}
+		/>
 		</div>
 
 		<!-- Navigation -->

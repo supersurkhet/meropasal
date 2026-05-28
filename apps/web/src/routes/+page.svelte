@@ -153,19 +153,11 @@
 				<a href="#download" class="hidden rounded-md px-3 py-1.5 text-[13px] font-medium text-zinc-500 transition-colors hover:text-zinc-900 sm:block dark:text-zinc-400 dark:hover:text-zinc-100">Download</a>
 				<div class="ml-2 h-4 w-px bg-zinc-200 dark:bg-zinc-800"></div>
 				{#if ctx.user}
-					{#if ctx.organization}
-						<span class="ml-2 hidden max-w-[160px] truncate rounded-md bg-foreground px-2.5 py-1 text-[12px] font-medium text-background sm:block">
-							{ctx.organization.name}
-						</span>
-					{/if}
-					<a
-						href="/dashboard"
-						class="group relative isolate ml-2 inline-flex items-center justify-center overflow-hidden rounded-md px-2.5 text-sm font-medium text-gray-950 shadow-[0_2px_3px_-1px_color-mix(in_srgb,black_8%,transparent),0_0_0_0.5px_color-mix(in_srgb,#0d0d12_18%,transparent),inset_0_1px_0_0_color-mix(in_srgb,white_10%,transparent)] transition duration-300 ease-[cubic-bezier(0.4,0.36,0,1)] h-[1.625rem] [background:linear-gradient(180deg,rgba(19,19,22,0)_45%,rgba(19,19,22,0.03)_55%),#fff] before:transition-opacity before:duration-300 before:ease-[cubic-bezier(0.4,0.36,0,1)] dark:text-gray-50 dark:shadow-[0_2px_3px_-1px_color-mix(in_srgb,black_8%,transparent),0_0_0_0.5px_color-mix(in_srgb,#f7f7f8_10%,transparent),inset_0_1px_0_0_color-mix(in_srgb,white_10%,transparent)] dark:[background:linear-gradient(180deg,rgba(255,255,255,0.04)_45%,rgba(255,255,255,0)_55%),#42434d]"
-					>
-						<span>Dashboard</span>
+					<Button href="/dashboard" size="sm" class="group ml-2 h-8 gap-0 overflow-hidden rounded-lg px-3.5 text-[13px]">
+						Dashboard
 						<svg viewBox="0 0 10 10" aria-hidden="true" class="ml-2 h-2.5 w-2.5 flex-none opacity-60 transition duration-300 ease-[cubic-bezier(0.4,0.36,0,1)] group-hover:translate-x-6 group-hover:opacity-0"><path fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m7.25 5-3.5-2.25v4.5L7.25 5Z"></path></svg>
 						<svg viewBox="0 0 10 10" aria-hidden="true" class="-ml-2.5 h-2.5 w-2.5 flex-none -translate-x-2 opacity-0 transition duration-300 ease-[cubic-bezier(0.4,0.36,0,1)] group-hover:translate-x-0 group-hover:opacity-100"><path fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m7.25 5-3.5-2.25v4.5L7.25 5Z"></path></svg>
-					</a>
+					</Button>
 				{:else}
 					<a href="/sign-in" class="ml-2 rounded-md px-3 py-1.5 text-[13px] font-medium text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">Sign in</a>
 					<Button href="/sign-in" size="sm" class="ml-1 h-8 rounded-lg px-3.5 text-[13px]">
