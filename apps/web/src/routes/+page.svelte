@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { goto } from '$app/navigation'
-	import { onMount } from 'svelte'
 	import { MetaTags } from 'svelte-meta-tags'
 	import { Button } from '$lib/components/ui/button'
+	import { useClerkContext } from 'svelte-clerk'
 	import {
 		Store,
 		Package,
@@ -24,11 +23,7 @@
 
 	let { data } = $props()
 
-	onMount(() => {
-		if (data.user) {
-			goto('/dashboard')
-		}
-	})
+	const ctx = useClerkContext()
 
 	const RELEASE_BASE = 'https://github.com/supersurkhet/meropasal/releases/download/v0.2.0'
 
@@ -46,7 +41,7 @@
 	let detectedPlatform = $state<Platform>('unknown')
 	let showAllPlatforms = $state(false)
 
-	onMount(() => {
+	$effect(() => {
 		const ua = navigator.userAgent.toLowerCase()
 		if (ua.includes('android')) detectedPlatform = 'android'
 		else if (/iphone|ipad|ipod/.test(ua)) detectedPlatform = 'ios'
@@ -142,7 +137,6 @@
 	description="The complete retail management platform for Nepal. Inventory, invoicing, stock book, logistics, and accounting — all in one place."
 />
 
-{#if !data.user}
 <div class="min-h-screen bg-white dark:bg-zinc-950">
 
 	<!-- ─── Navigation ─── -->
@@ -158,10 +152,26 @@
 				<a href="#features" class="hidden rounded-md px-3 py-1.5 text-[13px] font-medium text-zinc-500 transition-colors hover:text-zinc-900 sm:block dark:text-zinc-400 dark:hover:text-zinc-100">Features</a>
 				<a href="#download" class="hidden rounded-md px-3 py-1.5 text-[13px] font-medium text-zinc-500 transition-colors hover:text-zinc-900 sm:block dark:text-zinc-400 dark:hover:text-zinc-100">Download</a>
 				<div class="ml-2 h-4 w-px bg-zinc-200 dark:bg-zinc-800"></div>
-				<a href="/sign-in" class="ml-2 rounded-md px-3 py-1.5 text-[13px] font-medium text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">Sign in</a>
-				<Button href="/sign-in" size="sm" class="ml-1 h-8 rounded-lg px-3.5 text-[13px]">
-					Get Started
-				</Button>
+				{#if ctx.user}
+					{#if ctx.organization}
+						<span class="ml-2 hidden max-w-[160px] truncate rounded-md bg-zinc-100 px-2.5 py-1 text-[12px] font-medium text-zinc-600 sm:block dark:bg-zinc-800 dark:text-zinc-300">
+							{ctx.organization.name}
+						</span>
+					{/if}
+					<a
+						href="/dashboard"
+						class="group relative isolate ml-2 inline-flex items-center justify-center overflow-hidden rounded-md px-2.5 text-sm font-medium text-gray-950 shadow-[0_2px_3px_-1px_color-mix(in_srgb,black_8%,transparent),0_0_0_0.5px_color-mix(in_srgb,#0d0d12_18%,transparent),inset_0_1px_0_0_color-mix(in_srgb,white_10%,transparent)] transition duration-300 ease-[cubic-bezier(0.4,0.36,0,1)] h-[1.625rem] [background:linear-gradient(180deg,rgba(19,19,22,0)_45%,rgba(19,19,22,0.03)_55%),#fff] before:transition-opacity before:duration-300 before:ease-[cubic-bezier(0.4,0.36,0,1)] dark:text-gray-50 dark:shadow-[0_2px_3px_-1px_color-mix(in_srgb,black_8%,transparent),0_0_0_0.5px_color-mix(in_srgb,#f7f7f8_10%,transparent),inset_0_1px_0_0_color-mix(in_srgb,white_10%,transparent)] dark:[background:linear-gradient(180deg,rgba(255,255,255,0.04)_45%,rgba(255,255,255,0)_55%),#42434d]"
+					>
+						<span>Dashboard</span>
+						<svg viewBox="0 0 10 10" aria-hidden="true" class="ml-2 h-2.5 w-2.5 flex-none opacity-60 transition duration-300 ease-[cubic-bezier(0.4,0.36,0,1)] group-hover:translate-x-6 group-hover:opacity-0"><path fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m7.25 5-3.5-2.25v4.5L7.25 5Z"></path></svg>
+						<svg viewBox="0 0 10 10" aria-hidden="true" class="-ml-2.5 h-2.5 w-2.5 flex-none -translate-x-2 opacity-0 transition duration-300 ease-[cubic-bezier(0.4,0.36,0,1)] group-hover:translate-x-0 group-hover:opacity-100"><path fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m7.25 5-3.5-2.25v4.5L7.25 5Z"></path></svg>
+					</a>
+				{:else}
+					<a href="/sign-in" class="ml-2 rounded-md px-3 py-1.5 text-[13px] font-medium text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">Sign in</a>
+					<Button href="/sign-in" size="sm" class="ml-1 h-8 rounded-lg px-3.5 text-[13px]">
+						Get Started
+					</Button>
+				{/if}
 			</div>
 		</div>
 	</nav>
@@ -186,10 +196,17 @@
 				</p>
 
 				<div class="mt-8 flex items-center justify-center gap-3">
-					<Button href="/sign-in" size="lg" class="h-11 rounded-xl px-6 text-sm shadow-lg shadow-zinc-900/10 dark:shadow-zinc-100/5">
-						Start Free
-						<ArrowRight class="ml-1 size-4" />
-					</Button>
+					{#if ctx.user}
+						<Button href="/dashboard" size="lg" class="h-11 rounded-xl px-6 text-sm shadow-lg shadow-zinc-900/10 dark:shadow-zinc-100/5">
+							Go to Dashboard
+							<ArrowRight class="ml-1 size-4" />
+						</Button>
+					{:else}
+						<Button href="/sign-in" size="lg" class="h-11 rounded-xl px-6 text-sm shadow-lg shadow-zinc-900/10 dark:shadow-zinc-100/5">
+							Start Free
+							<ArrowRight class="ml-1 size-4" />
+						</Button>
+					{/if}
 					<Button href="#download" variant="outline" size="lg" class="h-11 rounded-xl px-6 text-sm">
 						<Download class="mr-1 size-4" />
 						Download App
@@ -439,11 +456,11 @@
 				</p>
 				<div class="mt-7">
 					<Button
-						href="/sign-in"
+						href={ctx.user ? '/dashboard' : '/sign-in'}
 						size="lg"
 						class="h-11 rounded-xl px-7 text-sm"
 					>
-						Get Started
+						{ctx.user ? 'Go to Dashboard' : 'Get Started'}
 						<ArrowRight class="ml-1 size-4" />
 					</Button>
 				</div>
@@ -466,7 +483,7 @@
 				<nav class="flex flex-wrap items-center gap-5 text-[13px]">
 					<a href="#features" class="text-zinc-400 transition-colors hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300">Features</a>
 					<a href="#download" class="text-zinc-400 transition-colors hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300">Download</a>
-					<a href="/sign-in" class="text-zinc-400 transition-colors hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300">Sign in</a>
+					<a href={ctx.user ? '/dashboard' : '/sign-in'} class="text-zinc-400 transition-colors hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300">{ctx.user ? 'Dashboard' : 'Sign in'}</a>
 				</nav>
 			</div>
 			<div class="mt-6 border-t border-zinc-100 pt-6 text-center text-[12px] text-zinc-400 dark:border-zinc-900 dark:text-zinc-600">
@@ -475,7 +492,6 @@
 		</div>
 	</footer>
 </div>
-{/if}
 
 <style>
 	@keyframes grow {
