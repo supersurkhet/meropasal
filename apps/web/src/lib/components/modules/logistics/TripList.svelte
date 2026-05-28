@@ -10,7 +10,7 @@
 	import { Button } from '$lib/components/ui/button'
 	import { Input } from '$lib/components/ui/input'
 	import { Badge } from '$lib/components/ui/badge'
-	import * as Select from '$lib/components/ui/select'
+	import ComboSelect from '$lib/components/shared/ComboSelect.svelte'
 	import { Skeleton } from '$lib/components/ui/skeleton'
 	import {
 		Plus,
@@ -55,6 +55,7 @@
 		isLoading?: boolean
 	} = $props()
 
+	let tableContainerEl = $state<HTMLDivElement | null>(null)
 	let searchQuery = $state('')
 	let statusFilter = $state('all')
 	const viewPref = createViewPreference('trips')
@@ -95,6 +96,13 @@
 			.sort((a, b) => new Date(b.dispatchTime).getTime() - new Date(a.dispatchTime).getTime())
 	)
 
+	const statusFilterItems = $derived([
+		{ value: 'all', label: t('common_all_status') },
+		{ value: 'dispatched', label: t('status_dispatched') },
+		{ value: 'returned', label: t('status_returned') },
+		{ value: 'cancelled', label: t('status_cancelled') },
+	])
+
 	// Virtualization
 	const getLanes = useBreakpointLanes(() => viewPref.mode)
 
@@ -114,7 +122,7 @@
 
 		get(virtualizer).setOptions({
 			count: isGrid ? rowCount(items.length, l) : items.length,
-			getScrollElement: () => document.getElementById('main-content'),
+			getScrollElement: () => mode === 'table' ? tableContainerEl : document.getElementById('main-content'),
 			estimateSize: () => est,
 			overscan: 5,
 		})
@@ -133,17 +141,11 @@
 					class="h-9 border-zinc-200 bg-white pl-9 shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
 				/>
 			</div>
-			<Select.Root type="single" bind:value={statusFilter}>
-				<Select.Trigger class="w-36">
-					{statusFilter === 'all' ? t('common_all_status') : statusConfig[statusFilter as keyof typeof statusConfig]?.label || statusFilter}
-				</Select.Trigger>
-				<Select.Content>
-					<Select.Item value="all" label={t('common_all_status')}>{t('common_all_status')}</Select.Item>
-					<Select.Item value="dispatched" label={t('status_dispatched')}>{t('status_dispatched')}</Select.Item>
-					<Select.Item value="returned" label={t('status_returned')}>{t('status_returned')}</Select.Item>
-					<Select.Item value="cancelled" label={t('status_cancelled')}>{t('status_cancelled')}</Select.Item>
-				</Select.Content>
-			</Select.Root>
+			<ComboSelect
+				class="w-36"
+				items={statusFilterItems}
+				bind:value={statusFilter}
+			/>
 		</div>
 		<a href="/trips/new">
 			<Button
@@ -176,7 +178,7 @@
 		{/if}
 	{:else if viewPref.mode === 'table'}
 		<div class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-			<Table>
+			<Table bind:containerRef={tableContainerEl}>
 				<TableHeader>
 					<TableRow class="border-zinc-100 bg-zinc-50/80 hover:bg-zinc-50/80 dark:border-zinc-800 dark:bg-zinc-900/50">
 						<TableHead class="font-semibold text-zinc-600 dark:text-zinc-400">{t('trip_vehicle')}</TableHead>

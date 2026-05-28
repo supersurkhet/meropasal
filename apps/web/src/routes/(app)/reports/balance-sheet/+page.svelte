@@ -5,7 +5,7 @@
 	import { api } from '$lib/api';
 	import { formatNPR } from '$lib/currency';
 	import * as Table from '$lib/components/ui/table';
-	import * as Select from '$lib/components/ui/select';
+	import ComboSelect from '$lib/components/shared/ComboSelect.svelte';
 	import {
 		Scale,
 		ArrowLeft,
@@ -33,6 +33,8 @@
 
 	let selectedFY = $state<string | undefined>(undefined);
 	const activeFY = $derived(selectedFY ?? currentFY.data);
+
+	const fyItems = $derived(fiscalYears.map((fy) => ({ value: fy, label: `FY ${fy}` })));
 
 	const balanceSheet = useConvexQuery(
 		client,
@@ -121,18 +123,12 @@
 			</div>
 			<div class="flex items-center gap-2">
 				{#if fiscalYears.length > 0}
-					<Select.Root type="single" value={activeFY ?? ''} onValueChange={(v) => {
-						selectedFY = v || undefined;
-					}}>
-						<Select.Trigger size="sm">
-							{activeFY ? `FY ${activeFY}` : 'Select FY'}
-						</Select.Trigger>
-						<Select.Content>
-							{#each fiscalYears as fy}
-								<Select.Item value={fy}>FY {fy}</Select.Item>
-							{/each}
-						</Select.Content>
-					</Select.Root>
+					<ComboSelect
+						value={activeFY ?? ''}
+						onValueChange={(v) => { selectedFY = v || undefined; }}
+						items={fyItems}
+						size="sm"
+					/>
 				{/if}
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger>

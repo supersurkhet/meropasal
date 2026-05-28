@@ -5,7 +5,7 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Button } from '$lib/components/ui/button';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import * as Select from '$lib/components/ui/select';
+	import ComboSelect from '$lib/components/shared/ComboSelect.svelte';
 	import CurrencyInput from '$lib/components/shared/CurrencyInput.svelte';
 	import PricePerUnitInput from '$lib/components/shared/PricePerUnitInput.svelte';
 	import UnitBuilder from '$lib/components/shared/UnitBuilder.svelte';
@@ -176,6 +176,7 @@
 	}
 
 	const categories = ['general', 'food', 'beverage', 'dairy', 'snacks', 'household', 'personal', 'stationery', 'other'];
+	let categoryItems = $derived(categories.map(c => ({ value: c, label: c.charAt(0).toUpperCase() + c.slice(1) })))
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
@@ -302,18 +303,7 @@
 	{#if !inline}
 		<div class="space-y-1.5">
 			<Label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t('product_category')}</Label>
-			<Select.Root type="single" bind:value={category}>
-				<Select.Trigger class={errors.category ? 'border-red-400 ring-1 ring-red-400/30' : ''}>
-					{category || t('product_select_category')}
-				</Select.Trigger>
-				<Select.Content>
-					{#each categories as cat}
-						<Select.Item value={cat} label={cat}>
-							<span class="capitalize">{cat}</span>
-						</Select.Item>
-					{/each}
-				</Select.Content>
-			</Select.Root>
+			<ComboSelect bind:value={category} items={categoryItems} class={errors.category ? 'border-red-400 ring-1 ring-red-400/30' : ''} />
 			{#if errors.category}
 				<p class="text-xs text-red-500 mt-1">{errors.category}</p>
 			{/if}

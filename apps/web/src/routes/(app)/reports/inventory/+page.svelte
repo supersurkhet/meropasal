@@ -6,7 +6,7 @@
 	import { formatNPR } from '$lib/currency';
 	import { t } from '$lib/t.svelte';
 	import * as Table from '$lib/components/ui/table';
-	import * as Select from '$lib/components/ui/select';
+	import ComboSelect from '$lib/components/shared/ComboSelect.svelte';
 	import {
 		Package,
 		AlertTriangle,
@@ -99,6 +99,11 @@
 	});
 
 	let categoryFilter = $state<string>('');
+
+	const categoryItems = $derived([
+		{ value: 'all', label: 'All Categories' },
+		...categories.map((c) => ({ value: c, label: c })),
+	]);
 
 	const isLoading = $derived(products.isLoading || stockAgg.isLoading);
 
@@ -227,22 +232,17 @@
 			/>
 		</div>
 		{#if categories.length > 0}
-			<Select.Root type="single" value={categoryFilter || 'all'} onValueChange={(v) => {
-				categoryFilter = v === 'all' ? '' : v;
-				if (categoryFilter) {
-					searchQuery = categoryFilter;
-				}
-			}}>
-				<Select.Trigger size="sm">
-					{categoryFilter || 'All Categories'}
-				</Select.Trigger>
-				<Select.Content>
-					<Select.Item value="all">All Categories</Select.Item>
-					{#each categories as cat}
-						<Select.Item value={cat}>{cat}</Select.Item>
-					{/each}
-				</Select.Content>
-			</Select.Root>
+			<ComboSelect
+				value={categoryFilter || 'all'}
+				onValueChange={(v) => {
+					categoryFilter = v === 'all' ? '' : v;
+					if (categoryFilter) {
+						searchQuery = categoryFilter;
+					}
+				}}
+				items={categoryItems}
+				size="sm"
+			/>
 		{/if}
 		<label class="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
 			<Checkbox bind:checked={showLowStockOnly} />

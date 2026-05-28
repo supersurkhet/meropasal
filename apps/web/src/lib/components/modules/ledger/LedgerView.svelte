@@ -4,7 +4,7 @@
 	import { api } from '$lib/api';
 	import { formatNPR } from '$lib/currency';
 	import * as Table from '$lib/components/ui/table';
-	import * as Select from '$lib/components/ui/select';
+	import ComboSelect from '$lib/components/shared/ComboSelect.svelte';
 	import { Filter, BookText, Download } from '@lucide/svelte';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { t } from '$lib/t.svelte';
@@ -61,6 +61,16 @@
 		return years;
 	});
 
+	const accountFilterItems = $derived([
+		{ value: 'all', label: t('common_all_accounts') },
+		...((accounts.data ?? []).map((a: any) => ({ value: a.code, label: `${a.code} — ${a.name}` }))),
+	]);
+
+	const fiscalYearFilterItems = $derived([
+		{ value: 'all', label: t('common_all_fiscal_years') },
+		...(fiscalYears?.map((fy) => ({ value: fy, label: fy })) ?? []),
+	]);
+
 	function voucherBadgeClass(type: string) {
 		switch (type) {
 			case 'sales': return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400';
@@ -105,30 +115,19 @@
 	<div class="flex flex-wrap items-center gap-3">
 		<Filter class="size-4 text-zinc-500" />
 
-		<Select.Root type="single" value={accountFilter ?? 'all'} onValueChange={(v) => { accountFilter = v === 'all' ? undefined : v; }}>
-			<Select.Trigger size="sm">
-				{accountFilter ? `${accountFilter} — ${(accounts.data ?? []).find((a: any) => a.code === accountFilter)?.name ?? ''}` : t('common_all_accounts')}
-			</Select.Trigger>
-			<Select.Content>
-				<Select.Item value="all">{t('common_all_accounts')}</Select.Item>
-				{#each (accounts.data ?? []) as account}
-					{@const acc = account as any}
-					<Select.Item value={acc.code}>{acc.code} — {acc.name}</Select.Item>
-				{/each}
-			</Select.Content>
-		</Select.Root>
+		<ComboSelect
+			size="sm"
+			items={accountFilterItems}
+			value={accountFilter ?? 'all'}
+			onValueChange={(v) => { accountFilter = v === 'all' ? undefined : v; }}
+		/>
 
-		<Select.Root type="single" value={fiscalYearFilter ?? 'all'} onValueChange={(v) => { fiscalYearFilter = v === 'all' ? undefined : v; }}>
-			<Select.Trigger size="sm">
-				{fiscalYearFilter ?? t('common_all_fiscal_years')}
-			</Select.Trigger>
-			<Select.Content>
-				<Select.Item value="all">{t('common_all_fiscal_years')}</Select.Item>
-				{#each fiscalYears as fy}
-					<Select.Item value={fy}>{fy}</Select.Item>
-				{/each}
-			</Select.Content>
-		</Select.Root>
+		<ComboSelect
+			size="sm"
+			items={fiscalYearFilterItems}
+			value={fiscalYearFilter ?? 'all'}
+			onValueChange={(v) => { fiscalYearFilter = v === 'all' ? undefined : v; }}
+		/>
 
 		<div class="flex items-center gap-1.5">
 			<DatePicker

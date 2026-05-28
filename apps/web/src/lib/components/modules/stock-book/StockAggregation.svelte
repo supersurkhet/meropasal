@@ -5,7 +5,7 @@
 	import { api } from '$lib/api';
 	import { formatNumber } from '$lib/currency';
 	import * as Table from '$lib/components/ui/table';
-	import * as Select from '$lib/components/ui/select';
+	import ComboSelect from '$lib/components/shared/ComboSelect.svelte';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { ChevronDown, ChevronRight, Package, Filter } from '@lucide/svelte';
 	import { t } from '$lib/t.svelte';
@@ -15,6 +15,7 @@
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 
+	let tableContainerEl = $state<HTMLDivElement | null>(null)
 	let fiscalYearFilter = $state<string | undefined>(undefined);
 	let expandedProducts = $state<Set<string>>(new Set());
 	const skeletons = createStaggeredSkeletons();
@@ -81,7 +82,7 @@
 		const items = aggregatedProducts;
 		get(virtualizer).setOptions({
 			count: items.length,
-			getScrollElement: () => document.getElementById('main-content'),
+			getScrollElement: () => tableContainerEl,
 			estimateSize: () => 49,
 			overscan: 5,
 		});
@@ -96,6 +97,11 @@
 		}
 		expandedProducts = next;
 	}
+
+	const fiscalYearFilterItems = $derived([
+		{ value: 'all', label: t('common_all_fiscal_years') },
+		...(fiscalYears?.map((fy) => ({ value: fy, label: fy })) ?? []),
+	]);
 
 	function stockColorClass(total: number, reorder: number) {
 		if (reorder <= 0) return 'text-zinc-900 dark:text-zinc-100';
@@ -117,17 +123,12 @@
 <div class="space-y-4">
 	<div class="flex flex-wrap items-center gap-3">
 		<Filter class="size-4 text-zinc-500" />
-		<Select.Root type="single" value={fiscalYearFilter ?? 'all'} onValueChange={(v) => { fiscalYearFilter = v === 'all' ? undefined : v; }}>
-			<Select.Trigger size="sm">
-				{fiscalYearFilter ?? t('common_all_fiscal_years')}
-			</Select.Trigger>
-			<Select.Content>
-				<Select.Item value="all">{t('common_all_fiscal_years')}</Select.Item>
-				{#each fiscalYears as fy}
-					<Select.Item value={fy}>{fy}</Select.Item>
-				{/each}
-			</Select.Content>
-		</Select.Root>
+		<ComboSelect
+			size="sm"
+			items={fiscalYearFilterItems}
+			value={fiscalYearFilter ?? 'all'}
+			onValueChange={(v) => { fiscalYearFilter = v === 'all' ? undefined : v; }}
+		/>
 	</div>
 
 	{#if !(aggregation.isLoading || products.isLoading) && !aggregatedProducts.length}
@@ -138,7 +139,7 @@
 		/>
 	{:else}
 		<div class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-			<Table.Root>
+			<Table.Root bind:containerRef={tableContainerEl}>
 				<Table.Header>
 					<Table.Row class="bg-zinc-50 dark:bg-zinc-900/50">
 						<Table.Head class="w-8"></Table.Head>

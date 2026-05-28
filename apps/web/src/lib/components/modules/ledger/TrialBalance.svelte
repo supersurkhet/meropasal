@@ -4,7 +4,7 @@
 	import { api } from '$lib/api';
 	import { formatNPR } from '$lib/currency';
 	import * as Table from '$lib/components/ui/table';
-	import * as Select from '$lib/components/ui/select';
+	import ComboSelect from '$lib/components/shared/ComboSelect.svelte';
 	import { Filter, Scale, Download } from '@lucide/svelte';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { t } from '$lib/t.svelte';
@@ -38,6 +38,11 @@
 		}
 		return years;
 	});
+
+	const fiscalYearItems = $derived([
+		{ value: 'current', label: `${t('ledger_current_fy')} (${currentFY.data ?? '...'})` },
+		...(fiscalYears?.map((fy) => ({ value: fy, label: fy })) ?? []),
+	]);
 
 	const totals = $derived.by(() => {
 		if (!trialBalance.data) return { debit: 0, credit: 0 };
@@ -77,17 +82,12 @@
 <div class="space-y-4">
 	<div class="flex flex-wrap items-center gap-3">
 		<Filter class="size-4 text-zinc-500" />
-		<Select.Root type="single" value={selectedFY || 'current'} onValueChange={(v) => { selectedFY = v === 'current' ? '' : v; }}>
-			<Select.Trigger size="sm">
-				{selectedFY || `${t('ledger_current_fy')} (${currentFY.data ?? '...'})`}
-			</Select.Trigger>
-			<Select.Content>
-				<Select.Item value="current">{t('ledger_current_fy')} ({currentFY.data ?? '...'})</Select.Item>
-				{#each fiscalYears as fy}
-					<Select.Item value={fy}>{fy}</Select.Item>
-				{/each}
-			</Select.Content>
-		</Select.Root>
+		<ComboSelect
+			size="sm"
+			items={fiscalYearItems}
+			value={selectedFY || 'current'}
+			onValueChange={(v) => { selectedFY = v === 'current' ? '' : v; }}
+		/>
 
 		{#if trialBalance.data}
 			<div class="ml-auto flex items-center gap-2">

@@ -75,11 +75,15 @@
 
 	let filteredProducts = $derived(
 		searchTerm
-			? products.filter((p) =>
-					p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-					(p.category && p.category.toLowerCase().includes(searchTerm.toLowerCase())) ||
-					(p.sku && p.sku.toLowerCase().includes(searchTerm.toLowerCase()))
-				)
+			? products.filter((p) => {
+					const q = searchTerm.toLowerCase()
+					return (
+						p.title.toLowerCase().includes(q) ||
+						(p.category && p.category.toLowerCase().includes(q)) ||
+						(p.sku && p.sku.toLowerCase().includes(q)) ||
+						getPartyName(p.purchasePartyId).toLowerCase().includes(q)
+					)
+				})
 			: products,
 	)
 
@@ -102,11 +106,13 @@
 
 		get(virtualizer).setOptions({
 			count: isGrid ? rowCount(items.length, l) : items.length,
-			getScrollElement: () => document.getElementById('main-content'),
+			getScrollElement: () => (!isGrid && mode !== 'list') ? tableContainerEl : document.getElementById('main-content'),
 			estimateSize: () => est,
 			overscan: 5,
 		})
 	})
+
+	let tableContainerEl = $state<HTMLDivElement | null>(null)
 
 	let confirmDeleteId = $state<string | null>(null)
 	let confirmOpen = $state(false)
@@ -438,7 +444,7 @@
 			{/if}
 		{:else}
 			<div class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-				<Table.Root>
+				<Table.Root bind:containerRef={tableContainerEl}>
 					<Table.Header>
 						<Table.Row class="border-zinc-100 bg-zinc-50/80 hover:bg-zinc-50/80 dark:border-zinc-800 dark:bg-zinc-900/50">
 							<Table.Head class="font-semibold text-zinc-600 dark:text-zinc-400">{t('product_name')}</Table.Head>

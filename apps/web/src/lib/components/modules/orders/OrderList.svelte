@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as Table from '$lib/components/ui/table'
-	import * as Select from '$lib/components/ui/select'
+	import ComboSelect from '$lib/components/shared/ComboSelect.svelte'
 	import { Button } from '$lib/components/ui/button'
 	import { Skeleton } from '$lib/components/ui/skeleton'
 	import { ClipboardList, Plus } from '@lucide/svelte'
@@ -35,6 +35,7 @@
 		return () => breadcrumbViewToggle.clear()
 	})
 
+	let tableContainerEl = $state<HTMLDivElement | null>(null)
 	let orders = $state<Order[]>([])
 	let customerNames = $state<Record<string, string>>({})
 	let statusFilter = $state('all')
@@ -126,6 +127,13 @@
 		}
 	})
 
+	const statusFilterItems = $derived([
+		{ value: 'all', label: t('common_all_orders') },
+		{ value: 'pending', label: t('status_pending') },
+		{ value: 'done', label: t('status_done') },
+		{ value: 'cancelled', label: t('status_cancelled') },
+	])
+
 	// Virtualization
 	const getLanes = useBreakpointLanes(() => viewPref.mode)
 
@@ -145,7 +153,10 @@
 
 		get(virtualizer).setOptions({
 			count: isGrid ? rowCount(items.length, l) : items.length,
-			getScrollElement: () => document.getElementById('main-content'),
+			getScrollElement: () => {
+				const isTable = mode === 'table'
+				return isTable ? tableContainerEl : document.getElementById('main-content')
+			},
 			estimateSize: () => est,
 			overscan: 5,
 		})
@@ -156,17 +167,11 @@
 <div class="space-y-4">
 <!-- Toolbar -->
 <div class="flex items-center justify-between gap-3">
-	<Select.Root type="single" bind:value={statusFilter}>
-		<Select.Trigger class="h-9 w-44 text-sm border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
-			{statusFilter === 'all' ? t('common_all_orders') : statusFilter === 'pending' ? t('status_pending') : statusFilter === 'done' ? t('status_done') : t('status_cancelled')}
-		</Select.Trigger>
-		<Select.Content>
-			<Select.Item value="all">{t('common_all_orders')}</Select.Item>
-			<Select.Item value="pending">{t('status_pending')}</Select.Item>
-			<Select.Item value="done">{t('status_done')}</Select.Item>
-			<Select.Item value="cancelled">{t('status_cancelled')}</Select.Item>
-		</Select.Content>
-	</Select.Root>
+	<ComboSelect
+		class="h-9 w-44 text-sm border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
+		items={statusFilterItems}
+		bind:value={statusFilter}
+	/>
 	<div class="flex items-center gap-2">
 		<a href="/orders/new">
 			<Button
@@ -200,7 +205,7 @@
 {:else}
 	{#if viewPref.mode === 'table'}
 		<div class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-			<Table.Root>
+			<Table.Root bind:containerRef={tableContainerEl}>
 				<Table.Header>
 					<Table.Row class="border-zinc-100 bg-zinc-50/80 hover:bg-zinc-50/80 dark:border-zinc-800 dark:bg-zinc-900/50">
 						<Table.Head class="font-semibold text-zinc-600 dark:text-zinc-400">{t('common_date')}</Table.Head>

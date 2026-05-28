@@ -7,7 +7,7 @@
 	import { formatDate } from '$lib/date-utils'
 	import * as Table from '$lib/components/ui/table'
 	import * as Popover from '$lib/components/ui/popover'
-	import * as Select from '$lib/components/ui/select'
+	import ComboSelect from '$lib/components/shared/ComboSelect.svelte'
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu'
 	import { t } from '$lib/t.svelte'
 	import { Button } from '$lib/components/ui/button'
@@ -38,6 +38,14 @@
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL)
 
 	let period = $state('fy')
+
+	const periodItems = $derived([
+		{ value: 'fy', label: t('dashboard_period_fy') },
+		{ value: 'all', label: t('dashboard_period_all') },
+		{ value: 'month', label: t('dashboard_period_month') },
+		{ value: 'quarter', label: t('dashboard_period_quarter') },
+		{ value: 'year', label: t('dashboard_period_year') },
+	])
 
 	const currentFY = useConvexQuery(client, api.functions.fiscalYear.current, () => ({}))
 
@@ -215,18 +223,11 @@
 
 			<div class="flex items-center gap-2">
 				<!-- Period Selector -->
-				<Select.Root type="single" bind:value={period}>
-					<Select.Trigger class="h-9 w-36 text-sm border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
-						{period === 'all' ? t('dashboard_period_all') : period === 'month' ? t('dashboard_period_month') : period === 'quarter' ? t('dashboard_period_quarter') : period === 'year' ? t('dashboard_period_year') : t('dashboard_period_fy')}
-					</Select.Trigger>
-					<Select.Content>
-						<Select.Item value="fy">{t('dashboard_period_fy')}</Select.Item>
-						<Select.Item value="all">{t('dashboard_period_all')}</Select.Item>
-						<Select.Item value="month">{t('dashboard_period_month')}</Select.Item>
-						<Select.Item value="quarter">{t('dashboard_period_quarter')}</Select.Item>
-						<Select.Item value="year">{t('dashboard_period_year')}</Select.Item>
-					</Select.Content>
-				</Select.Root>
+				<ComboSelect
+					bind:value={period}
+					items={periodItems}
+					class="h-9 w-36 text-sm border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
+				/>
 
 				<!-- Export Dropdown -->
 				<DropdownMenu.Root>

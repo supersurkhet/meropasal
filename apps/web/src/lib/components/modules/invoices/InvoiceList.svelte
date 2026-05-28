@@ -4,7 +4,7 @@
 	import { api } from '$lib/api'
 	import { formatNPR } from '$lib/currency'
 	import * as Table from '$lib/components/ui/table'
-	import * as Select from '$lib/components/ui/select'
+	import ComboSelect from '$lib/components/shared/ComboSelect.svelte'
 	import { Skeleton } from '$lib/components/ui/skeleton'
 	import { FileText, Filter, Wallet, Plus } from '@lucide/svelte'
 	import { Button } from '$lib/components/ui/button'
@@ -58,6 +58,7 @@
 	const myPerms = useConvexQuery(client, api.functions.organizations.getMyPermissions, () => ({}))
 
 	let payInvoiceFor = $state<string | null>(null)
+	let tableContainerEl = $state<HTMLDivElement | null>(null)
 
 	function typeBadgeVariant(type: string) {
 		return type === 'purchase' ? 'secondary' : 'default'
@@ -102,6 +103,25 @@
 		return years
 	})
 
+	const typeFilterItems = $derived([
+		{ value: 'all', label: t('common_all_types') },
+		{ value: 'purchase', label: t('invoice_type_purchase') },
+		{ value: 'sale', label: t('invoice_type_sale') },
+	])
+
+	const fiscalYearFilterItems = $derived([
+		{ value: 'all', label: t('common_all_fiscal_years') },
+		...(fiscalYears?.map((fy) => ({ value: fy, label: fy })) ?? []),
+	])
+
+	const paymentStatusFilterItems = $derived([
+		{ value: 'all', label: t('common_all_statuses') },
+		{ value: 'pending', label: t('status_pending') },
+		{ value: 'partial', label: t('status_partial') },
+		{ value: 'paid', label: t('status_paid') },
+		{ value: 'overpaid', label: t('status_overpaid') },
+	])
+
 	type InvoiceDoc = NonNullable<typeof invoices.data>[number]
 	const filteredInvoices = $derived((invoices.data ?? []) as InvoiceDoc[])
 
@@ -129,7 +149,7 @@
 
 		get(virtualizer).setOptions({
 			count: isGrid ? rowCount(items.length, l) : items.length,
-			getScrollElement: () => document.getElementById('main-content'),
+			getScrollElement: () => (!isGrid && mode !== 'list') ? tableContainerEl : document.getElementById('main-content'),
 			estimateSize: () => est,
 			overscan: 5,
 		})
@@ -143,41 +163,26 @@
 			<span class="text-sm font-medium text-zinc-600 dark:text-zinc-400">{t('common_filters')}</span>
 		</div>
 
-		<Select.Root type="single" value={typeFilter ?? 'all'} onValueChange={(v) => { typeFilter = v === 'all' ? undefined : v as InvoiceType }}>
-			<Select.Trigger size="sm">
-				{typeFilter ? (typeFilter === 'purchase' ? t('invoice_type_purchase') : t('invoice_type_sale')) : t('common_all_types')}
-			</Select.Trigger>
-			<Select.Content>
-				<Select.Item value="all">{t('common_all_types')}</Select.Item>
-				<Select.Item value="purchase">{t('invoice_type_purchase')}</Select.Item>
-				<Select.Item value="sale">{t('invoice_type_sale')}</Select.Item>
-			</Select.Content>
-		</Select.Root>
+		<ComboSelect
+			size="sm"
+			items={typeFilterItems}
+			value={typeFilter ?? 'all'}
+			onValueChange={(v) => { typeFilter = v === 'all' ? undefined : v as InvoiceType }}
+		/>
 
-		<Select.Root type="single" value={fiscalYearFilter ?? 'all'} onValueChange={(v) => { fiscalYearFilter = v === 'all' ? undefined : v }}>
-			<Select.Trigger size="sm">
-				{fiscalYearFilter ?? t('common_all_fiscal_years')}
-			</Select.Trigger>
-			<Select.Content>
-				<Select.Item value="all">{t('common_all_fiscal_years')}</Select.Item>
-				{#each fiscalYears as fy}
-					<Select.Item value={fy}>{fy}</Select.Item>
-				{/each}
-			</Select.Content>
-		</Select.Root>
+		<ComboSelect
+			size="sm"
+			items={fiscalYearFilterItems}
+			value={fiscalYearFilter ?? 'all'}
+			onValueChange={(v) => { fiscalYearFilter = v === 'all' ? undefined : v }}
+		/>
 
-		<Select.Root type="single" value={paymentStatusFilter ?? 'all'} onValueChange={(v) => { paymentStatusFilter = v === 'all' ? undefined : v as PaymentStatusFilter }}>
-			<Select.Trigger size="sm">
-				{paymentStatusFilter ? t(`status_${paymentStatusFilter}`) : t('common_all_statuses')}
-			</Select.Trigger>
-			<Select.Content>
-				<Select.Item value="all">{t('common_all_statuses')}</Select.Item>
-				<Select.Item value="pending">{t('status_pending')}</Select.Item>
-				<Select.Item value="partial">{t('status_partial')}</Select.Item>
-				<Select.Item value="paid">{t('status_paid')}</Select.Item>
-				<Select.Item value="overpaid">{t('status_overpaid')}</Select.Item>
-			</Select.Content>
-		</Select.Root>
+		<ComboSelect
+			size="sm"
+			items={paymentStatusFilterItems}
+			value={paymentStatusFilter ?? 'all'}
+			onValueChange={(v) => { paymentStatusFilter = v === 'all' ? undefined : v as PaymentStatusFilter }}
+		/>
 		<div class="ml-auto flex items-center gap-2">
 			<Button href="/invoices/purchase/new" size="sm" variant="outline">
 				<Plus class="mr-1.5 size-3.5" />
@@ -468,7 +473,7 @@
 			{/if}
 		{:else}
 			<div class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-				<Table.Root>
+				<Table.Root bind:containerRef={tableContainerEl}>
 					<Table.Header>
 						<Table.Row class="bg-zinc-50 dark:bg-zinc-900/50">
 							<Table.Head class="font-semibold">{t('invoice_number')}</Table.Head>

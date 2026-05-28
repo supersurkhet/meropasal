@@ -1,5 +1,5 @@
 <script lang="ts">
-	import * as Select from '$lib/components/ui/select'
+	import ComboSelect from '$lib/components/shared/ComboSelect.svelte'
 	import { Input } from '$lib/components/ui/input'
 	import { parseUnit } from '$lib/unit-price'
 
@@ -47,6 +47,8 @@
 		updateValue()
 	}
 
+	let unitItems = $derived(baseUnits.map(u => ({ value: u, label: u.charAt(0).toUpperCase() + u.slice(1) })))
+
 	function onPiecesChange(e: Event) {
 		const val = parseInt((e.target as HTMLInputElement).value)
 		if (Number.isFinite(val) && val > 0) {
@@ -57,18 +59,7 @@
 </script>
 
 <div class="flex items-center gap-2">
-	<Select.Root type="single" value={baseUnit} onValueChange={onBaseUnitChange}>
-		<Select.Trigger class="w-28">
-			<span class="capitalize">{baseUnit}</span>
-		</Select.Trigger>
-		<Select.Content>
-			{#each baseUnits as unit}
-				<Select.Item value={unit} label={unit}>
-					<span class="capitalize">{unit}</span>
-				</Select.Item>
-			{/each}
-		</Select.Content>
-	</Select.Root>
+	<ComboSelect value={baseUnit} onValueChange={onBaseUnitChange} items={unitItems} class="w-28" />
 
 	{#if isCompound}
 		<div class="flex items-center gap-1.5">

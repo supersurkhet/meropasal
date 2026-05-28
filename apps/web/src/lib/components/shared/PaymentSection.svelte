@@ -3,7 +3,7 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
-	import * as Select from '$lib/components/ui/select';
+	import ComboSelect from '$lib/components/shared/ComboSelect.svelte';
 	import { Plus, Trash2 } from '@lucide/svelte';
 	import DatePicker from '$lib/components/shared/DatePicker.svelte';
 	import { computePaymentStatus, computePaidAmount, type PaymentStatus } from '$lib/payment-status';
@@ -36,6 +36,8 @@
 		{ value: 'online', label: () => t('payment_method_online') },
 		{ value: 'check', label: () => t('payment_method_check') },
 	] as const;
+
+	let paymentMethodItems = $derived(PAYMENT_METHODS.map(m => ({ value: m.value, label: m.label() })))
 
 	let paidAmount = $derived(
 		payments.reduce((sum, p) => {
@@ -139,16 +141,7 @@
 						disabled={readonly}
 						class="h-8 text-sm font-mono border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900"
 					/>
-					<Select.Root type="single" bind:value={payment.paymentMethod}>
-						<Select.Trigger class="h-8 text-sm border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900" disabled={readonly}>
-							{PAYMENT_METHODS.find((m) => m.value === payment.paymentMethod)?.label() ?? payment.paymentMethod}
-						</Select.Trigger>
-						<Select.Content>
-							{#each PAYMENT_METHODS as method}
-								<Select.Item value={method.value}>{method.label()}</Select.Item>
-							{/each}
-						</Select.Content>
-					</Select.Root>
+					<ComboSelect bind:value={payment.paymentMethod} items={paymentMethodItems} size="sm" disabled={readonly} class="border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900" />
 					{#if needsVoucher(payment.paymentMethod)}
 						{@const voucherError = errors[`payments.${i}.bankVoucherNumber`]}
 						<div>

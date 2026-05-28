@@ -5,7 +5,7 @@
 	import { api } from '$lib/api';
 	import { formatNPR, formatNumber } from '$lib/currency';
 	import * as Table from '$lib/components/ui/table';
-	import * as Select from '$lib/components/ui/select';
+	import ComboSelect from '$lib/components/shared/ComboSelect.svelte';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { ArrowDownToLine, ArrowUpFromLine, Filter, BookOpen } from '@lucide/svelte';
 	import { t } from '$lib/t.svelte';
@@ -16,6 +16,7 @@
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 
+	let tableContainerEl = $state<HTMLDivElement | null>(null)
 	let fiscalYearFilter = $state<string | undefined>(undefined);
 	let productFilter = $state<string | undefined>(undefined);
 	let movementTypeFilter = $state<string | undefined>(undefined);
@@ -70,7 +71,7 @@
 		const items = filteredEntries;
 		get(virtualizer).setOptions({
 			count: items.length,
-			getScrollElement: () => document.getElementById('main-content'),
+			getScrollElement: () => tableContainerEl,
 			estimateSize: () => 49,
 			overscan: 5,
 		});
@@ -91,6 +92,21 @@
 		tripReturn: () => t('stock_book_movement_return'),
 		adjustment: () => t('stock_book_movement_adjustment'),
 	};
+
+	const productFilterItems = $derived([
+		{ value: 'all', label: t('common_all_products') },
+		...((products.data ?? []).map((p: any) => ({ value: p._id, label: p.title }))),
+	]);
+
+	const movementTypeFilterItems = $derived([
+		{ value: 'all', label: t('common_all_movement_types') },
+		...movementTypes.map((mt) => ({ value: mt, label: movementTypeLabels[mt]?.() ?? mt })),
+	]);
+
+	const fiscalYearFilterItems = $derived([
+		{ value: 'all', label: t('common_all_fiscal_years') },
+		...(fiscalYears?.map((fy) => ({ value: fy, label: fy })) ?? []),
+	]);
 
 	function movementBadgeClass(type: string) {
 		switch (type) {
@@ -113,41 +129,26 @@
 	<div class="flex flex-wrap items-center gap-3">
 		<Filter class="size-4 text-zinc-500" />
 
-		<Select.Root type="single" value={productFilter ?? 'all'} onValueChange={(v) => { productFilter = v === 'all' ? undefined : v; }}>
-			<Select.Trigger size="sm">
-				{productFilter ? (products.data ?? []).find((p: any) => p._id === productFilter)?.title ?? productFilter : t('common_all_products')}
-			</Select.Trigger>
-			<Select.Content>
-				<Select.Item value="all">{t('common_all_products')}</Select.Item>
-				{#each products.data ?? [] as product}
-					<Select.Item value={(product as any)._id}>{(product as any).title}</Select.Item>
-				{/each}
-			</Select.Content>
-		</Select.Root>
+		<ComboSelect
+			size="sm"
+			items={productFilterItems}
+			value={productFilter ?? 'all'}
+			onValueChange={(v) => { productFilter = v === 'all' ? undefined : v; }}
+		/>
 
-		<Select.Root type="single" value={movementTypeFilter ?? 'all'} onValueChange={(v) => { movementTypeFilter = v === 'all' ? undefined : v; }}>
-			<Select.Trigger size="sm">
-				{movementTypeFilter ? movementTypeLabels[movementTypeFilter]?.() ?? movementTypeFilter : t('common_all_movement_types')}
-			</Select.Trigger>
-			<Select.Content>
-				<Select.Item value="all">{t('common_all_movement_types')}</Select.Item>
-				{#each movementTypes as mt}
-					<Select.Item value={mt}>{movementTypeLabels[mt]?.() ?? mt}</Select.Item>
-				{/each}
-			</Select.Content>
-		</Select.Root>
+		<ComboSelect
+			size="sm"
+			items={movementTypeFilterItems}
+			value={movementTypeFilter ?? 'all'}
+			onValueChange={(v) => { movementTypeFilter = v === 'all' ? undefined : v; }}
+		/>
 
-		<Select.Root type="single" value={fiscalYearFilter ?? 'all'} onValueChange={(v) => { fiscalYearFilter = v === 'all' ? undefined : v; }}>
-			<Select.Trigger size="sm">
-				{fiscalYearFilter ?? t('common_all_fiscal_years')}
-			</Select.Trigger>
-			<Select.Content>
-				<Select.Item value="all">{t('common_all_fiscal_years')}</Select.Item>
-				{#each fiscalYears as fy}
-					<Select.Item value={fy}>{fy}</Select.Item>
-				{/each}
-			</Select.Content>
-		</Select.Root>
+		<ComboSelect
+			size="sm"
+			items={fiscalYearFilterItems}
+			value={fiscalYearFilter ?? 'all'}
+			onValueChange={(v) => { fiscalYearFilter = v === 'all' ? undefined : v; }}
+		/>
 	</div>
 
 	{#if !entries.isLoading && !filteredEntries.length}
@@ -158,7 +159,7 @@
 		/>
 	{:else}
 		<div class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-			<Table.Root>
+			<Table.Root bind:containerRef={tableContainerEl}>
 				<Table.Header>
 					<Table.Row class="bg-zinc-50 dark:bg-zinc-900/50">
 						<Table.Head class="font-semibold">{t('common_date')}</Table.Head>

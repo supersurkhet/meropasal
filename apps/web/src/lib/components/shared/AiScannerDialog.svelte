@@ -40,7 +40,7 @@
 	import PartyForm from '$lib/components/modules/parties/PartyForm.svelte'
 	import UnitBuilder from '$lib/components/shared/UnitBuilder.svelte'
 	import PricePerUnitInput from '$lib/components/shared/PricePerUnitInput.svelte'
-	import * as Select from '$lib/components/ui/select'
+	import ComboSelect from '$lib/components/shared/ComboSelect.svelte'
 	import { partySchema } from '$lib/schemas/party'
 	import { productSchema } from '$lib/schemas/product'
 	import { customerSchema } from '$lib/schemas/customer'
@@ -104,6 +104,7 @@
 	let extractionSessionId = $state(0)
 
 	const categories = ['general', 'food', 'beverage', 'dairy', 'snacks', 'household', 'personal', 'stationery', 'other']
+	const categoryItems = categories.map(c => ({ value: c, label: c.charAt(0).toUpperCase() + c.slice(1) }))
 
 	// ── Existing entities for lookup/dedup ──────────────────
 	type Party = { _id: string; name: string; panNumber?: string; address?: string; phone?: string; creditLimit?: number; paymentTerms?: string; notes?: string }
@@ -1861,18 +1862,7 @@
 													</div>
 													<div class="space-y-1">
 														<label class="text-[11px] font-medium text-muted-foreground">Category</label>
-														<Select.Root type="single" bind:value={product.category}>
-															<Select.Trigger class="h-8 text-sm">
-																{product.category ? product.category : 'Select...'}
-															</Select.Trigger>
-															<Select.Content>
-																{#each categories as cat}
-																	<Select.Item value={cat} label={cat}>
-																		<span class="capitalize">{cat}</span>
-																	</Select.Item>
-																{/each}
-															</Select.Content>
-														</Select.Root>
+														<ComboSelect bind:value={product.category} items={categoryItems} />
 													</div>
 												</div>
 												{#each Object.keys(scanFieldErrors).filter((k) => k.startsWith(`product-${i}-`)) as errKey}
