@@ -1,6 +1,6 @@
 import { query, mutation } from "../_generated/server";
 import { v } from "convex/values";
-import { getOrg } from "../lib/orgGuard";
+import { getOrg, requireOrg } from "../lib/orgGuard";
 
 const layoutValidator = v.object({
   headerFields: v.array(v.string()),

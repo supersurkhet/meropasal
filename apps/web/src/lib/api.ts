@@ -34,6 +34,7 @@ export const api = {
 			createEntry: makeFunctionReference<'mutation'>('functions/ledger:createEntry'),
 			createDoubleEntry: makeFunctionReference<'mutation'>('functions/ledger:createDoubleEntry'),
 			createJournalEntry: makeFunctionReference<'mutation'>('functions/ledger:createJournalEntry'),
+			createPartyEntries: makeFunctionReference<'mutation'>('functions/ledger:createPartyEntries'),
 			trialBalance: makeFunctionReference<'query'>('functions/ledger:trialBalance'),
 		},
 		organizations: {
@@ -107,6 +108,12 @@ export const api = {
 			create: makeFunctionReference<'mutation'>('functions/parties:create'),
 			update: makeFunctionReference<'mutation'>('functions/parties:update'),
 			remove: makeFunctionReference<'mutation'>('functions/parties:remove'),
+		},
+		partyBankAccounts: {
+			listByParty: makeFunctionReference<'query'>('functions/partyBankAccounts:listByParty'),
+			create: makeFunctionReference<'mutation'>('functions/partyBankAccounts:create'),
+			update: makeFunctionReference<'mutation'>('functions/partyBankAccounts:update'),
+			remove: makeFunctionReference<'mutation'>('functions/partyBankAccounts:remove'),
 		},
 		customers: {
 			list: makeFunctionReference<'query'>('functions/customers:list'),

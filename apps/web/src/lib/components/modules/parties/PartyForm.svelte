@@ -3,12 +3,19 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Button } from '$lib/components/ui/button';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { Loader2, Save } from '@lucide/svelte';
+	import { Loader2, Save, Building2, ChevronDown } from '@lucide/svelte';
 	import StickyActions from '$lib/components/shared/StickyActions.svelte';
 	import { toast } from 'svelte-sonner';
 	import { partySchema } from '$lib/schemas/party';
 	import { extractErrors } from '$lib/schemas/shared';
 	import { t } from '$lib/t.svelte';
+
+	type BankAccount = {
+		bankName: string
+		accountNumber: string
+		accountHolderName: string
+		branch?: string
+	}
 
 	type Party = {
 		_id: string;
@@ -19,6 +26,7 @@
 		creditLimit?: number;
 		paymentTerms?: string;
 		notes?: string;
+		bankAccount?: BankAccount;
 	};
 
 	let {
@@ -37,6 +45,7 @@
 			creditLimit?: number;
 			paymentTerms?: string;
 			notes?: string;
+			bankAccount?: BankAccount;
 		}) => Promise<void>;
 		oncancel?: () => void;
 		inline?: boolean;
@@ -50,6 +59,11 @@
 	let creditLimit = $state(party?.creditLimit?.toString() ?? '');
 	let paymentTerms = $state(party?.paymentTerms ?? '');
 	let notes = $state(party?.notes ?? '');
+	let bankName = $state(party?.bankAccount?.bankName ?? '')
+	let accountNumber = $state(party?.bankAccount?.accountNumber ?? '')
+	let accountHolderName = $state(party?.bankAccount?.accountHolderName ?? '')
+	let bankBranch = $state(party?.bankAccount?.branch ?? '')
+	let showBankAccount = $state(!!(party?.bankAccount?.bankName))
 	let submitting = $state(false);
 	let errors = $state<Record<string, string>>({});
 
@@ -79,6 +93,9 @@
 
 		submitting = true;
 		try {
+			const bankAccountData = showBankAccount && bankName.trim() && accountNumber.trim() && accountHolderName.trim()
+				? { bankName: bankName.trim(), accountNumber: accountNumber.trim(), accountHolderName: accountHolderName.trim(), branch: bankBranch.trim() || undefined }
+				: undefined
 			await onsubmit({
 				name: name.trim(),
 				panNumber: panNumber.trim() || undefined,
@@ -87,6 +104,7 @@
 				creditLimit: creditLimit ? Number(creditLimit) : undefined,
 				paymentTerms: paymentTerms.trim() || undefined,
 				notes: notes.trim() || undefined,
+				bankAccount: bankAccountData,
 			});
 		} finally {
 			submitting = false;
@@ -205,6 +223,47 @@
 			/>
 		</div>
 	</div>
+
+	<!-- Bank Account (optional) -->
+	{#if !inline}
+		<div class="space-y-3">
+			<button
+				type="button"
+				class="flex items-center gap-2 text-sm font-medium text-zinc-700 dark:text-zinc-300"
+				onclick={() => { showBankAccount = !showBankAccount }}
+			>
+				<Building2 class="size-4 text-zinc-400" />
+				Bank Account
+				<span class="text-xs text-zinc-400 font-normal">(optional)</span>
+				<ChevronDown class="size-3.5 text-zinc-400 transition-transform {showBankAccount ? 'rotate-180' : ''}" />
+			</button>
+
+			{#if showBankAccount}
+				<div class="rounded-lg border border-zinc-100 bg-zinc-50/50 p-4 dark:border-zinc-800 dark:bg-zinc-900/30 space-y-4">
+					<div class="grid gap-4 sm:grid-cols-2">
+						<div class="space-y-1.5">
+							<Label for="bankName" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Bank Name</Label>
+							<Input id="bankName" bind:value={bankName} placeholder="e.g. Nepal Bank Limited" class="h-10 border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900" />
+						</div>
+						<div class="space-y-1.5">
+							<Label for="accountNumber" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Account Number</Label>
+							<Input id="accountNumber" bind:value={accountNumber} placeholder="e.g. 0012345678" class="h-10 border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900" />
+						</div>
+					</div>
+					<div class="grid gap-4 sm:grid-cols-2">
+						<div class="space-y-1.5">
+							<Label for="accountHolderName" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Account Holder</Label>
+							<Input id="accountHolderName" bind:value={accountHolderName} placeholder="e.g. ABC Distributors" class="h-10 border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900" />
+						</div>
+						<div class="space-y-1.5">
+							<Label for="bankBranch" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Branch</Label>
+							<Input id="bankBranch" bind:value={bankBranch} placeholder="e.g. Surkhet Branch" class="h-10 border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900" />
+						</div>
+					</div>
+				</div>
+			{/if}
+		</div>
+	{/if}
 
 	<!-- Notes -->
 	{#if !inline}

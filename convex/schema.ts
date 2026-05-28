@@ -203,11 +203,13 @@ export default defineSchema({
       v.literal("contra")
     ),
     voucherNumber: v.optional(v.string()),
+    partyId: v.optional(v.string()),
   })
     .index("by_orgId", ["orgId"])
     .index("by_orgId_account", ["orgId", "accountCode"])
     .index("by_orgId_invoice", ["orgId", "invoiceId"])
-    .index("by_orgId_fiscal", ["orgId", "fiscalYear"]),
+    .index("by_orgId_fiscal", ["orgId", "fiscalYear"])
+    .index("by_orgId_party", ["orgId", "partyId"]),
 
   accounts: defineTable({
     orgId: v.string(),
@@ -318,6 +320,18 @@ export default defineSchema({
     .index("by_orgId", ["orgId"])
     .index("by_orgId_pathname", ["orgId", "pathname"])
     .index("by_orgId_noteId", ["orgId", "noteId"]),
+
+  partyBankAccounts: defineTable({
+    orgId: v.string(),
+    partyId: v.id("parties"),
+    bankName: v.string(),
+    accountNumber: v.string(),
+    accountHolderName: v.string(),
+    branch: v.optional(v.string()),
+    isActive: v.boolean(),
+  })
+    .index("by_orgId", ["orgId"])
+    .index("by_orgId_partyId", ["orgId", "partyId"]),
 
   billTemplates: defineTable({
     orgId: v.string(),

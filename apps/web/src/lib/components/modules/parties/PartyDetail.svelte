@@ -11,6 +11,7 @@
 		Clock,
 		Loader2,
 		Trash2,
+		Building2,
 	} from '@lucide/svelte';
 	import { formatTimestamp } from '$lib/date-utils';
 	import { t } from '$lib/t.svelte';
@@ -27,16 +28,26 @@
 		_creationTime: number;
 	};
 
+	type BankAccountEntry = {
+		_id: string;
+		bankName: string;
+		accountNumber: string;
+		accountHolderName: string;
+		branch?: string;
+	};
+
 	let {
 		party,
 		editHref,
 		ondelete,
 		isLoading = false,
+		bankAccounts = [],
 	}: {
 		party: Party;
 		editHref?: string;
 		ondelete?: () => Promise<void>;
 		isLoading?: boolean;
+		bankAccounts?: BankAccountEntry[];
 	} = $props();
 
 	let deleting = $state(false);
@@ -169,6 +180,26 @@
 				<p class="text-xs font-medium uppercase tracking-wider text-zinc-400">{t('party_notes')}</p>
 			</div>
 			<p class="text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">{party.notes}</p>
+		</div>
+	{/if}
+
+	{#if bankAccounts.length > 0}
+		<div class="rounded-lg border border-zinc-100 bg-zinc-50/50 p-4 dark:border-zinc-800 dark:bg-zinc-900/30">
+			<div class="mb-3 flex items-center gap-2">
+				<Building2 class="size-4 text-zinc-400" />
+				<p class="text-xs font-medium uppercase tracking-wider text-zinc-400">Bank Accounts</p>
+			</div>
+			<div class="space-y-2">
+				{#each bankAccounts as account}
+					<div class="flex items-start justify-between rounded-md border border-zinc-100 bg-white px-3 py-2.5 dark:border-zinc-800 dark:bg-zinc-900">
+						<div>
+							<p class="text-sm font-medium text-zinc-900 dark:text-zinc-100">{account.bankName}</p>
+							<p class="font-mono text-sm text-zinc-600 dark:text-zinc-400">{account.accountNumber}</p>
+							<p class="text-xs text-zinc-500 dark:text-zinc-400">{account.accountHolderName}{account.branch ? ` · ${account.branch}` : ''}</p>
+						</div>
+					</div>
+				{/each}
+			</div>
 		</div>
 	{/if}
 </div>

@@ -4,6 +4,8 @@ import { getOrg, requirePermission } from "../lib/orgGuard";
 import { paymentValidator } from "../lib/validators";
 import { computePaidAmount, computePaymentStatus } from "../lib/paymentStatus";
 import { validatePayments } from "../lib/validation";
+import { calculateFiscalYear } from "../lib/nepaliCalendar";
+import { validateInvoiceItems } from "../lib/validation";
 
 const AMOUNT_EPS = 0.005;
 
@@ -117,12 +119,93 @@ export const addPayment = mutation({
         | "partial"
         | "overpaid",
     });
+
+    // Auto-create ledger entries for payment
+    const fiscalYear = calculateFiscalYear(new Date().toISOString().split('T')[0])
+    const paymentVoucherNumber = `PAY-${Date.now()}`
+    const payMethod = payment.paymentMethod
+    const cashAccountCode = (payMethod === 'bankTransfer' || payMethod === 'check') ? '1010' : '1000'
+    const cashAccountName = (payMethod === 'bankTransfer' || payMethod === 'check') ? 'Bank Account' : 'Cash'
+    const today = new Date().toISOString().split('T')[0]
+
+    if (invoice.type === 'sale') {
+      const partyId = invoice.partyId ?? null
+      let partyName = 'Customer'
+      if (partyId) {
+        const nid = ctx.db.normalizeId('customers', partyId)
+        if (nid) { const doc = await ctx.db.get(nid); partyName = doc?.name ?? 'Customer' }
+      }
+      // Dr Cash/Bank, Cr Customer receivable
+      await ctx.db.insert('ledgerEntries', {
+        orgId,
+        date: today,
+        accountCode: cashAccountCode,
+        accountName: cashAccountName,
+        debit: payment.paidAmount,
+        credit: 0,
+        narration: `Receipt from ${partyName} - ${invoice.invoiceNumber ?? ''}`,
+        invoiceId,
+        fiscalYear,
+        voucherType: 'receipt',
+        voucherNumber: paymentVoucherNumber,
+      })
+      if (partyId) {
+        await ctx.db.insert('ledgerEntries', {
+          orgId,
+          date: today,
+          accountCode: partyId,
+          accountName: partyName,
+          debit: 0,
+          credit: payment.paidAmount,
+          narration: `Receipt from ${partyName} - ${invoice.invoiceNumber ?? ''}`,
+          invoiceId,
+          fiscalYear,
+          voucherType: 'receipt',
+          voucherNumber: paymentVoucherNumber,
+          partyId,
+        })
+      }
+    } else {
+      const partyId = invoice.partyId ?? null
+      let partyName = 'Supplier'
+      if (partyId) {
+        const nid = ctx.db.normalizeId('parties', partyId)
+        if (nid) { const doc = await ctx.db.get(nid); partyName = doc?.name ?? 'Supplier' }
+      }
+      // Dr Payable (party), Cr Cash/Bank
+      if (partyId) {
+        await ctx.db.insert('ledgerEntries', {
+          orgId,
+          date: today,
+          accountCode: partyId,
+          accountName: partyName,
+          debit: payment.paidAmount,
+          credit: 0,
+          narration: `Payment to ${partyName} - ${invoice.invoiceNumber ?? ''}`,
+          invoiceId,
+          fiscalYear,
+          voucherType: 'payment',
+          voucherNumber: paymentVoucherNumber,
+          partyId,
+        })
+      }
+      await ctx.db.insert('ledgerEntries', {
+        orgId,
+        date: today,
+        accountCode: cashAccountCode,
+        accountName: cashAccountName,
+        debit: 0,
+        credit: payment.paidAmount,
+        narration: `Payment to ${partyName} - ${invoice.invoiceNumber ?? ''}`,
+        invoiceId,
+        fiscalYear,
+        voucherType: 'payment',
+        voucherNumber: paymentVoucherNumber,
+      })
+    }
   },
 });
 
-
-import { calculateFiscalYear } from "../lib/nepaliCalendar";
-import { validateInvoiceItems } from "../lib/validation";
 
 export const create = mutation({
   args: {

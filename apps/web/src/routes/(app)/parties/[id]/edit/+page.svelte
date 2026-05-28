@@ -18,7 +18,14 @@
 		api.functions.parties.getById,
 		() => ({ id: page.params.id as any }),
 	);
+	const bankAccountsQuery = useConvexQuery(
+		client,
+		api.functions.partyBankAccounts.listByParty,
+		() => ({ partyId: page.params.id as any }),
+	);
 	const updateMutation = useConvexMutation(client, api.functions.parties.update);
+	const createBankAccountMutation = useConvexMutation(client, api.functions.partyBankAccounts.create);
+	const updateBankAccountMutation = useConvexMutation(client, api.functions.partyBankAccounts.update);
 
 	$effect(() => {
 		breadcrumbLabel.set(partyQuery.data?.name ?? null);
@@ -87,10 +94,23 @@
 		</div>
 	{:else}
 		<PartyForm
-			party={partyQuery.data}
+			party={{
+				...partyQuery.data,
+				bankAccount: bankAccountsQuery.data?.[0]
+					? { bankName: bankAccountsQuery.data[0].bankName, accountNumber: bankAccountsQuery.data[0].accountNumber, accountHolderName: bankAccountsQuery.data[0].accountHolderName, branch: bankAccountsQuery.data[0].branch }
+					: undefined,
+			}}
 			onsubmit={async (data) => {
 				try {
 					await updateMutation.mutate({ id: page.params.id as any, ...data });
+					if (data.bankAccount) {
+						const existing = bankAccountsQuery.data?.[0]
+						if (existing) {
+							await updateBankAccountMutation.mutate({ id: existing._id, ...data.bankAccount })
+						} else {
+							await createBankAccountMutation.mutate({ partyId: page.params.id as any, ...data.bankAccount })
+						}
+					}
 					toast.success('Supplier updated successfully');
 					goto('/parties');
 				} catch (e) {

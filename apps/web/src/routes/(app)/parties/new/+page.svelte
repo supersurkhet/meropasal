@@ -11,6 +11,7 @@
 
 	const client = getConvexClient(import.meta.env.VITE_CONVEX_URL);
 	const createMutation = useConvexMutation(client, api.functions.parties.create);
+	const createBankAccountMutation = useConvexMutation(client, api.functions.partyBankAccounts.create);
 </script>
 
 <MetaTags title="New Party — MeroPasal" />
@@ -30,7 +31,10 @@
 	<PartyForm
 		onsubmit={async (data) => {
 			try {
-				await createMutation.mutate(data);
+				const partyId = await createMutation.mutate(data);
+				if (data.bankAccount && partyId) {
+					await createBankAccountMutation.mutate({ partyId, ...data.bankAccount });
+				}
 				toast.success('Supplier created successfully');
 				goto('/parties');
 			} catch (e) {

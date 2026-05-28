@@ -386,3 +386,55 @@ export const createJournalEntry = mutation({
     return voucherNumber;
   },
 });
+
+export const createPartyEntries = mutation({
+  args: {
+    date: v.string(),
+    narration: v.string(),
+    lines: v.array(
+      v.object({
+        partyId: v.string(),
+        partyName: v.string(),
+        debit: v.number(),
+        credit: v.number(),
+      })
+    ),
+  },
+  handler: async (ctx, args) => {
+    const orgId = await requirePermission(ctx, 'ledger:edit');
+
+    if (args.lines.length === 0) {
+      throw new Error("At least one line is required");
+    }
+
+    for (const line of args.lines) {
+      if (line.debit < 0 || line.credit < 0) {
+        throw new Error("Amounts cannot be negative");
+      }
+      if (line.debit === 0 && line.credit === 0) {
+        throw new Error("Each line must have a non-zero debit or credit");
+      }
+    }
+
+    const fiscalYear = calculateFiscalYear(args.date);
+    const voucherNumber = `PE-${args.date.replace(/-/g, '')}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
+
+    for (const line of args.lines) {
+      await ctx.db.insert("ledgerEntries", {
+        orgId,
+        date: args.date,
+        accountCode: line.partyId,
+        accountName: line.partyName,
+        debit: line.debit,
+        credit: line.credit,
+        narration: args.narration,
+        fiscalYear,
+        voucherType: "journal" as const,
+        voucherNumber,
+        partyId: line.partyId,
+      });
+    }
+
+    return voucherNumber;
+  },
+});

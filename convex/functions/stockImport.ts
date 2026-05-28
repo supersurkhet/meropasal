@@ -115,6 +115,36 @@ export const create = mutation({
 
       invoiceIds.push(invoiceId);
 
+      // Auto-create ledger entries for purchase
+      // Dr: Purchases, Cr: Party (payable)
+      await ctx.db.insert('ledgerEntries', {
+        orgId,
+        date: args.importDate,
+        accountCode: '5000',
+        accountName: 'Purchases',
+        debit: subTotal,
+        credit: 0,
+        narration: `Purchase invoice ${invoiceNumber} from ${partyName}`,
+        invoiceId,
+        fiscalYear,
+        voucherType: 'purchase',
+        voucherNumber: invoiceNumber,
+      })
+      await ctx.db.insert('ledgerEntries', {
+        orgId,
+        date: args.importDate,
+        accountCode: supplierId,
+        accountName: partyName,
+        debit: 0,
+        credit: subTotal,
+        narration: `Purchase invoice ${invoiceNumber} from ${partyName}`,
+        invoiceId,
+        fiscalYear,
+        voucherType: 'purchase',
+        voucherNumber: invoiceNumber,
+        partyId: supplierId,
+      })
+
       // Create stock book entries for this supplier's items
       for (const item of supplierItems) {
         const total = item.quantity * item.rate;

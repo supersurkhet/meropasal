@@ -20,6 +20,11 @@
 		api.functions.parties.getById,
 		() => ({ id: page.params.id as any }),
 	);
+	const bankAccountsQuery = useConvexQuery(
+		client,
+		api.functions.partyBankAccounts.listByParty,
+		() => ({ partyId: page.params.id as any }),
+	);
 	const removeMutation = useConvexMutation(client, api.functions.parties.remove);
 
 	$effect(() => {
@@ -86,6 +91,7 @@
 			{:else}
 				<PartyDetail
 					party={partyQuery.data}
+					bankAccounts={bankAccountsQuery.data ?? []}
 					editHref="/parties/{page.params.id}/edit"
 					ondelete={async () => {
 						try {

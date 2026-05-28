@@ -136,6 +136,76 @@ export const create = mutation({
       fiscalYear,
     });
 
+    // Auto-create ledger entries for sale
+    const customerId = args.customerId
+    if (customerId) {
+      const customer = await ctx.db.get(customerId)
+      const customerName = customer?.name ?? 'Customer'
+      // Dr: Customer (receivable)
+      await ctx.db.insert('ledgerEntries', {
+        orgId,
+        date: args.saleDate,
+        accountCode: customerId,
+        accountName: customerName,
+        debit: subTotal,
+        credit: 0,
+        narration: `Sale invoice ${invoiceNumber}`,
+        invoiceId,
+        fiscalYear,
+        voucherType: 'sales',
+        voucherNumber: invoiceNumber,
+        partyId: customerId,
+      })
+      // Cr: Sales Revenue
+      await ctx.db.insert('ledgerEntries', {
+        orgId,
+        date: args.saleDate,
+        accountCode: '4000',
+        accountName: 'Sales Revenue',
+        debit: 0,
+        credit: subTotal,
+        narration: `Sale invoice ${invoiceNumber}`,
+        invoiceId,
+        fiscalYear,
+        voucherType: 'sales',
+        voucherNumber: invoiceNumber,
+      })
+      // If upfront payments, create receipt entries
+      for (const payment of payments) {
+        if (payment.paidAmount <= 0) continue
+        const cashAccountCode = (payment.paymentMethod === 'bankTransfer' || payment.paymentMethod === 'check') ? '1010' : '1000'
+        const cashAccountName = (payment.paymentMethod === 'bankTransfer' || payment.paymentMethod === 'check') ? 'Bank Account' : 'Cash'
+        const receiptVoucher = `REC-${Date.now()}`
+        await ctx.db.insert('ledgerEntries', {
+          orgId,
+          date: args.saleDate,
+          accountCode: cashAccountCode,
+          accountName: cashAccountName,
+          debit: payment.paidAmount,
+          credit: 0,
+          narration: `Receipt from ${customerName} - ${invoiceNumber}`,
+          invoiceId,
+          fiscalYear,
+          voucherType: 'receipt',
+          voucherNumber: receiptVoucher,
+        })
+        await ctx.db.insert('ledgerEntries', {
+          orgId,
+          date: args.saleDate,
+          accountCode: customerId,
+          accountName: customerName,
+          debit: 0,
+          credit: payment.paidAmount,
+          narration: `Receipt from ${customerName} - ${invoiceNumber}`,
+          invoiceId,
+          fiscalYear,
+          voucherType: 'receipt',
+          voucherNumber: receiptVoucher,
+          partyId: customerId,
+        })
+      }
+    }
+
     // Create stock book entries (out)
     for (const item of args.items) {
       const product = await ctx.db.get(item.productId);
