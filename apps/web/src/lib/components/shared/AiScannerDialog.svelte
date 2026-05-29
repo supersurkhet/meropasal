@@ -1793,6 +1793,10 @@
 														placeholder="Select supplier..."
 														entityName="Supplier"
 														small
+														onDelete={async (item) => {
+															await client.mutation(api.functions.parties.remove, { id: item._id as any })
+															await loadParties()
+														}}
 													>
 														{#snippet createForm({ close, onCreated })}
 															<PartyForm

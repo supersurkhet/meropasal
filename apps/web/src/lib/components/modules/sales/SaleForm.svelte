@@ -430,6 +430,11 @@
 						getLabel={(c) => c.name}
 						placeholder="Select customer (optional)"
 						entityName="Customer"
+						onDelete={async (item) => {
+							const client = getConvexClient()
+							await client.mutation(api['functions/customers'].remove, { id: item._id })
+							await loadData()
+						}}
 					>
 						{#snippet createForm({ close, onCreated })}
 							<CustomerForm
@@ -493,6 +498,11 @@
 						placeholder={t('common_select_product')}
 						entityName="Product"
 						small
+						onDelete={async (product) => {
+							const client = getConvexClient()
+							await client.mutation(api['functions/products'].remove, { id: product._id })
+							await loadData()
+						}}
 					>
 						{#snippet itemContent({ item: product })}
 							{@const stock = getAvailable(product._id)}

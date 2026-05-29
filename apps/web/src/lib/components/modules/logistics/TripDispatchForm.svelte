@@ -379,6 +379,11 @@
 						getLabel={(v) => `${v.name} (${v.licensePlate})`}
 						placeholder={t('trip_select_vehicle')}
 						entityName="Vehicle"
+						onDelete={async (item) => {
+							const client = getConvexClient(import.meta.env.VITE_CONVEX_URL)
+							await client.mutation(api.functions.vehicles.remove, { id: item._id as any })
+							await loadData()
+						}}
 					>
 						{#snippet itemContent({ item })}
 							<div>
@@ -445,6 +450,11 @@
 						placeholder={t('common_select_product')}
 						entityName="Product"
 						small
+						onDelete={async (product) => {
+							const client = getConvexClient(import.meta.env.VITE_CONVEX_URL)
+							await client.mutation(api.functions.products.remove, { id: product._id as any })
+							await loadData()
+						}}
 					>
 						{#snippet itemContent({ item: product })}
 							{@const stock = getAvailable(product._id)}

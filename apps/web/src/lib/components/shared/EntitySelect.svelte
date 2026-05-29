@@ -3,8 +3,10 @@
 	import * as Popover from '$lib/components/ui/popover'
 	import * as Command from '$lib/components/ui/command'
 	import * as Dialog from '$lib/components/ui/dialog'
-	import { Check, ChevronsUpDown, Plus, Pencil } from '@lucide/svelte'
+	import * as AlertDialog from '$lib/components/ui/alert-dialog'
+	import { Check, ChevronsUpDown, Plus, Pencil, Trash2, Loader2 } from '@lucide/svelte'
 	import { cn } from '$lib/utils'
+	import { Button } from '$lib/components/ui/button'
 	import type { Snippet } from 'svelte'
 
 	let {
@@ -21,6 +23,7 @@
 		small = false,
 		createForm,
 		editForm,
+		onDelete,
 		itemContent,
 	}: {
 		value?: string
@@ -36,6 +39,7 @@
 		small?: boolean
 		createForm?: Snippet<[{ close: () => void; onCreated: (id: string) => void }]>
 		editForm?: Snippet<[{ item: T; close: () => void }]>
+		onDelete?: (item: T) => Promise<void>
 		itemContent?: Snippet<[{ item: T }]>
 	} = $props()
 
@@ -43,6 +47,9 @@
 	let createDialogOpen = $state(false)
 	let editDialogOpen = $state(false)
 	let editingItem = $state<T | null>(null)
+	let deleteDialogOpen = $state(false)
+	let deletingItem = $state<T | null>(null)
+	let deleteLoading = $state(false)
 	let destroyed = false
 	let pendingRaf: number | undefined
 
@@ -51,6 +58,7 @@
 		if (pendingRaf) cancelAnimationFrame(pendingRaf)
 		createDialogOpen = false
 		editDialogOpen = false
+		deleteDialogOpen = false
 	})
 
 	function handleSelect(key: string) {
@@ -86,6 +94,30 @@
 		editingItem = null as unknown as T
 	}
 
+	function openDelete(item: T) {
+		deletingItem = item
+		open = false
+		pendingRaf = requestAnimationFrame(() => {
+			if (!destroyed) deleteDialogOpen = true
+		})
+	}
+
+	async function confirmDelete() {
+		if (!deletingItem || !onDelete) return
+		deleteLoading = true
+		try {
+			await onDelete(deletingItem)
+			if (getKey(deletingItem) === value) {
+				value = ''
+				onValueChange?.('')
+			}
+		} finally {
+			deleteLoading = false
+			deleteDialogOpen = false
+			deletingItem = null
+		}
+	}
+
 	let displayItem = $derived(items.find((i) => getKey(i) === value))
 </script>
 
@@ -104,20 +136,21 @@
 		<ChevronsUpDown class="size-4 shrink-0 opacity-50" />
 	</Popover.Trigger>
 	<Popover.Content
-		class="p-0 min-w-48"
+		class="p-0 min-w-48 flex flex-col"
 		style="width: var(--bits-popover-anchor-width, 12rem)"
 		align="start"
 		sideOffset={4}
 	>
-		<Command.Root>
+		<Command.Root class="flex flex-col overflow-hidden">
 			<Command.Input placeholder="Search {entityName}..." />
-			<Command.List>
+			<!-- Scrollable list — max height keeps Add New pinned below -->
+			<Command.List class="max-h-52 overflow-y-auto">
 				<Command.Empty>No {entityName} found.</Command.Empty>
 				{#each items as item (getKey(item))}
 					<Command.Item
 						value={getLabel(item)}
 						onSelect={() => handleSelect(getKey(item))}
-						class="group/entity"
+						class="group/entity pr-1"
 					>
 						<Check class={cn('size-4 shrink-0', value === getKey(item) ? 'opacity-100' : 'opacity-0')} />
 						<span class="flex-1 truncate">
@@ -127,31 +160,57 @@
 								{getLabel(item)}
 							{/if}
 						</span>
-						{#if editForm}
-							<button
-								type="button"
-								class="ml-auto shrink-0 rounded p-0.5 text-zinc-400 opacity-0 transition-opacity hover:text-zinc-700 group-hover/entity:opacity-100 dark:hover:text-zinc-300"
-								onpointerdown={(e) => e.stopPropagation()}
-								onpointerup={(e) => e.stopPropagation()}
-								onclick={(e) => {
-									e.stopPropagation()
-									e.preventDefault()
-									openEdit(item)
-								}}
-							>
-								<Pencil class="size-3" />
-							</button>
-						{/if}
+						<!-- Always-visible action buttons -->
+						<span class="ml-auto flex shrink-0 items-center gap-0.5">
+							{#if editForm}
+								<button
+									type="button"
+									class="rounded p-1 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+									title="Edit"
+									onpointerdown={(e) => e.stopPropagation()}
+									onpointerup={(e) => e.stopPropagation()}
+									onclick={(e) => {
+										e.stopPropagation()
+										e.preventDefault()
+										openEdit(item)
+									}}
+								>
+									<Pencil class="size-3" />
+								</button>
+							{/if}
+							{#if onDelete}
+								<button
+									type="button"
+									class="rounded p-1 text-zinc-400 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/40 dark:hover:text-red-400"
+									title="Delete"
+									onpointerdown={(e) => e.stopPropagation()}
+									onpointerup={(e) => e.stopPropagation()}
+									onclick={(e) => {
+										e.stopPropagation()
+										e.preventDefault()
+										openDelete(item)
+									}}
+								>
+									<Trash2 class="size-3" />
+								</button>
+							{/if}
+						</span>
 					</Command.Item>
 				{/each}
-				{#if createForm}
-					<Command.Separator />
-					<Command.Item onSelect={openCreate} class="text-primary gap-2">
-						<Plus class="size-4" />
-						Add new {entityName.toLowerCase()}
-					</Command.Item>
-				{/if}
 			</Command.List>
+			<!-- Pinned Add New — always visible, never scrolls away -->
+			{#if createForm}
+				<div class="border-t border-border">
+					<button
+						type="button"
+						class="flex w-full items-center gap-2 px-3 py-2 text-sm text-primary transition-colors hover:bg-accent hover:text-accent-foreground"
+						onclick={openCreate}
+					>
+						<Plus class="size-4 shrink-0" />
+						Add new {entityName.toLowerCase()}
+					</button>
+				</div>
+			{/if}
 		</Command.Root>
 	</Popover.Content>
 </Popover.Root>
@@ -180,4 +239,31 @@
 			</div>
 		</Dialog.Content>
 	</Dialog.Root>
+{/if}
+
+{#if onDelete}
+	<AlertDialog.Root bind:open={deleteDialogOpen}>
+		<AlertDialog.Content>
+			<AlertDialog.Header>
+				<AlertDialog.Title>Delete {entityName}?</AlertDialog.Title>
+				<AlertDialog.Description>
+					{deletingItem ? `"${getLabel(deletingItem)}" will be permanently removed.` : 'This item will be permanently removed.'}
+					This action cannot be undone.
+				</AlertDialog.Description>
+			</AlertDialog.Header>
+			<AlertDialog.Footer>
+				<AlertDialog.Cancel onclick={() => { deleteDialogOpen = false; deletingItem = null }}>
+					Cancel
+				</AlertDialog.Cancel>
+				<AlertDialog.Action
+					onclick={confirmDelete}
+					disabled={deleteLoading}
+					class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+				>
+					{#if deleteLoading}<Loader2 class="mr-1.5 size-4 animate-spin" />{/if}
+					Delete
+				</AlertDialog.Action>
+			</AlertDialog.Footer>
+		</AlertDialog.Content>
+	</AlertDialog.Root>
 {/if}

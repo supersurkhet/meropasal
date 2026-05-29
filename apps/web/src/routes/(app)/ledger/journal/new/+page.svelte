@@ -9,6 +9,8 @@
 	import { Label } from '$lib/components/ui/label';
 	import DatePicker from '$lib/components/shared/DatePicker.svelte';
 	import EntitySelect from '$lib/components/shared/EntitySelect.svelte';
+	import PartyForm from '$lib/components/modules/parties/PartyForm.svelte';
+	import CustomerForm from '$lib/components/modules/customers/CustomerForm.svelte';
 	import { ArrowLeft, Trash2, Save, Loader2 } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 	import { formatNPR } from '$lib/currency';
@@ -18,9 +20,13 @@
 	const customers = useConvexQuery(client, api.functions.customers.list, () => ({}));
 
 	const allParties = $derived([
-		...(parties.data ?? []).map((p: any) => ({ _id: p._id as string, name: p.name as string })),
-		...(customers.data ?? []).map((c: any) => ({ _id: c._id as string, name: c.name as string })),
-	].sort((a, b) => a.name.localeCompare(b.name)));
+		...(parties.data ?? []).map((p: any) => ({ _id: p._id as string, name: p.name as string, _type: 'party' as const })),
+		...(customers.data ?? []).map((c: any) => ({ _id: c._id as string, name: c.name as string, _type: 'customer' as const })),
+	].sort((a, b) => a.name.localeCompare(b.name)))
+
+	function isParty(id: string) { return (parties.data ?? []).some((p: any) => p._id === id) }
+	function getPartyData(id: string) { return (parties.data ?? []).find((p: any) => p._id === id) }
+	function getCustomerData(id: string) { return (customers.data ?? []).find((c: any) => c._id === id) };
 
 	let date = $state(new Date().toISOString().split('T')[0]);
 	let narration = $state('');
@@ -148,7 +154,48 @@
 										placeholder="Select party"
 										entityName="Party"
 										small
-									/>
+										onDelete={async (item) => {
+											if (isParty(item._id)) {
+												await client.mutation(api.functions.parties.remove, { id: item._id as any })
+											} else {
+												await client.mutation(api.functions.customers.remove, { id: item._id as any })
+											}
+										}}
+									>
+										{#snippet createForm({ close, onCreated })}
+											<PartyForm
+												inline
+												onsubmit={async (data) => {
+													const id = await client.mutation(api.functions.parties.create, data)
+													onCreated(id)
+												}}
+												oncancel={close}
+											/>
+										{/snippet}
+										{#snippet editForm({ item, close })}
+											{#if isParty(item._id)}
+												<PartyForm
+													inline
+													party={getPartyData(item._id)}
+													onsubmit={async (data) => {
+														await client.mutation(api.functions.parties.update, { id: item._id as any, ...data })
+														close()
+													}}
+													oncancel={close}
+												/>
+											{:else}
+												<CustomerForm
+													inline
+													customer={getCustomerData(item._id)}
+													onsubmit={async (data) => {
+														await client.mutation(api.functions.customers.update, { id: item._id as any, ...data })
+														close()
+													}}
+													oncancel={close}
+												/>
+											{/if}
+										{/snippet}
+									</EntitySelect>
 								</td>
 								<td class="px-4 py-2">
 									<Input

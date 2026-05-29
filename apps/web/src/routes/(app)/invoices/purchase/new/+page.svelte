@@ -200,14 +200,32 @@
 							getLabel={(p) => p.name}
 							placeholder="Select supplier"
 							entityName="Supplier"
+							onDelete={async (item) => {
+								await client.mutation(api.functions.parties.remove, { id: item._id as any })
+								await loadData()
+							}}
 						>
-							{#snippet createForm({ close })}
+							{#snippet createForm({ close, onCreated })}
 								<PartyForm
 									inline
-									onsubmit={async () => {
+									onsubmit={async (data) => {
+										const id = await client.mutation(api.functions.parties.create, data)
+										await loadData()
+										onCreated(id)
+									}}
+									oncancel={close}
+								/>
+							{/snippet}
+							{#snippet editForm({ item, close })}
+								<PartyForm
+									inline
+									party={item}
+									onsubmit={async (data) => {
+										await client.mutation(api.functions.parties.update, { id: item._id as any, ...data })
 										await loadData()
 										close()
 									}}
+									oncancel={close}
 								/>
 							{/snippet}
 						</EntitySelect>
@@ -234,6 +252,10 @@
 					placeholder={t('common_select_product')}
 					entityName="Product"
 					small
+					onDelete={async (product) => {
+						await client.mutation(api.functions.products.remove, { id: product._id as any })
+						await loadData()
+					}}
 				>
 					{#snippet createForm({ close, onCreated })}
 						<ProductForm

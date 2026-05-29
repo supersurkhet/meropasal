@@ -211,6 +211,11 @@
 			placeholder={t('stock_import_select_supplier')}
 			entityName="Supplier"
 			triggerClass={errors.purchasePartyId ? 'border-red-400 ring-1 ring-red-400/30' : ''}
+			onDelete={async (item) => {
+				const client = getConvexClient(import.meta.env.VITE_CONVEX_URL)
+				await client.mutation(api.functions.parties.remove, { id: item._id as any })
+				await loadParties()
+			}}
 		>
 			{#snippet createForm({ close, onCreated })}
 				<PartyForm

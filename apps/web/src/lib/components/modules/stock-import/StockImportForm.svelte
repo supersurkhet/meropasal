@@ -378,6 +378,11 @@
 						getLabel={(p) => p.name}
 						placeholder={t('common_select_supplier')}
 						entityName="Supplier"
+						onDelete={async (item) => {
+							const client = getConvexClient(import.meta.env.VITE_CONVEX_URL)
+							await client.mutation(api.functions.parties.remove, { id: item._id as any })
+							await loadData()
+						}}
 					>
 						{#snippet createForm({ close, onCreated })}
 							<PartyForm
@@ -448,6 +453,11 @@
 				placeholder={t('common_select_product')}
 				entityName="Product"
 				small
+				onDelete={async (product) => {
+					const client = getConvexClient(import.meta.env.VITE_CONVEX_URL)
+					await client.mutation(api.functions.products.remove, { id: product._id as any })
+					await loadData()
+				}}
 			>
 				{#snippet createForm({ close, onCreated })}
 					<ProductForm

@@ -66,6 +66,11 @@ Required in `.env.local` at project root:
 ## Key Patterns
 
 - **Inline creation**: Users create dependent entities (party, customer) without leaving current form via `InlineCreateDialog`
+- **EntitySelect mandatory props**: Every `<EntitySelect>` that references a foreign-key table (parties, customers, products, vehicles) MUST have all three wired:
+  - `createForm` snippet — inline create that calls `onCreated(id)` on success
+  - `editForm` snippet — inline edit that calls `close()` on success
+  - `onDelete` handler — calls `*.remove` mutation + refreshes the list; EntitySelect shows trash icon + confirm dialog per item
+  - See `SaleForm.svelte` or `ProductForm.svelte` for reference patterns
 - **Auto-generated invoices**: Stock imports, sales, orders, and trip returns auto-create invoices + stock book entries
 - **Compound units**: Products use `box:12` format (box of 12 pieces)
 - **Fiscal year**: Nepali BS calendar (e.g., "82/83"), auto-detected from date
